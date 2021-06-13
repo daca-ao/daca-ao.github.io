@@ -20,21 +20,22 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="JCF，Java Collections Framework 的简称。官方文档解释其为“统一化的表示和操作集合的架构”。">
+  <meta name="description" content="Collection 接口下对 List 的链表实现。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java 集合体系（JCF）">
-<meta property="og:url" content="http://example.com/2021/05/26/collections-java/index.html">
+<meta property="og:title" content="LinkedList 源码浅析">
+<meta property="og:url" content="http://example.com/2021/06/12/linkedlist/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="JCF，Java Collections Framework 的简称。官方文档解释其为“统一化的表示和操作集合的架构”。">
+<meta property="og:description" content="Collection 接口下对 List 的链表实现。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-05-26T15:28:59.179Z">
-<meta property="article:modified_time" content="2021-06-08T15:56:06.983Z">
+<meta property="article:published_time" content="2021-06-12T14:47:45.878Z">
+<meta property="article:modified_time" content="2021-06-12T15:54:51.451Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
+<meta property="article:tag" content="Collection">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2021/05/26/collections-java/">
+<link rel="canonical" href="http://example.com/2021/06/12/linkedlist/">
 
 
 <script id="page-configurations">
@@ -47,7 +48,7 @@
   };
 </script>
 
-  <title>Java 集合体系（JCF） | Raymond's Cabin</title>
+  <title>LinkedList 源码浅析 | Raymond's Cabin</title>
   
 
 
@@ -158,7 +159,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/05/26/collections-java/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/06/12/linkedlist/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -171,7 +172,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Java 集合体系（JCF）
+          LinkedList 源码浅析
         </h1>
 
         <div class="post-meta">
@@ -181,7 +182,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2021-05-26 23:28:59" itemprop="dateCreated datePublished" datetime="2021-05-26T23:28:59+08:00">2021-05-26</time>
+              <time title="Created: 2021-06-12 22:47:45" itemprop="dateCreated datePublished" datetime="2021-06-12T22:47:45+08:00">2021-06-12</time>
             </span>
 
           
@@ -195,28 +196,45 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>JCF，Java Collections Framework 的简称。<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/guides/collections/">官方文档</a>解释其为“统一化的表示和操作集合的架构”。</p>
+        <p>Collection 接口下对 List 的链表实现。</p>
 <span id="more"></span>
-<p>一个集合类的实例，如链表、队列、映射表等，都是若干个对象的集合，是数据结构类型的实例化结果。由于复杂的类结构，所有 Java 集合相关的接口以及类被统称为“集合框架”（JCF）。</p>
-<p>其实理解为“体系”更为恰当。</p>
-<p>优点：</p>
+<p>概述：</p>
 <ul>
-<li>使用核心集合类降低开发成本，而非自己实现</li>
-<li>使用经过严格测试的集合框架类会提高代码质量</li>
-<li>使用 JDK 附带的集合类，可降低代码维护成本</li>
-<li>复用性和可操作性</li>
+<li>同时实现了 List 接口和 Deque 接口（双向链表）</li>
+<li>每次插入时可选择链表头或链表尾插入</li>
+<li>读取时需从链式结构逐个遍历，删除则为断链-重链过程</li>
+<li>非线程安全</li>
 </ul>
-<h1 id="基本接口"><a href="#基本接口" class="headerlink" title="基本接口"></a>基本接口</h1><p>Collection (java.util.Collection)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">java.util.Set</span><br><span class="line">java.util.SortedSet</span><br><span class="line">java.util.NavigableSet</span><br><span class="line">java.util.Queue</span><br><span class="line">java.util.concurrent.BlockingQueue</span><br><span class="line">java.util.concurrent.TransferQueue</span><br><span class="line">java.util.Deque</span><br><span class="line">java.util.concurrent.BlockingQueue</span><br></pre></td></tr></table></figure>
+<p>与 ArrayList 相比优势：不需要预估容量及动态扩容，每次新增只需要新增一个链上的节点</p>
+<p>代价：遍历时需从链上逐个遍历，不支持随机访问</p>
+<h1 id="添加元素"><a href="#添加元素" class="headerlink" title="添加元素"></a>添加元素</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 新增元素</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">// eg1: e=&quot;a1&quot;</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    linkLast(e);  <span class="comment">// 链接至最后一个：链表尾插入</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 将新添加的元素e作为链表的最后一个元素， 并维护进去</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">// eg1: e=&quot;a1&quot;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">linkLast</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; l = last;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// eg1: newNode    null&lt;--&quot;a1&quot;--&gt;null</span></span><br><span class="line">    <span class="comment">/* 创建一个值为 e 的 Node 节点，前置指向原 last 节点，后置指向 null */</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(l, e, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 将 newNode 节点赋值为 last 节点 */</span></span><br><span class="line">    last = newNode;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// eg1: l=null</span></span><br><span class="line">    <span class="keyword">if</span> (l == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">/* 如果是第一个添加的元素，则 first 指针指向该结点 */</span></span><br><span class="line">        first = newNode; <span class="comment">// eg1: first 指向 newNode</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* 如果不是第一个添加进来的元素，则更新l的后置结点指向新添加的元素结点 newNode */</span></span><br><span class="line">        l.next = newNode;</span><br><span class="line">    &#125;</span><br><span class="line">    size++;</span><br><span class="line">    modCount++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>Map (java.util.Map)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.util.SortedMap</span><br><span class="line">java.util.NavigableMap</span><br><span class="line">java.util.concurrent.ConcurrentMap</span><br><span class="line">java.util.concurrent.ConcurrentNavigableMap</span><br></pre></td></tr></table></figure>
 
-<h1 id="基础功能"><a href="#基础功能" class="headerlink" title="基础功能"></a>基础功能</h1><p>Iterators</p>
-<p>Ordering</p>
-<p>Runtime exceptions</p>
-<p>Performance</p>
-<p>（待补充……）</p>
+<h1 id="迭代元素"><a href="#迭代元素" class="headerlink" title="迭代元素"></a>迭代元素</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 返回一个实现了 ListIterator 接口的迭代器对象</span></span><br><span class="line">LinkedList.listIterator()</span><br></pre></td></tr></table></figure>
+<ul>
+<li>多次调用 listIterator.add()：元素被依次添加到迭代器当前位置之前</li>
+<li>n 个元素的链表有 n+1 个位置可以添加新元素</li>
+</ul>
+<p>注：</p>
+<ol>
+<li>调用 next() 之后，再调用 remove() 会删除迭代器左侧元素，调用 previous() 会删除右侧元素</li>
+<li>多线程访问链表时，需处理好非线程安全的操作；否则会抛出 ConcurrentModificationException</li>
+<li>set()：用新元素取代 next() 或 previous() 返回的上一个元素<ol>
+<li>但：链表只负责跟踪对链表的结构性修改，如添加元素、删除元素；set() 不被视为结构性修改</li>
+<li>故：可将多个迭代器附加给一个链表，所有迭代器都调用 set() 对现有结点内容进行修改</li>
+</ol>
+</li>
+</ol>
+<p>争议：</p>
+<ul>
+<li>链表不支持快速随机访问，查询需要重头查起</li>
+<li>get() 可访问某个特定元素（如索引大于 n/2 从尾部开始搜索），但效率低：  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">    doSomething(list.get(i));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>不过，依据原理，列表迭代器可返回迭代器所在位置前后两元素的索引</p>
+<ul>
+<li>nextIndex() 返回下一次调用 next() 时返回的元素索引</li>
+<li>previousIndex() 返回下一次调用 previous() 时返回的元素索引（比 nextIndex 小1）</li>
+</ul>
 
     </div>
 
@@ -228,6 +246,7 @@
           <div class="post-tags">
               <a href="/tags/Java/" rel="tag"># Java</a>
               <a href="/tags/%E9%9B%86%E5%90%88%E7%B1%BB/" rel="tag"># 集合类</a>
+              <a href="/tags/Collection/" rel="tag"># Collection</a>
           </div>
 
         
@@ -236,13 +255,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/05/25/reflection-java/" rel="prev" title="Java 的反射机制">
-      <i class="fa fa-chevron-left"></i> Java 的反射机制
+    <a href="/2021/06/07/arraylist/" rel="prev" title="ArrayList 源码浅析">
+      <i class="fa fa-chevron-left"></i> ArrayList 源码浅析
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/05/27/hexo-deployment/" rel="next" title="Hexo Blog 的部署">
-      Hexo Blog 的部署 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -301,7 +317,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.</span> <span class="nav-text">基本接口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%8A%9F%E8%83%BD"><span class="nav-number">2.</span> <span class="nav-text">基础功能</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E5%85%83%E7%B4%A0"><span class="nav-number">1.</span> <span class="nav-text">添加元素</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E5%85%83%E7%B4%A0"><span class="nav-number">2.</span> <span class="nav-text">迭代元素</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
