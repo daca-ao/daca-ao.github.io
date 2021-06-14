@@ -28,7 +28,7 @@
 <meta property="og:description" content="相信各位，特别是喜欢玩博客的朋友都有听过 Hexo 这个框架了，本人在用它来搭建自己的空间的时候遇到了不少的问题，现在就写一篇 blog 来记录一下搭建过程。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-05-27T11:01:44.393Z">
-<meta property="article:modified_time" content="2021-06-06T18:13:31.018Z">
+<meta property="article:modified_time" content="2021-06-13T14:26:35.437Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 
@@ -237,16 +237,16 @@
   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd myBlog</span><br></pre></td></tr></table></figure>
 <p>  此时能看见的文件与文件夹：</p>
 <ul>
-<li>node_modules：依赖包</li>
-<li>public：存放生成的页面</li>
-<li>scaffolds：生成文章的模板</li>
-<li>source：存放文章的位置</li>
-<li>themes：博客主题</li>
-<li>_config.yml：博客配置文件</li>
+<li><code>node_modules</code>：依赖包</li>
+<li><code>public</code>：存放生成的页面</li>
+<li><code>scaffolds</code>：生成文章的模板</li>
+<li><code>source</code>：存放文章的位置</li>
+<li><code>themes</code>：博客主题</li>
+<li><code>_config.yml</code>：博客配置文件</li>
 </ul>
 </li>
 <li><p>配置页面</p>
-  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">_config.yml</span><br><span class="line"># 配置内容</span><br><span class="line">deploy:</span><br><span class="line">- type: git</span><br><span class="line">  repo: git@github.com:[用户名]/[用户名].github.io.git  # 该【用户名】为之前步骤提到的需要记录的用户名</span><br><span class="line">  branch: main  # 新创建的 Github repo 的 branch</span><br></pre></td></tr></table></figure>
+  <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># _config.yml</span></span><br><span class="line"><span class="comment"># 配置内容</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">git@github.com:[用户名]/[用户名].github.io.git</span>  <span class="comment"># 该【用户名】为之前步骤提到的需要记录的用户名</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">main</span>  <span class="comment"># 新创建的 Github repo 的 branch</span></span><br></pre></td></tr></table></figure>
 <p>  注：</p>
 <ul>
 <li>配置的用户名需保持一致，此时 Github Pages 会根据 repo 所配置的值生成页面的访问地址。如用户名为 zhangsan 的话，最终的博客访问网址为 <a target="_blank" rel="noopener" href="https://zhangsan.github.io/">https://zhangsan.github.io</a></li>
@@ -290,8 +290,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/05/26/collections-java/" rel="prev" title="Java 集合体系（JCF）">
-      <i class="fa fa-chevron-left"></i> Java 集合体系（JCF）
+    <a href="/2021/05/26/collections-java/" rel="prev" title="Java 集合体系（JCF）概述">
+      <i class="fa fa-chevron-left"></i> Java 集合体系（JCF）概述
     </a></div>
       <div class="post-nav-item">
     <a href="/2021/06/07/arraylist/" rel="next" title="ArrayList 源码浅析">
@@ -369,14 +369,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
