@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/06/12/linkedlist/linkedlist-add.png">
 <meta property="article:published_time" content="2021-06-12T14:47:45.878Z">
-<meta property="article:modified_time" content="2021-06-13T14:22:53.440Z">
+<meta property="article:modified_time" content="2021-06-15T07:56:10.897Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -121,6 +121,11 @@
         <li class="menu-item menu-item-home">
 
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
 
   </li>
         <li class="menu-item menu-item-tags">
@@ -231,7 +236,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns the (non-null) Node at the specified element index.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 根据传入的 index 值，返回对应节点 node</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">// eg1：index=0</span></span><br><span class="line"><span class="function">Node&lt;E&gt; <span class="title">node</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// assert isElementIndex(index);</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 如 index 小于总长度 size 的一半，则从头部开始向后遍历查找 */</span></span><br><span class="line">    <span class="keyword">if</span> (index &lt; (size &gt;&gt; <span class="number">1</span>)) &#123;</span><br><span class="line">        Node&lt;E&gt; x = first;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; index; i++) &#123;</span><br><span class="line">            x = x.next; <span class="comment">// 从 first 节点向后（next）查找，直到 index，返回 node</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> x;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">/* 大于总长度一半：从尾部开始向前遍历查找 */</span></span><br><span class="line">        Node&lt;E&gt; x = last;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = size - <span class="number">1</span>; i &gt; index; i--) &#123;</span><br><span class="line">            x = x.prev; <span class="comment">// 从 last 节点向前（prev）查找，直到 index，返回 node</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> x;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>由此可知 LinkedList 继承了链表获取元素方法的缺点：</p>
 <ul>
-<li>链表不支持快速随机访问，查询需要从头查起；</li>
+<li>链表<strong>不支持快速随机访问</strong>，查询需要从头查起；</li>
 <li><code>get()</code> 可访问某个特定元素（如索引大于 n/2 从尾部开始搜索）:  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">    doSomething(list.get(i));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
   但底层调用的是 <code>node(int)</code> 方法，效率相对低下。</li>
 </ul>
@@ -374,6 +379,17 @@
       </div>
   </nav>
 </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/daca-ao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;daca-ao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/daca.aohuijun" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;daca.aohuijun" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/kaijesugardaddy" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;kaijesugardaddy" rel="noopener" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
 
 
 
