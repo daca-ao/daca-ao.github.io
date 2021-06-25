@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/06/12/linkedlist/linkedlist-add.png">
 <meta property="article:published_time" content="2021-06-12T14:47:45.878Z">
-<meta property="article:modified_time" content="2021-06-15T07:56:10.897Z">
+<meta property="article:modified_time" content="2021-06-20T15:45:00.547Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -207,7 +207,7 @@
 <span id="more"></span>
 <p>概述：</p>
 <ul>
-<li>同时实现了 List 接口和 Deque 接口（双向链表）</li>
+<li>同时实现了 <code>List</code> 接口和 <code>Deque</code> 接口（双向链表）</li>
 <li>每次插入时可选择链表头或链表尾插入</li>
 <li>读取时需从链式结构逐个遍历，删除则为断链-重链过程</li>
 <li>非线程安全</li>
@@ -217,10 +217,15 @@
 <li>优势：不需要预估容量及动态扩容，每次新增只需要新增一个链上的节点。</li>
 <li>代价：遍历时需从链上逐个遍历，不支持随机访问。</li>
 </ul>
+<br>
+
 <h1 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">LinkedList</span><span class="params">()</span> </span>&#123;  <span class="comment">// 无参空构造函数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">LinkedList</span><span class="params">(Collection&lt;? extends E&gt; c)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>();</span><br><span class="line">    addAll(c);  <span class="comment">// 将集合所有元素添加进链表中</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<br>
 
 <h1 id="链表节点的数据结构"><a href="#链表节点的数据结构" class="headerlink" title="链表节点的数据结构"></a>链表节点的数据结构</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    E item; <span class="comment">// 节点元素</span></span><br><span class="line">    Node&lt;E&gt; next; <span class="comment">// 后置节点指针</span></span><br><span class="line">    Node&lt;E&gt; prev; <span class="comment">// 前置节点指针</span></span><br><span class="line"></span><br><span class="line">    Node(Node&lt;E&gt; prev, E element, Node&lt;E&gt; next) &#123;</span><br><span class="line">        <span class="keyword">this</span>.item = element;</span><br><span class="line">        <span class="keyword">this</span>.next = next;</span><br><span class="line">        <span class="keyword">this</span>.prev = prev;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
 
 <h1 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h1><h2 id="添加元素"><a href="#添加元素" class="headerlink" title="添加元素"></a>添加元素</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 新增元素（尾插）</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">// eg1: e=&quot;a1&quot;</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    linkLast(e);  <span class="comment">// 链接至最后一个：链表尾插入</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 添加元素 e 至链表尾部，作为其最后一个元素</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">// eg1: e=&quot;a1&quot;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">linkLast</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; l = last;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// eg1: newNode    null&lt;--&quot;a1&quot;--&gt;null</span></span><br><span class="line">    <span class="comment">/* 创建一个值为 e 的 Node 节点，前置节点（prev）指向原 last 节点，后置节点（next）指向 null */</span></span><br><span class="line">    <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(l, e, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 将 LinkedList 维护的 last 节点指针指向至 newNode 节点 */</span></span><br><span class="line">    last = newNode;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// eg1: l=null</span></span><br><span class="line">    <span class="keyword">if</span> (l == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">/* 如果是第一个添加的元素，则 first 指针指向该节点 */</span></span><br><span class="line">        first = newNode; <span class="comment">// eg1: first 指向 newNode</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/* 如果不是第一个添加进来的元素，则更新 l 的后置节点指向新添加的元素节点 newNode */</span></span><br><span class="line">        l.next = newNode;</span><br><span class="line">    &#125;</span><br><span class="line">    size++;</span><br><span class="line">    modCount++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -240,6 +245,8 @@
 <li><code>get()</code> 可访问某个特定元素（如索引大于 n/2 从尾部开始搜索）:  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">    doSomething(list.get(i));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
   但底层调用的是 <code>node(int)</code> 方法，效率相对低下。</li>
 </ul>
+<br>
+
 <h2 id="迭代元素"><a href="#迭代元素" class="headerlink" title="迭代元素"></a>迭代元素</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 返回一个实现了 ListIterator 接口的迭代器对象</span></span><br><span class="line">linkedList.listIterator(<span class="keyword">int</span> index);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    checkPositionIndex(index);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ListItr(index);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
@@ -367,7 +374,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">15</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

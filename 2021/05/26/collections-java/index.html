@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2021/05/26/collections-java/jcf-1.png">
 <meta property="og:image" content="http://example.com/2021/05/26/collections-java/jcf-2.png">
 <meta property="article:published_time" content="2021-05-26T15:28:59.179Z">
-<meta property="article:modified_time" content="2021-06-15T12:22:34.069Z">
+<meta property="article:modified_time" content="2021-06-20T15:43:00.144Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -223,6 +223,8 @@
 </ul>
 </li>
 </ul>
+<br>
+
 <h1 id="诞生背景"><a href="#诞生背景" class="headerlink" title="诞生背景"></a>诞生背景</h1><p>Java 最初版本：只为最常用的数据结构提供很少的一组类：</p>
 <ul>
 <li><code>Vector</code></li>
@@ -258,6 +260,7 @@
 <p>如要改为另一种实现方式，则：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Queue&lt;Customer&gt; expressLane = <span class="keyword">new</span> LinkedListQueue&lt;&gt;();</span><br><span class="line">expressLane.add(<span class="keyword">new</span> Customer(<span class="string">&quot;Harry&quot;</span>));</span><br></pre></td></tr></table></figure>
 
+<br>
 
 <h1 id="“体系”下的集合框架（Collections-Framework）"><a href="#“体系”下的集合框架（Collections-Framework）" class="headerlink" title="“体系”下的集合框架（Collections Framework）"></a>“体系”下的集合框架（Collections Framework）</h1><p>构成：</p>
 <ul>
@@ -284,6 +287,8 @@
 <li>框架使用者创建的子类可以扩展超类的功能，不必重新创建基本机制</li>
 <li>Java 集合类库为集合实现者定义并描述大量接口和抽象类</li>
 </ul>
+<br>
+
 <h1 id="基本接口"><a href="#基本接口" class="headerlink" title="基本接口"></a>基本接口</h1><p>接口类图如下：</p>
 <p><img src="/2021/05/26/collections-java/interface-diagram.png"></p>
 <p><big>包括：</big></p>
@@ -399,6 +404,7 @@
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; list = Arrays.asList(<span class="keyword">new</span> String[]&#123;<span class="string">&quot;Hello&quot;</span>, <span class="string">&quot; &quot;</span>, <span class="string">&quot;World!&quot;</span>&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// lambda 表达式遍历</span></span><br><span class="line">list.forEach(s -&gt; System.out.println(s));</span><br><span class="line"></span><br><span class="line"><span class="comment">// lambda 表达式遍历简化版</span></span><br><span class="line">list.forEach(System.out::println);</span><br></pre></td></tr></table></figure>
 
+<br>
 
 <h1 id="通用实现"><a href="#通用实现" class="headerlink" title="通用实现"></a>通用实现</h1><p>实现接口的类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 抽象类</span></span><br><span class="line">java.util.AbstractCollection</span><br><span class="line">java.util.AbstractList</span><br><span class="line">java.util.AbstractSequentialList</span><br><span class="line">java.util.AbstractSet</span><br><span class="line">java.util.AbstractQueue</span><br><span class="line"></span><br><span class="line">java.util.AbstractMap</span><br></pre></td></tr></table></figure>
@@ -524,6 +530,8 @@
 
 <p><code>Stack</code>：栈，扩展自 Vector 类</p>
 <p><code>BitSet</code>：位集，存放位序列</p>
+<br>
+
 <h1 id="JCF-类图汇总"><a href="#JCF-类图汇总" class="headerlink" title="JCF 类图汇总"></a>JCF 类图汇总</h1><p><img src="/2021/05/26/collections-java/jcf-1.png"><br><img src="/2021/05/26/collections-java/jcf-2.png"></p>
 
     </div>
@@ -623,7 +631,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">15</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

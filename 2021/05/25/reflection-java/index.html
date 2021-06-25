@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2021/05/25/reflection-java/class.png">
 <meta property="og:image" content="http://example.com/2021/05/25/reflection-java/class-diagram.png">
 <meta property="article:published_time" content="2021-05-25T05:14:16.996Z">
-<meta property="article:modified_time" content="2021-06-15T11:39:58.179Z">
+<meta property="article:modified_time" content="2021-06-20T15:40:29.710Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="反射">
 <meta property="article:tag" content="Java">
@@ -207,6 +207,8 @@
       
         <p>首先，我们这里讨论的并不是物理上的反射（哈哈），而是基于计算机科学的反射式编程概念，讨论一下它的原理以及在 Java 语言当中的实现。</p>
 <span id="more"></span>
+<br>
+
 <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>在计算机科学中，<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%8F%8D%E5%B0%84%E5%BC%8F%E7%BC%96%E7%A8%8B">反射式编程</a>（reflective programming），或反射（reflection），指的是计算机程序运行时“访问、检测和修改它本身状态或行为的能力”：</p>
 <ul>
 <li>它可以把一个类，类的成员变量（函数、属性等）当成一个对象来操作；</li>
@@ -227,6 +229,8 @@
 <p>例子：<strong>策略模式</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 可在运行时根据不同条件创建不同的类，实现不同的 Strategy 实例</span></span><br><span class="line"><span class="comment"> * 例：构造时传进不同的 String 代表某个子类以初始化不同的实例</span></span><br><span class="line"><span class="comment"> * 能避免很多的 if-else</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseStrategy</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 执行某种策略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<br>
+
 <h1 id="Java-的反射机制"><a href="#Java-的反射机制" class="headerlink" title="Java 的反射机制"></a>Java 的反射机制</h1><p>Java 中的反射机制，指的是直接操作编译后的 <code>.class</code> 文件，动态获取程序信息及动态调用对象的功能。</p>
 <p>优点：</p>
 <ul>
@@ -238,10 +242,18 @@
 <ul>
 <li>对性能有影响，总是慢于直接执行 Java 代码</li>
 </ul>
+<br>
+
 <h2 id="Java-的反射与所谓“传统-RTTI”的区别"><a href="#Java-的反射与所谓“传统-RTTI”的区别" class="headerlink" title="Java 的反射与所谓“传统 RTTI”的区别"></a>Java 的反射与所谓“传统 RTTI”的区别</h2><p><img src="/2021/05/25/reflection-java/reflection-vs-rtti.png"></p>
+<br>
+
 <h2 id="普通的生成对象-v-s-反射生成对象"><a href="#普通的生成对象-v-s-反射生成对象" class="headerlink" title="普通的生成对象 v.s. 反射生成对象"></a>普通的生成对象 v.s. 反射生成对象</h2><p><img src="/2021/05/25/reflection-java/r.png"></p>
+<br>
+
 <h2 id="class-文件包括了什么？"><a href="#class-文件包括了什么？" class="headerlink" title=".class 文件包括了什么？"></a>.class 文件包括了什么？</h2><p><img src="/2021/05/25/reflection-java/class.png"></p>
 <p>注：左边为编译前源码的内容，右边为类的信息</p>
+<br>
+
 <h2 id="Class-对象相关"><a href="#Class-对象相关" class="headerlink" title="Class 对象相关"></a>Class 对象相关</h2><h3 id="基本类图"><a href="#基本类图" class="headerlink" title="基本类图"></a>基本类图</h3><p><img src="/2021/05/25/reflection-java/class-diagram.png"></p>
 <p>重要的实体类：</p>
 <ul>
@@ -268,11 +280,14 @@
 <li><code>Class.forName()</code> 除了将类的 .class 文件加载到 JVM 中之外，还可将类进行初始化</li>
 <li><code>ClassLoader.loadClass()</code> 只是将 .class 文件加载到 JVM 中，不会进行初始化</li>
 </ul>
+<br>
+
 <h2 id="Constructor-构造函数相关"><a href="#Constructor-构造函数相关" class="headerlink" title="Constructor 构造函数相关"></a>Constructor 构造函数相关</h2><p>通过 Class 对象创建构造方法对象</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// .getConstructor() 方法支持无参及多个参数传入</span></span><br><span class="line">Constructor c = personClazz.getConstructor(String.class, Integer.class, Byte.class);</span><br><span class="line">Constructor c1 = personClazz.getConstroctor();</span><br></pre></td></tr></table></figure>
 <p>随后通过 constructor 实例创建对象的时候，要根据 constructor 初始化时传入对应的参数来创建对象</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Person p = (Person) c.newInstance(<span class="string">&quot;test&quot;</span>, <span class="number">10</span>, (<span class="keyword">byte</span>) <span class="number">1</span>);</span><br><span class="line">Person p2 = (Person) c1.newInstance();</span><br></pre></td></tr></table></figure>
 
+<br>
 
 <h2 id="Field-属性相关"><a href="#Field-属性相关" class="headerlink" title="Field 属性相关"></a>Field 属性相关</h2><p>先获取到 Class 对象</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Class personClazz = Person.class;</span><br></pre></td></tr></table></figure>
@@ -286,10 +301,14 @@
 <p>然后调用</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nameField.setAccessible(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
 <p>随后便可通过 <code>.get()</code> 方法获取值。</p>
+<br>
+
 <h2 id="Method-方法相关：与属性类似"><a href="#Method-方法相关：与属性类似" class="headerlink" title="Method 方法相关：与属性类似"></a>Method 方法相关：与属性类似</h2><p>可通过反射调用私有方法</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">clazz.getDeclaredMethod(String name, Class[] parameterTypes)</span><br><span class="line">clazz.getDeclaredMethods()</span><br></pre></td></tr></table></figure>
 <p>然后调用</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">method.setAccessible(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
+
+<br>
 
 <h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><p>服务的水平分割</p>
 <p>如 MVC 框架：每一层都存在着能承载结果的实体类</p>
@@ -399,7 +418,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">15</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
