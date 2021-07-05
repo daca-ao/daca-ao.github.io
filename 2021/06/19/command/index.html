@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/06/19/command/commanduml.jpeg">
 <meta property="article:published_time" content="2021-06-19T03:12:20.000Z">
-<meta property="article:modified_time" content="2021-06-24T15:05:40.820Z">
+<meta property="article:modified_time" content="2021-07-04T16:16:46.574Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="设计模式">
 <meta name="twitter:card" content="summary">
@@ -212,10 +212,10 @@
 
 <h1 id="意图"><a href="#意图" class="headerlink" title="意图"></a>意图</h1><p>有时候需要向某个对象发送一个请求，但：</p>
 <ul>
-<li>不知道该请求的接收者是谁；</li>
-<li>不知道具体处理过程，被请求到的操作是哪个。</li>
+<li>不知道接收该请求的对象（接收者）是谁；</li>
+<li>不知道具体处理过程，被请求到的操作是哪（几）个。</li>
 </ul>
-<p>按照命令模式的开发流程，只需要知道程序运行中指定的具体请求接收者即可。</p>
+<p>在命令模式中，设计好的一堆命令会放到一个“编排器”中，“编排器”规定了命令的执行顺序。<br>按照命令模式的开发流程，只需要知道程序运行中指定的具体请求接收者即可。</p>
 <h1 id="动机"><a href="#动机" class="headerlink" title="动机"></a>动机</h1><ul>
 <li>可使得请求的发送者和接收者之间实现完全的解耦；</li>
 <li>发送者和接收者之间没有直接联系：发送者只需要知道如何发送请求命令即可，其它一概不管。</li>
@@ -225,33 +225,67 @@
 <p><code>Command</code></p>
 <ul>
 <li>抽象命令类</li>
-<li>声明执行操作的接口</li>
+<li>声明执行操作的接口（execute()）</li>
 </ul>
 <p><code>ConcreteCommand</code></p>
 <ul>
 <li>具体命令类</li>
-<li>将一个接收者对象绑定于一个动作，调用接收者相应的操作，以实现 execute</li>
+<li>将一个接收者 Receiver 对象绑定于一个动作，调用 Receiver 相应的操作，以实现 execute()</li>
+<li>如没有绑定 Receiver 对象：则操作的逻辑在该具体命令类中定义</li>
 </ul>
 <p><code>Invoker</code></p>
 <ul>
 <li>调用者</li>
-<li>要求该命令执行这个请求</li>
+<li>定义某一个请求过来的时候，对应有一个命令执行该请求</li>
 </ul>
 <p><code>Receiver</code></p>
 <ul>
 <li>接收者</li>
-<li>知道如何实施与执行一个与请求相关的操作</li>
+<li>定义了多个实际的与不同的请求相关的操作</li>
 <li>任何类都可能成为一个接收者</li>
+<li><strong>可有可无</strong>：视乎业务逻辑；如不定义接收者类：将操作逻辑上提到具体命令类</li>
 </ul>
 <p><code>Client</code></p>
 <ul>
 <li>客户类</li>
+<li>通过调用调用者 Invoker 执行命令</li>
 </ul>
-<h1 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h1><h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>优点：</p>
+<br>
+
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><ul>
+<li>Client 和 Receiver 需要同时开发</li>
+<li>在开发过程中，随着具体命令 ConcreteCommand 的变化，Client 和 Receiver 分别需要不停地重构、改名</li>
+<li>Receiver 是实际的执行类，执行与请求相关的操作<ul>
+<li>concreteCommand.execute() 调用 Receiver 对应的操作，然后 Client 通过调用 Involker 实例，执行 concreteCommand.execute()</li>
+</ul>
+</li>
+<li>Invoker 对象一般由一个或多个具体命令类构造而成</li>
+<li>如要实现可撤销功能（redo &amp; undo），需要命令不按照调用执行，而是按照执行时的情况排序并执行</li>
+</ul>
+<br>
+
+<h1 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h1><p>调用者：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Invoker</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Command commandOne;</span><br><span class="line">    <span class="keyword">private</span> Command commandTwo;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 该调用者仅接收两个命令</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Invoker</span><span class="params">(Command commandOne, Command commandTwo)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.commandOne = commandOne;</span><br><span class="line">        <span class="keyword">this</span>.commandTwo = commandTwo;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">actionOne</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        commandOne.execute();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">actionTwo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        commandTwo.execute();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接收者：具体做事情的类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Receiver</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Receiver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">actionOne</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;ActionOne has been taken.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">actionTwo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;ActionTwo has been taken.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>命令类：间接或直接做事情的类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Command</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteCommandOne</span> <span class="keyword">implements</span> <span class="title">Command</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Receiver receiver;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConcreteCommandOne</span><span class="params">(Receiver receiver)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.receiver = receiver;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        receiver.actionOne();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteCommandTwo</span> <span class="keyword">implements</span> <span class="title">Command</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Receiver receiver;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConcreteCommandTwo</span><span class="params">(Receiver receiver)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.receiver = receiver;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        receiver.actionTwo();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>客户类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Receiver receiver = <span class="keyword">new</span> Receiver();</span><br><span class="line">        Command commandOne = <span class="keyword">new</span> ConcreteCommandOne(receiver);</span><br><span class="line">        Command commandTwo = <span class="keyword">new</span> ConcreteCommandTwo(receiver);</span><br><span class="line">        Invoker invoker = <span class="keyword">new</span> Invoker(commandOne, commandTwo);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 客户完全不需要管执行到的具体命令和顺序</span></span><br><span class="line">        invoker.actionOne();</span><br><span class="line">        invoker.actionTwo();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Redo &amp; Undo：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteCommandOne</span> <span class="keyword">implements</span> <span class="title">Command</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Receiver receiver;</span><br><span class="line">    <span class="keyword">private</span> Receiver lastReceiver;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConcreteCommandOne</span><span class="params">(Receiver receiver)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.receiver = receiver;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        record();</span><br><span class="line">        receiver.actionOne();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">record</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//记录状态</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">undo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//恢复状态</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">redo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        lastReceiver.actionOne();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>具体可用 List，Queue，图等实现方式。</p>
+<br>
+
+<h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>优点：</p>
 <ul>
 <li>降低系统的耦合度</li>
 <li>新的命令可以很容易地加入到系统中</li>
-<li>可以比较容易地设计一个命令队列和宏命令（组合命令）</li>
+<li>可以比较容易地设计一个命令队列和宏命令（组合命令），即解决好一系列命令的安排</li>
 <li>可以方便地实现对请求的 Undo 和 Redo</li>
 </ul>
 <p>缺点：</p>
@@ -342,7 +376,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%84%8F%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">意图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A8%E6%9C%BA"><span class="nav-number">2.</span> <span class="nav-text">动机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">示例代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">优缺点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%84%8F%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">意图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A8%E6%9C%BA"><span class="nav-number">2.</span> <span class="nav-text">动机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="nav-number">5.</span> <span class="nav-text">示例代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">优缺点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
