@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2021/06/22/adapter/instance-adapter.gif">
 <meta property="og:image" content="http://example.com/2021/06/22/adapter/adapter-example.png">
 <meta property="article:published_time" content="2021-06-22T06:22:38.000Z">
-<meta property="article:modified_time" content="2021-06-25T15:11:33.073Z">
+<meta property="article:modified_time" content="2021-07-07T16:02:44.701Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="设计模式">
 <meta name="twitter:card" content="summary">
@@ -206,15 +206,17 @@
         <p>适配器模式属于结构型模式，具体有对于类或对象的不同形态。</p>
 <span id="more"></span>
 
-<p>有的时候，我们需要实现两个不同接口的类之间的通信。基于不修改这两个类的前提，我们需要某个中间件（适配器）完成衔接的过程，此时我们便可以使用适配器模式。</p>
+<p>有的时候，我们需要实现两个不同接口的类之间的通信。基于不修改这两个类的前提，我们需要某个<strong>中间件</strong>（适配器）完成衔接的过程，此时我们可以使用适配器模式。</p>
 <p>《设计模式：可复用面向对象软件的基础》中的介绍：</p>
 <pre><code>“将一个类的接口转换为客户希望的另外一个接口，使得原本由于接口不兼容而不能一起工作的那些类可以一起工作”
 </code></pre>
 <p>可让两个原本不兼容的接口完成无缝对接。</p>
-<h1 id="结构图"><a href="#结构图" class="headerlink" title="结构图"></a>结构图</h1><p>类适配器模式：<br><img src="/2021/06/22/adapter/class-adapter.gif"></p>
+<h1 id="结构图"><a href="#结构图" class="headerlink" title="结构图"></a>结构图</h1><p><strong>类适配器</strong>模式：</p>
+<p><img src="/2021/06/22/adapter/class-adapter.gif"></p>
 <br>
 
-<p>对象适配器模式：<br><img src="/2021/06/22/adapter/instance-adapter.gif"></p>
+<p><strong>对象适配器</strong>模式：</p>
+<p><img src="/2021/06/22/adapter/instance-adapter.gif"></p>
 <br>
 
 <p>以上，可见适配器模式包括：</p>
@@ -236,8 +238,30 @@
 <ul>
 <li>客户类</li>
 </ul>
+<br>
+
 <h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>继承或依赖（推荐）</p>
-<p>例图：<br><img src="/2021/06/22/adapter/adapter-example.png"></p>
+<p>以类适配器实现为例：</p>
+<p><img src="/2021/06/22/adapter/adapter-example.png"></p>
+<p>说明：</p>
+<ul>
+<li>想让 AudioPlayer 播放其它格式的音频文件</li>
+<li>AudioPlayer 使用适配器类 MediaAdapter 传递所需的音频类型，不需要知道能播放所需格式音频的实际类</li>
+</ul>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><p>Adaptee 适配者类接口及其实现类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AdvancedMediaPlayer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">playVlc</span><span class="params">(String fileName)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">playMp4</span><span class="params">(String fileName)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实体类： </span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">VlcPlayer</span> <span class="keyword">implements</span> <span class="title">AdvancedMediaPlayer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">playVlc</span><span class="params">(String fileName)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Playing vlc file. Name: &quot;</span>+ fileName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">playMp4</span><span class="params">(String fileName)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 什么也不做</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Mp4Player</span> <span class="keyword">implements</span> <span class="title">AdvancedMediaPlayer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">playVlc</span><span class="params">(String fileName)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 什么也不做</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">playMp4</span><span class="params">(String fileName)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Playing mp4 file. Name: &quot;</span>+ fileName);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>适配器类接口及其实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">MediaPlayer</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">play</span><span class="params">(String audioType, String fileName)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MediaAdapter</span> <span class="keyword">implements</span> <span class="title">MediaPlayer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    AdvancedMediaPlayer advancedMusicPlayer;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MediaAdapter</span><span class="params">(String audioType)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (audioType.equalsIgnoreCase(<span class="string">&quot;vlc&quot;</span>) ) &#123;</span><br><span class="line">            advancedMusicPlayer = <span class="keyword">new</span> VlcPlayer();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (audioType.equalsIgnoreCase(<span class="string">&quot;mp4&quot;</span>)) &#123;</span><br><span class="line">            advancedMusicPlayer = <span class="keyword">new</span> Mp4Player();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">play</span><span class="params">(String audioType, String fileName)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (audioType.equalsIgnoreCase(<span class="string">&quot;vlc&quot;</span>)) &#123;</span><br><span class="line">            advancedMusicPlayer.playVlc(fileName);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (audioType.equalsIgnoreCase(<span class="string">&quot;mp4&quot;</span>)) &#123;</span><br><span class="line">            advancedMusicPlayer.playMp4(fileName);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>封装对适配器类的调用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AudioPlayer</span> <span class="keyword">implements</span> <span class="title">MediaPlayer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    MediaAdapter mediaAdapter;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">play</span><span class="params">(String audioType, String fileName)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 播放 mp3 音乐文件的内置支持</span></span><br><span class="line">        <span class="keyword">if</span> (audioType.equalsIgnoreCase(<span class="string">&quot;mp3&quot;</span>)) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Playing mp3 file. Name: &quot;</span>+ fileName);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 适配器 mediaAdapter 提供了播放其他文件格式的支持</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (audioType.equalsIgnoreCase(<span class="string">&quot;vlc&quot;</span>) || audioType.equalsIgnoreCase(<span class="string">&quot;mp4&quot;</span>)) &#123;</span><br><span class="line">            mediaAdapter = <span class="keyword">new</span> MediaAdapter(audioType);</span><br><span class="line">            mediaAdapter.play(audioType, fileName);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Invalid medium. &quot;</span>+ audioType + <span class="string">&quot; format not supported&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>客户类的调用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">audioPlayer.play(<span class="string">&quot;mp3&quot;</span>, <span class="string">&quot;beyond the horizon.mp3&quot;</span>);</span><br><span class="line">audioPlayer.play(<span class="string">&quot;mp4&quot;</span>, <span class="string">&quot;alone.mp4&quot;</span>);</span><br><span class="line">audioPlayer.play(<span class="string">&quot;vlc&quot;</span>, <span class="string">&quot;far far away.vlc&quot;</span>);</span><br><span class="line">audioPlayer.play(<span class="string">&quot;avi&quot;</span>, <span class="string">&quot;mind me.avi&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<br>
+
 <h1 id="适用性"><a href="#适用性" class="headerlink" title="适用性"></a>适用性</h1><ol>
 <li>系统需要使用现有的类，而此类的接口不符合系统的需要。</li>
 <li>想要建立一个可以重复使用的类，用于与一些彼此之间没有太大关联的一些类，包括一些可能在将来引进的类一起工作，这些源类不一定有一致的接口。</li>
@@ -347,7 +371,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">结构图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">适用性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">优缺点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">结构图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="nav-number">2.1.</span> <span class="nav-text">示例代码</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">适用性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">优缺点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -361,14 +385,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">17</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
