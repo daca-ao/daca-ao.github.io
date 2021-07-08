@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/06/22/observer/observer-diagram.gif">
 <meta property="article:published_time" content="2021-06-22T06:22:58.000Z">
-<meta property="article:modified_time" content="2021-06-25T16:18:01.866Z">
+<meta property="article:modified_time" content="2021-07-08T15:51:52.676Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="设计模式">
 <meta name="twitter:card" content="summary">
@@ -211,21 +211,21 @@
 <p>以上，可见观察者模式包括：</p>
 <p><code>Subject</code></p>
 <ul>
-<li>观察目标，发生改变的对象</li>
+<li>观察目标（主题），发生改变的对象</li>
 <li>将所有对观察者对象的引用保存到一个集合里</li>
 <li>每一个主题都可以有多个观察者</li>
-</ul>
-<p><code>Observer</code></p>
-<ul>
-<li>观察者，被通知的对象</li>
-<li>为所有的具体观察者定义一个接口</li>
-<li>在得到主题的通知时能及时更新自己</li>
 </ul>
 <p><code>ConcreteSubject</code></p>
 <ul>
 <li>具体主题</li>
 <li>将有关状态存入具体观察者对象</li>
 <li>在具体主题发生改变时，给所有观察者发出通知</li>
+</ul>
+<p><code>Observer</code></p>
+<ul>
+<li>观察者，被通知的对象</li>
+<li>为所有的具体观察者定义一个接口</li>
+<li>在得到主题的通知时能及时更新自己</li>
 </ul>
 <p><code>ConcreteObserver</code></p>
 <ul>
@@ -234,9 +234,23 @@
 <li>以便使本身状态与主题状态相协调</li>
 </ul>
 <p>一个观察目标对应多个观察者，而观察者之间没有相互联系。</p>
+<h1 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h1><p>观察者抽象类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Observer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> Subject subject;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">update</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>具体观察者的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BinaryObserver</span> <span class="keyword">extends</span> <span class="title">Observer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BinaryObserver</span><span class="params">(Subject subject)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.subject = subject;</span><br><span class="line">        <span class="keyword">this</span>.subject.attach(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">update</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Binary String: &quot;</span> + Integer.toBinaryString(subject.getState()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>目标实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Subject</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> List&lt;Observer&gt; observers = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> state;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">attach</span><span class="params">(Observer observer)</span> </span>&#123;</span><br><span class="line">        observers.add(observer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getState</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> state;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setState</span><span class="params">(<span class="keyword">int</span> state)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.state = state;</span><br><span class="line">        notifyAllObservers();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">notifyAllObservers</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (Observer observer : observers) &#123;</span><br><span class="line">            observer.update();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Subject subject = <span class="keyword">new</span> Subject();</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> HexaObserver(subject);</span><br><span class="line"><span class="keyword">new</span> OctalObserver(subject);</span><br><span class="line"><span class="keyword">new</span> BinaryObserver(subject);</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;First state change: 15&quot;</span>);</span><br><span class="line">subject.setState(<span class="number">15</span>);</span><br><span class="line">System.out.println(<span class="string">&quot;Second state change: 10&quot;</span>);</span><br><span class="line">subject.setState(<span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+
+<br>
+
 <h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>优点</p>
 <ol>
-<li>观察者和被观察者是抽象耦合的。</li>
+<li>观察者和被观察者是<strong>抽象耦合</strong>的。</li>
 <li>建立一套触发机制。</li>
 </ol>
 <p>缺点</p>
@@ -328,7 +342,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">结构图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">优缺点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">结构图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81"><span class="nav-number">2.</span> <span class="nav-text">示例代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">优缺点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
