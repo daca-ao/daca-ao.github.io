@@ -20,17 +20,22 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Storing blogs">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Raymond&#39;s Cabin">
-<meta property="og:url" content="http://example.com/archives/2021/07/index.html">
+  <meta name="description" content="Java 摒弃 C++ 中一些繁琐的容易出错的东西，引入了计数器的概念其中一个是垃圾回收（GC, Garbage Collection）机制：  不定时回收垃圾对象所占用的内存，内存泄漏的隐患大大降低">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM 垃圾回收机制">
+<meta property="og:url" content="http://example.com/2021/07/09/garbage-collection/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="Storing blogs">
+<meta property="og:description" content="Java 摒弃 C++ 中一些繁琐的容易出错的东西，引入了计数器的概念其中一个是垃圾回收（GC, Garbage Collection）机制：  不定时回收垃圾对象所占用的内存，内存泄漏的隐患大大降低">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
+<meta property="article:modified_time" content="2021-07-10T00:52:41.408Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="JVM">
+<meta property="article:tag" content="GC">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/archives/2021/07/">
+<link rel="canonical" href="http://example.com/2021/07/09/garbage-collection/">
 
 
 <script id="page-configurations">
@@ -38,12 +43,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'en'
   };
 </script>
 
-  <title>Archive | Raymond's Cabin</title>
+  <title>JVM 垃圾回收机制 | Raymond's Cabin</title>
   
 
 
@@ -152,110 +157,158 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">Um..! 19 posts in total. Keep on posting.</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/09/garbage-collection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
+      <meta itemprop="description" content="Storing blogs">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Raymond's Cabin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JVM 垃圾回收机制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-07-09 22:44:14" itemprop="dateCreated datePublished" datetime="2021-07-09T22:44:14+08:00">2021-07-09</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2021</span>
-    </div>
+        <p>Java 摒弃 C++ 中一些繁琐的容易出错的东西，引入了计数器的概念<br>其中一个是垃圾回收（GC, Garbage Collection）机制：</p>
+<ul>
+<li>不定时回收垃圾对象所占用的内存，内存泄漏的隐患大大降低</li>
+</ul>
+<span id="more"></span>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-07-10T00:05:24+08:00"
-              content="2021-07-10">
-          07-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/07/10/jmm/" itemprop="url">
-            <span itemprop="name">Java 内存模型 JMM</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-07-09T22:44:14+08:00"
-              content="2021-07-09">
-          07-09
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/07/09/garbage-collection/" itemprop="url">
-            <span itemprop="name">JVM 垃圾回收机制</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-07-08T00:07:22+08:00"
-              content="2021-07-08">
-          07-08
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/07/08/class-loader/" itemprop="url">
-            <span itemprop="name">JVM Class Loader 类加载器</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-07-07T22:44:49+08:00"
-              content="2021-07-07">
-          07-07
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/07/07/jvm-basics/" itemprop="url">
-            <span itemprop="name">JVM 初探</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
+<p>当对象失去所有的引用，变成了“孤魂野鬼”，也就是“垃圾”<br>例：垃圾对象诞生过程<br>String str1 = new String(“abc”); //这个对象有一个引用str1指向它<br>String str2 = str1; //这个对象现在有两个引用：str1，str2指向它<br>str1 = null; //失去引用str1<br>str2 = null; //失去引用str2，失去全部引用，变成野对象</p>
+<p>// 由此 new String(“abc”); 产生的对象失去了所有引用，将无法再被程序访问。</p>
+<p>C / C++ 中没有垃圾回收机制：</p>
+<ul>
+<li>除非程序结束，堆中申请后未被释放且无指向的内存会一直处于“三无”状态<ul>
+<li>无法释放</li>
+<li>无法调用</li>
+<li>无法更改</li>
+</ul>
+</li>
+<li>因其无法再被访问，当此类内存多起来时，可利用的内存越来越少</li>
+<li>导致内存泄漏（memory leak）<br>如下为一次内存泄漏过程：</li>
+</ul>
+<p>(int *) malloc (sizeof(int)*1024);<br>// 内存分配函数的参数没有问题，指针的转型也没有问题，But没有任何指针指向它！</p>
+<p>JVM 的垃圾回收机制包括：</p>
+<ul>
+<li>在程序运行过程中标记垃圾对象</li>
+<li>以及在 GC 过程中回收被标记的垃圾对象<br>Java 的垃圾回收机制是 JVM 提供的能力</li>
+<li>关注的是堆内存</li>
+<li>用于在空闲时间以不定时的方式动态回收无任何引用的对象占据的内存空间</li>
+<li>Java 语言本身没有提供释放已分配内存显示操作方法</li>
+<li>所以 Java 的内存管理实际上就是对象的管理<ul>
+<li>包括对象的分配和释放<br>注：垃圾回收回收的是无任何引用的对象占据的内存空间，而不是内存本身</li>
+</ul>
+</li>
+</ul>
+<p>方法：自动检测对象是否超过作用域从而达到自动回收内存的目的</p>
+<p>JVM GC 算法为分代收集，设计为：</p>
+<ol>
+<li>频繁收集新生代</li>
+<li>较少收集老年代</li>
+<li>更少收集永久区</li>
+</ol>
+<p>YG 回收（Minor GC, young GC）执行过程</p>
+<ul>
+<li>触发：Eden 区没有足够空间——对象优先在新生代分配</li>
+</ul>
+<ol>
+<li>Eden + From Survivor 区存活的对象复制到 To Survivor</li>
+<li>若 Survivor 区满，则将 Survivor 区内的存活对象转移到老年代</li>
+<li>清空 Eden 和 From Survivor</li>
+<li>From Survivor 和 To Survivor 交换</li>
+<li>若老年代满，则抛出 OutOfMemoryException<br>OG 回收（CMS 中特有）</li>
+<li>收集老年代的垃圾</li>
+<li>在 Major GC 的过程中，至少进行了一次 Minor GC</li>
+<li>一般以 Minor GC 慢 10 倍<br>Full GC（Major GC）</li>
+</ol>
+<ul>
+<li>对于整个堆的操作</li>
+<li>STOP THE WORLD</li>
+<li>触发条件：<ul>
+<li>晋升时，对象大小大于老年代可用大小</li>
+<li>老年代连续空间不足</li>
+<li>Metaspace 达到阈值</li>
+<li>System.gc()</li>
+</ul>
+</li>
+<li>老年代执行之后空间仍不足：抛出 OOM: Java heap space</li>
+<li>永久区执行之后空间仍不足：抛出 OOM: Metaspace space</li>
+</ul>
+<p>OG 存储对象：</p>
+<ul>
+<li>新生代对象经过 N 次 GC 晋升到老年代。默认 N = 15</li>
+<li>大对象（由 JVM 参数决定）直接存储到老年代，如数组<br>System.gc(); // 请求运行垃圾回收器触发 Full GC，不一定真的执行了垃圾回收，且不受代码控制<br>Runtime.getRuntime().gc();</li>
+</ul>
+<p>以上调用用于显式通知 JVM 可以进行一次垃圾回收<br>但真正的垃圾回收机制，具体在什么时间点开始发生动作，不可预料</p>
+<ul>
+<li>这和抢占式的线程在发生作用时的原理是一样的<br>注：不能通过 Java 代码干预 Java 垃圾回收</li>
+</ul>
 
     </div>
-  </div>
-  
-  
-  
 
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/JVM/" rel="tag"># JVM</a>
+              <a href="/tags/GC/" rel="tag"># GC</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/08/class-loader/" rel="prev" title="JVM Class Loader 类加载器">
+      <i class="fa fa-chevron-left"></i> JVM Class Loader 类加载器
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/10/jmm/" rel="next" title="Java 内存模型 JMM">
+      Java 内存模型 JMM <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
   
 
 

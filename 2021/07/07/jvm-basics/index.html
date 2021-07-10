@@ -28,7 +28,7 @@
 <meta property="og:description" content="JVM 作为 Java 程序的容器，是所有 Java 程序依赖的平台。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-07T14:44:49.000Z">
-<meta property="article:modified_time" content="2021-07-07T16:08:50.949Z">
+<meta property="article:modified_time" content="2021-07-09T15:15:45.629Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -209,15 +209,21 @@
 <li>管理并分配内存</li>
 <li>执行垃圾回收</li>
 </ol>
-<p>基本结构<br>顶层：类加载器 class loader</p>
+<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>顶层：类加载器 class loader</p>
 <ul>
-<li>加载 JVM class 文件<br>中间：Java 虚拟机内存（Runtime Data Area, 运行时数据区，重点关注），即 JVM 在系统中能掌控到的内存部分，包括：</li>
+<li>加载 JVM class 文件</li>
+</ul>
+<p>中间：Java 虚拟机内存（Runtime Data Area, 运行时数据区，重点关注），即 JVM 在系统中能掌控到的内存部分，包括：</p>
+<ul>
 <li>方法区 (method area)</li>
 <li>堆 (heap, 存放 Java 对象和数组实例)</li>
 <li>本地方法栈 (native method stack)</li>
 <li>程序计数器 (program counter registers)</li>
 <li>虚拟机栈 (JVM stack)</li>
-<li>…<br>底层：运行引擎 (execution engine)</li>
+<li>… </li>
+</ul>
+<p>底层：运行引擎 (execution engine)</p>
+<ul>
 <li>通过本地方法接口 native interface 与本地方法库 native libraries 交互</li>
 </ul>
 <p>计算机存储数据主要利用三个空间：</p>
@@ -231,11 +237,16 @@
 <li>存取数据效率高，仅次于寄存器</li>
 <li>管理数据：先进后出（LIFO）</li>
 <li>存储空间较小，不能存放大量的数据</li>
-<li>JVM 将基本类型的数据，以及对字符串对象的引用存放在栈空间<br>堆：</li>
+<li>JVM 将基本类型的数据，以及对字符串对象的引用存放在栈空间</li>
+</ul>
+<p>堆：</p>
+<ul>
 <li>存取数据的效率最低</li>
 <li>数据存放的位置随机分配</li>
 <li>堆空间存储数据的空间大，能存放大容量的数据（数组、字符串、对象等）</li>
 </ul>
+<p>线程共享区域：<br>包括堆和方法区</p>
+<p>线程私有区域：<br>包括本地方法栈、程序计数器、虚拟机栈</p>
 
     </div>
 
@@ -320,6 +331,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">基本结构</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -333,14 +345,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">19</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
