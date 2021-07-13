@@ -27,12 +27,15 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="JVM 作为 Java 程序的容器，是所有 Java 程序依赖的平台。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/jvm-overview.png">
+<meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/vm-stack.png">
 <meta property="article:published_time" content="2021-07-07T14:44:49.000Z">
-<meta property="article:modified_time" content="2021-07-09T15:15:45.629Z">
+<meta property="article:modified_time" content="2021-07-13T15:51:43.923Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/07/07/jvm-basics/jvm-overview.png">
 
 <link rel="canonical" href="http://example.com/2021/07/07/jvm-basics/">
 
@@ -202,51 +205,153 @@
       
         <p>JVM 作为 Java 程序的容器，是所有 Java 程序依赖的平台。</p>
 <span id="more"></span>
-<p>多一些阅读<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se13/html/index.html">官方文档（Java 13）</a>，涉猎 JVM 的原理，有助于 Java Developer 们避开开发过程中的许多陷阱。</p>
-<p>JVM 执行程序过程：</p>
+
+<p>JVM 执行 Java 程序的过程：</p>
 <ol>
-<li>加载 <code>.class</code> 文件</li>
-<li>管理并分配内存</li>
-<li>执行垃圾回收</li>
+<li>通过类加载器加载各个 <code>.class</code> 文件</li>
+<li>为程序管理并分配内存</li>
+<li>在适当的时候执行垃圾回收</li>
 </ol>
-<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>顶层：类加载器 class loader</p>
+<p>多一些阅读<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se13/html/index.html">官方文档（Java 13）</a>，涉猎 JVM 的原理，有助于 Java Developer 们避开开发过程中的许多陷阱。</p>
+<br>
+
+<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>顶层：<strong>类加载器</strong> <strong>Class Loader</strong></p>
 <ul>
-<li>加载 JVM class 文件</li>
+<li>加载 JVM .class 文件</li>
 </ul>
-<p>中间：Java 虚拟机内存（Runtime Data Area, 运行时数据区，重点关注），即 JVM 在系统中能掌控到的内存部分，包括：</p>
+<p>中间：Java 虚拟机内存（<strong>Runtime Data Area</strong>, <strong>运行时数据区</strong>，重点关注），即 JVM 在系统中能掌控到的内存部分，主要包括 5 部分：</p>
 <ul>
-<li>方法区 (method area)</li>
-<li>堆 (heap, 存放 Java 对象和数组实例)</li>
-<li>本地方法栈 (native method stack)</li>
-<li>程序计数器 (program counter registers)</li>
-<li>虚拟机栈 (JVM stack)</li>
-<li>… </li>
+<li><font color="#548235"><strong>方法区</strong></font> (Method Area)</li>
+<li><font color="#548235"><strong>堆</strong></font> (Heap, 存放 Java 对象和数组实例)</li>
+<li><font color="#FFC000"><strong>本地方法栈</strong></font> (Native Method Stack)</li>
+<li><font color="#FFC000"><strong>程序计数器</strong></font> (Program Counter Registers)</li>
+<li><font color="#FFC000"><strong>虚拟机栈</strong></font> (VM Stack，也有理解为 Java 方法栈的)</li>
 </ul>
-<p>底层：运行引擎 (execution engine)</p>
+<p>底层：运行引擎 (Execution Engine)</p>
 <ul>
-<li>通过本地方法接口 native interface 与本地方法库 native libraries 交互</li>
+<li>通过本地方法接口（Native Interfaces）与本地方法库（Native Libraries）交互</li>
 </ul>
-<p>计算机存储数据主要利用三个空间：</p>
+<p><img src="/2021/07/07/jvm-basics/jvm-overview.png"></p>
+<p>JVM 在初始运行的时候，会分配好 <font color="#548235">Method Area</font>（方法区）和 <font color="#548235">Heap</font>（堆）；在为程序管理并分配内存的时候，每遇到一个线程，就会为其分配一个 <font color="#FFC000">Program Counter Register</font>（程序计数器），一个 <font color="#FFC000">Native Method Stack</font>（本地方法栈） 和一个 <font color="#FFC000">VM Stack</font>（虚拟机栈）。</p>
 <ul>
-<li>寄存器：Java 不能直接控制和处理</li>
-<li>栈空间</li>
-<li>堆空间</li>
+<li>即：<strong>线程私有</strong>的三块（<font color="#FFC000">程序计数器</font>、<font color="#FFC000">本地方法栈</font>和<font color="#FFC000">虚拟机栈</font>）区域的生命周期与 Java 程序中的某个所属线程相同；<strong>线程共享</strong>的<font color="#548235">方法区</font>和<font color="#548235">堆</font>与 Java 程序运行的生命周期相同。</li>
+<li>所以：这也是系统垃圾回收只发生在线程共享的区域（大部分只发生在<strong>堆</strong>中）的原因。</li>
 </ul>
-<p>Java 虚拟机为每一个运行在内存中的 Java 程序都分配相应的栈空间和堆空间<br>栈：</p>
+<p>当线程终止时：线程私有的程序计数器、本地方法栈和虚拟机栈所占用的空间会被释放掉。</p>
+<br>
+
+<p>我们知道，计算机存储数据主要利用三个空间：<strong>寄存器</strong>、<strong>栈</strong>和<strong>堆</strong>。</p>
 <ul>
-<li>存取数据效率高，仅次于寄存器</li>
-<li>管理数据：先进后出（LIFO）</li>
+<li>Java 不能直接控制和处理寄存器，只能操作栈空间和堆空间。</li>
+<li>对于每一个运行在内存中的 Java 程序，Java 虚拟机都为其分配好相应的栈空间和堆空间。</li>
+</ul>
+<p>栈空间（Stack）：</p>
+<ul>
 <li>存储空间较小，不能存放大量的数据</li>
 <li>JVM 将基本类型的数据，以及对字符串对象的引用存放在栈空间</li>
+<li>存取数据效率高，仅次于寄存器</li>
+<li>管理数据：先进后出（LIFO）</li>
 </ul>
-<p>堆：</p>
+<p>堆空间（Heap）：</p>
 <ul>
-<li>存取数据的效率最低</li>
-<li>数据存放的位置随机分配</li>
-<li>堆空间存储数据的空间大，能存放大容量的数据（数组、字符串、对象等）</li>
+<li>存储数据的空间大，能存放大容量的数据（数组、字符串、对象等）</li>
+<li>但存取数据的效率最低</li>
+<li>在堆空间中，数据存放的位置随机分配</li>
 </ul>
-<p>线程共享区域：<br>包括堆和方法区</p>
-<p>线程私有区域：<br>包括本地方法栈、程序计数器、虚拟机栈</p>
+<br>
+
+<h2 id="线程共享区域"><a href="#线程共享区域" class="headerlink" title="线程共享区域"></a>线程共享区域</h2><p>包括<strong>方法区</strong>和<strong>堆</strong>。</p>
+<p><strong><big>1. 堆 Heap</big></strong></p>
+<ol>
+<li>JVM 只有一个堆区，被所有线程共享，用于存储对象（包括数组，因为数组也是一种对象）</li>
+<li>分为：<ul>
+<li>新生代（<code>YoungGen</code>, Y）<ul>
+<li>= Eden(4/5) + From Survivor(1/10) + To Survivor(1/10)</li>
+<li>Eden 空间不足时，存活的对象转移到 Survivor，多个 Survivor 用于交换</li>
+</ul>
+</li>
+<li>老年代（<code>OldGen</code>, O）<ul>
+<li>存放生命周期长的对象</li>
+</ul>
+</li>
+<li>永久区（<code>PermGen</code>, P）<ul>
+<li>存放 Class 和 Meta 信息等，GC 时一般不清理</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<br>
+
+<h2 id="线程私有区域"><a href="#线程私有区域" class="headerlink" title="线程私有区域"></a>线程私有区域</h2><p>包括<strong>程序计数器</strong>、<strong>本地方法栈</strong>和<strong>虚拟机栈</strong>。</p>
+<p><strong><big>1. 程序计数器 Program Counter Register</big></strong></p>
+<ul>
+<li>当前线程执行的字节码的行号位置指示器：正在执行的字节码的地址<ul>
+<li>类似于操作系统的 PC 计数器</li>
+<li>指定下一条需要执行的虚拟机字节码指令的地址</li>
+</ul>
+</li>
+<li>指示执行哪条指令，分支、循环、跳转、异常等情况，以及线程恢复等基础功能均依赖其指示来实现</li>
+<li>由于 Java 多线程由时间片轮转实现，因此每个线程私有程序计数器，以便切换后线程内的代码能恢复执行</li>
+<li>比较小，是唯一没有规定 OOM 的区域</li>
+</ul>
+<p><strong><big>2. 虚拟机栈 VM Stack</big></strong></p>
+<p>又叫栈内存。线程创建时被创建，线程结束后，内存就被释放。有的翻译译作“Java 方法栈”的，大概是因为它描述的是 Java <strong>方法执行</strong>时的内存模型。</p>
+<p>我们都知道，Java 指令是由<strong>操作码</strong>（方法本身）和<strong>操作数</strong>（方法内部变量）组成的。操作码保存在栈内存中；操作数跟在操作码之后，基本类型的变量保存在栈中，对象类型的变量将地址保存在栈中，将值保存在堆中。</p>
+<ul>
+<li>每个方法执行时创建栈帧（stack frame），压入虚拟机栈，返回时弹栈<ul>
+<li>返回至返回地址（指针）</li>
+</ul>
+</li>
+<li>每个栈帧对应于一个方法名<ul>
+<li>包括 main() 方法：main 栈帧</li>
+<li>栈帧中只保存原生数据类型（primitive）和对对象的引用（reference）</li>
+</ul>
+</li>
+<li>每个方法从被调用开始直至执行完毕的全过程，对应着该栈帧在虚拟机栈的入栈和出栈过程。</li>
+<li>考虑到可能的多线程环境，虚拟机栈是每个线程<strong>私有</strong>的</li>
+</ul>
+<p>每个虚拟机栈的栈帧存储了：</p>
+<p><strong>1. 局部变量表 Local Variables</strong></p>
+<ul>
+<li>是一个以一个字长（8 bits）为单位、从 0 开始计数的数组：通过 index 索引访问</li>
+<li>存放了编译期可知的各种基本数据类型、对象的引用和返回地址（returnAddr）类型（指向下一条字节码指令的地址）</li>
+<li><code>short</code>、<code>byte</code>、<code>char</code> 和 <code>boolean</code> 等类型变量值在存入该数组前要被转换成 <strong><code>int</code></strong> 值</li>
+<li>而 <code>long</code> 和 <code>double</code> 因为在数组中会占据连续的两项：<ul>
+<li>在访问局部变量中的 <code>long</code> 或 <code>double</code> 时，只需取出连续两项的第一项的索引值即可</li>
+<li>如某个 <code>long</code> 值在局部变量区中占据的索引为 3、4 项，取值时指令只需取索引为 3 的 <code>long</code> 值即可</li>
+</ul>
+</li>
+<li>其内存空间在编译期完成分配，运行时也不会被改变</li>
+</ul>
+<p><strong>2. 操作数栈 Operand Stack</strong></p>
+<ul>
+<li>结构与局部变量表一致，但对它的访问是通过 push 和 pop 操作来进行的，而不是通过索引</li>
+<li>可以被看成是栈帧所对应的方法的计算过程中，数据的临时存储区域</li>
+</ul>
+<p><strong>3. 帧数据 Frame Data</strong></p>
+<ul>
+<li>解析方法内引用的常量池中的数据</li>
+<li>保存 Return Address，用于方法执行完后返回，恢复调用方的现场</li>
+<li>保存异常表，用于方法执行过程中抛出异常时的异常处理<ul>
+<li>当出现异常时，虚拟机查找相对应的异常表看是否有对应的 catch 语句</li>
+<li>如没有就抛出异常终止该方法调用</li>
+</ul>
+</li>
+</ul>
+<p>还有动态链接、方法出口（返回地址）……等数据结构。</p>
+<p><strong><big>3. 本地方法栈 Native Method Stack</big></strong></p>
+<ul>
+<li>与虚拟机栈作用类似</li>
+<li>虚拟机栈为 JVM 提供执行 Java 方法的服务，而本地方法栈则是为 JVM 提供执行 native 方法的服务</li>
+</ul>
+<br>
+
+<p>比如：一个 Java 类中定义了 doMath() 方法。</p>
+<ul>
+<li>执行该方法的时候，除了 main 栈帧及其它方法对应的栈帧之外，栈帧 doMath 的变量表、操作数栈及帧数据的变化如下图：</li>
+</ul>
+<p><img src="/2021/07/07/jvm-basics/vm-stack.png"></p>
 
     </div>
 
@@ -331,7 +436,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">基本结构</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">基本结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%85%B1%E4%BA%AB%E5%8C%BA%E5%9F%9F"><span class="nav-number">1.1.</span> <span class="nav-text">线程共享区域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%A7%81%E6%9C%89%E5%8C%BA%E5%9F%9F"><span class="nav-number">1.2.</span> <span class="nav-text">线程私有区域</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -345,7 +450,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

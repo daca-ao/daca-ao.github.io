@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Java 摒弃 C++ 中一些繁琐的容易出错的东西，引入了计数器的概念其中一个是垃圾回收（GC, Garbage Collection）机制：  不定时回收垃圾对象所占用的内存，内存泄漏的隐患大大降低">
+  <meta name="description" content="Java 在发展的过程中，摒弃 C++ 中一些繁琐的容易出错的东西，引入了“计数器”的概念。其中一个是垃圾回收（GC, Garbage Collection）机制：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM 垃圾回收机制">
 <meta property="og:url" content="http://example.com/2021/07/09/garbage-collection/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="Java 摒弃 C++ 中一些繁琐的容易出错的东西，引入了计数器的概念其中一个是垃圾回收（GC, Garbage Collection）机制：  不定时回收垃圾对象所占用的内存，内存泄漏的隐患大大降低">
+<meta property="og:description" content="Java 在发展的过程中，摒弃 C++ 中一些繁琐的容易出错的东西，引入了“计数器”的概念。其中一个是垃圾回收（GC, Garbage Collection）机制：">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
-<meta property="article:modified_time" content="2021-07-10T00:52:41.408Z">
+<meta property="article:modified_time" content="2021-07-10T11:40:21.285Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -201,14 +201,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Java 摒弃 C++ 中一些繁琐的容易出错的东西，引入了计数器的概念<br>其中一个是垃圾回收（GC, Garbage Collection）机制：</p>
+        <p>Java 在发展的过程中，摒弃 C++ 中一些繁琐的容易出错的东西，引入了“计数器”的概念。<br>其中一个是垃圾回收（GC, Garbage Collection）机制：</p>
+<span id="more"></span>
+
 <ul>
 <li>不定时回收垃圾对象所占用的内存，内存泄漏的隐患大大降低</li>
 </ul>
-<span id="more"></span>
+<p>当对象失去所有的引用，变成了“孤魂野鬼”，也就是“垃圾”<br>例：垃圾对象诞生过程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String str1 = <span class="keyword">new</span> String(<span class="string">&quot;abc&quot;</span>); <span class="comment">// 这个对象有一个引用str1指向它</span></span><br><span class="line">String str2 = str1; <span class="comment">// 这个对象现在有两个引用：str1，str2指向它</span></span><br><span class="line">str1 = <span class="keyword">null</span>; <span class="comment">// 失去引用str1</span></span><br><span class="line">str2 = <span class="keyword">null</span>; <span class="comment">// 失去引用str2，失去全部引用，变成野对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 由此 new String(&quot;abc&quot;); 产生的对象失去了所有引用，将无法再被程序访问。</span></span><br></pre></td></tr></table></figure>
 
-<p>当对象失去所有的引用，变成了“孤魂野鬼”，也就是“垃圾”<br>例：垃圾对象诞生过程<br>String str1 = new String(“abc”); //这个对象有一个引用str1指向它<br>String str2 = str1; //这个对象现在有两个引用：str1，str2指向它<br>str1 = null; //失去引用str1<br>str2 = null; //失去引用str2，失去全部引用，变成野对象</p>
-<p>// 由此 new String(“abc”); 产生的对象失去了所有引用，将无法再被程序访问。</p>
 <p>C / C++ 中没有垃圾回收机制：</p>
 <ul>
 <li>除非程序结束，堆中申请后未被释放且无指向的内存会一直处于“三无”状态<ul>
@@ -218,21 +219,27 @@
 </ul>
 </li>
 <li>因其无法再被访问，当此类内存多起来时，可利用的内存越来越少</li>
-<li>导致内存泄漏（memory leak）<br>如下为一次内存泄漏过程：</li>
+<li>导致内存泄漏（memory leak）</li>
 </ul>
-<p>(int *) malloc (sizeof(int)*1024);<br>// 内存分配函数的参数没有问题，指针的转型也没有问题，But没有任何指针指向它！</p>
+<p>如下为一次内存泄漏过程：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">int</span> *) <span class="built_in">malloc</span> (<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">int</span>)*<span class="number">1024</span>);</span><br><span class="line"><span class="comment">// 内存分配函数的参数没有问题，指针的转型也没有问题，But没有任何指针指向它！</span></span><br></pre></td></tr></table></figure>
+
 <p>JVM 的垃圾回收机制包括：</p>
 <ul>
 <li>在程序运行过程中标记垃圾对象</li>
-<li>以及在 GC 过程中回收被标记的垃圾对象<br>Java 的垃圾回收机制是 JVM 提供的能力</li>
+<li>以及在 GC 过程中回收被标记的垃圾对象</li>
+</ul>
+<p>Java 的垃圾回收机制是 JVM 提供的能力</p>
+<ul>
 <li>关注的是堆内存</li>
 <li>用于在空闲时间以不定时的方式动态回收无任何引用的对象占据的内存空间</li>
 <li>Java 语言本身没有提供释放已分配内存显示操作方法</li>
 <li>所以 Java 的内存管理实际上就是对象的管理<ul>
-<li>包括对象的分配和释放<br>注：垃圾回收回收的是无任何引用的对象占据的内存空间，而不是内存本身</li>
+<li>包括对象的分配和释放</li>
 </ul>
 </li>
 </ul>
+<p>注：垃圾回收回收的是无任何引用的对象占据的内存空间，而不是内存本身</p>
 <p>方法：自动检测对象是否超过作用域从而达到自动回收内存的目的</p>
 <p>JVM GC 算法为分代收集，设计为：</p>
 <ol>
@@ -249,11 +256,15 @@
 <li>若 Survivor 区满，则将 Survivor 区内的存活对象转移到老年代</li>
 <li>清空 Eden 和 From Survivor</li>
 <li>From Survivor 和 To Survivor 交换</li>
-<li>若老年代满，则抛出 OutOfMemoryException<br>OG 回收（CMS 中特有）</li>
+<li>若老年代满，则抛出 OutOfMemoryException</li>
+</ol>
+<p>OG 回收（CMS 中特有）</p>
+<ol>
 <li>收集老年代的垃圾</li>
 <li>在 Major GC 的过程中，至少进行了一次 Minor GC</li>
-<li>一般以 Minor GC 慢 10 倍<br>Full GC（Major GC）</li>
+<li>一般以 Minor GC 慢 10 倍</li>
 </ol>
+<p>Full GC（Major GC）</p>
 <ul>
 <li>对于整个堆的操作</li>
 <li>STOP THE WORLD</li>
@@ -270,11 +281,39 @@
 <p>OG 存储对象：</p>
 <ul>
 <li>新生代对象经过 N 次 GC 晋升到老年代。默认 N = 15</li>
-<li>大对象（由 JVM 参数决定）直接存储到老年代，如数组<br>System.gc(); // 请求运行垃圾回收器触发 Full GC，不一定真的执行了垃圾回收，且不受代码控制<br>Runtime.getRuntime().gc();</li>
+<li>大对象（由 JVM 参数决定）直接存储到老年代，如数组</li>
 </ul>
-<p>以上调用用于显式通知 JVM 可以进行一次垃圾回收<br>但真正的垃圾回收机制，具体在什么时间点开始发生动作，不可预料</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">System.gc(); <span class="comment">// 请求运行垃圾回收器触发 Full GC，不一定真的执行了垃圾回收，且不受代码控制</span></span><br><span class="line"></span><br><span class="line">Runtime.getRuntime().gc();</span><br></pre></td></tr></table></figure>
+
+<p>以上调用用于显式通知 JVM 可以进行一次垃圾回收</p>
+<p>但真正的垃圾回收机制，具体在什么时间点开始发生动作，不可预料</p>
 <ul>
-<li>这和抢占式的线程在发生作用时的原理是一样的<br>注：不能通过 Java 代码干预 Java 垃圾回收</li>
+<li>这和抢占式的线程在发生作用时的原理是一样的</li>
+</ul>
+<p>注：不能通过 Java 代码干预 Java 垃圾回收</p>
+<p>标记垃圾</p>
+<p>计数法</p>
+<ul>
+<li>新建一个对象或有引用指向该对象时计数器 + 1</li>
+<li>当一个对象引用超过生存期限或指向新对象时计数器 + 1</li>
+<li>计数器对应的对象变为 0 时回收该对象</li>
+<li>快、简单，但无法检测循环引用<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;<span class="keyword">public</span> B b;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;<span class="keyword">public</span> A a;&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    A a = <span class="keyword">new</span> A();</span><br><span class="line">    B b = <span class="keyword">new</span> B();</span><br><span class="line">    a.b = b;</span><br><span class="line">    b.a = a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>跟踪法/根搜索算法</p>
+<ul>
+<li>从图论引入</li>
+<li>将所有引用关系看作一张图，从根节点开始寻找对应的引用节点</li>
+<li>以 GC roots 为起点形成作用链，每个对象为有向图的顶点<ul>
+<li>GC roots 不可达的对象将被回收</li>
+</ul>
+</li>
+<li>GC roots 包括：<ul>
+<li>虚拟机栈中引用的对象<br>User user = new User();</li>
+<li>静态属性引用的对象<br>private static User user = new User();</li>
+<li>常量引用的对象<br>private static final User user = new User();</li>
+<li>本地方法（native method）栈中引用的对象</li>
+</ul>
+</li>
 </ul>
 
     </div>
@@ -374,7 +413,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

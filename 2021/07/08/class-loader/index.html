@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="类加载器作用：将类加载到虚拟机，随后检查类的完整性">
+  <meta name="description" content="Java 程序的基本单元，就是一个个的类（Class）及类实例（Class Instance）。在使用类之前，必须先将类加载进 JVM 的内存中。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM Class Loader 类加载器">
 <meta property="og:url" content="http://example.com/2021/07/08/class-loader/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="类加载器作用：将类加载到虚拟机，随后检查类的完整性">
+<meta property="og:description" content="Java 程序的基本单元，就是一个个的类（Class）及类实例（Class Instance）。在使用类之前，必须先将类加载进 JVM 的内存中。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-07T16:07:22.000Z">
-<meta property="article:modified_time" content="2021-07-07T16:08:43.790Z">
+<meta property="article:modified_time" content="2021-07-10T04:27:00.020Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -200,17 +200,156 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>类加载器作用：将类加载到虚拟机，随后检查类的完整性</p>
+        <p>Java 程序的基本单元，就是一个个的类（Class）及类实例（Class Instance）。在使用类之前，必须先将类加载进 JVM 的内存中。</p>
 <span id="more"></span>
+
+<p>类加载器作用：将类加载到 Java 虚拟机，并且检查类的完整性。</p>
 <p>类加载机制：</p>
 <ul>
-<li>将描述类的数据从 .class 文件加载到内存</li>
+<li>将描述类的数据从 <code>.class</code> 文件加载到内存</li>
 <li>对数据进行校验、转换解析和初始化</li>
-<li>最终形成可被虚拟机直接使用的 Java 类型<br>好处：</li>
-<li>类的加载、连接和初始化过程都在程序运行时完成，令 Java 具备高度的灵活性</li>
-<li>避免类被重复加载：即每个 JVM 中只有一个拥有同样全路径的 .class 文件</li>
+<li>最终构造成可被虚拟机直接使用的 Java 类型</li>
+</ul>
+<p>好处：</p>
+<ul>
+<li>类的加载、连接和初始化过程都在程序的运行时完成，令 Java 具备高度的灵活性</li>
+<li>避免类被重复加载：即每个 JVM 中，只会有一个拥有同样全路径的 .class 文件</li>
 <li>沙箱安全机制：防止核心类库的核心类被篡改</li>
 </ul>
+<p>JVM 只会加载程序执行时所需要的类文件（.class 文件），<strong>暂时不使用的类则不会被加载</strong>。</p>
+<br>
+
+<h1 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h1><p>三大类，五步：包括<strong>加载</strong> -&gt; <strong>验证</strong> -&gt; <strong>准备</strong> -&gt; <strong>解析</strong> -&gt; <strong>初始化</strong>。</p>
+<p><strong>1. 加载 Load</strong>：加载类到内存，在堆区建立一个 class 对象</p>
+<ol>
+<li>通过类的全限定名 ( com.xxx.xxxx…) 获取该类的二进制字节流</li>
+<li>从磁盘读取文件，或请求 Web 上的文件等</li>
+<li>将该字节流代表的静态存储结构转换为运行时（方法区）的数据结构</li>
+<li>在静态区（内存）生成 java.lang.Class 对象，作为方法区该类的各种数据结构的访问入口</li>
+</ol>
+<p><strong>2. 链接 Link</strong>：把 class 的二进制数据合并到 JRE，具体包括<strong>验证</strong>、<strong>准备</strong>和<strong>解析</strong>三步：</p>
+<ol>
+<li>验证：class 文件中类结构、语义、操作等的合法性，包括：<ol>
+<li>文件格式验证</li>
+<li>元数据验证（语义分析，类与类的继承关系等）</li>
+<li>字节码验证（数据流和控制流分析）</li>
+<li>符号引用验证（对类自身以外的信息进行匹配校验）</li>
+</ol>
+</li>
+<li>准备：为类的静态变量分配内存，并将非 final 的静态变量初始化默认值（零值），final 的静态变量初始化为其指定值</li>
+<li>解析：将常量池中的符号引用替换成直接引用<ul>
+<li>符号引用：类名、方法名、字段名，具有人类可读性，类似于 OS 中的逻辑地址</li>
+<li>直接引用：内存偏移量，指示内存真实地址，类似于 OS 中的物理地址</li>
+<li>符号引用指向的目标不一定加载到了内存中，而直接引用的目标一定已经加载到了内存中</li>
+</ul>
+</li>
+</ol>
+<p><strong>3. 初始化 Initialization</strong>：赋予静态变量程序员指定的值，初始化静态代码块</p>
+<ol>
+<li>真正执行类中定义的 Java 程序代码</li>
+<li>不可逆</li>
+</ol>
+<p>例：程序从 HelloWorld.class 开始运行——</p>
+<ol>
+<li>虚拟机从磁盘读取文件或请求 Web 上的文件等方法，加载 HelloWorld 类文件（<code>.class</code> 文件）的内容；</li>
+<li>如 HelloWorld 类拥有来自另一个类的域，或拥有超类，那么这些类文件也会被加载（类的解析）；</li>
+<li>虚拟机执行 HelloWorld 中 <code>main()</code> 方法；</li>
+<li>如 <code>main()</code> 或 <code>main()</code> 调用的方法需要用到更多的类：就加载这些类。</li>
+</ol>
+<p>与以下行为相关的类，如没有被加载的话，此时将被加载到 JVM 内存中：</p>
+<ol>
+<li>创建类实例，包括：<ol>
+<li>使用 new 关键字创建实例</li>
+<li>使用 Class.forName() 反射方法来创建实例</li>
+</ol>
+</li>
+<li>调用类的静态方法</li>
+<li>给类的静态变量赋值</li>
+<li>访问非 final 的静态变量<ul>
+<li>常量在被写进类的字节码之前，会被编译器优化为 value 而不是 field</li>
+<li>因此编译器并不会生成字节码来从实例中载入 field 的值，而是直接把这个 value 插入到字节码中</li>
+</ul>
+</li>
+<li>初始化类时，若其父类尚未加载，则先初始化其父类<ul>
+<li>这种情形会递归加载所有之前未被加载的父类</li>
+</ul>
+</li>
+<li>JVM 启动时，用户指定的包含 main 方法的类</li>
+</ol>
+<p>发生以下情况时，类不会被加载：</p>
+<ol>
+<li>子类调用父类的静态方法，子类不会被加载，只有父类会被初始化<ul>
+<li>对于静态字段，只有直接定义这个字段的类才会被初始化</li>
+</ul>
+</li>
+<li>作为数组元素被引用的类</li>
+<li>访问类的 final 静态变量，即常量</li>
+</ol>
+<br>
+
+<h1 id="类加载器类型"><a href="#类加载器类型" class="headerlink" title="类加载器类型"></a>类加载器类型</h1><p>每个 Java 程序至少拥有三类加载器。</p>
+<p><strong>1. 引导类（启动类）加载器</strong>（<strong>Bootstrap Class Loader</strong>）</p>
+<ul>
+<li>最顶层的类加载器，是 Java 虚拟机不可分割的一部分</li>
+<li>负责加载 JDK 的<strong>核心类库</strong>，如 <code>rt.jar</code>、<code>resources.jar</code>、<code>charsets.jar</code> 等，包括：<ul>
+<li><code>$JAVA_HOME/lib</code> 中的类库</li>
+<li>JVM 的 <code>-Xbootclasspat</code>h 参数指定的类库</li>
+</ul>
+</li>
+<li>C++ native code 编写，随 JVM 启动而启动</li>
+<li>注：没有对应的 ClassLoader 对象</li>
+<li>在构造的时候会同时构造 Extension Class Loader</li>
+</ul>
+<p><strong>2. 扩展类加载器</strong>（<strong>Extension Class Loader</strong>）</p>
+<ul>
+<li>默认从 <code>$JAVA_HOME/jre/lib/ext</code> 目录加载“标准的扩展”</li>
+<li>还包括 java.ext.dirs 系统变量指定的类库</li>
+<li>Java 实现，为 URLClassLoader 实例（继承自 ClassLoader）</li>
+<li>注：并不使用类路径</li>
+<li>在构造的时候同时构造 Application Class Loader</li>
+</ul>
+<p><strong>3. 系统类加载器</strong>（<strong>System Class Loader</strong>）或<strong>应用类加载器</strong>（<strong>Application Class Loader</strong>）</p>
+<ul>
+<li>用于加载应用类</li>
+<li>加载应用程序的 classpath 目录下所有 jar 和 class 文件</li>
+<li>Java 实现，为 URLClassLoader 实例（继承自 ClassLoader）</li>
+</ul>
+<p>注：还可从 <code>/jre/lib/endorsed</code> 目录加载——将某个标准 Java 类库替换为更新的版本。</p>
+<br>
+
+<p>除了上述三类必备的类加载器之外，用户还可以自定义类加载器：<br><strong>4. Custom Class Loader</strong></p>
+<ul>
+<li>用户自定义的类加载器，常用于代码的加解密</li>
+</ul>
+<br>
+
+<h1 id="类加载顺序：双亲委派模型"><a href="#类加载顺序：双亲委派模型" class="headerlink" title="类加载顺序：双亲委派模型"></a>类加载顺序：双亲委派模型</h1><p>类加载器有一种“父/子关系”，它们是<strong>组合</strong>而非继承关系：</p>
+<ul>
+<li>当某个类加载器收到类加载请求，首先将请求递归委派给“父类”；</li>
+<li>当它的父类无法完成加载时，加载工作才由它自身完成</li>
+<li>除了 Bootstrap 引导类加载器外，每个类加载器都有一个父类加载器</li>
+</ul>
+<p>以上即为“双亲委派模型”</p>
+<ul>
+<li>父与子之间不是继承关系，是包含关系</li>
+<li>好处：避免重复加载某个类</li>
+</ul>
+<p>具体描述如下：</p>
+<ul>
+<li>某 ClassLoader 亲自搜索需要加载的某个类前，将加载任务委托至父类加载器<ul>
+<li>检查这个类是否已被加载，否则委派 App ClassLoader 加载</li>
+<li>检查这个类是否已被加载，否则委派 Extension ClassLoader 加载</li>
+<li>检查这个类是否已被加载，否则委派 Bootstrap ClassLoader 加载</li>
+<li>从 Bootstrap ClassLoader 试图加载</li>
+<li>如没加载到：任务转交给 Extension ClassLoader</li>
+<li>如没加载到：任务再转交给 App ClassLoader </li>
+<li>如没加载到：任务再转交给该 ClassLoader 自身，或到网络或指定文件系统 URL 加载该类</li>
+<li>如没加载到：抛出 <code>ClassNotFoundException</code></li>
+</ul>
+</li>
+</ul>
+<p>如：某些具有插件结构的程序通过 URLClassLoader 类实例加载类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">URL url = <span class="keyword">new</span> URL(<span class="string">&quot;file://path/to/plugin.jar&quot;</span>);</span><br><span class="line">URLClassLoader pluginLoader = <span class="keyword">new</span> URLClassLoader(<span class="keyword">new</span> URL[] &#123;url&#125;);</span><br><span class="line">Class&lt;?&gt; cl = pluginLoader.loadClass(<span class="string">&quot;mypackage.MyClass&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// URLClassLoader 构造器没有指定父类加载器：pluginLoader 父类就是系统类加载器</span></span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -295,6 +434,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">类加载过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">类加载器类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E9%A1%BA%E5%BA%8F%EF%BC%9A%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">类加载顺序：双亲委派模型</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -308,7 +448,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
