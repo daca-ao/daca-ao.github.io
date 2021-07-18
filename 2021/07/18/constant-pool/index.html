@@ -29,8 +29,11 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/07/18/constant-pool/method-area.png">
 <meta property="og:image" content="http://example.com/2021/07/18/constant-pool/constant-pool.png">
+<meta property="og:image" content="http://example.com/2021/07/18/constant-pool/string-intern-6.png">
+<meta property="og:image" content="http://example.com/2021/07/18/constant-pool/string-intern-7-1.png">
+<meta property="og:image" content="http://example.com/2021/07/18/constant-pool/string-intern-7-2.png">
 <meta property="article:published_time" content="2021-07-17T16:30:44.000Z">
-<meta property="article:modified_time" content="2021-07-18T16:37:28.152Z">
+<meta property="article:modified_time" content="2021-07-18T16:43:35.589Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -272,6 +275,8 @@
 
 <p>示例代码 3：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">String s = <span class="keyword">new</span> String(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">String s2 = <span class="string">&quot;1&quot;</span>;</span><br><span class="line">s.intern();</span><br><span class="line">System.out.println(s == s2); <span class="comment">// false</span></span><br><span class="line"></span><br><span class="line">String s3 = <span class="keyword">new</span> String(<span class="string">&quot;1&quot;</span>) + <span class="keyword">new</span> String(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">String s4 = <span class="string">&quot;11&quot;</span>;</span><br><span class="line">s3.intern();</span><br><span class="line">System.out.println(s3 == s4);</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/18/constant-pool/string-intern-6.png"><br><img src="/2021/07/18/constant-pool/string-intern-7-1.png"><br><img src="/2021/07/18/constant-pool/string-intern-7-2.png"></p>
 
     </div>
 
