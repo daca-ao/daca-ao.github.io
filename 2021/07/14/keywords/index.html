@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本帖用来整理一些常见的 Java 语言中的关键字（保留字）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 常用关键字（keywords）整理">
+<meta property="og:url" content="http://example.com/2021/07/14/keywords/index.html">
+<meta property="og:site_name" content="Raymond&#39;s Cabin">
+<meta property="og:description" content="本帖用来整理一些常见的 Java 语言中的关键字（保留字）。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-07-13T16:14:48.000Z">
+<meta property="article:modified_time" content="2021-07-15T14:38:38.624Z">
+<meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/07/14/keywords/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Java 常用关键字（keywords）整理 | Raymond's Cabin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Raymond's Cabin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">for sharing thoughts</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/14/keywords/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
+      <meta itemprop="description" content="Storing blogs">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Raymond's Cabin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java 常用关键字（keywords）整理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-07-14 00:14:48" itemprop="dateCreated datePublished" datetime="2021-07-14T00:14:48+08:00">2021-07-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本帖用来整理一些常见的 Java 语言中的关键字（保留字）。</p>
+<span id="more"></span>
+
+<h1 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h1><ul>
+<li>修饰抽象类或方法</li>
+</ul>
+<h1 id="assert"><a href="#assert" class="headerlink" title="assert"></a>assert</h1><p>断言（Since Java 1.4），用于查找内部程序错误</p>
+<h1 id="final"><a href="#final" class="headerlink" title="final"></a>final</h1><p>final 关键字在 Java 中被称为“完结器”，表示最终的意思。<br>它能声明类、方法、属性（方法参数和变量）。</p>
+<pre><code>Java classes declared as final cannot be extended. 
+</code></pre>
+<p>final 声明的类不能被继承。</p>
+<pre><code>Methods declared as final cannot be overridden. 
+</code></pre>
+<p>final 声明的方法不能被重写，但不影响被继承。</p>
+<pre><code>The variable declared as final should be initialized only once and cannot be changed. 
+</code></pre>
+<p>final 声明的变量只能被赋值一次，不可被修改。</p>
+<ul>
+<li>修饰基本类型：值不可变，即常量</li>
+<li>修饰对象：该变量被赋予的引用不可变</li>
+</ul>
+<p>对于被 final 修饰的对象，不可改变的只是该变量所保存的引用，并不是该引用指向的对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> StringBuilder s = <span class="keyword">new</span> StringBuilder();  <span class="comment">// final 修饰的是 s，即 s 保存的地址不能变</span></span><br><span class="line">s.append(<span class="string">&quot;a&quot;</span>);    <span class="comment">// 无误，s 指向的对象是可以被修改的</span></span><br><span class="line">s = <span class="keyword">null</span>;         <span class="comment">// 报错，s 的值不能被修改</span></span><br></pre></td></tr></table></figure>
+<p>“被赋值一次”：Java 虚拟机为变量设定的默认值不计作一次赋值</p>
+<p>被 final 修饰的变量必须被初始化：</p>
+<ul>
+<li>定义时初始化</li>
+<li>初始化块中初始化</li>
+<li>类的构造器（Constructor）中初始化</li>
+<li>静态变量也可在静态初始化中初始化</li>
+</ul>
+<p>注：一个被 final 定义并同时指定了初始值，且初始值为编译时就被确定的</p>
+<ul>
+<li>该 final 变量为宏变量</li>
+<li>编译器会将程序所有用到该变量的地方直接替换成该变量的值：宏替换<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> String a = <span class="string">&quot;hello&quot;</span>;    <span class="comment">// 宏变量</span></span><br><span class="line"><span class="keyword">final</span> String b = a;          <span class="comment">// 非宏变量</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="finally"><a href="#finally" class="headerlink" title="finally"></a>finally</h1><p>只能被用在 <code>try</code> / <code>catch</code> 语句中</p>
+<pre><code>The finally block always executes when the try block exits. This ensures that the finally block is executed even if an unexpected exception occurs. 
+</code></pre>
+<p><code>return</code>, <code>continue</code>, <code>break</code> 都不能阻止 finally 语句块的执行</p>
+<ul>
+<li><code>return</code>, <code>continue</code>, <code>break</code> 所在语句块的内容会先输出，然后轮到 finally</li>
+<li>但 finally 块是在他们被执行之前执行的</li>
+</ul>
+<h1 id="finalize"><a href="#finalize" class="headerlink" title="finalize"></a>finalize</h1><p>finalize() 方法为 Object 类的方法</p>
+<pre><code>Before an object is garbage collected, the runtime system calls its finalize() method. 
+</code></pre>
+<h1 id="static"><a href="#static" class="headerlink" title="static"></a>static</h1><ul>
+<li>修饰静态类、类成员方法、类成员变量以及 static 静态代码块</li>
+<li>不能修饰局部变量</li>
+</ul>
+<p>static 变量与普通变量区别：也就是<strong>类</strong>与<strong>对象</strong>层面的区别</p>
+<ul>
+<li>所属目标不同：静态变量属于类的变量，普通变量属于对象的变量</li>
+<li>存储区域不同：静态变量存储在方法区的静态区，普通变量存储在堆</li>
+<li>加载时间不同：<ul>
+<li>静态变量随着类的加载而加载，随着类的消失而消失</li>
+<li>普通变量随着对象的加载而加载，随着对象的消失而消失</li>
+</ul>
+</li>
+<li>调用方式不同：静态变量只能通过类名调用，普通变量只能通过对象调用</li>
+</ul>
+<h1 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h1><ul>
+<li>用来修饰一个方法或者一个代码块</li>
+<li>能够保证在同一时刻最多只有一个线程执行这段代码</li>
+<li>进入这块代码的线程相当于拥有了一把“锁”</li>
+</ul>
+<p>因 Java 中每个对象均有对象锁（<code>Object.lock()</code>）</p>
+<ul>
+<li>synchronized 同步方法：对象锁将保护整个方法</li>
+<li>可声明静态方法</li>
+</ul>
+<p>应用背景（多线程修改同一变量）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        x++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试代码</span></span><br><span class="line">Test test = <span class="keyword">new</span> Test();</span><br><span class="line"><span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        test.inc();</span><br><span class="line">&#125;).start();</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        test.inc();</span><br><span class="line">&#125;).start();</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        test.inc();</span><br><span class="line">&#125;).start();</span><br></pre></td></tr></table></figure>
+
+<p>注：三个线程执行完毕后：<code>test.x</code> 的值不一定就是 <code>30000</code>，有可能是 <code>[10000, 30000]</code> 之间的一个值。</p>
+<p>这是因为，由于三个线程同时访问一个变量，而每个线程中 x 的自增操作会分解为：</p>
+<ol>
+<li>从主内存中将 <code>x</code> 的值读取到该线程的工作内存中</li>
+<li><code>x++</code></li>
+<li>将 <code>x++</code> 的值写回工作内存及主内存</li>
+</ol>
+<p>然而，实际的情况却是：（以 <code>x = 0</code> 为例）</p>
+<ol>
+<li><code>x = 0</code></li>
+<li>T1 从主内存读取 <code>x</code> 的值并写入其工作内存</li>
+<li>T1 计算 <code>x</code> 的值为 1</li>
+<li>T2 从主内存读取 <code>x</code> 的值并写入其工作内存，此时 T2 读取到的 <code>x</code> 的值<strong>仍为 0</strong></li>
+<li>T2 计算 <code>x</code> 的值仍为 1</li>
+<li>T1 将 <code>x = 1</code> 写入工作内存及主内存</li>
+<li>T2 将 <code>x = 1</code> 写入工作内存及主内存</li>
+<li>T1 和 T2 一共计算了<strong>两次</strong>，但 <code>x</code> 的值只增加了 1</li>
+</ol>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="同步某个方法"><a href="#同步某个方法" class="headerlink" title="同步某个方法"></a>同步某个方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> 数据返回类型 方法名() &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用 synchronized 来修饰某个方法，则该方法称为<strong>同步方法</strong></li>
+<li>对于同步方法而言，无需显式指定同步监视器（Monitor）<ul>
+<li>同步方法的 Monitor 是 this：即调用该同步方法的对象</li>
+<li>可将某类变成线程安全的类 —— 该类相当于 Monitor</li>
+</ul>
+</li>
+<li>若要调用该方法：线程需获得内部对象锁<ul>
+<li>锁只会加在访问同一个对象该方法的那些线程上</li>
+</ul>
+</li>
+</ul>
+<p>根据上述，改进上述应用背景：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">inc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        x++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试代码</span></span><br><span class="line">Test test = <span class="keyword">new</span> Test(), test2 = <span class="keyword">new</span> Test();</span><br><span class="line"></span><br><span class="line">Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        test.inc();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">Thread t2 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        test.inc();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">Thread t3 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        test2.inc();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">Thread t4 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        test2.inc();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">t1.start();</span><br><span class="line">t2.start();</span><br><span class="line">t3.start();</span><br><span class="line">t4.start();</span><br><span class="line"><span class="comment">// t1, t2 共享 test.inc() 的锁，t3, t4 共享 test2.inc() 的锁</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>所有访问同一 <code>test</code> 对象 inc() 方法的线程共用一把锁</li>
+<li>其他线程如果访问其他对象的 inc() 方法，使用的是另外的锁</li>
+</ul>
+<p>静态方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">inc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        x++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 测试代码</span></span><br><span class="line">Thread t1 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        Test.inc();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">Thread t2 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        Test.inc();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">Thread t3 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        Test.inc();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">Thread t4 = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)</span><br><span class="line">        Test.inc();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">t1.start();</span><br><span class="line">t2.start();</span><br><span class="line">t3.start();</span><br><span class="line">t4.start();</span><br><span class="line"><span class="comment">// 以上，所有线程共享 Test.inc() 的锁</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>静态方法独立于对象存在：因此所有访问该静态方法的线程共享一把锁</li>
+</ul>
+<h3 id="同步代码块（同步阻塞）"><a href="#同步代码块（同步阻塞）" class="headerlink" title="同步代码块（同步阻塞）"></a>同步代码块（同步阻塞）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (同一个数据) &#123; ... &#125; </span><br></pre></td></tr></table></figure>
+<ul>
+<li>同一个数据：N 条线程同时访问一个数据</li>
+<li>比锁住整个方法更有效率：因为同时可以有多个线程进入到方法中，进行那些无需上锁的操作</li>
+</ul>
+<p>我们暂且称这“同一个数据”为<strong>锁芯</strong></p>
+<ul>
+<li>锁芯可为固定的 this 对象或类的 class 对象，也可更换为其他对象</li>
+<li>几乎任意对象，但不能为 null</li>
+<li>原因：锁芯应为所有访问该方法的线程均能访问的同一个对象，这样才能确保其线程互斥</li>
+<li>this、class 及其他 final 对象能防止锁芯更换，从而避免各线程的锁不一样</li>
+</ul>
+<p><strong>1. 普通方法代码块：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">        x++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 等价于 public synchronized void inc() &#123; x++; &#125;</span></span><br><span class="line"><span class="comment">// 代码块范围为整个方法里的代码，且锁住 this 对象</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (Test.class) &#123;</span><br><span class="line">        x++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Object lock = <span class="keyword">new</span> Object(); <span class="comment">// 注意这个 final</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        x++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 静态方法代码块：</strong></p>
+<ul>
+<li>静态方法通常只与<strong>类</strong>有关，与类的任何对象无关</li>
+<li>此时锁芯通常由所有直接或间接调用该类静态方法（类名.方法）的线程共享<ul>
+<li>因此显然<strong>不能是 this 对象</strong>或任何非静态对象</li>
+<li>只能是静态对象或类的 class 对象</li>
+</ul>
+</li>
+<li>通常添加 <code>final</code> 关键字</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">inc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (Test.class) &#123;</span><br><span class="line">        x++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 等价于 public static synchronized void inc() &#123; x++; &#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Object lock = <span class="keyword">new</span> Object();</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">int</span> x = <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">inc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">        x++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>内部对象锁只有一个相关条件，其局限性为：</p>
+<ul>
+<li>不能中断一个正在试图获得锁的线程</li>
+<li>试图获得锁时不能设定超时</li>
+<li>每个锁仅有单一条件</li>
+</ul>
+<p><strong>另：客户端锁定（client-side locking）</strong>：锁定某对象，将读写操作放入同一代码块中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">transfer</span><span class="params">(Vector&lt;Double&gt; accounts, <span class="keyword">int</span> from, <span class="keyword">int</span> to, <span class="keyword">int</span> amount)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">synchronized</span> (accounts) &#123;</span><br><span class="line">          accounts.set(from, accounts.get(from) - amount);</span><br><span class="line">          accounts.set(to, accounts.get(to) + amount);</span><br><span class="line">     &#125;</span><br><span class="line">     System.out.println(<span class="string">&quot;...&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>十分脆弱，不推荐使用</p>
+<p>注：<code>synchronized</code> 修饰的方法在子类中不会继承同步性</p>
+<ul>
+<li>即：多个线程调用该子类继承父类的方法时不会加锁</li>
+<li>除非重写并加上关键字</li>
+</ul>
+<h2 id="synchronized-原理：可重入性"><a href="#synchronized-原理：可重入性" class="headerlink" title="synchronized 原理：可重入性"></a>synchronized 原理：<strong>可重入性</strong></h2><p>使用 synchronized 关键字同步的方法与锁的关系：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123; doSomething(); &#125;</span><br></pre></td></tr></table></figure>
+
+<p>等同于</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.intrinsicLock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        doSomething();</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.intrinsicLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>即：synchronized 关键字提供的是一个可重入锁</li>
+</ul>
+<p>从一个对象的 synchronized 方法调用该对象的另一个 synchronized 方法：调用线程在执行这两个方法的时候，获得的是<strong>一把</strong>对象锁</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">m1</span><span class="params">(String t)</span> </span>&#123;</span><br><span class="line">    System.out.println(t + <span class="string">&quot;m1&quot;</span>);</span><br><span class="line">    m2(t);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">m2</span><span class="params">(String t)</span> </span>&#123;</span><br><span class="line">    System.out.println(t + <span class="string">&quot;m2&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>即：调用同一对象的 m1 或 m2 方法时，所有线程共享一把锁</li>
+<li>锁被获得（进入）了两次，记数 2</li>
+<li>进入该对象 m1 的线程在进入 m2 时可直接获得该锁，这也体现了“可重入性”</li>
+</ul>
+<p>注意：</p>
+<ul>
+<li>可重入的代码不能使用静态或全局变量作为锁芯，同时不调用不可重用的代码</li>
+<li>当 synchronized 方法 A 调用某方法 B，B 没有上锁的同时可被其他线程直接调用<ul>
+<li>这会导致其绕过了锁直接进行 B 方法的操作，造成线程不安全</li>
+</ul>
+</li>
+<li>调用不同对象的 synchronized 方法：线程不共享对象锁<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SyncTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">m1</span><span class="params">(String t)</span> </span>&#123;</span><br><span class="line">        System.out.println(t + <span class="string">&quot;m1&quot;</span>);</span><br><span class="line">        m2(t);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">m2</span><span class="params">(String t)</span> </span>&#123;</span><br><span class="line">        System.out.println(t + <span class="string">&quot;m2&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SyncTest t = <span class="keyword">new</span> SyncTest();</span><br><span class="line">        SyncTest t2 = <span class="keyword">new</span> SyncTest();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            t.m1(Thread.currentThread().getName());</span><br><span class="line">        &#125;).start();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            t.m1(Thread.currentThread().getName());</span><br><span class="line">        &#125;).start();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            t.m1(Thread.currentThread().getName());</span><br><span class="line">        &#125;).start();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            t2.m1(Thread.currentThread().getName());</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 可能的情况</span></span><br><span class="line"><span class="comment">    Thread-0m1</span></span><br><span class="line"><span class="comment">    Thread-0m2</span></span><br><span class="line"><span class="comment">    Thread-1m1</span></span><br><span class="line"><span class="comment">    Thread-1m2</span></span><br><span class="line"><span class="comment">    Thread-3m1    // t2对象的锁：这是另一把锁</span></span><br><span class="line"><span class="comment">    Thread-3m2    // 另一把锁</span></span><br><span class="line"><span class="comment">    Thread-2m1</span></span><br><span class="line"><span class="comment">    Thread-2m2</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="transient"><a href="#transient" class="headerlink" title="transient"></a>transient</h1><p><code>transient</code> 只能用于修饰变量，用来标识非永久性（不能被序列化）的数据。</p>
+<ul>
+<li>当对象被序列化/反序列化时，被 transient 关键字修饰的变量不会被持久化/恢复<ul>
+<li>如：类中有一个 InputStream 对象</li>
+<li>对其序列化/反序列化是不合适的，因为序列化和反序列化的位置可能不同，从而导致恢复时对象不可用</li>
+</ul>
+</li>
+</ul>
+<h1 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h1><p>在了解 Java 内存模型的时候，我们知道，编译器为了加快程序运行速度，对一些变量的写操作会先在寄存器或 CPU 缓存进行，最后再写入主内存。</p>
+<p>也就是说，每个线程在处理器的高速缓存中都拥有一份工作内存，保存它用到的共享变量的副本。</p>
+<ul>
+<li>工作内存中的变量是从主内存中读取拷贝，在被修改后再写回主内存的<ul>
+<li>在这个过程中，变量新值，即工作内存变量值对其他线程不可见</li>
+</ul>
+</li>
+</ul>
+<p>并发正常工作所必须满足的三个条件：</p>
+<p><strong>1. 可见性</strong></p>
+<ul>
+<li>一个线程修改了变量，其他线程要立即看得到</li>
+<li>一般情况下，工作内存的变量被修改后不会立即写入主内存，这就会产生脏读</li>
+</ul>
+<p><strong>2. 原子性</strong></p>
+<ul>
+<li>do it all OR don’t do it at all</li>
+<li>只有最基本的赋值是原子操作；变量互相赋值、自增减均非原子操作</li>
+</ul>
+<p><strong>3. 有序性</strong></p>
+<ul>
+<li>指令重排序：处理器为提高效率，会对代码的执行顺序进行优化</li>
+<li>但会根据 happens-before 来保证执行结果和顺序执行的结果相同</li>
+</ul>
+<p>如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> f = <span class="keyword">false</span>;</span><br><span class="line">i = <span class="number">1</span>;        <span class="comment">// 1</span></span><br><span class="line">f = <span class="keyword">true</span>;     <span class="comment">// 2</span></span><br><span class="line"><span class="comment">// 1 和 2 无依赖，执行顺序可能为：12 或 21</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> a = <span class="number">10</span>;    <span class="comment">// 1</span></span><br><span class="line"><span class="keyword">int</span> r = <span class="number">2</span>;     <span class="comment">// 2</span></span><br><span class="line">a = a + <span class="number">3</span>;     <span class="comment">// 3</span></span><br><span class="line">r = a * a;     <span class="comment">// 4</span></span><br><span class="line"><span class="comment">// 由于 3 和 4 对 1 有依赖，所以编译期在进行指令重排序的时候，会确保 3 和 4 在 1 后面执行</span></span><br><span class="line"><span class="comment">// 可能的顺序 1234, 1324, 2134</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>但是多线程时，当依赖某个变量来判断语句的执行时，可能会因为指令重排序而出错<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Thread1</span></span><br><span class="line">context = loadContext();    <span class="comment">// 1</span></span><br><span class="line"><span class="keyword">boolean</span> inited = <span class="keyword">true</span>;      <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Thread2</span></span><br><span class="line"><span class="keyword">while</span>(!inited) sleep();     <span class="comment">// 1</span></span><br><span class="line">postInit(context);          <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 出错：Thread1.2 -&gt; Thread2.1 -&gt; Thread2.2 -&gt; Thread1.1（有可能 context = null）</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="volatile-与并发"><a href="#volatile-与并发" class="headerlink" title="volatile 与并发"></a>volatile 与并发</h2><p><strong>1. 可见性</strong></p>
+<p>volatile 保证可见性</p>
+<ul>
+<li>被修饰的成员变量在每次被线程访问时，都强迫其从共享内存中直接重读该成员变量的值<ul>
+<li>且：当成员变量发生变化时，强迫操作线程将变化值写回共享内存</li>
+</ul>
+</li>
+<li>由此可知，在该机制下，任何时刻的两个不同的线程总是会看到某个成员变量的同一个值</li>
+<li>只能用来修饰变量</li>
+</ul>
+<p>例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">boolean</span> done;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">isDone</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> done;&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">setDone</span><span class="params">()</span> </span>&#123; done = <span class="keyword">true</span>;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用 volatile：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> done;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isDone</span><span class="params">()</span> </span>&#123;<span class="keyword">return</span> done;&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setDone</span><span class="params">()</span> </span>&#123; done = <span class="keyword">true</span>;&#125;</span><br><span class="line"><span class="comment">// 无需给方法加锁</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 原子性</strong></p>
+<ul>
+<li>volatile 变量不能提供原子性，不会主动发起阻塞</li>
+<li>对于非原子操作：单句代码会被拆解执行</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="keyword">int</span> inc = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</span><br><span class="line">    inc++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 10 个线程均执行以上循环，结果可能小于 1000*10</span></span><br></pre></td></tr></table></figure>
+
+<p>解析：因为 inc++ 并不是原子性操作，其包括三步：</p>
+<ol>
+<li>主内存读取 inc</li>
+<li>计算 inc` = inc + 1</li>
+<li>写回主内存 inc = inc`</li>
+</ol>
+<p>出错的情况：</p>
+<ol>
+<li>T1 从主内存读 inc = 10，写入 T1 工作内存</li>
+<li>T2 从主内存读 inc = 10，写入 T2 工作内存</li>
+<li>T1 计算 inc` = 11 并将其写进工作内存和主内存</li>
+<li>T2 计算 inc` = 11 并将其写进工作内存和主内存</li>
+</ol>
+<p><strong>3. 有序性</strong></p>
+<ul>
+<li>volatile 保证有序性：<strong>禁止指令重排序</strong></li>
+<li>确保本条指令不会因为编译器和虚拟机的优化而被省略</li>
+</ul>
+<p>原则：</p>
+<ol>
+<li>执行对 volatile 的读/写操作前，前面的更改一定全部执行，且结果对后面可见；后面的更改一定还没有被执行</li>
+<li>指令优化时，不能把对 volatile 的读/写的前置操作放在它的后面，也不能把 volatile 读/写的后续操作放在它的前面<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// x、y 为非 volatile 变量</span></span><br><span class="line"><span class="comment">// flag 为 volatile 变量</span></span><br><span class="line"><span class="keyword">int</span> x, y;</span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> f;</span><br><span class="line">x = <span class="number">2</span>;       <span class="comment">// 1</span></span><br><span class="line">y = <span class="number">0</span>;       <span class="comment">// 2</span></span><br><span class="line">f = <span class="keyword">true</span>;    <span class="comment">// 3</span></span><br><span class="line">x = <span class="number">4</span>;       <span class="comment">// 4</span></span><br><span class="line">y = -<span class="number">1</span>;      <span class="comment">// 5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 不可能的顺序：1或2 在 3 后面；4或5 在 3 前面</span></span><br><span class="line"><span class="comment">// 可能的顺序只有：12345, 12354, 21345, 21354</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>保证有序性的前提下，对前面的例子作修改：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> inited;</span><br><span class="line"></span><br><span class="line"><span class="comment">// T1</span></span><br><span class="line">context = loadContext();  <span class="comment">// 1</span></span><br><span class="line">inited = <span class="keyword">true</span>;            <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// T2</span></span><br><span class="line"><span class="keyword">while</span>(!inited) sleep();   <span class="comment">// 1</span></span><br><span class="line">postInit(context);        <span class="comment">// 2</span></span><br><span class="line"><span class="comment">// T1.1 必在 T1.2 前执行，由此来避免出错</span></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="使用场景：状态标记"><a href="#使用场景：状态标记" class="headerlink" title="使用场景：状态标记"></a>使用场景：状态标记</h2><ul>
+<li>利用有序性及可见性，规避非原子性操作</li>
+</ul>
+<p>例：单例模式的 double check</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> Singleton instance = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> x;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123; x = <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">                <span class="keyword">if</span>(instance == <span class="keyword">null</span>)</span><br><span class="line">                    instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 由于instance = new Singleton() 非原子操作，会被拆成三步，利用 volatile 避免指令重排序避免出错</span></span><br><span class="line"><span class="comment"> 三步分别是：</span></span><br><span class="line"><span class="comment">     1. 为对象分配内存</span></span><br><span class="line"><span class="comment">     2. 调用构造函数初始化成员变量（如有）</span></span><br><span class="line"><span class="comment">     3. 将 instance 指向新对象</span></span><br><span class="line"><span class="comment"> 可能的顺序：123, 132，若 instance 为 volatile 则只能为 123</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"> 出错的情况（instance 不为 volatile）：</span></span><br><span class="line"><span class="comment"> 1. T1 调用，instance == null, 通过判断拿到锁，开始初始化对象</span></span><br><span class="line"><span class="comment"> 2. 指令重排序为 132</span></span><br><span class="line"><span class="comment">     a. 为对象分配内存</span></span><br><span class="line"><span class="comment">     b. 将 instance 指向新对象, instance != null</span></span><br><span class="line"><span class="comment">     c. T1 阻塞</span></span><br><span class="line"><span class="comment">     d. 调用 instance 构造方法，初始化成员变量，等</span></span><br><span class="line"><span class="comment"> 3. T2 在 2.b 与 2.d 之间调用，由于 instance != null，直接返回 instance，指向已经分配内存但未调用构造方法的对象，此时成员变量未初始化，可能出错</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+<p>注：使用 final 修饰的共享数据结构，其他线程在对象构造函数完成后才能看到该对象</p>
+<p>另：<code>java.util.concurrent.atomic</code> 包中有很多类方法保证了操作的原子性</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/11/jvm-params/" rel="prev" title="JVM 常用参数">
+      <i class="fa fa-chevron-left"></i> JVM 常用参数
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/15/mq/" rel="next" title="消息队列与 AMQP">
+      消息队列与 AMQP <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#assert"><span class="nav-number">2.</span> <span class="nav-text">assert</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#final"><span class="nav-number">3.</span> <span class="nav-text">final</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#finally"><span class="nav-number">4.</span> <span class="nav-text">finally</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#finalize"><span class="nav-number">5.</span> <span class="nav-text">finalize</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#static"><span class="nav-number">6.</span> <span class="nav-text">static</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#synchronized"><span class="nav-number">7.</span> <span class="nav-text">synchronized</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">7.1.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E6%9F%90%E4%B8%AA%E6%96%B9%E6%B3%95"><span class="nav-number">7.1.1.</span> <span class="nav-text">同步某个方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E4%BB%A3%E7%A0%81%E5%9D%97%EF%BC%88%E5%90%8C%E6%AD%A5%E9%98%BB%E5%A1%9E%EF%BC%89"><span class="nav-number">7.1.2.</span> <span class="nav-text">同步代码块（同步阻塞）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized-%E5%8E%9F%E7%90%86%EF%BC%9A%E5%8F%AF%E9%87%8D%E5%85%A5%E6%80%A7"><span class="nav-number">7.2.</span> <span class="nav-text">synchronized 原理：可重入性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#transient"><span class="nav-number">8.</span> <span class="nav-text">transient</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#volatile"><span class="nav-number">9.</span> <span class="nav-text">volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile-%E4%B8%8E%E5%B9%B6%E5%8F%91"><span class="nav-number">9.1.</span> <span class="nav-text">volatile 与并发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%8A%B6%E6%80%81%E6%A0%87%E8%AE%B0"><span class="nav-number">9.2.</span> <span class="nav-text">使用场景：状态标记</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">敖惠竣｜Ao Huijun, Raymond</p>
+  <div class="site-description" itemprop="description">Storing blogs</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/daca-ao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;daca-ao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/daca.aohuijun" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;daca.aohuijun" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/kaijesugardaddy" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;kaijesugardaddy" rel="noopener" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">敖惠竣｜Ao Huijun, Raymond</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
