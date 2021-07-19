@@ -8,6 +8,8 @@ tags:
 首先，我们这里讨论的并不是物理上的反射（哈哈），而是基于计算机科学的反射式编程概念，讨论一下它的原理以及在 Java 语言当中的实现。
 
 <!-- more -->
+<br/>
+
 # 概述
 
 在计算机科学中，[反射式编程](https://zh.wikipedia.org/wiki/反射式编程)（reflective programming），或反射（reflection），指的是计算机程序运行时“访问、检测和修改它本身状态或行为的能力”：
@@ -40,6 +42,8 @@ abstract class BaseStrategy {
 }
 ```
 
+<br/>
+
 # Java 的反射机制
 
 Java 中的反射机制，指的是直接操作编译后的 `.class` 文件，动态获取程序信息及动态调用对象的功能。
@@ -52,21 +56,27 @@ Java 中的反射机制，指的是直接操作编译后的 `.class` 文件，�
 缺点：
 * 对性能有影响，总是慢于直接执行 Java 代码
 
+<br/>
+
 ## Java 的反射与所谓“传统 RTTI”的区别
 
 ![](reflection-java/reflection-vs-rtti.png)
 
+<br/>
 
 ## 普通的生成对象 v.s. 反射生成对象
 
 ![](reflection-java/r.png)
 
+<br/>
 
 ## .class 文件包括了什么？
 
 ![](reflection-java/class.png)
 
 注：左边为编译前源码的内容，右边为类的信息
+
+<br/>
 
 ## Class 对象相关
 
@@ -141,6 +151,7 @@ getClassLoader()    // 获得类的类加载器
 * `Class.forName()` 除了将类的 .class 文件加载到 JVM 中之外，还可将类进行初始化
 * `ClassLoader.loadClass()` 只是将 .class 文件加载到 JVM 中，不会进行初始化
 
+<br/>
 
 ## Constructor 构造函数相关
 
@@ -156,6 +167,7 @@ Person p = (Person) c.newInstance("test", 10, (byte) 1);
 Person p2 = (Person) c1.newInstance();
 ```
 
+<br/>
 
 ## Field 属性相关
 
@@ -189,6 +201,7 @@ nameField.setAccessible(true);
 ```
 随后便可通过 `.get()` 方法获取值。
 
+<br/>
 
 ## Method 方法相关：与属性类似
 
@@ -201,6 +214,8 @@ clazz.getDeclaredMethods()
 ```java
 method.setAccessible(true);
 ```
+
+<br/>
 
 # 应用
 
@@ -219,6 +234,7 @@ method.setAccessible(true);
 ```java
 // 调用：
 BeanUtils.convert(objectFrom, objectTo);
+
 
 // 示例代码：
 public static void convert(Object srcObj, Object targetObj) throws Throwable {

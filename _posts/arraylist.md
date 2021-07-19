@@ -14,6 +14,7 @@ ArrayList 是 List 接口最常用的通用实现。
 * 必要时：如元素为大对象，可手动缩容
 * 线程不安全
 
+<br/>
 
 # 变量与构造方法
 
@@ -89,6 +90,7 @@ public ArrayList(int initialCapacity) {
 }
 ```
 
+<br/>
 
 # 添加元素 & 动态扩容
 
@@ -237,6 +239,7 @@ int newCapacity = (oldCapacity * 3)/2 + 1;
 
 ![](arraylist/arraylist-add.png)
 
+<br/>
 
 # 获取元素
 
@@ -248,6 +251,7 @@ public E get(int index) {
 }
 ```
 
+<br/>
 
 # 删除元素
 

@@ -19,6 +19,7 @@ JCF，Java Collections Framework 的简称。[官方文档](https://docs.oracle.
     * 被 JDK 收录的集合类库是一系列数据结构类型的具体实现
     * 质量和性能较高，降低底层代码的性能风险和维护成本
 
+<br/>
 
 # 诞生背景
 
@@ -65,6 +66,7 @@ Queue<Customer> expressLane = new LinkedListQueue<>();
 expressLane.add(new Customer("Harry"));
 ```
 
+<br/>
 
 # “体系”下的集合框架（Collections Framework）
 
@@ -90,6 +92,7 @@ expressLane.add(new Customer("Harry"));
 * 框架使用者创建的子类可以扩展超类的功能，不必重新创建基本机制
 * Java 集合类库为集合实现者定义并描述大量接口和抽象类
 
+<br/>
 
 # 基本接口
 
@@ -295,6 +298,7 @@ list.forEach(s -> System.out.println(s));
 list.forEach(System.out::println);
 ```
 
+<br/>
 
 # 通用实现
 
@@ -420,6 +424,7 @@ public Vector()  // 等同于 public Vector(10)
 
 `BitSet`：位集，存放位序列
 
+<br/>
 
 # JCF 类图汇总
 

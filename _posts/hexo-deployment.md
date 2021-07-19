@@ -5,6 +5,7 @@ title: Hexo Blog 的部署
 相信各位，特别是喜欢玩博客的朋友都有听过 Hexo 这个框架了，本人在用它来搭建自己的空间的时候遇到了不少的问题，现在就写一篇 blog 来记录一下搭建过程。
 
 <!-- more -->
+<br/>
 
 ## Hexo 简介
 Hexo 是一款基于 Node.js 的静态博客框架，依赖少，而且可以很方便地将静态页面托管在 Github 上。详细介绍或者 API 可参考 [Hexo 官网](https://hexo.io/zh-cn/)或者它的 [Github 工程页面](https://github.com/hexojs/hexo)。

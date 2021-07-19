@@ -9,7 +9,7 @@ tags:
 LinkedList 是 Collection 接口下对 List 的双向链表实现。
 <!-- more -->
 概述：
-* 同时实现了 List 接口和 Deque 接口（双向链表）
+* 同时实现了 `List` 接口和 `Deque` 接口（双向链表）
 * 每次插入时可选择链表头或链表尾插入
 * 读取时需从链式结构逐个遍历，删除则为断链-重链过程
 * 非线程安全
@@ -18,6 +18,7 @@ LinkedList 是 Collection 接口下对 List 的双向链表实现。
 * 优势：不需要预估容量及动态扩容，每次新增只需要新增一个链上的节点。
 * 代价：遍历时需从链上逐个遍历，不支持随机访问。
 
+<br/>
 
 # 构造函数
 
@@ -31,6 +32,7 @@ public LinkedList(Collection<? extends E> c) {
 }
 ```
 
+<br/>
 
 # 链表节点的数据结构
 
@@ -47,6 +49,8 @@ private static class Node<E> {
     }
 }
 ```
+
+<br/>
 
 # 基本操作
 
@@ -199,6 +203,7 @@ Node<E> node(int index) {
     ```
     但底层调用的是 `node(int)` 方法，效率相对低下。
 
+<br/>
 
 ## 迭代元素
 
