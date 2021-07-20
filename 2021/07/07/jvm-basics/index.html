@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/jvm-shared-8.png">
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/vm-stack.png">
 <meta property="article:published_time" content="2021-07-07T14:44:49.000Z">
-<meta property="article:modified_time" content="2021-07-19T14:29:26.205Z">
+<meta property="article:modified_time" content="2021-07-20T16:42:55.393Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -379,6 +379,7 @@
 <ul>
 <li>每个方法执行时创建栈帧（stack frame），压入虚拟机栈，返回时弹栈<ul>
 <li>返回至返回地址（Return Address，即指针）</li>
+<li>每个<strong>方法使用时才会被压入栈</strong>，方法不被使用时则不占用内存</li>
 </ul>
 </li>
 <li>每个栈帧对应于一个方法名<ul>
@@ -432,6 +433,42 @@
 <li>执行该方法的时候，除了 main 栈帧及其它方法对应的栈帧之外，栈帧 doMath 的变量表、操作数栈、帧数据的变化，以及程序计数器、本地方法栈等如下图：</li>
 </ul>
 <p><img src="/2021/07/07/jvm-basics/vm-stack.png"></p>
+<br>
+
+<h1 id="内存分配流程"><a href="#内存分配流程" class="headerlink" title="内存分配流程"></a>内存分配流程</h1><p>[]</p>
+<p>并不是所有的对象都直接分配到堆上。通过以上对 Java 对象分配的过程分析，可以知道有另外两个地方：<strong>栈</strong>（与逃逸分析相关）和 <strong>TLAB</strong> 也是可以保存对象的。</p>
+<h2 id="逃逸分析（Escape-Analysis）浅析"><a href="#逃逸分析（Escape-Analysis）浅析" class="headerlink" title="逃逸分析（Escape Analysis）浅析"></a>逃逸分析（Escape Analysis）浅析</h2><p>逃逸分析是 Java Hotspot 虚拟机能够分析新创建对象的使用范围，并决定是否要在 Java 堆上分配内存的一项技术。</p>
+<p>当一个对象被定义了之后，通过分析它的动态作用域，可以知道它的逃逸状态：</p>
+<ol>
+<li>全局逃逸：对象作用范围逃出了当前方法或当前线程，包括以下情况：<ol>
+<li>对象是一个<strong>静态变量</strong></li>
+<li>对象是一个已经发生逃逸的对象</li>
+<li>对象为当前方法的<strong>返回值</strong></li>
+</ol>
+</li>
+<li>参数逃逸：一个对象被作为方法参数传递或者被参数引用<ol>
+<li>但在调用过程中不会发生全局逃逸</li>
+<li>状态通过被调方法的字节码确定的</li>
+</ol>
+</li>
+<li>没有逃逸</li>
+</ol>
+<p>当一个对象没有逃逸时，Java Hotspot 虚拟机可对其进行以下优化：</p>
+<ul>
+<li><strong>锁消除</strong>：编译器确定当前对象只有被当前线程使用的时候，会移除该对象的同步锁<ul>
+<li>在这个对象上的操作可以不需要同步锁</li>
+<li>如：移除当前线程的 StringBuffer 的同步锁</li>
+</ul>
+</li>
+<li><strong>分离对象或标量替换</strong>：将聚合量（对象）打散、分解成标量，将其成员变量分解为分散的变量<ul>
+<li>如一个对象没有发生逃逸，此时该对象的部分可以不存储在内存，而是存储在寄存器中，节省内存空间</li>
+</ul>
+</li>
+<li>将对象分配在栈上</li>
+</ul>
+<p>最大的好处：通常的应用中，没有逃逸的局部对象占的比例很大。如果使用栈上分配，大量对象会随着方法的结束自动销毁，大大减小垃圾回收的负荷。</p>
+<h2 id="TLAB"><a href="#TLAB" class="headerlink" title="TLAB"></a>TLAB</h2><p>全称为 <strong>Thread Local Allocation Buffer</strong>，线程本地分配缓存区，是线程专用的内存分配区域。</p>
+<p>背景：多个线程在堆上申请空间，如果每次对象分配都必须进行同步（CAS + 失败重试保证操作原子性），当竞争激烈的时候，内存分配的效率进一步下降。<br>因此 JVM 为每个 Java 线程在 <strong>Eden 区</strong>划出一块内存（仅占 Eden 空间的 1%）作为 TLAB，每个线程使用自己的 TLAB，在避免线程同步的同时提升了对象分配的效率。</p>
 
     </div>
 
@@ -516,7 +553,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">基本结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%85%B1%E4%BA%AB%E5%8C%BA%E5%9F%9F"><span class="nav-number">1.1.</span> <span class="nav-text">线程共享区域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%A7%81%E6%9C%89%E5%8C%BA%E5%9F%9F"><span class="nav-number">1.2.</span> <span class="nav-text">线程私有区域</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">基本结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%85%B1%E4%BA%AB%E5%8C%BA%E5%9F%9F"><span class="nav-number">1.1.</span> <span class="nav-text">线程共享区域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%A7%81%E6%9C%89%E5%8C%BA%E5%9F%9F"><span class="nav-number">1.2.</span> <span class="nav-text">线程私有区域</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">内存分配流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%83%E9%80%B8%E5%88%86%E6%9E%90%EF%BC%88Escape-Analysis%EF%BC%89%E6%B5%85%E6%9E%90"><span class="nav-number">2.1.</span> <span class="nav-text">逃逸分析（Escape Analysis）浅析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TLAB"><span class="nav-number">2.2.</span> <span class="nav-text">TLAB</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -530,7 +567,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-count">26</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

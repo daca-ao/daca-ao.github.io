@@ -28,7 +28,7 @@
 <meta property="og:description" content="Java 程序的基本单元，就是一个个的类（Class）及类实例（Class Instance）。在使用类之前，必须先将类加载进 JVM 的内存中。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-07T16:07:22.000Z">
-<meta property="article:modified_time" content="2021-07-10T04:27:00.020Z">
+<meta property="article:modified_time" content="2021-07-20T14:09:33.698Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -203,7 +203,7 @@
         <p>Java 程序的基本单元，就是一个个的类（Class）及类实例（Class Instance）。在使用类之前，必须先将类加载进 JVM 的内存中。</p>
 <span id="more"></span>
 
-<p>类加载器作用：将类加载到 Java 虚拟机，并且检查类的完整性。</p>
+<p>类加载器（Class Loader）作用：将类加载到 Java 虚拟机，并且检查类的完整性。</p>
 <p>类加载机制：</p>
 <ul>
 <li>将描述类的数据从 <code>.class</code> 文件加载到内存</li>
@@ -222,7 +222,7 @@
 <h1 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h1><p>三大类，五步：包括<strong>加载</strong> -&gt; <strong>验证</strong> -&gt; <strong>准备</strong> -&gt; <strong>解析</strong> -&gt; <strong>初始化</strong>。</p>
 <p><strong>1. 加载 Load</strong>：加载类到内存，在堆区建立一个 class 对象</p>
 <ol>
-<li>通过类的全限定名 ( com.xxx.xxxx…) 获取该类的二进制字节流</li>
+<li>通过类的全限定名（com.xxx.xxxx….）获取该类的二进制字节流</li>
 <li>从磁盘读取文件，或请求 Web 上的文件等</li>
 <li>将该字节流代表的静态存储结构转换为运行时（方法区）的数据结构</li>
 <li>在静态区（内存）生成 java.lang.Class 对象，作为方法区该类的各种数据结构的访问入口</li>
@@ -448,7 +448,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-count">26</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
