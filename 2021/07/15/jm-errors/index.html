@@ -20,20 +20,21 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="消息队列（Message Queue, MQ）属于中间件的一种，是分布式系统中重要的组件。">
+  <meta name="description" content="Java 程序中常见的内存毛病就是内存溢出和内存泄漏了。本帖专门来聊聊这俩毛病，以及做一下比较。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="消息队列与 AMQP">
-<meta property="og:url" content="http://example.com/2021/07/15/mq/index.html">
+<meta property="og:title" content="Java 内存异常处理">
+<meta property="og:url" content="http://example.com/2021/07/15/jm-errors/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="消息队列（Message Queue, MQ）属于中间件的一种，是分布式系统中重要的组件。">
+<meta property="og:description" content="Java 程序中常见的内存毛病就是内存溢出和内存泄漏了。本帖专门来聊聊这俩毛病，以及做一下比较。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-15T14:46:15.000Z">
-<meta property="article:modified_time" content="2021-07-15T14:47:38.977Z">
+<meta property="article:modified_time" content="2021-07-21T16:42:11.134Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
-<meta property="article:tag" content="消息队列">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2021/07/15/mq/">
+<link rel="canonical" href="http://example.com/2021/07/15/jm-errors/">
 
 
 <script id="page-configurations">
@@ -46,7 +47,7 @@
   };
 </script>
 
-  <title>消息队列与 AMQP | Raymond's Cabin</title>
+  <title>Java 内存异常处理 | Raymond's Cabin</title>
   
 
 
@@ -162,7 +163,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/15/mq/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/15/jm-errors/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -175,7 +176,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          消息队列与 AMQP
+          Java 内存异常处理
         </h1>
 
         <div class="post-meta">
@@ -199,20 +200,113 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>消息队列（Message Queue, MQ）属于中间件的一种，是分布式系统中重要的组件。</p>
+        <p>Java 程序中常见的内存毛病就是<strong>内存溢出</strong>和<strong>内存泄漏</strong>了。本帖专门来聊聊这俩毛病，以及做一下比较。</p>
 <span id="more"></span>
 
+<h1 id="内存溢出"><a href="#内存溢出" class="headerlink" title="内存溢出"></a>内存溢出</h1><p>内存溢出（Out Of Memory, <strong>OOM</strong>），对应的是 <code>java.lang.OutOfMemoryError</code> 这一运行时异常。</p>
 <ul>
-<li>应用程序之间的通信方法<ul>
-<li>应用场景：解耦、异步消息、流量削锋等问题</li>
-<li>生产者-消费者的典型代表</li>
+<li>继承自 <code>java.lang.VirtualMachineError</code>。</li>
+</ul>
+<p>常见原因：</p>
+<ul>
+<li>内存中加载的数据量过于庞大，如一次过从数据库取出过多数据</li>
+<li>集合类中有对对象的引用，使用完之后未清空，使得 JVM 不能回收</li>
+<li>代码中存在死循环或循环产生过多重复的对象实体</li>
+<li>启动参数内存值设定得过小</li>
+<li>使用的第三方软件中的 BUG</li>
+</ul>
+<p>常见的错误提示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tomcat: </span></span><br><span class="line">java.lang.OutOfMemoryError: PermGen space</span><br><span class="line">java.lang.OutOfMemoryError: Java heap space</span><br><span class="line"></span><br><span class="line"><span class="comment"># web logic:</span></span><br><span class="line">Root cause of ServletException java.lang.OutOfMemoryError</span><br><span class="line"></span><br><span class="line"><span class="comment"># resin: </span></span><br><span class="line">java.lang.OutOfMemoryError</span><br><span class="line"></span><br><span class="line"><span class="comment"># java:</span></span><br><span class="line">java.lang.OutOfMemoryError</span><br></pre></td></tr></table></figure>
+
+<p>需要重点排查的原因：</p>
+<ul>
+<li>检查代码中是否有死循环或者递归调用</li>
+<li>检查是否有大循环重复产生新对象实体</li>
+<li>检查对数据库查询中，是否有一次获得全部数据的查询。<ul>
+<li>一般来说，如果一次取10万条数据到内存，就可能引起内存溢出 — 隐蔽问题：上线前数据较少不易出问题，上线后数据就多了</li>
+<li>对于数据库查询尽量使用分页的方式查询</li>
 </ul>
 </li>
-<li>实现高性能、高可用、可伸缩和最终一致性架构</li>
-<li>是大型分布式系统不可缺少的中间件<br>队列的使用除去了接收和发送应用程序同时执行的要求</li>
+<li>检查 List、Map 等集合对象是否有使用完之后，未清除的问题<ul>
+<li>List、Map 等集合对象会始终存有对对象的引用，使得这些对象不能被 GC 回收</li>
 </ul>
-<p>生产环境使用较多的消息队列：ActiveMQ, RabbitMQ, ZeroMQ, Kafka, MetalMQ, RocketMQ 等</p>
-<p>选型依据：</p>
+</li>
+</ul>
+<p>解决方法主要有：</p>
+<ul>
+<li>增加 JVM 内存大小<ul>
+<li>执行某个 class 文件之后，可以使用 java -Xmx256M aa.class 来设置运行 aa.class时 JVM 所允许占用的最大内存是 256M</li>
+<li>对于 tomcat：启动时对 JVM 设置内存限度，在 catalina.bat(catalina.sh) 中添加<ul>
+<li>set CATALINA_OPTS=-Xms128M -Xmx256M</li>
+<li>set JAVA_OPTS=-Xms128M -Xmx256M</li>
+<li>或者将 %CATALINA_OPTS% 和 %JAVA_OPTS% 代替为 -Xmx128M -Xmx256M</li>
+</ul>
+</li>
+<li>对 resin 容器：启动时对 JVM 设置内存限度，在 bin 文件夹下创建一个 startup.bat<ul>
+<li>@echo off</li>
+<li>call “httpd.exe” “-Xms128M”(最小内存) “-Xmx256M”(最大内存)</li>
+<li>:end</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>优化程序、释放垃圾（避免死循环）</li>
+</ul>
+<p>tomcat: java.lang.OutOfMemoryError: PermGen space 异常处理</p>
+<ul>
+<li>PermGen space: permanent generation space, 内存的永久保存区域。</li>
+<li>该内存主要被 JVM 存放 class 和 meta 信息，class 在被 loader 时就会被放到 Permian space 中，它和存放类实例(instance)和 Heap 区域不同，GC 不会对主程序运行期对 Permian space 进行清理。</li>
+<li>所以如果应用中有很多 class 的话，就很有可能出现 PermGen space 错误</li>
+</ul>
+<h1 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h1><p>内存泄漏（memory leak），指程序在申请内存后，无法释放已经申请的空间</p>
+<p>经典场景：</p>
+<ol>
+<li>静态集合中的元素失去了外部引用：<br>static HashMap&lt;String, Object&gt; map;<br>Object o = new Object();<br>map.put(“o”, o);<br>o = null; //集合仍然持有该对象的引用，不能被GC<br>System.out.println(null == map.get(“o”)); //false</li>
+</ol>
+<ol start="2">
+<li>集合中的元素被修改之后，remove原引用失效：<br>Set<Person> set = new HashSet<Person>();<br>Person p1 = new Person();<br>Person p2 = new Person();<br>set.add(p1);<br>set.add(p2);<br>p2.setAge(2);<br>set.remove(p2); //失败<br>System.out.println(set.size()); //2</Person></Person></li>
+</ol>
+<p>class Person {<br>    private int age;<br>    public void setAge(int age) {<br>        this.age = age;<br>    }<br>    @Override<br>    public int hashCode() {<br>        //Person类需实现hashCode方法，且hashCode方法的返回值与age属性相关<br>        return super.hashCode()+age;<br>    }<br>}</p>
+<ol start="3">
+<li>监听器/各种连接：</li>
+</ol>
+<ul>
+<li>调用 addListener() 后忘记释放</li>
+<li>建立 DB Connection，Socket Connection，I/O Stream 后忘记调用相应的 close() 方法</li>
+<li>使用 DB Connection 时不仅需要调用 Connection::close()，还需关闭 ResultSet 和 Statement</li>
+<li>… </li>
+</ul>
+<ol start="4">
+<li>单例对象 HAS-A 另外一个对象的引用：<br>class A{…}</li>
+</ol>
+<p>public class B{<br>    private B(){}<br>    private static B INSTANCE = new B();<br>    public static B getInstance(){<br>        return INSTANCE;<br>    }<br>    private A a;<br>    public void setA(A a){this.a = a;}<br>    //对象a不能被垃圾回收<br>}</p>
+<h1 id="内存溢出和内存泄漏的区别"><a href="#内存溢出和内存泄漏的区别" class="headerlink" title="内存溢出和内存泄漏的区别"></a>内存溢出和内存泄漏的区别</h1><p>内存溢出（out of memory），指程序在申请内存时，没有足够内存空间供其使用</p>
+<ul>
+<li>如申请了一个 Integer 的内存，却存了 Long 才能存下来的数</li>
+</ul>
+<p>内存泄漏（memory leak），指程序在申请内存后，无法释放已经申请的空间</p>
+<ul>
+<li>一次内存泄露或许可以忽略，但内存泄漏堆积后果很严重，内存迟早会被占光<br>可分为四类：</li>
+</ul>
+<ol>
+<li>常发性内存泄漏：发生内存泄漏的代码会被多次执行，每次被执行的时候都会导致一块内存泄漏</li>
+<li>偶发性内存泄漏：发生内存泄漏的代码只在特定环境或操作过程下才发生<ul>
+<li>常发性和偶发性是相对的：对于特定环境，偶发性也许会变成常发性</li>
+<li>测试环境和测试方法对检测内存泄漏至关重要</li>
+</ul>
+</li>
+<li>一次性内存泄漏：发生内存泄漏的代码只被执行一次<ul>
+<li>可能性：算法缺陷</li>
+<li>如：在类的构造函数分配内存，在析构函数没有释放内存——泄漏一次</li>
+</ul>
+</li>
+<li>隐式内存泄漏：程序在运行过程中不停分配内存，但直到结束时才释放内存<ul>
+<li>严格说并没发生内存泄漏：因为最终释放了所有申请的内存</li>
+<li>但对于服务器程序：运行几周、几天或几个月，不及时释放可能会导致最终耗尽系统所有内存</li>
+</ul>
+</li>
+</ol>
+<p>内存泄漏最终会导致内存溢出。</p>
 
     </div>
 
@@ -222,7 +316,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag"># 消息队列</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/JVM/" rel="tag"># JVM</a>
           </div>
 
         
@@ -235,8 +330,8 @@
       <i class="fa fa-chevron-left"></i> Java 常用关键字（keywords）整理
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/07/16/rabbitmq/" rel="next" title="RabbitMQ 概述">
-      RabbitMQ 概述 <i class="fa fa-chevron-right"></i>
+    <a href="/2021/07/16/object-header/" rel="next" title="对象头">
+      对象头 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -296,6 +391,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-number">1.</span> <span class="nav-text">内存溢出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">内存泄漏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%92%8C%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">内存溢出和内存泄漏的区别</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -309,14 +405,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
