@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="（待补充）">
+  <meta name="description" content="消息队列是中间件的一种，是分布式系统中非常重要的组件。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="mq">
+<meta property="og:title" content="消息队列与其实现">
 <meta property="og:url" content="http://example.com/2021/07/20/mq/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="（待补充）">
+<meta property="og:description" content="消息队列是中间件的一种，是分布式系统中非常重要的组件。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-19T17:12:34.000Z">
-<meta property="article:modified_time" content="2021-07-21T05:39:30.659Z">
+<meta property="article:modified_time" content="2021-07-22T08:51:20.450Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>mq | Raymond's Cabin</title>
+  <title>消息队列与其实现 | Raymond's Cabin</title>
   
 
 
@@ -175,7 +175,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          mq
+          消息队列与其实现
         </h1>
 
         <div class="post-meta">
@@ -199,10 +199,13 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>（待补充）</p>
+        <p>消息队列是中间件的一种，是分布式系统中非常重要的组件。</p>
 <span id="more"></span>
 
-<p>包括两部分</p>
+<p>消息队列（Message Queue, <strong>MQ</strong>）的通用场景可简单描述为：</p>
+<pre><code>当不需要立即获得结果，但是并发量又需要进行控制的时候。
+</code></pre>
+<p>（待补充）</p>
 
     </div>
 
@@ -225,8 +228,8 @@
       <i class="fa fa-chevron-left"></i> Java 的常量池们
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/07/21/rabbitmq/" rel="next" title="rabbitmq">
-      rabbitmq <i class="fa fa-chevron-right"></i>
+    <a href="/2021/07/21/rabbitmq/" rel="next" title="RabbitMQ 概述">
+      RabbitMQ 概述 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
