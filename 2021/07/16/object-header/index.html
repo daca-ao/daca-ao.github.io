@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="（待补充）">
+  <meta name="description" content="在 Hotspot 虚拟机中，除了对象本身的实例数据（Instance Data）之外，其在内存中的布局还包括了对象头（Object Header）和对齐填充（Padding）。本帖专门来聊聊对象头。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="对象头">
 <meta property="og:url" content="http://example.com/2021/07/16/object-header/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="（待补充）">
+<meta property="og:description" content="在 Hotspot 虚拟机中，除了对象本身的实例数据（Instance Data）之外，其在内存中的布局还包括了对象头（Object Header）和对齐填充（Padding）。本帖专门来聊聊对象头。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-16T11:42:34.000Z">
-<meta property="article:modified_time" content="2021-07-21T05:38:10.014Z">
+<meta property="article:modified_time" content="2021-07-22T15:05:56.544Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -200,10 +200,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>（待补充）</p>
+        <p>在 Hotspot 虚拟机中，除了对象本身的实例数据（Instance Data）之外，其在内存中的布局还包括了对象头（Object Header）和对齐填充（Padding）。本帖专门来聊聊对象头。</p>
 <span id="more"></span>
 
-<p>（待补充）</p>
+<p>Hotspot 虚拟机的对象头包括两部分信息：</p>
+<ol>
+<li>对象自身的运行时数据</li>
+<li>类型指针</li>
+</ol>
 
     </div>
 

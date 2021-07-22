@@ -28,7 +28,7 @@
 <meta property="og:description" content="Java 程序中常见的内存毛病就是内存溢出和内存泄漏了。本帖专门来聊聊这俩毛病，以及做一下比较。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-15T14:46:15.000Z">
-<meta property="article:modified_time" content="2021-07-21T16:52:28.711Z">
+<meta property="article:modified_time" content="2021-07-22T14:58:18.926Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -216,15 +216,15 @@
 <li>使用的第三方软件中的 BUG</li>
 </ul>
 <p>常见的错误提示：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tomcat: </span></span><br><span class="line">java.lang.OutOfMemoryError: PermGen space</span><br><span class="line">java.lang.OutOfMemoryError: Java heap space</span><br><span class="line"></span><br><span class="line"><span class="comment"># web logic:</span></span><br><span class="line">Root cause of ServletException java.lang.OutOfMemoryError</span><br><span class="line"></span><br><span class="line"><span class="comment"># resin: </span></span><br><span class="line">java.lang.OutOfMemoryError</span><br><span class="line"></span><br><span class="line"><span class="comment"># java:</span></span><br><span class="line">java.lang.OutOfMemoryError</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tomcat: </span></span><br><span class="line">java.lang.OutOfMemoryError: PermGen space  <span class="comment"># Java 8-</span></span><br><span class="line">java.lang.OutOfMemoryError: Java heap space</span><br><span class="line"></span><br><span class="line"><span class="comment"># web logic:</span></span><br><span class="line">Root cause of ServletException java.lang.OutOfMemoryError</span><br><span class="line"></span><br><span class="line"><span class="comment"># resin: </span></span><br><span class="line">java.lang.OutOfMemoryError</span><br><span class="line"></span><br><span class="line"><span class="comment"># java:</span></span><br><span class="line">java.lang.OutOfMemoryError</span><br></pre></td></tr></table></figure>
 
-<p>需要重点排查的原因：</p>
-<ul>
+
+<h2 id="需要重点排查的原因"><a href="#需要重点排查的原因" class="headerlink" title="需要重点排查的原因"></a>需要重点排查的原因</h2><ul>
 <li>检查代码中是否有死循环或者递归调用</li>
-<li>检查是否有大循环重复产生新对象实体</li>
-<li>检查对数据库查询中，是否有一次获得全部数据的查询。<ul>
-<li>一般来说，如果一次取10万条数据到内存，就可能引起内存溢出 — 隐蔽问题：上线前数据较少不易出问题，上线后数据就多了</li>
-<li>对于数据库查询尽量使用分页的方式查询</li>
+<li>检查是否存在重复产生新对象实体的大循环</li>
+<li>检查对数据库查询中，是否有一次获得全部数据的查询：<ul>
+<li>一般来说，如果一次取 10 万条数据到内存，就可能引起内存溢出。这属于比较隐蔽的问题，在上线前数据较少，不容易出问题，上线后数据增加，就可能会有问题</li>
+<li>对于数据库查询，尽量使用分页的方式查询</li>
 </ul>
 </li>
 <li>检查 List、Map 等集合对象是否有使用完之后，未清除的问题<ul>
@@ -232,77 +232,58 @@
 </ul>
 </li>
 </ul>
-<p>解决方法主要有：</p>
+<h2 id="主要的解决方法"><a href="#主要的解决方法" class="headerlink" title="主要的解决方法"></a>主要的解决方法</h2><p><strong>1. 增加 JVM 内存大小</strong></p>
 <ul>
-<li>增加 JVM 内存大小<ul>
-<li>执行某个 class 文件之后，可以使用 java -Xmx256M aa.class 来设置运行 aa.class时 JVM 所允许占用的最大内存是 256M</li>
-<li>对于 tomcat：启动时对 JVM 设置内存限度，在 catalina.bat(catalina.sh) 中添加<ul>
-<li>set CATALINA_OPTS=-Xms128M -Xmx256M</li>
-<li>set JAVA_OPTS=-Xms128M -Xmx256M</li>
-<li>或者将 %CATALINA_OPTS% 和 %JAVA_OPTS% 代替为 -Xmx128M -Xmx256M</li>
+<li>执行某个 .class 文件之后，可以使用 <code>java -Xmx256M xxx.class</code> 来设置运行该 .class 时 JVM 所允许占用的最大内存是 256M</li>
+<li>对于 Tomcat：启动时对 JVM 设置内存限度，在 <code>catalina.bat</code>（<code>catalina.sh</code>）中添加<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> CATALINA_OPTS=-Xms128M -Xmx256M</span><br><span class="line"><span class="built_in">set</span> JAVA_OPTS=-Xms128M -Xmx256M</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者将 `%CATALINA_OPTS%` 和 `%JAVA_OPTS%` 代替为 `-Xmx128M -Xmx256M`</span></span><br></pre></td></tr></table></figure></li>
+<li>对于 Resin 容器：启动时对 JVM 设置内存限度，在 <code>bin</code> 文件夹下创建一个 <code>startup.bat</code><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">echo</span> off</span><br><span class="line">call <span class="string">&quot;httpd.exe&quot;</span> <span class="string">&quot;-Xms128M&quot;</span>(最小内存) <span class="string">&quot;-Xmx256M&quot;</span>(最大内存)</span><br><span class="line">:end</span><br></pre></td></tr></table></figure></li>
 </ul>
-</li>
-<li>对 resin 容器：启动时对 JVM 设置内存限度，在 bin 文件夹下创建一个 startup.bat<ul>
-<li>@echo off</li>
-<li>call “httpd.exe” “-Xms128M”(最小内存) “-Xmx256M”(最大内存)</li>
-<li>:end</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>优化程序、释放垃圾（避免死循环）</li>
-</ul>
-<p>tomcat: java.lang.OutOfMemoryError: PermGen space 异常处理</p>
-<ul>
-<li>PermGen space: permanent generation space, 内存的永久保存区域。</li>
-<li>该内存主要被 JVM 存放 class 和 meta 信息，class 在被 loader 时就会被放到 Permian space 中，它和存放类实例(instance)和 Heap 区域不同，GC 不会对主程序运行期对 Permian space 进行清理。</li>
-<li>所以如果应用中有很多 class 的话，就很有可能出现 PermGen space 错误</li>
-</ul>
-<h1 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h1><p>内存泄漏（memory leak），指程序在申请内存后，无法释放已经申请的空间</p>
-<p>经典场景：</p>
-<ol>
-<li><p>静态集合中的元素失去了外部引用：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> HashMap&lt;String, Object&gt; map;</span><br><span class="line">Object o = <span class="keyword">new</span> Object();</span><br><span class="line">map.put(<span class="string">&quot;o&quot;</span>, o);</span><br><span class="line">o = <span class="keyword">null</span>; <span class="comment">//集合仍然持有该对象的引用，不能被GC</span></span><br><span class="line">System.out.println(<span class="keyword">null</span> == map.get(<span class="string">&quot;o&quot;</span>)); <span class="comment">//false</span></span><br></pre></td></tr></table></figure></li>
-<li><p>集合中的元素被修改之后，remove原引用失效：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;Person&gt; set = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">Person p1 = <span class="keyword">new</span> Person();</span><br><span class="line">Person p2 = <span class="keyword">new</span> Person();</span><br><span class="line">set.add(p1);</span><br><span class="line">set.add(p2);</span><br><span class="line">p2.setAge(<span class="number">2</span>);</span><br><span class="line">set.remove(p2);  <span class="comment">// 失败</span></span><br><span class="line">System.out.println(set.size());  <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Person 类需实现 hashCode() 方法，且 hashCode() 的返回值与 age 属性相关</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.hashCode() + age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>监听器/各种连接：</p>
-</li>
-</ol>
+<p><strong>2. 优化程序、释放垃圾（避免死循环）</strong></p>
+<h1 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h1><p>Memory Leak，指程序在申请内存后，无法释放已经申请的空间。</p>
+<h2 id="经典场景"><a href="#经典场景" class="headerlink" title="经典场景"></a>经典场景</h2><p><strong>1. 静态集合类中的元素失去了外部引用：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> HashMap&lt;String, Object&gt; map;</span><br><span class="line">Object o = <span class="keyword">new</span> Object();</span><br><span class="line">map.put(<span class="string">&quot;o&quot;</span>, o);</span><br><span class="line"></span><br><span class="line">o = <span class="keyword">null</span>;  <span class="comment">// map 仍然持有该对象的引用，不能被 GC</span></span><br><span class="line">System.out.println(<span class="keyword">null</span> == map.get(<span class="string">&quot;o&quot;</span>));  <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2. Hash 集合添加元素引发的内存泄漏：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;Person, String&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">    Person dummyKey = <span class="keyword">new</span> Person(<span class="string">&quot;zhangsan&quot;</span>, <span class="number">18</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 可重复添加，导致内存泄漏</span></span><br><span class="line">    map.put(dummyKey, <span class="string">&quot;value&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line"></span><br><span class="line">    Person(String name, <span class="keyword">int</span> age) &#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 加入 Hash 集合的类如果不实现 hashCode()，集合每次将该类的对象视为新的对象，因此导致可以重复添加</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 如示例：Person 类需实现 hashCode() 方法，且 hashCode() 的返回值与属性相关</span></span><br><span class="line">        <span class="keyword">int</span> result = name != <span class="keyword">null</span> ? name.hashCode() : <span class="number">0</span>;</span><br><span class="line">        result = <span class="number">31</span> * result + age;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 监听器/各种连接：</strong></p>
 <ul>
 <li>调用 addListener() 后忘记释放</li>
-<li>建立 DB Connection，Socket Connection，I/O Stream 后忘记调用相应的 close() 方法</li>
-<li>使用 DB Connection 时不仅需要调用 Connection::close()，还需关闭 ResultSet 和 Statement</li>
-<li>… </li>
+<li>建立 DB Connection，Socket Connection，I/O Stream 后忘记调用相应的 close() 方法<ul>
+<li>不仅需要调用 Connection::close()，还需关闭查询到的 ResultSet 和 Statement</li>
 </ul>
-<ol start="4">
-<li>单例对象 HAS-A 另外一个对象的引用：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">B</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> B INSTANCE = <span class="keyword">new</span> B();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> B <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> A a;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setA</span><span class="params">(A a)</span> </span>&#123;<span class="keyword">this</span>.a = a;&#125;</span><br><span class="line">    <span class="comment">// 对象a不能被垃圾回收</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h1 id="内存溢出和内存泄漏的区别"><a href="#内存溢出和内存泄漏的区别" class="headerlink" title="内存溢出和内存泄漏的区别"></a>内存溢出和内存泄漏的区别</h1><p>内存溢出（out of memory），指程序在申请内存时，没有足够内存空间供其使用</p>
+</li>
+<li>…</li>
+</ul>
+<p><strong>4. 单例对象 HAS-A 另外一个对象的引用：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">B</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> B INSTANCE = <span class="keyword">new</span> B();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> B <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> A a;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setA</span><span class="params">(A a)</span> </span>&#123;<span class="keyword">this</span>.a = a;&#125;</span><br><span class="line">    <span class="comment">// 对象 a 不能被垃圾回收</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="内存溢出和内存泄漏的区别"><a href="#内存溢出和内存泄漏的区别" class="headerlink" title="内存溢出和内存泄漏的区别"></a>内存溢出和内存泄漏的区别</h1><p><strong>内存溢出</strong>是指程序在申请内存时，<strong>没有足够内存空间</strong>供其使用</p>
 <ul>
 <li>如申请了一个 Integer 的内存，却存了 Long 才能存下来的数</li>
 </ul>
-<p>内存泄漏（memory leak），指程序在申请内存后，无法释放已经申请的空间</p>
+<p><strong>内存泄漏</strong>则是指程序在申请内存后，<strong>无法释放</strong>已经申请的空间</p>
 <ul>
-<li>一次内存泄露或许可以忽略，但内存泄漏堆积后果很严重，内存迟早会被占光<br>可分为四类：</li>
+<li>一次内存泄露或许可以忽略，但内存泄漏堆积后果很严重，内存迟早会被占光</li>
 </ul>
-<ol>
-<li>常发性内存泄漏：发生内存泄漏的代码会被多次执行，每次被执行的时候都会导致一块内存泄漏</li>
-<li>偶发性内存泄漏：发生内存泄漏的代码只在特定环境或操作过程下才发生<ul>
+<p>内存泄漏可分为以下四类：</p>
+<p><strong>1. 常发性内存泄漏</strong>：发生内存泄漏的代码会被多次执行，每次被执行的时候都会导致一块内存泄漏</p>
+<p><strong>2. 偶发性内存泄漏</strong>：发生内存泄漏的代码只在特定环境或操作过程下才发生</p>
+<ul>
 <li>常发性和偶发性是相对的：对于特定环境，偶发性也许会变成常发性</li>
 <li>测试环境和测试方法对检测内存泄漏至关重要</li>
 </ul>
-</li>
-<li>一次性内存泄漏：发生内存泄漏的代码只被执行一次<ul>
+<p><strong>3. 一次性内存泄漏</strong>：发生内存泄漏的代码只被执行一次</p>
+<ul>
 <li>可能性：算法缺陷</li>
-<li>如：在类的构造函数分配内存，在析构函数没有释放内存——泄漏一次</li>
+<li>如：在类的构造函数分配内存，在析构函数没有释放内存 —— 泄漏一次</li>
 </ul>
-</li>
-<li>隐式内存泄漏：程序在运行过程中不停分配内存，但直到结束时才释放内存<ul>
+<p><strong>4. 隐式内存泄漏</strong>：程序在运行过程中不停分配内存，但直到结束时才释放内存</p>
+<ul>
 <li>严格说并没发生内存泄漏：因为最终释放了所有申请的内存</li>
 <li>但对于服务器程序：运行几周、几天或几个月，不及时释放可能会导致最终耗尽系统所有内存</li>
 </ul>
-</li>
-</ol>
 <p>内存泄漏最终会导致内存溢出。</p>
 
     </div>
@@ -388,7 +369,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-number">1.</span> <span class="nav-text">内存溢出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">内存泄漏</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%92%8C%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">内存溢出和内存泄漏的区别</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-number">1.</span> <span class="nav-text">内存溢出</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E8%A6%81%E9%87%8D%E7%82%B9%E6%8E%92%E6%9F%A5%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.1.</span> <span class="nav-text">需要重点排查的原因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">主要的解决方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">内存泄漏</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%8F%E5%85%B8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.1.</span> <span class="nav-text">经典场景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%92%8C%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">内存溢出和内存泄漏的区别</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
