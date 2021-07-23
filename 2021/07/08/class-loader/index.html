@@ -28,7 +28,7 @@
 <meta property="og:description" content="Java 程序的基本单元，就是一个个的类（Class）及类实例（Class Instance）。在使用类之前，必须先将类加载进 JVM 的内存中。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-07T16:07:22.000Z">
-<meta property="article:modified_time" content="2021-07-21T05:34:05.552Z">
+<meta property="article:modified_time" content="2021-07-23T17:15:07.699Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -205,16 +205,16 @@
 
 <p>类加载器（Class Loader）作用：将类加载到 Java 虚拟机，并且检查类的完整性。</p>
 <p>类加载机制：</p>
-<ul>
+<ol>
 <li>将描述类的数据从 <code>.class</code> 文件加载到内存</li>
 <li>对数据进行校验、转换解析和初始化</li>
-<li>最终构造成可被虚拟机直接使用的 Java 类型</li>
-</ul>
+<li>最终构造成可被虚拟机直接使用的 Java 类型。</li>
+</ol>
 <p>好处：</p>
 <ul>
 <li>类的加载、连接和初始化过程都在程序的运行时完成，令 Java 具备高度的灵活性</li>
 <li>避免类被重复加载：即每个 JVM 中，只会有一个拥有同样全路径的 .class 文件</li>
-<li>沙箱安全机制：防止核心类库的核心类被篡改</li>
+<li>沙箱安全机制：防止核心类库的核心类被篡改。</li>
 </ul>
 <p>JVM 只会加载程序执行时所需要的类文件（.class 文件），<strong>暂时不使用的类则不会被加载</strong>。</p>
 <br>
@@ -321,6 +321,20 @@
 <ul>
 <li>用户自定义的类加载器，常用于代码的加解密</li>
 </ul>
+<p>为何自定义类加载器：Java 提供的默认 ClassLoader 只加载指定目录下的 jar 和 class</p>
+<ul>
+<li>所有自定义类加载器均需继承 ClassLoader 类<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java.lang.<span class="function">ClassLoader</span></span><br><span class="line"><span class="function">ClassLoader <span class="title">getParent</span><span class="params">()</span>    <span class="comment">//返回父类加载器，如为 Bootstrap ClassLoader 则返回 null</span></span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> ClassLoader <span class="title">getSystemClassLoader</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="comment">//获取系统类加载器，即用于加载第一个应用类的类加载器</span></span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> Class <span class="title">findClass</span><span class="params">(String name)</span></span></span><br><span class="line"><span class="function"><span class="comment">//类加载器应覆盖此方法，以查找类的字节码</span></span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Class <span class="title">defineClass</span><span class="params">(String name, <span class="keyword">byte</span>[] byteCodeData, <span class="keyword">int</span> offset, <span class="keyword">int</span> length)</span></span></span><br><span class="line"><span class="function"><span class="comment">//将新的类添加到虚拟机中，其字节码在给定的数据范围中</span></span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.net.<span class="function">URLClassLoader</span></span><br><span class="line"><span class="function"><span class="title">URLClassLoader</span><span class="params">(URL[] urls)</span></span></span><br><span class="line"><span class="function"><span class="title">URLClassLoader</span><span class="params">(URL[] urls, ClassLoader parent)</span></span></span><br><span class="line"><span class="function"><span class="comment">//构建一个类加载器，可从给定的 URL 访问类</span></span></span><br></pre></td></tr></table></figure>
+
+
+<p>注：JVM 判断两个类是否相同：不仅要判定类名是否相同，而且要判断是否由同一个类加载器实例加载<br>java.lang.Class<br>ClassLoader getClassLoader()    //获取加载该类的加载器</p>
 <br>
 
 <h1 id="类加载顺序：双亲委派模型"><a href="#类加载顺序：双亲委派模型" class="headerlink" title="类加载顺序：双亲委派模型"></a>类加载顺序：双亲委派模型</h1><p>类加载器有一种“父/子关系”，它们是<strong>组合</strong>而非继承关系：</p>
@@ -329,7 +343,7 @@
 <li>当它的父类无法完成加载时，加载工作才由它自身完成</li>
 <li>除了 Bootstrap 引导类加载器外，每个类加载器都有一个父类加载器</li>
 </ul>
-<p>以上即为“双亲委派模型”</p>
+<p>以上即为“<strong>双亲委派模型</strong>”</p>
 <ul>
 <li>父与子之间不是继承关系，是包含关系</li>
 <li>好处：避免重复加载某个类</li>
