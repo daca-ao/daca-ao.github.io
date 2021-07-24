@@ -28,7 +28,7 @@
 <meta property="og:description" content="Java 程序的基本单元，就是一个个的类（Class）及类实例（Class Instance）。在使用类之前，必须先将类加载进 JVM 的内存中。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-07T16:07:22.000Z">
-<meta property="article:modified_time" content="2021-07-24T04:10:30.462Z">
+<meta property="article:modified_time" content="2021-07-24T05:25:13.138Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -223,26 +223,33 @@
 <h1 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h1><p>三大类，五步：包括<strong>加载</strong> -&gt; <strong>验证</strong> -&gt; <strong>准备</strong> -&gt; <strong>解析</strong> -&gt; <strong>初始化</strong>。</p>
 <p><strong>1. 加载 Load</strong>：加载类数据到内存，在堆区建立一个 Class 对象</p>
 <ol>
-<li>通过类的全限定名（com.xxx.xxxx.xxxx）获取该类的二进制字节流<ul>
-<li>可从磁盘上读取文件，或者根据链接请求 Web 上的文件，等</li>
+<li>通过类的全限定名（com.xxx.xxxx.xxxx）获取该类的二进制字节流（.class 文件）<ul>
+<li>可从磁盘上读取文件，或者根据链接请求网络文件，等</li>
 </ul>
 </li>
-<li>将该字节流代表的静态存储结构转换为运行时数据区（方法区）的数据结构</li>
-<li>在静态区（内存）生成 java.lang.Class 对象，作为方法区该类的各种数据结构的访问入口</li>
+<li>将该字节流代表的<strong>静态存储结构</strong>转换为方法区的运行时数据结构</li>
+<li>在静态区（内存）生成代表这个类的 <code>java.lang.Class</code> 对象，作为方法区该类的各种数据结构的访问入口<ul>
+<li>没有规定这个对象要在堆中：比较特殊，虽是对象，但是在方法区</li>
+</ul>
+</li>
 </ol>
-<p><strong>2. 链接 Link</strong>：把 class 的二进制数据合并到 JRE，具体包括<strong>验证</strong>、<strong>准备</strong>和<strong>解析</strong>三步：</p>
+<p><strong>2. 链接 Link</strong>：把 Class 的二进制数据合并到 JRE，具体包括<strong>验证</strong>、<strong>准备</strong>和<strong>解析</strong>三步：</p>
 <ol>
-<li><strong>验证 Verification</strong>：.class 文件中类结构、语义、操作等的合法性，包括：<ol>
+<li><strong>验证 Verification</strong>：验证 .class 文件中类结构、语义、操作等的合法性，确保不会危害虚拟机安全。包括：<ol>
 <li>文件格式验证</li>
 <li>元数据验证（语义分析，类与类的继承关系等）</li>
 <li>字节码验证（数据流和控制流分析）</li>
 <li>符号引用验证（对类自身以外的信息进行匹配校验）</li>
 </ol>
 </li>
-<li><strong>准备 Preparation</strong>：为类的静态变量分配内存，并将非 final 的静态变量初始化默认值（零值），final 的静态变量初始化为其指定值</li>
-<li><strong>解析 Resolution</strong>：将常量池中的符号引用替换成直接引用<ul>
-<li>符号引用：类名、方法名、字段名，具有人类可读性，类似于 OS 中的逻辑地址</li>
-<li>直接引用：内存偏移量，指示内存真实地址，类似于 OS 中的物理地址</li>
+<li><strong>准备 Preparation</strong>：为类的静态变量在方法区分配内存<ul>
+<li>非 final 的静态变量赋初始化默认值（0 值或 null）</li>
+<li>final 的静态变量初始化为其指定值</li>
+</ul>
+</li>
+<li><strong>解析 Resolution</strong>：将 .class 二进制数据中常量池（即：静态常量池）中的符号引用替换成直接引用<ul>
+<li><strong>符号引用</strong>：类名、方法名、字段名，具有人类可读性，类似于 OS 中的逻辑地址</li>
+<li><strong>直接引用</strong>：内存偏移量，指示内存真实地址，类似于 OS 中的物理地址</li>
 <li>符号引用指向的目标不一定加载到了内存中，而直接引用的目标一定已经加载到了内存中</li>
 </ul>
 </li>
@@ -252,7 +259,7 @@
 <li>真正执行类中定义的 Java 程序代码</li>
 <li>不可逆</li>
 </ol>
-<p>例：程序从 HelloWorld.class 开始运行——</p>
+<p>例：程序从 <code>HelloWorld.class</code> 开始运行——</p>
 <ol>
 <li>虚拟机从磁盘读取文件或请求 Web 上的文件等方法，加载 HelloWorld 类文件（<code>.class</code> 文件）的内容；</li>
 <li>如 HelloWorld 类拥有来自另一个类的域，或拥有超类，那么这些类文件也会被加载（类的解析）；</li>
