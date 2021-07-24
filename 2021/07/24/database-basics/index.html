@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="我们平日里说得很多的数据库，指的是能够以一定方式（数据结构）去组织、储存在一起，能为多个用户共享，具有尽可能小的冗余度，并且能够与应用程序彼此独立的数据集合。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据库基础">
+<meta property="og:url" content="http://example.com/2021/07/24/database-basics/index.html">
+<meta property="og:site_name" content="Raymond&#39;s Cabin">
+<meta property="og:description" content="我们平日里说得很多的数据库，指的是能够以一定方式（数据结构）去组织、储存在一起，能为多个用户共享，具有尽可能小的冗余度，并且能够与应用程序彼此独立的数据集合。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-07-23T17:26:50.000Z">
+<meta property="article:modified_time" content="2021-07-24T04:04:52.623Z">
+<meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
+<meta property="article:tag" content="数据库">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/07/24/database-basics/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>数据库基础 | Raymond's Cabin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Raymond's Cabin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">for sharing thoughts</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/24/database-basics/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
+      <meta itemprop="description" content="Storing blogs">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Raymond's Cabin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数据库基础
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-07-24 01:26:50" itemprop="dateCreated datePublished" datetime="2021-07-24T01:26:50+08:00">2021-07-24</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>我们平日里说得很多的数据库，指的是能够以一定方式（数据结构）去组织、储存在一起，能为多个用户共享，具有尽可能小的冗余度，并且能够与应用程序彼此独立的数据集合。</p>
+<span id="more"></span>
+
+<p>每个数据库都有一个或多个不同的 API 用于创建、访问、管理、搜索和复制所保存的数据。</p>
+<h1 id="数据库表"><a href="#数据库表" class="headerlink" title="数据库表"></a>数据库表</h1><p>一个数据库通常包含有一个或者多个表</p>
+<ul>
+<li>表是一种数据结构，是相关数据项的集合，由<strong>列</strong>和<strong>行</strong>组成</li>
+<li>每一个表由一个名字标识（如“客户”、“订单”）</li>
+<li>表中包含若干带有数据的记录（也称为<strong>行</strong>）<ul>
+<li>数据库每一列都有列名</li>
+<li>每一行包含一个相关的<strong>数据集</strong></li>
+</ul>
+</li>
+</ul>
+<h1 id="数据库相关的基本概念"><a href="#数据库相关的基本概念" class="headerlink" title="数据库相关的基本概念"></a>数据库相关的基本概念</h1><p><strong>实体</strong></p>
+<ul>
+<li>在现实世界中客观存在的，并且可以相互区分的对象或事物</li>
+<li>如：“公司”、“项目”、“员工”</li>
+</ul>
+<p><strong>属性</strong></p>
+<ul>
+<li>实体所具有的某一属性</li>
+<li>如：“公司名”、“地址”等都是实体“公司”的属性</li>
+</ul>
+<p><strong>码</strong>，也称<strong>主键</strong></p>
+<ul>
+<li>表中可以唯一确定一行数据的某个属性（或属性组）</li>
+<li>如 [员工号]、[员工号, 绩效评定月份]</li>
+<li>不同的表结构，对应的码不同</li>
+</ul>
+<p><strong>主属性</strong></p>
+<ul>
+<li>包含在任何一个码中的属性都是主属性</li>
+<li>如上例的“员工号”“绩效评定月份”便是主属性</li>
+</ul>
+<p><strong>非主属性</strong></p>
+<ul>
+<li>与主属性相反</li>
+<li>没有在任何候选码中出现过的属性便是非主属性</li>
+</ul>
+<p>另：</p>
+<ul>
+<li>数据表：数据的矩阵，表面上看是一张电子表格</li>
+<li>列：一列（数据元素）包含相同类型的数据</li>
+<li>行：一条记录，即一组相关的数据</li>
+<li>冗余：存储两倍数据，可使系统速度更快</li>
+<li>外键：关联两张表的标识</li>
+<li>复合键：将多个列作为一个索引</li>
+<li>索引：对数据表中一列或多列的值进行排序的结构，类似于目录</li>
+<li>参照完整性：要求关系中不允许引用不存在的实体；与实体完整性时关系模型必须满足的完整性约束条件</li>
+</ul>
+<h1 id="关系型数据库"><a href="#关系型数据库" class="headerlink" title="关系型数据库"></a>关系型数据库</h1><p>指的是采用了关系模型（二维表格模型）来组织数据的数据库。</p>
+<p>优点：</p>
+<ol>
+<li>容易理解：二维表结构是非常贴近逻辑世界的一个概念，关系模型相对网状、层次等其他模型来说更容易理解</li>
+<li>使用方便：通用的 SQL 语言使得操作关系型数据库非常方便</li>
+<li>易于维护：丰富的完整性（实体完整性、参照完整性和用户定义的完整性）定义大大减低了数据冗余和数据不一致的概率</li>
+</ol>
+<p><strong>关系型数据库管理系统</strong>（Relational Database Management System,  <strong>RDBMS</strong>），是 SQL 的基础，也是所有现代数据库系统的基础。<br>市面上流行的所有数据库系统，包括 MS Access, SQL Server, IBM DB2, MySQL 等等，都是基于 RDBMS 来开发的。</p>
+<h2 id="关系型数据库中数据表的关系"><a href="#关系型数据库中数据表的关系" class="headerlink" title="关系型数据库中数据表的关系"></a>关系型数据库中数据表的关系</h2><p><strong>函数依赖</strong></p>
+<ul>
+<li>在一张表中，如果在属性（或属性组）X 完全确定时，必定能确定属性 Y 的值<ul>
+<li>那么在该数据表中，不会存在任意两条记录，它们在 X 属性（或属性组）上的值相同，而在 Y 属性上的值不同</li>
+<li>即 Y 函数依赖于 X，X → Y，X 与 Y 一一对应</li>
+</ul>
+</li>
+</ul>
+<p><strong>完全函数依赖</strong></p>
+<ul>
+<li>如存在 X → Y，且：<ul>
+<li>对 X 任意一个真子集 X’，都不存在 X‘ → Y，则 X → Y 是一个完全函数依赖</li>
+</ul>
+</li>
+<li>非正式记法：X &gt;&gt; Y</li>
+</ul>
+<p><strong>部分函数依赖</strong></p>
+<ul>
+<li>如存在 X → Y，且：<ul>
+<li>在 X 中存在一个真子集 X’，使 X‘ → Y，则 X → Y 是一个部分函数依赖</li>
+</ul>
+</li>
+<li>非正式记法：X &gt; Y</li>
+</ul>
+<p><strong>传递函数依赖</strong></p>
+<ul>
+<li>如果 X → Y，Y → Z，且 Y 不属于 X，Y → X 不成立<ul>
+<li>称 Z 传递函数依赖于 X</li>
+<li>非正式记法：X &gt;&gt;&gt; Z</li>
+</ul>
+</li>
+<li>如 Y 属于 X，则 Z 部分传递函数依赖于 X</li>
+</ul>
+<h2 id="范式（normalization）"><a href="#范式（normalization）" class="headerlink" title="范式（normalization）"></a>范式（normalization）</h2><p>范式（normal form, NF）：符合某一种级别的关系模式的集合，表达一个关系内部个属性之间的联系的合理化程度。</p>
+<p>关系型数据库范式：</p>
+<p>第一范式（<strong>1NF</strong>，1971）</p>
+<ul>
+<li>数据库表的每一列都是不可分割的基本数据项，同一列中不能有多个值<ul>
+<li>即：实体中某个属性不能有多个值或不能有重复属性</li>
+<li>对属性的原子性约束，具有原子性，不可再分解</li>
+<li>不能是集合、数组、记录等非原子数据项</li>
+<li>简而言之：没有重复的列</li>
+</ul>
+</li>
+<li>所有关系型数据库的最基本要求</li>
+<li>符合 1NF 的关系中的每个属性都不可再分（属性的原子性）</li>
+</ul>
+<p>第二范式（<strong>2NF</strong>，1971）：消除了非主属性对于主键（码）的部分函数依赖</p>
+<ul>
+<li>在满足 1NF 的基础上，表中非 key 属性完全依赖于主键<ul>
+<li>对记录的唯一性约束，要求记录（实体）有唯一性</li>
+<li>指不能存在仅依赖 key 一部分的属性</li>
+<li>如存在：这个属性和 key 的这一部分应该分离出来形成新的实体</li>
+<li>新实体和原实体是一对多的关系</li>
+</ul>
+</li>
+<li>数据库表中每个实例或记录必须可以被唯一地拆分<ul>
+<li>选出一个能区分每个实体的属性或属性组，作为实体的唯一标识</li>
+</ul>
+</li>
+</ul>
+<p>2NF 的例子：</p>
+<ul>
+<li>某一表中的字段：学号、课程号、姓名、学分</li>
+<li>学分依赖于课程号，姓名依赖于学号：不符合第二范式</li>
+<li>可根据{课程号, 学分}分成一张表，{学号, 姓名}分成另一张表<ul>
+<li>由此便中断了原表中数据的联系</li>
+<li>解决方法：{学号, 课程号}分一张表</li>
+</ul>
+</li>
+</ul>
+<p>第三范式（<strong>3NF</strong>，1971）：消除了非主属性对于主键的传递函数依赖（间接相关）</p>
+<ul>
+<li>对字段冗余性的约束</li>
+<li>确保表中各列与主键列直接相关（直接依赖关系），而不是间接相关<ul>
+<li>任何字段不能由其他字段派生出来，要求字段没有冗余</li>
+</ul>
+</li>
+</ul>
+<p>此外还有 4NF，5NF（完美范式），6NF 等，但是对于绝大多数场景的数据库设计来说，能做到 3NF 已经基本足够。</p>
+<p>另：<strong>反范式</strong></p>
+<p>背景：没有冗余的数据库未必是最好的数据库</p>
+<ul>
+<li>有时为了提高运行效率，必须降低范式标准，适当保留冗余数据</li>
+</ul>
+<p>通过在表中增加冗余或重复的数据提高数据库读写性能：</p>
+<ul>
+<li>概念数据模型设计时：遵守第三范式</li>
+<li>物理数据模型设计时：降低范式标准<ul>
+<li>增加字段，减少查询时的关联，提高效率</li>
+</ul>
+</li>
+<li>一定要适度</li>
+</ul>
+<p>范式的优点：</p>
+<ul>
+<li>范式化的数据库更新起来更快</li>
+<li>范式化之后，只有很少的重复数据，只需要修改更少的数据</li>
+<li>范式化的表更小，可在内存中执行</li>
+<li>很少的冗余数据，在查询时需要更少的 distinct 或 group by 语句</li>
+</ul>
+<p>范式的缺点：</p>
+<ul>
+<li>范式化的表在查询时经常需要很多关联：因为单独一个表内不存在冗余数据和重复数据<ul>
+<li>导致稍微复杂一些的查询语句在查询范式的 schema 上可能需要多次关联</li>
+<li>增加查询的代价，可能使一些索引策略无效</li>
+</ul>
+</li>
+</ul>
+<p>反范式的优点：</p>
+<ul>
+<li>避免关联：因为所有的数据几乎都可在一张表上显示</li>
+<li>可设计有效的索引</li>
+</ul>
+<p>反范式的缺点：</p>
+<ul>
+<li>表格内冗余较多，删除数据时会造成表有些有用的信息丢失</li>
+</ul>
+<p>实际的应用往往是混用范式和反范式。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/22/annotation/" rel="prev" title="Java 注解（Annotation）">
+      <i class="fa fa-chevron-left"></i> Java 注解（Annotation）
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">数据库表</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%B8%E5%85%B3%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">数据库相关的基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">关系型数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">3.1.</span> <span class="nav-text">关系型数据库中数据表的关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8C%83%E5%BC%8F%EF%BC%88normalization%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">范式（normalization）</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">敖惠竣｜Ao Huijun, Raymond</p>
+  <div class="site-description" itemprop="description">Storing blogs</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/daca-ao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;daca-ao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/daca.aohuijun" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;daca.aohuijun" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/kaijesugardaddy" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;kaijesugardaddy" rel="noopener" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">敖惠竣｜Ao Huijun, Raymond</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

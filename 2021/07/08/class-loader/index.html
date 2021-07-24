@@ -28,7 +28,7 @@
 <meta property="og:description" content="Java 程序的基本单元，就是一个个的类（Class）及类实例（Class Instance）。在使用类之前，必须先将类加载进 JVM 的内存中。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-07T16:07:22.000Z">
-<meta property="article:modified_time" content="2021-07-23T17:15:07.699Z">
+<meta property="article:modified_time" content="2021-07-24T04:10:30.462Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -206,38 +206,41 @@
 <p>类加载器（Class Loader）作用：将类加载到 Java 虚拟机，并且检查类的完整性。</p>
 <p>类加载机制：</p>
 <ol>
-<li>将描述类的数据从 <code>.class</code> 文件加载到内存</li>
-<li>对数据进行校验、转换解析和初始化</li>
+<li>将描述类的数据从 <code>.class</code> 文件加载到内存；</li>
+<li>对数据进行校验、转换解析和初始化；</li>
 <li>最终构造成可被虚拟机直接使用的 Java 类型。</li>
 </ol>
 <p>好处：</p>
 <ul>
-<li>类的加载、连接和初始化过程都在程序的运行时完成，令 Java 具备高度的灵活性</li>
-<li>避免类被重复加载：即每个 JVM 中，只会有一个拥有同样全路径的 .class 文件</li>
+<li>类的加载、连接和初始化过程都在程序的运行时完成，令 Java 具备高度的灵活性；</li>
+<li>避免类被重复加载：即每个 JVM 中，只会有一个拥有同样全路径的 .class 文件；</li>
 <li>沙箱安全机制：防止核心类库的核心类被篡改。</li>
 </ul>
+<p>.class 文件被加载后，对应在 JVM 形成一份描述该类结构的元信息对象；通过该元信息对象可以获知 Class 的结构信息，如构造函数、属性、方法等。<br>Java 允许用户借由这个 Class 相关的元信息对象间接调用 Class 对象的功能，这就是我们经常能见到的 Class 类。</p>
 <p>JVM 只会加载程序执行时所需要的类文件（.class 文件），<strong>暂时不使用的类则不会被加载</strong>。</p>
 <br>
 
 <h1 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h1><p>三大类，五步：包括<strong>加载</strong> -&gt; <strong>验证</strong> -&gt; <strong>准备</strong> -&gt; <strong>解析</strong> -&gt; <strong>初始化</strong>。</p>
-<p><strong>1. 加载 Load</strong>：加载类到内存，在堆区建立一个 class 对象</p>
+<p><strong>1. 加载 Load</strong>：加载类数据到内存，在堆区建立一个 Class 对象</p>
 <ol>
-<li>通过类的全限定名（com.xxx.xxxx….）获取该类的二进制字节流</li>
-<li>从磁盘读取文件，或请求 Web 上的文件等</li>
-<li>将该字节流代表的静态存储结构转换为运行时（方法区）的数据结构</li>
+<li>通过类的全限定名（com.xxx.xxxx.xxxx）获取该类的二进制字节流<ul>
+<li>可从磁盘上读取文件，或者根据链接请求 Web 上的文件，等</li>
+</ul>
+</li>
+<li>将该字节流代表的静态存储结构转换为运行时数据区（方法区）的数据结构</li>
 <li>在静态区（内存）生成 java.lang.Class 对象，作为方法区该类的各种数据结构的访问入口</li>
 </ol>
 <p><strong>2. 链接 Link</strong>：把 class 的二进制数据合并到 JRE，具体包括<strong>验证</strong>、<strong>准备</strong>和<strong>解析</strong>三步：</p>
 <ol>
-<li>验证：class 文件中类结构、语义、操作等的合法性，包括：<ol>
+<li><strong>验证 Verification</strong>：.class 文件中类结构、语义、操作等的合法性，包括：<ol>
 <li>文件格式验证</li>
 <li>元数据验证（语义分析，类与类的继承关系等）</li>
 <li>字节码验证（数据流和控制流分析）</li>
 <li>符号引用验证（对类自身以外的信息进行匹配校验）</li>
 </ol>
 </li>
-<li>准备：为类的静态变量分配内存，并将非 final 的静态变量初始化默认值（零值），final 的静态变量初始化为其指定值</li>
-<li>解析：将常量池中的符号引用替换成直接引用<ul>
+<li><strong>准备 Preparation</strong>：为类的静态变量分配内存，并将非 final 的静态变量初始化默认值（零值），final 的静态变量初始化为其指定值</li>
+<li><strong>解析 Resolution</strong>：将常量池中的符号引用替换成直接引用<ul>
 <li>符号引用：类名、方法名、字段名，具有人类可读性，类似于 OS 中的逻辑地址</li>
 <li>直接引用：内存偏移量，指示内存真实地址，类似于 OS 中的物理地址</li>
 <li>符号引用指向的目标不一定加载到了内存中，而直接引用的目标一定已经加载到了内存中</li>
@@ -462,14 +465,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-count">29</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
