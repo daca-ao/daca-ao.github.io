@@ -28,7 +28,7 @@
 <meta property="og:description" content="Java 程序的基本单元，就是一个个的类（Class）及类实例（Class Instance）。在使用类之前，必须先将类加载进 JVM 的内存中。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-07T16:07:22.000Z">
-<meta property="article:modified_time" content="2021-07-24T05:25:13.138Z">
+<meta property="article:modified_time" content="2021-07-25T07:27:52.095Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -212,15 +212,18 @@
 </ol>
 <p>好处：</p>
 <ul>
-<li>类的加载、连接和初始化过程都在程序的运行时完成，令 Java 具备高度的灵活性；</li>
+<li>类的加载、连接和初始化过程都在程序的运行时完成，令 Java 具备高度的灵活性；<ul>
+<li>其他语言是在编译时进行链接的</li>
+</ul>
+</li>
 <li>避免类被重复加载：即每个 JVM 中，只会有一个拥有同样全路径的 .class 文件；</li>
 <li>沙箱安全机制：防止核心类库的核心类被篡改。</li>
 </ul>
 <p>.class 文件被加载后，对应在 JVM 形成一份描述该类结构的元信息对象；通过该元信息对象可以获知 Class 的结构信息，如构造函数、属性、方法等。<br>Java 允许用户借由这个 Class 相关的元信息对象间接调用 Class 对象的功能，这就是我们经常能见到的 Class 类。</p>
-<p>JVM 只会加载程序执行时所需要的类文件（.class 文件），<strong>暂时不使用的类则不会被加载</strong>。</p>
+<p>JVM 只会加载程序执行时所需要的 .class 文件，<strong>暂时不使用的类则不会被加载</strong>。</p>
 <br>
 
-<h1 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h1><p>三大类，五步：包括<strong>加载</strong> -&gt; <strong>验证</strong> -&gt; <strong>准备</strong> -&gt; <strong>解析</strong> -&gt; <strong>初始化</strong>。</p>
+<h1 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h1><p>三大类，五步：<strong>加载</strong> -&gt; <strong>验证</strong> -&gt; <strong>准备</strong> -&gt; <strong>解析</strong> -&gt; <strong>初始化</strong>。</p>
 <p><strong>1. 加载 Load</strong>：加载类数据到内存，在堆区建立一个 Class 对象</p>
 <ol>
 <li>通过类的全限定名（com.xxx.xxxx.xxxx）获取该类的二进制字节流（.class 文件）<ul>
@@ -235,7 +238,7 @@
 </ol>
 <p><strong>2. 链接 Link</strong>：把 Class 的二进制数据合并到 JRE，具体包括<strong>验证</strong>、<strong>准备</strong>和<strong>解析</strong>三步：</p>
 <ol>
-<li><strong>验证 Verification</strong>：验证 .class 文件中类结构、语义、操作等的合法性，确保不会危害虚拟机安全。包括：<ol>
+<li><strong>验证 Verification</strong>：此时类加载器会验证 .class 文件中类结构、语义、操作等的合法性，确保不会危害虚拟机安全。包括：<ol>
 <li>文件格式验证</li>
 <li>元数据验证（语义分析，类与类的继承关系等）</li>
 <li>字节码验证（数据流和控制流分析）</li>
@@ -243,8 +246,12 @@
 </ol>
 </li>
 <li><strong>准备 Preparation</strong>：为类的静态变量在方法区分配内存<ul>
-<li>非 final 的静态变量赋初始化默认值（0 值或 null）</li>
-<li>final 的静态变量初始化为其指定值</li>
+<li>一般的成员变量是在实例化的时候，随对象一起被分配到堆内存中</li>
+<li>final 的静态变量（也就是常量）在这个阶段赋值为其指定值</li>
+<li>非 final 的静态变量赋初始化默认值（0 值或 null）<ul>
+<li>如有 <code>static int a = 1;</code> 静态变量 a 在准备阶段被赋值为 0，在初始化阶段被赋值为 1</li>
+</ul>
+</li>
 </ul>
 </li>
 <li><strong>解析 Resolution</strong>：将 .class 二进制数据中常量池（即：静态常量池）中的符号引用替换成直接引用<ul>
@@ -254,11 +261,42 @@
 </ul>
 </li>
 </ol>
-<p><strong>3. 初始化 Initialization</strong>：赋予静态变量程序员指定的值，初始化静态代码块</p>
-<ol>
-<li>真正执行类中定义的 Java 程序代码</li>
-<li>不可逆</li>
-</ol>
+<p><strong>3. 初始化 Initialization</strong>：赋予静态变量以程序原本指定的值，如上面说的 <code>static int a = 1;</code>，并初始化静态代码块</p>
+<ul>
+<li>此时真正执行类中定义的 Java 程序代码</li>
+</ul>
+<h2 id="初始化的场景"><a href="#初始化的场景" class="headerlink" title="初始化的场景"></a>初始化的场景</h2><p>JVM 规范中，严格规定了<strong>有且只有</strong> <strong><code>5</code></strong> 种情况<strong>必须对类进行初始化</strong>，这些行为称为对一个类进行“主动引用”：</p>
+<p><big><strong>一</strong></big>、遇到 <code>new</code>, <code>getstatic</code>, <code>putstatic</code>, <code>invokestatic</code> 这 4 条字节码指令时，如果类没有进行过初始化，则需要先触发类的初始化。<br>常见代码场景：</p>
+<ul>
+<li><code>new</code> 关键字实例化对象时</li>
+<li>调用一个类的静态方法时</li>
+<li>读取一个类的非 final 静态域或给它设值时<ul>
+<li>不包括已经在编译期就将结果放入常量池的静态域，包括 final 静态域</li>
+</ul>
+</li>
+</ul>
+<p>注：访问类的 final 静态变量，即常量时不会触发该类的初始化</p>
+<ul>
+<li>因为：常量在被写进类的字节码之前，会被编译器优化为 value 而不是 field；</li>
+<li>所以编译器并不会对应生成字节码来从实例中载入 field 的值，而是直接把这个 value 插入到字节码中。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConstClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;ConstClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span>	String HELLOWORLD = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(ConstClass.HELLOWORLD);  <span class="comment">// 调用类常量：只会输出 &quot;hello world&quot;，不会输出 &quot;ConstClass init&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><big><strong>二</strong></big>、使用 <code>java.lang.reflect</code> 包的方法对类进行反射调用时，如果类没有进行过初始化，则需要先触发类的初始化。</p>
+<ul>
+<li>如：<code>Class.forName()</code></li>
+</ul>
+<p><big><strong>三</strong></big>、初始化一个类时，若其父类还没进行过初始化，则先初始化其父类。</p>
+<ul>
+<li>这种情形会递归加载所有之前未被加载的父类</li>
+</ul>
+<p>所以：通过子类来引用父类的静态字段（包括域和静态块），只会触发父类的初始化，不会触发子类的初始化。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SuperClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;SuperClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span>	String HELLOWORLD = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SubClass</span> <span class="keyword">extends</span> <span class="title">SuperClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;SubClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(SubClass.HELLOWORLD);  <span class="comment">// 只输出 &quot;SuperClass init&quot;，不会输出 &quot;SubClass init&quot;。</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>对于静态字段，只有直接定义这个字段的类才会被初始化</li>
+</ul>
+<p><big><strong>四</strong></big>、JVM 启动时，用户需要指定一个主类（包含 <code>main</code> 方法的类），JVM 先初始化这个类。</p>
+<p><big><strong>五</strong></big>、JDK 1.7 动态语言支持：如果一个 <code>java.lang.invoke.MethodHandle</code> 实例最后的解析结果 <code>REF_getStatic</code>, <code>REF_putStatic</code>, <code>REF_invokeStatic</code> 的方法 handle，且这个方法 handle 所对应的类没进行过初始化，则需要先触发类的初始化。</p>
+<br>
+
 <p>例：程序从 <code>HelloWorld.class</code> 开始运行——</p>
 <ol>
 <li>虚拟机从磁盘读取文件或请求 Web 上的文件等方法，加载 HelloWorld 类文件（<code>.class</code> 文件）的内容；</li>
@@ -266,85 +304,63 @@
 <li>虚拟机执行 HelloWorld 中 <code>main()</code> 方法；</li>
 <li>如 <code>main()</code> 或 <code>main()</code> 调用的方法需要用到更多的类：就加载这些类。</li>
 </ol>
-<p>与以下行为相关的类，如没有被加载的话，此时将被加载到 JVM 内存中：</p>
-<ol>
-<li>创建类实例，包括：<ol>
-<li>使用 new 关键字创建实例</li>
-<li>使用 Class.forName() 反射方法来创建实例</li>
-</ol>
-</li>
-<li>调用类的静态方法</li>
-<li>给类的静态变量赋值</li>
-<li>访问非 final 的静态变量<ul>
-<li>常量在被写进类的字节码之前，会被编译器优化为 value 而不是 field</li>
-<li>因此编译器并不会生成字节码来从实例中载入 field 的值，而是直接把这个 value 插入到字节码中</li>
-</ul>
-</li>
-<li>初始化类时，若其父类尚未加载，则先初始化其父类<ul>
-<li>这种情形会递归加载所有之前未被加载的父类</li>
-</ul>
-</li>
-<li>JVM 启动时，用户指定的包含 main 方法的类</li>
-</ol>
-<p>发生以下情况时，类不会被加载：</p>
-<ol>
-<li>子类调用父类的静态方法，子类不会被加载，只有父类会被初始化<ul>
-<li>对于静态字段，只有直接定义这个字段的类才会被初始化</li>
-</ul>
-</li>
-<li>作为数组元素被引用的类</li>
-<li>访问类的 final 静态变量，即常量</li>
-</ol>
+<br>
+
+<h2 id="类的唯一性"><a href="#类的唯一性" class="headerlink" title="类的唯一性"></a>类的唯一性</h2><p>JVM 并不是一次性将所有文件都加载进来的，而是按需加载，通过不同的类加载器（后面小节会说到）加载不同的类。<br>当程序到了某一段逻辑需要额外的类时，再通过类加载机制去加载到 JVM 中；而且会存放一段时间，便于频繁使用。</p>
+<p>JVM 判断两个类是否相同：不仅要判定类的全限定名是否相同（同一个 .class 文件），而且要判断是否由同一个类加载器实例加载（<code>isAssingnableFrom()</code>）。<br>也就是：任何一个类，需要这个类自身和加载它的类加载器来确定它在 JVM 的唯一性。</p>
 <br>
 
 <h1 id="类加载器类型"><a href="#类加载器类型" class="headerlink" title="类加载器类型"></a>类加载器类型</h1><p>每个 Java 程序至少拥有三类加载器。</p>
-<p><strong>1. 引导类（启动类）加载器</strong>（<strong>Bootstrap Class Loader</strong>）</p>
+<p><strong>1. 引导（启动，Bootstrap）类加载器</strong></p>
+<p>最顶层的类加载器，随 JVM 启动而启动，是 JVM 不可分割的一部分</p>
 <ul>
-<li>最顶层的类加载器，是 Java 虚拟机不可分割的一部分</li>
-<li>负责加载 JDK 的<strong>核心类库</strong>，如 <code>rt.jar</code>、<code>resources.jar</code>、<code>charsets.jar</code> 等，包括：<ul>
-<li><code>$JAVA_HOME/lib</code> 中的类库</li>
-<li>JVM 的 <code>-Xbootclasspat</code>h 参数指定的类库</li>
+<li>负责加载 JVM 运行所需要的：JDK 的<strong>核心类库</strong>，包括：<ul>
+<li><code>$JAVA_HOME/lib</code> 路径下的核心类库</li>
+<li>JVM <code>-Xbootclasspath</code> 参数指定路径下的 jar 包</li>
+<li>如 <code>rt.jar</code>, <code>resources.jar</code>, <code>charsets.jar</code> 等</li>
 </ul>
 </li>
-<li>C++ native code 编写，随 JVM 启动而启动</li>
-<li>注：没有对应的 ClassLoader 对象</li>
-<li>在构造的时候会同时构造 Extension Class Loader</li>
+<li>C++ native code 编写，没有父类，也没有对应的 ClassLoader 对象<ul>
+<li>因此无法被 Java 程序直接引用</li>
 </ul>
-<p><strong>2. 扩展类加载器</strong>（<strong>Extension Class Loader</strong>）</p>
+</li>
+<li>在构造的时候会同时构造 <code>ExtClassLoader</code></li>
+</ul>
+<p>出于安全性考虑，虚拟机是<strong>按照文件名</strong>识别并加载 jar 包的，而且 Bootstrap 类加载器只加载包名以 <code>java</code>, <code>javax</code>, <code>sun</code> 等开头的类。<br>如果文件名不被 JVM 识别，即使将再多 jar 包丢到 /lib 目录下面也没用。</p>
+<br>
+
+<p><strong>2. 扩展（Extension）类加载器</strong></p>
+<p>由 Sun 实现的 <strong><code>sun.misc.Launcher$ExtClassLoader</code></strong> 类，通过 Java 实现</p>
 <ul>
-<li>默认从 <code>$JAVA_HOME/jre/lib/ext</code> 目录加载“标准的扩展”</li>
-<li>还包括 java.ext.dirs 系统变量指定的类库</li>
-<li>Java 实现，为 URLClassLoader 实例（继承自 ClassLoader）</li>
-<li>注：并不使用类路径</li>
-<li>在构造的时候同时构造 Application Class Loader</li>
+<li>URLClassLoader 实例（继承自 ClassLoader），是 Launcher 的静态内部类</li>
+<li>默认从 <code>$JAVA_HOME/lib/ext</code> 目录加载“标准的扩展”</li>
+<li>还包括 java.ext.dirs 系统变量（<code>-Djava.ext.dirs</code>）所指定的路径中的所有类库</li>
+<li>开发者可以直接使用该加载器</li>
+<li>在构造的时候同时构造 <code>AppClassLoader</code></li>
 </ul>
-<p><strong>3. 系统类加载器</strong>（<strong>System Class Loader</strong>）或<strong>应用类加载器</strong>（<strong>Application Class Loader</strong>）</p>
+<br>
+
+<p><strong>3. 应用（Application）类加载器</strong></p>
+<p>由 Sun 实现的 <strong><code>sun.misc.Launcher$AppClassLoader</code></strong> 类，通过 Java 实现，为 URLClassLoader 实例（继承自 ClassLoader）。<br>因为 <code>AppClassLoader</code> 又是 <code>ClassLoader.getSystemClassLoader()</code> 的返回值，所以又称之为<strong>系统类加载器 System ClassLoader</strong>）</p>
 <ul>
-<li>用于加载应用类</li>
-<li>加载应用程序的 classpath 目录下所有 jar 和 class 文件</li>
-<li>Java 实现，为 URLClassLoader 实例（继承自 ClassLoader）</li>
+<li>用于加载应用程序的类路径 classpath 目录（<code>java -classpath</code> / <code>-Djava.class.path</code>）下所有 jar 和 .class 文件</li>
+<li>开发者可以直接使用该加载器（<code>ClassLoader.getSystemClassLoader()</code>）</li>
+<li>如应用没有自定义类加载器，那：它就是程序中<strong>默认</strong>的类加载器。</li>
 </ul>
-<p>注：还可从 <code>/jre/lib/endorsed</code> 目录加载——将某个标准 Java 类库替换为更新的版本。</p>
+<p>注：还可从 <code>/jre/lib/endorsed</code> 目录加载 —— 将某个标准 Java 类库替换为更新的版本。</p>
 <br>
 
 <p>除了上述三类必备的类加载器之外，用户还可以自定义类加载器：<br><strong>4. Custom Class Loader</strong></p>
 <ul>
-<li>用户自定义的类加载器，常用于代码的加解密</li>
+<li>用户自定义的类加载器，父类为 <code>AppClassLoader</code></li>
+<li>常用于代码的加解密</li>
 </ul>
-<p>为何自定义类加载器：Java 提供的默认 ClassLoader 只加载指定目录下的 jar 和 class</p>
-<ul>
-<li>所有自定义类加载器均需继承 ClassLoader 类<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java.lang.<span class="function">ClassLoader</span></span><br><span class="line"><span class="function">ClassLoader <span class="title">getParent</span><span class="params">()</span>    <span class="comment">//返回父类加载器，如为 Bootstrap ClassLoader 则返回 null</span></span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> ClassLoader <span class="title">getSystemClassLoader</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="comment">//获取系统类加载器，即用于加载第一个应用类的类加载器</span></span></span><br></pre></td></tr></table></figure>
+<p>自定义类加载器的原因：像刚刚所说的，JVM 比较认生，只识别指定文件名和路径下的资源文件，因此 Java 提供的默认 ClassLoader 只会加载指定目录下的 jar 和 .class。</p>
+<h2 id="基类源码浅析"><a href="#基类源码浅析" class="headerlink" title="基类源码浅析"></a>基类源码浅析</h2><p>除了 Bootstrap 类加载器，所有的类加载器，包括自定义的类加载器，均需继承 <code>ClassLoader</code> 类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="function">ClassLoader <span class="title">getParent</span><span class="params">()</span>    <span class="comment">// 返回父类加载器，如为 Bootstrap ClassLoader 则返回 null</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">static</span> ClassLoader <span class="title">getSystemClassLoader</span><span class="params">()</span>  <span class="comment">// 获取系统的类加载器，即用于加载第一个应用类的类加载器</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Class <span class="title">findClass</span><span class="params">(String name)</span>  <span class="comment">// 类加载器应覆盖此方法，以查找类的字节码</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">Class <span class="title">defineClass</span><span class="params">(String name, <span class="keyword">byte</span>[] byteCodeData, <span class="keyword">int</span> offset, <span class="keyword">int</span> length)</span></span></span><br><span class="line"><span class="function"><span class="comment">// 将新的类添加到虚拟机中，其字节码在给定的数据范围中</span></span></span><br></pre></td></tr></table></figure>
 
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> Class <span class="title">findClass</span><span class="params">(String name)</span></span></span><br><span class="line"><span class="function"><span class="comment">//类加载器应覆盖此方法，以查找类的字节码</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.net.URLClassLoader;</span><br><span class="line"></span><br><span class="line">URLClassLoader(URL[] urls)</span><br><span class="line">URLClassLoader(URL[] urls, ClassLoader parent)</span><br><span class="line"><span class="comment">// 构建一个类加载器，可从给定的 URL 访问类</span></span><br></pre></td></tr></table></figure>
 
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Class <span class="title">defineClass</span><span class="params">(String name, <span class="keyword">byte</span>[] byteCodeData, <span class="keyword">int</span> offset, <span class="keyword">int</span> length)</span></span></span><br><span class="line"><span class="function"><span class="comment">//将新的类添加到虚拟机中，其字节码在给定的数据范围中</span></span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.net.<span class="function">URLClassLoader</span></span><br><span class="line"><span class="function"><span class="title">URLClassLoader</span><span class="params">(URL[] urls)</span></span></span><br><span class="line"><span class="function"><span class="title">URLClassLoader</span><span class="params">(URL[] urls, ClassLoader parent)</span></span></span><br><span class="line"><span class="function"><span class="comment">//构建一个类加载器，可从给定的 URL 访问类</span></span></span><br></pre></td></tr></table></figure>
-
-
-<p>注：JVM 判断两个类是否相同：不仅要判定类名是否相同，而且要判断是否由同一个类加载器实例加载<br>java.lang.Class<br>ClassLoader getClassLoader()    //获取加载该类的加载器</p>
 <br>
 
 <h1 id="类加载顺序：双亲委派模型"><a href="#类加载顺序：双亲委派模型" class="headerlink" title="类加载顺序：双亲委派模型"></a>类加载顺序：双亲委派模型</h1><p>类加载器有一种“父/子关系”，它们是<strong>组合</strong>而非继承关系：</p>
@@ -458,7 +474,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">类加载过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">类加载器类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E9%A1%BA%E5%BA%8F%EF%BC%9A%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">类加载顺序：双亲委派模型</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">类加载过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">初始化的场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E7%9A%84%E5%94%AF%E4%B8%80%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">类的唯一性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">类加载器类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%B1%BB%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90"><span class="nav-number">2.1.</span> <span class="nav-text">基类源码浅析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E9%A1%BA%E5%BA%8F%EF%BC%9A%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">类加载顺序：双亲委派模型</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
