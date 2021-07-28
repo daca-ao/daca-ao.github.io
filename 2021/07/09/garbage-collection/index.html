@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Java 在发展的过程中，摒弃 C++ 中一些繁琐的容易出错的东西，引入了“计数器”的概念。其中一个是垃圾回收（GC, Garbage Collection）机制：">
+  <meta name="description" content="其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。今天就来唠一唠这个 Java 的重要思想和 JVM 重要的组成部分 —— 垃圾回收。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM 垃圾回收机制">
 <meta property="og:url" content="http://example.com/2021/07/09/garbage-collection/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="Java 在发展的过程中，摒弃 C++ 中一些繁琐的容易出错的东西，引入了“计数器”的概念。其中一个是垃圾回收（GC, Garbage Collection）机制：">
+<meta property="og:description" content="其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。今天就来唠一唠这个 Java 的重要思想和 JVM 重要的组成部分 —— 垃圾回收。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
-<meta property="article:modified_time" content="2021-07-10T11:40:21.285Z">
+<meta property="article:modified_time" content="2021-07-28T16:36:16.677Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -201,30 +201,28 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Java 在发展的过程中，摒弃 C++ 中一些繁琐的容易出错的东西，引入了“计数器”的概念。<br>其中一个是垃圾回收（GC, Garbage Collection）机制：</p>
+        <p>其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。今天就来唠一唠这个 Java 的重要思想和 JVM 重要的组成部分 —— 垃圾回收。</p>
 <span id="more"></span>
 
-<ul>
-<li>不定时回收垃圾对象所占用的内存，内存泄漏的隐患大大降低</li>
-</ul>
-<p>当对象失去所有的引用，变成了“孤魂野鬼”，也就是“垃圾”<br>例：垃圾对象诞生过程</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String str1 = <span class="keyword">new</span> String(<span class="string">&quot;abc&quot;</span>); <span class="comment">// 这个对象有一个引用str1指向它</span></span><br><span class="line">String str2 = str1; <span class="comment">// 这个对象现在有两个引用：str1，str2指向它</span></span><br><span class="line">str1 = <span class="keyword">null</span>; <span class="comment">// 失去引用str1</span></span><br><span class="line">str2 = <span class="keyword">null</span>; <span class="comment">// 失去引用str2，失去全部引用，变成野对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 由此 new String(&quot;abc&quot;); 产生的对象失去了所有引用，将无法再被程序访问。</span></span><br></pre></td></tr></table></figure>
+<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>啥是内存垃圾？</p>
+<p>当内存中的对象失去了所有的引用，变成了“孤魂野鬼”的时候，也就被称为“垃圾”。</p>
+<p>这里展示一个垃圾对象的诞生过程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String str1 = <span class="keyword">new</span> String(<span class="string">&quot;abc&quot;</span>);  <span class="comment">// &quot;abc&quot; 这个 String 对象有一个引用 str1 指向它</span></span><br><span class="line">String str2 = str1;               <span class="comment">// &quot;abc&quot; 现在有两个引用：str1 和 str2 都指向它</span></span><br><span class="line">str1 = <span class="keyword">null</span>;  <span class="comment">// 失去引用 str1</span></span><br><span class="line">str2 = <span class="keyword">null</span>;  <span class="comment">// 失去引用 str2，失去全部引用，变成野对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 由此，new String(&quot;abc&quot;); 锁产生的对象失去了所有引用，将无法再被程序访问。*/</span></span><br></pre></td></tr></table></figure>
 
-<p>C / C++ 中没有垃圾回收机制：</p>
+<p>C / C++ 语言中没有垃圾回收机制。<br>除非程序结束，否则在堆中申请后还没被释放，且没有任何指向的内存会一直处于“三无”状态：</p>
 <ul>
-<li>除非程序结束，堆中申请后未被释放且无指向的内存会一直处于“三无”状态<ul>
-<li>无法释放</li>
-<li>无法调用</li>
-<li>无法更改</li>
+<li>无法释放；</li>
+<li>无法调用；</li>
+<li>无法更改。</li>
 </ul>
-</li>
-<li>因其无法再被访问，当此类内存多起来时，可利用的内存越来越少</li>
-<li>导致内存泄漏（memory leak）</li>
-</ul>
+<p>当这样无法再被访问的内存越积越多的时候，可利用的内存越来越少，就会导致内存泄漏（Memory Leak）。</p>
 <p>如下为一次内存泄漏过程：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">int</span> *) <span class="built_in">malloc</span> (<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">int</span>)*<span class="number">1024</span>);</span><br><span class="line"><span class="comment">// 内存分配函数的参数没有问题，指针的转型也没有问题，But没有任何指针指向它！</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">int</span> *) <span class="built_in">malloc</span> (<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">int</span>)*<span class="number">1024</span>);</span><br><span class="line"><span class="comment">// 内存分配函数的参数没有问题，指针的转型也没有问题，但是并没有任何指针指向它……</span></span><br></pre></td></tr></table></figure>
 
-<p>JVM 的垃圾回收机制包括：</p>
+<p>Java 的垃圾回收机制（Garbage Collection, <strong>GC</strong>）会不定时地去回收垃圾对象所占用的内存，大大地降低内存泄漏的隐患。</p>
+<br>
+
+<h1 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h1><p>JVM 的垃圾回收机制包括：</p>
 <ul>
 <li>在程序运行过程中标记垃圾对象</li>
 <li>以及在 GC 过程中回收被标记的垃圾对象</li>
@@ -315,6 +313,49 @@
 </ul>
 </li>
 </ul>
+<h1 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h1><ol>
+<li>标记-清除算法 Mark-Sweep</li>
+</ol>
+<ul>
+<li>从根集合扫描出存活的对象（遍历有向图），从存活（可达）的对象进行标记；</li>
+<li>完了之后再扫描堆栈中未标记的对象，并进行回收；</li>
+<li>效率低，产生大量不连续空间</li>
+</ul>
+<ol start="2">
+<li>标记-压缩算法 Mark-Compact</li>
+</ol>
+<ul>
+<li>第一阶段的标记同上；</li>
+<li>第二阶段：把被标记的对象移动到内存的一端，从而形成连续内存，并回收边界以外的内存</li>
+<li>回收不存活对象所占用的空间后，会将其他所有存活对象都往左端空闲的空间进行移动</li>
+<li>提高内存利用率，可用于老年代</li>
+</ul>
+<ol start="3">
+<li>标记-复制算法 Copying</li>
+</ol>
+<ul>
+<li>将内存分为大小相等的两块，每次只使用其中一块</li>
+<li>从根集合扫描出存活的对象，并将找到的存活对象复制到一块新的完全未使用的空间（另一块）去；</li>
+<li>将前一块回收；</li>
+<li>简单高效，内存利用率较低，可用于新生代（8:1:1）的 GC</li>
+</ul>
+<ol start="4">
+<li>分代收集算法</li>
+</ol>
+<ul>
+<li>新生代和老年代分别采用不同的回收器</li>
+<li>复制算法用于新生代</li>
+<li>压缩或清除算法用于老年代</li>
+</ul>
+<p>垃圾收集器：</p>
+<p>JVM 提供多种 GC 回收器，概括如下：</p>
+<ol>
+<li>串行 GC（Serial Garbage Collector）</li>
+<li>并行 GC（Parallel Garbage Collector）</li>
+<li>并发标记-清除（Concurrent Mark-Sweep, CMS Garbage Collector）</li>
+<li>G1（Garbage-First, G1 Garbage Collector）</li>
+</ol>
+<p>JDK 1.7 update 14 HotSpot 虚拟机的 GC 回收：</p>
 
     </div>
 
@@ -400,6 +441,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%86%85%E5%AE%B9"><span class="nav-number">2.</span> <span class="nav-text">主要内容</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">垃圾收集算法</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -413,14 +455,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-count">10</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
