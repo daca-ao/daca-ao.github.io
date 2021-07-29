@@ -27,13 +27,20 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。今天就来唠一唠这个 Java 的重要思想和 JVM 重要的组成部分 —— 垃圾回收。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/root-search.png">
+<meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/jdk_1_7_gc.jpg">
+<meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/serial_gc.jpg">
+<meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/parnew_gc.jpg">
+<meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/cms_gc.jpg">
+<meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/g1_gc.png">
 <meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
-<meta property="article:modified_time" content="2021-07-28T16:36:16.677Z">
+<meta property="article:modified_time" content="2021-07-29T14:59:08.862Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
 <meta property="article:tag" content="GC">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/07/09/garbage-collection/root-search.png">
 
 <link rel="canonical" href="http://example.com/2021/07/09/garbage-collection/">
 
@@ -219,31 +226,49 @@
 <p>如下为一次内存泄漏过程：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">int</span> *) <span class="built_in">malloc</span> (<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">int</span>)*<span class="number">1024</span>);</span><br><span class="line"><span class="comment">// 内存分配函数的参数没有问题，指针的转型也没有问题，但是并没有任何指针指向它……</span></span><br></pre></td></tr></table></figure>
 
-<p>Java 的垃圾回收机制（Garbage Collection, <strong>GC</strong>）会不定时地去回收垃圾对象所占用的内存，大大地降低内存泄漏的隐患。</p>
+<p>JVM 所提供的垃圾回收机制（Garbage Collection, <strong>GC</strong>）会不定时地去回收垃圾对象所占用的内存，大大地降低内存泄漏的隐患。</p>
 <br>
 
-<h1 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h1><p>JVM 的垃圾回收机制包括：</p>
+<h1 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h1><p>首先我们要明白，垃圾回收机制所要回收的，是已经<strong>没有任何引用的对象占据的内存空间</strong>，而不是内存本身。<br>JVM 通过自动检测对象是否超过作用域，从而达到自动回收内存的目的。<br>主要包括：</p>
 <ul>
-<li>在程序运行过程中标记垃圾对象</li>
-<li>以及在 GC 过程中回收被标记的垃圾对象</li>
+<li>在程序运行过程中<strong>标记</strong>垃圾对象</li>
+<li>在 GC 过程中<strong>回收</strong>被标记的垃圾对象</li>
 </ul>
-<p>Java 的垃圾回收机制是 JVM 提供的能力</p>
+<p>所以我们说的 Java 语言有垃圾回收特性，其实是 JVM 提供的机制，Java 语言本身并没有提供释放已分配内存的显式操作方法。<br>而 Java 的内存管理，实际上就是对象的管理，包括对象的分配和释放。</p>
+<h2 id="如何标记垃圾"><a href="#如何标记垃圾" class="headerlink" title="如何标记垃圾"></a>如何标记垃圾</h2><p>主要有两种方法。</p>
+<p><strong>1</strong>. 计数法：</p>
 <ul>
-<li>关注的是堆内存</li>
-<li>用于在空闲时间以不定时的方式动态回收无任何引用的对象占据的内存空间</li>
-<li>Java 语言本身没有提供释放已分配内存显示操作方法</li>
-<li>所以 Java 的内存管理实际上就是对象的管理<ul>
-<li>包括对象的分配和释放</li>
+<li>当新建一个对象，或者有引用指向该对象时，计数器 + 1；</li>
+<li>当一个对象引用超过了生存期限或指向新对象时，计数器 - 1；</li>
+<li>当计数器对应的值变为 0 时，虚拟机就会回收该对象。</li>
 </ul>
+<p>计数法的好处就是快、简单，但无法检测循环引用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;<span class="keyword">public</span> B b;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;<span class="keyword">public</span> A a;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    A a = <span class="keyword">new</span> A();</span><br><span class="line">    B b = <span class="keyword">new</span> B();</span><br><span class="line">    a.b = b;</span><br><span class="line">    b.a = a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2</strong>. 跟踪法 / 根搜索算法：</p>
+<p>该算法从图论引入，它将一个调用链中所有的对象引用关系看作是一张<strong>图</strong>，虚拟机会从根节点开始，寻找对应的引用节点。<br>这样的一些根节点被称为 <strong>GC roots</strong>；以每个 GC root 为起点能够形成作用链，链中的每个对象都是有向图的顶点。<br>GC roots 不可达的对象将会被回收。</p>
+<p>GC roots 包括：</p>
+<ul>
+<li><p>虚拟机栈中引用的对象：</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User user = <span class="keyword">new</span> User();</span><br></pre></td></tr></table></figure></li>
+<li><p>静态属性引用的对象：</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> User user = <span class="keyword">new</span> User();</span><br></pre></td></tr></table></figure></li>
+<li><p>常量引用的对象：</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> User user = <span class="keyword">new</span> User();</span><br></pre></td></tr></table></figure></li>
+<li><p>本地方法栈中引用的对象。</p>
 </li>
 </ul>
-<p>注：垃圾回收回收的是无任何引用的对象占据的内存空间，而不是内存本身</p>
-<p>方法：自动检测对象是否超过作用域从而达到自动回收内存的目的</p>
-<p>JVM GC 算法为分代收集，设计为：</p>
+<br>
+
+<p><img src="/2021/07/09/garbage-collection/root-search.png"></p>
+<p>如上：红色部分为某个 GC Root 不可达的节点，可被回收。</p>
+<br>
+
+<h1 id="回收策略"><a href="#回收策略" class="headerlink" title="回收策略"></a>回收策略</h1><p>JVM 的 GC 算法为<strong>分代收集</strong>，设计为：</p>
 <ol>
 <li>频繁收集新生代</li>
 <li>较少收集老年代</li>
-<li>更少收集永久区</li>
+<li>更少收集永久区/元空间</li>
 </ol>
 <p>YG 回收（Minor GC, young GC）执行过程</p>
 <ul>
@@ -281,39 +306,17 @@
 <li>新生代对象经过 N 次 GC 晋升到老年代。默认 N = 15</li>
 <li>大对象（由 JVM 参数决定）直接存储到老年代，如数组</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">System.gc(); <span class="comment">// 请求运行垃圾回收器触发 Full GC，不一定真的执行了垃圾回收，且不受代码控制</span></span><br><span class="line"></span><br><span class="line">Runtime.getRuntime().gc();</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">System.gc();  <span class="comment">// 请求运行垃圾回收器触发 Full GC，不一定真的执行了垃圾回收，且不受代码控制</span></span><br><span class="line"></span><br><span class="line">Runtime.getRuntime().gc();</span><br></pre></td></tr></table></figure>
 
 <p>以上调用用于显式通知 JVM 可以进行一次垃圾回收</p>
 <p>但真正的垃圾回收机制，具体在什么时间点开始发生动作，不可预料</p>
 <ul>
 <li>这和抢占式的线程在发生作用时的原理是一样的</li>
 </ul>
-<p>注：不能通过 Java 代码干预 Java 垃圾回收</p>
-<p>标记垃圾</p>
-<p>计数法</p>
-<ul>
-<li>新建一个对象或有引用指向该对象时计数器 + 1</li>
-<li>当一个对象引用超过生存期限或指向新对象时计数器 + 1</li>
-<li>计数器对应的对象变为 0 时回收该对象</li>
-<li>快、简单，但无法检测循环引用<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;<span class="keyword">public</span> B b;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;<span class="keyword">public</span> A a;&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    A a = <span class="keyword">new</span> A();</span><br><span class="line">    B b = <span class="keyword">new</span> B();</span><br><span class="line">    a.b = b;</span><br><span class="line">    b.a = a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<p>跟踪法/根搜索算法</p>
-<ul>
-<li>从图论引入</li>
-<li>将所有引用关系看作一张图，从根节点开始寻找对应的引用节点</li>
-<li>以 GC roots 为起点形成作用链，每个对象为有向图的顶点<ul>
-<li>GC roots 不可达的对象将被回收</li>
-</ul>
-</li>
-<li>GC roots 包括：<ul>
-<li>虚拟机栈中引用的对象<br>User user = new User();</li>
-<li>静态属性引用的对象<br>private static User user = new User();</li>
-<li>常量引用的对象<br>private static final User user = new User();</li>
-<li>本地方法（native method）栈中引用的对象</li>
-</ul>
-</li>
-</ul>
-<h1 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h1><ol>
+<p>因此不能通过 Java 代码干预 Java 垃圾回收</p>
+<br>
+
+<h1 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h1><ol>
 <li>标记-清除算法 Mark-Sweep</li>
 </ol>
 <ul>
@@ -347,8 +350,9 @@
 <li>复制算法用于新生代</li>
 <li>压缩或清除算法用于老年代</li>
 </ul>
-<p>垃圾收集器：</p>
-<p>JVM 提供多种 GC 回收器，概括如下：</p>
+<br>
+
+<h1 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h1><p>JVM 提供多种 GC 回收器，概括如下：</p>
 <ol>
 <li>串行 GC（Serial Garbage Collector）</li>
 <li>并行 GC（Parallel Garbage Collector）</li>
@@ -356,6 +360,67 @@
 <li>G1（Garbage-First, G1 Garbage Collector）</li>
 </ol>
 <p>JDK 1.7 update 14 HotSpot 虚拟机的 GC 回收：</p>
+<p><img src="/2021/07/09/garbage-collection/jdk_1_7_gc.jpg"></p>
+<p>GC 之间存在连线即可结合使用</p>
+<p>Serial</p>
+<ul>
+<li>JDK 1.3.1 之前新生代唯一的 GC</li>
+<li>使用单线程串行回收方式，使用复制算法</li>
+<li>单线程执行不存在线程切换：在单 CPU 环境下性能较好</li>
+</ul>
+<p><img src="/2021/07/09/garbage-collection/serial_gc.jpg"></p>
+<p>ParNew</p>
+<ul>
+<li>Serial 的多线程版本</li>
+</ul>
+<p><img src="/2021/07/09/garbage-collection/parnew_gc.jpg"></p>
+<p>Parallel Scavenge</p>
+<ul>
+<li>与 ParNew 类似</li>
+<li>追求高吞吐量，高效利用 CPU</li>
+</ul>
+<p>Parallel Old</p>
+<ul>
+<li>Parallel Scavenge 的老年代版本</li>
+<li>使用标记-压缩算法</li>
+</ul>
+<p>CMS</p>
+<ul>
+<li>以获取最短回收停顿时间为目标</li>
+<li>使用标记-清除算法</li>
+<li>JDK 9 中被标记 @Deprecated</li>
+</ul>
+<p><img src="/2021/07/09/garbage-collection/cms_gc.jpg"></p>
+<p>步骤：</p>
+<ol>
+<li>初始标记：标记 GC Roots 直接关联的对象（stop the world）</li>
+<li>并发标记：从 GC Roots 开始对堆进行可达性分析，找出活对象</li>
+<li>重新标记：修正并发期间，由于用户运作导致的标记变动的一部分对象的标记记录</li>
+<li>并发清除</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li>产生大量空间碎片，可能提前触发 Full GC</li>
+<li>无法清除浮动垃圾</li>
+<li>对 CPU 资源敏感<br>注：</li>
+</ol>
+<ul>
+<li>CMS 收集器中，当老生代内存使用超过一定比例时，系统将会进行垃圾回收；</li>
+<li>当剩余内存不能满足程序运行要求时，系统会出现 Concurrent Mode Failure，临时采用 Serial Old 算法进行清除；</li>
+<li>此时性能会降低。</li>
+</ul>
+<p>Serial Old</p>
+<ul>
+<li>Serial 的老年代版本</li>
+<li>同为单线程，使用标记-压缩算法</li>
+<li>作为 CMS 收集器的备案</li>
+</ul>
+<p>G1</p>
+<ul>
+<li>JDK 1.7 投入使用，JDK 9 后的默认 GC</li>
+<li>兼顾吞吐量和停顿时间，可直观设定停顿时间</li>
+</ul>
+<p><img src="/2021/07/09/garbage-collection/g1_gc.png"></p>
 
     </div>
 
@@ -441,7 +506,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%86%85%E5%AE%B9"><span class="nav-number">2.</span> <span class="nav-text">主要内容</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">垃圾收集算法</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%86%85%E5%AE%B9"><span class="nav-number">2.</span> <span class="nav-text">主要内容</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%A0%87%E8%AE%B0%E5%9E%83%E5%9C%BE"><span class="nav-number">2.1.</span> <span class="nav-text">如何标记垃圾</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9E%E6%94%B6%E7%AD%96%E7%95%A5"><span class="nav-number">3.</span> <span class="nav-text">回收策略</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">垃圾回收算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">垃圾收集器</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
