@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="（待补充）">
+  <meta name="description" content="Redis，其实是 REmote DIctionary Server （暂译为“远程字典服务”吧，虽然有些拗口）首字母的缩写。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis 入门">
 <meta property="og:url" content="http://example.com/2021/07/29/redis-basics/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="（待补充）">
+<meta property="og:description" content="Redis，其实是 REmote DIctionary Server （暂译为“远程字典服务”吧，虽然有些拗口）首字母的缩写。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-07-28T16:36:12.476Z">
+<meta property="article:modified_time" content="2021-07-29T17:00:46.222Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -200,8 +200,110 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>（待补充）</p>
+        <p>Redis，其实是 <strong>RE</strong>mote <strong>DI</strong>ctionary <strong>S</strong>erver （暂译为“远程字典服务”吧，虽然有些拗口）首字母的缩写。</p>
 <span id="more"></span>
+
+<p>优势：</p>
+<ul>
+<li>性能高</li>
+<li>数据类型丰富，支持五种对象类型：String, List, Hash, Set, Sorted Set(zset)</li>
+<li>所有操作都是原子性的</li>
+<li>单个操作为原子性，多个操作支持事务</li>
+<li>支持发布与订阅、通知、key 过期等特性</li>
+</ul>
+<p>EXPIRE key seconds // 为 key 设置过时时间，以秒计算</p>
+<p>EXPIREAT key timestamp // 设置 key 的超时时间至某个时间戳</p>
+<p>单进程单线程的模型</p>
+<ul>
+<li>完全基于内存的操作，CPU 不是瓶颈</li>
+<li>单线程容易实现<br>为何仍然这么快：</li>
+<li>数据存储类似于 HashMap：查找和操作的时间复杂度是 O(1)</li>
+<li>数据结构简单，对数据操作也简单</li>
+<li>采用单线程，避免不必要的上下文切换和竞争条件</li>
+<li>使用非阻塞 IO</li>
+</ul>
+<p>Redis 是基于键值对的数据库，其中“值”的类型有：</p>
+<p>String<br>概况：</p>
+<ul>
+<li>Redis 最基本的类型，长度不超过 512 MB</li>
+<li>二进制安全，可以包含任何数据，如 jpg 图像或者序列化的对象<br>编码：</li>
+</ul>
+<ol>
+<li>int：8 个字节的长整型<ol>
+<li>字符串值为整型时，该值使用 long 整型表示</li>
+</ol>
+</li>
+<li>embstr：&lt;= 39 字节的字符串</li>
+<li>raw：大于 39 字节的字符串<br>注：</li>
+</ol>
+<ul>
+<li>embstr 与 raw 都使用 RedisObject 和 SDS 保存数据</li>
+<li>embstr 的使用只分配一次内存空间（RedisObject 和 SDS 连续）<ul>
+<li>好处：创建时少分配一次空间，删除时少释放一次空间；对象所有数据连在一起，寻找方便</li>
+<li>坏处：字符串长度增加需要重新分配内存时，整个 RedisObject 和 SDS 都需要重新分配空间</li>
+<li>因此 embstr 实现为只读</li>
+</ul>
+</li>
+<li>raw 需要分别为 RedisObject 和 SDS 分别分配内存空间</li>
+</ul>
+<p>编码转换：<br>当 int 数据不再是整数，或大小超过 long 范围：自动转为 raw<br>因 embstr 的实现是只读：修改时先转化为 raw 再进行修改</p>
+<p>Hash<br>键值对（key-value）集合<br>本质为 String 类型的 field 和 value 的映射表<br>指令以 h 开头</p>
+<p>List<br>概况：<br>简单的 String 列表，按照插入顺序排序<br>可添加至列表头（左）或尾（右）<br>指令以 l 开头</p>
+<p>Set<br>String 无序不重复集合，通过哈希表实现<br>指令以 s 开头</p>
+<p>zset（Sorted Set）<br>String 有序不重复集合，与 Set 类似<br>每个元素关联一个 double 类型的分数，Redis 通过分数从小到大排序<br>指令以 z 开头</p>
+<p>每种对象类型都有至少两种编码：</p>
+<ol>
+<li>接口与实现分离，当需要增加或改变内部编码时，用户使用不受影响</li>
+<li>可根据不同应用场景切换内部编码，提高效率</li>
+</ol>
+<p>Redis 作为内存数据库，在内存中存储内容主要是数据（键值对）</p>
+<p>内存统计：<br>$info memory</p>
+<h1 id="Memory"><a href="#Memory" class="headerlink" title="Memory"></a>Memory</h1><p>used_memory:809936<br>used_memory_human:790.95K<br>used_memory_rss:7909376<br>used_memory_peak:809936<br>used_memory_peak_human:790.95K<br>used_memory_lua:35870<br>mem_fragmentation_ratio:9.77<br>mem_allocator:jemalloc-3.6.0</p>
+<p>used_memory</p>
+<ul>
+<li>Redis 分配器分配的内存总量（Byte）</li>
+<li>包括使用的虚拟内存（swap）</li>
+</ul>
+<p>used_memory_human</p>
+<ul>
+<li>used_memory 更友好的显示方式</li>
+</ul>
+<p>used_memory_rss</p>
+<ul>
+<li>Redis 进程占据操作系统的内存（Byte），与 top 和 ps 命令看到的值一致</li>
+<li>包括：<ul>
+<li>Redis 分配器分配的内存</li>
+<li>进程运行本身需要的内存</li>
+<li>内存碎片</li>
+<li>……</li>
+</ul>
+</li>
+<li>不包括虚拟内存</li>
+</ul>
+<p>used_memory 与 used_memory_rss 比较</p>
+<ul>
+<li>前者为从 Redis 得到的量</li>
+<li>后者从操作系统角度得到的量</li>
+<li>两者不同的原因：<ol>
+<li>内存碎片和 Redis 进程运行需要占用内存：前者可能比后者小</li>
+<li>存在虚拟内存：前者可能比后者大</li>
+</ol>
+</li>
+</ul>
+<p>mem_fragmentation_ratio</p>
+<ul>
+<li>内存碎片比率，used_memory_rss / used_memory</li>
+<li>实际应用中 Redis 数据量比较大：进程运行占用内存与 Redis 数据量和内存碎片相比会小很多</li>
+<li>一般大于 1，值越大内存碎片比例越大</li>
+<li>小于 1，说明 Redis 使用了虚拟内存：要及时排查</li>
+<li>1.03 为比较健康的状态</li>
+</ul>
+<p>mem_allocator</p>
+<ul>
+<li>Redis 使用的内存分配器，编译时指定</li>
+<li>可以是 libc, jemalloc 或 tcmalloc，默认 jemalloc<br>jemalloc 将内存空间划分为小、大、巨大三个范围<br>每个范围内划分许多小的内存块单位</li>
+</ul>
+<p>（待补充）</p>
 
     </div>
 
@@ -283,6 +385,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Memory"><span class="nav-number">1.</span> <span class="nav-text">Memory</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
