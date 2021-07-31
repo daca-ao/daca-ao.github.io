@@ -20,18 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Java Memory Model, JMM">
+  <meta name="description" content="在 JSR133 规范中提出的 Java 内存模型（Java Memory Model, JMM），是一个用来定义一个一致性、跨平台的内存模型，是缓存一致性协议，用来定义数据读写的规则。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java 内存模型 JMM">
 <meta property="og:url" content="http://example.com/2021/07/10/jmm/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="Java Memory Model, JMM">
+<meta property="og:description" content="在 JSR133 规范中提出的 Java 内存模型（Java Memory Model, JMM），是一个用来定义一个一致性、跨平台的内存模型，是缓存一致性协议，用来定义数据读写的规则。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2021/07/10/jmm/jmm-bridge.png">
 <meta property="article:published_time" content="2021-07-09T16:05:24.000Z">
-<meta property="article:modified_time" content="2021-07-10T11:42:38.516Z">
+<meta property="article:modified_time" content="2021-07-31T15:42:46.454Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/07/10/jmm/jmm-bridge.png">
 
 <link rel="canonical" href="http://example.com/2021/07/10/jmm/">
 
@@ -199,72 +201,87 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Java Memory Model, JMM</p>
+        <p>在 JSR133 规范中提出的 Java 内存模型（Java Memory Model, <strong>JMM</strong>），是一个用来定义一个一致性、跨平台的内存模型，是缓存一致性协议，用来定义数据读写的规则。</p>
 <span id="more"></span>
 
+<p>JMM 用以屏蔽各种硬件和操作系统的内存访问差异，以实现让 Java 程序在各种平台都能达到一致的并发效果。<br>JMM 的目标，就是去规范 JVM 与计算机内存如何协同工作：</p>
 <ul>
-<li>JVM 规范定义了 JMM</li>
-<li>用以屏蔽各种硬件和操作系统的内存访问差异<ul>
-<li>以实现让 Java 程序在各种平台都能达到一致的并发效果</li>
+<li>规定了一个线程如何，以及何时能看到由其他线程修改过后的共享变量的值；</li>
+<li>必须如何同步地访问共享变量。</li>
 </ul>
-</li>
-<li>目标：规范了 JVM 与计算机内存是如何协同工作的<ul>
-<li>规定了一个线程如何，以及何时能看到由其他线程修改过后的共享变量的值</li>
-<li>必须如何同步地访问共享变量</li>
-<li>即：定义在虚拟机中如何将变量存储进内存，以及从内存取出来的细节</li>
-</ul>
-</li>
-</ul>
-<p>基本：</p>
+<p>也就是说，JMM 定义了在虚拟机中如何将变量存储进内存，以及从内存取出来的细节。</p>
+<br>
+
+<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>首先简单回顾一下不同 Java 对象的存储位置：</p>
 <ul>
-<li>一个本地变量可能是原始类型——总是在线程栈上</li>
-<li>一个本地变量可能是指向一个对象的引用——引用存放在线程栈，对象本身在堆上</li>
-<li>一个对象可能包含方法，方法包含本地变量——本地变量在线程栈上，即便方法所属对象在堆上</li>
-<li>一个对象的成员变量可能随着该对象自身放在堆上<ul>
-<li>不管是原始类型还是引用类型</li>
-</ul>
-</li>
+<li>一个局部变量如果是原始类型：它总是存储在线程栈上</li>
+<li>一个局部变量如果是指向一个对象的引用：引用存放在线程栈，对象本身在堆上</li>
+<li>一个对象的成员变量（全局变量）不管是原始类型还是引用类型，都可能跟随该对象自身放在堆上</li>
 <li>静态成员变量跟随类定义一起存放到堆上</li>
 <li>堆上的对象可被所有持有对该对象引用的线程访问<ul>
 <li>当一个线程可访问一个对象时，它也可以访问该对象的成员变量</li>
-<li>如两个线程同时调用同一对象的同一方法：将都会访问该对象的成员变量，但每个线程各拥有一份该成员变量的私有拷贝</li>
+<li>如两个线程同时调用同一对象的同一方法：都将会访问该对象的成员变量，但每个线程会各自拥有一份该成员变量的私有拷贝</li>
 </ul>
 </li>
 </ul>
-<p>JMM 定义了线程和主存间的抽象关系：</p>
+<p>大概的对应图如下图左所示：</p>
+<p><img src="/2021/07/10/jmm/jmm-bridge.png"></p>
+<p>如图右：对于硬件内存架构来说，是没有区分栈和堆的，所有线程的栈和堆都分布于主存，部分线程栈和堆有时出现在 CPU 缓存和内部寄存器中。<br>主存是硬件的内存。为获取更好的运行速度，虚拟机及硬件系统可能会让工作内存优先存储于寄存器和高速缓存中</p>
+<p>中间虚线处框出来的，就是 JVM 与硬件内存架构之间的桥接。<br>在此桥接的基础上，JMM 定义了线程和主存间的抽象关系：</p>
 <ul>
-<li>线程之间的共享变量存储在主存中</li>
-<li>每个线程都有一份私有本地内存（Local Memory）<ul>
-<li>JMM 抽象概念，并不真实存在</li>
+<li>线程之间的共享变量，也就是堆和方法区的数据，存储在主存中</li>
+<li>每个线程都各自保存一份<strong>本地内存</strong>（Local Memory）<ul>
 <li>涵盖了缓存、写缓冲区、寄存器及其它硬件和编译器优化</li>
-<li>存储了该线程以读/写共享变量的拷贝副本</li>
+<li>存储了该线程已读/写共享变量的拷贝副本</li>
+<li>注：这是 JMM 的抽象概念，并不真实存在</li>
 </ul>
 </li>
-<li>主存是硬件的内存，为获取更好运行速度，虚拟机及硬件系统可能会让工作内存优先存储于寄存器和高速缓存中</li>
 <li>JMM 的工作内存（working memory）是 CPU 的寄存器和高速缓存的抽象描述<ul>
 <li>JVM 静态内存储模型（JVM 内存模型）只是一种对内存的划分，只局限在 JVM 内存</li>
 </ul>
 </li>
 </ul>
 <p>具体的交互协议：<br>同步操作及规则</p>
-<p>定义了 8 种操作完成主内存与工作内存具体的交互细节：<br>lock（锁定）</p>
+<p>定义了 8 种操作完成主内存与工作内存具体的交互细节：</p>
+<p>lock（锁定）</p>
 <ul>
 <li>作用于主内存的变量</li>
-<li>将一个变量标识为一条线程独占状态<br>unlock（解锁）</li>
+<li>将一个变量标识为一条线程独占状态</li>
+</ul>
+<p>unlock（解锁）</p>
+<ul>
 <li>作用于主内存的变量</li>
-<li>将一个处于锁定状态的变量释放，释放后的变量才可被其他线程锁定<br>read（读取）</li>
+<li>将一个处于锁定状态的变量释放，释放后的变量才可被其他线程锁定</li>
+</ul>
+<p>read（读取）</p>
+<ul>
 <li>作用于主内存的变量</li>
-<li>将一个变量值从主内存传输到线程工作内存中，以便随后的 load 操作使用<br>load（载入）</li>
+<li>将一个变量值从主内存传输到线程工作内存中，以便随后的 load 操作使用</li>
+</ul>
+<p>load（载入）</p>
+<ul>
 <li>作用于工作内存的变量</li>
-<li>将 read 操作从主内存得到的变量值放入工作内存的变量副本中<br>use（使用）</li>
+<li>将 read 操作从主内存得到的变量值放入工作内存的变量副本中</li>
+</ul>
+<p>use（使用）</p>
+<ul>
 <li>作用于工作内存的变量</li>
 <li>将工作内存的一个变量值传递给执行引擎</li>
-<li>每当虚拟机遇到一个需要使用变量值的字节码指令：执行该操作<br>assign（赋值）</li>
+<li>每当虚拟机遇到一个需要使用变量值的字节码指令：执行该操作</li>
+</ul>
+<p>assign（赋值）</p>
+<ul>
 <li>作用于工作内存的变量</li>
 <li>将一个从执行引擎（Java Execution）接收到的值赋值给工作内存的变量</li>
-<li>每当虚拟机遇到一个给变量赋值的字节码指令：执行该操作<br>store（存储）</li>
+<li>每当虚拟机遇到一个给变量赋值的字节码指令：执行该操作</li>
+</ul>
+<p>store（存储）</p>
+<ul>
 <li>作用于工作内存的变量</li>
-<li>将工作内存中一个变量值传送回主内存，以便随后的 write 操作<br>write（写入）</li>
+<li>将工作内存中一个变量值传送回主内存，以便随后的 write 操作</li>
+</ul>
+<p>write（写入）</p>
+<ul>
 <li>作用于工作内存的变量</li>
 <li>将 store 操作从工作内存中一个变量的值传送回主内存变量</li>
 </ul>
@@ -400,6 +417,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">基本结构</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

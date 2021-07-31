@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/cms_gc.jpg">
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/g1_gc.png">
 <meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
-<meta property="article:modified_time" content="2021-07-30T15:23:00.611Z">
+<meta property="article:modified_time" content="2021-07-30T15:47:06.161Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -297,7 +297,7 @@
 <p>没错，堆里面新生代的 <code>From Survivor</code> 和 <code>To Survivor</code> 之间，就是这么样操作的（不然怎么叫 “from” 和 “to”）。<br>因为新生代大多数对象都“朝不保夕”，因此<strong>新生代</strong>的 GC 使用了复制算法。</p>
 <br>
 
-<p>结合以上算法，还根据堆的各个功能区产生了<strong>分代收集算法</strong>，以提升回收效率：</p>
+<p>结合以上算法，还根据堆的各个功能区产生了 <strong>4. 分代收集算法</strong>，以提升回收效率：</p>
 <ul>
 <li>复制算法用于新生代</li>
 <li>压缩或清除算法用于老年代</li>
