@@ -28,10 +28,15 @@
 <meta property="og:description" content="在 JSR133 规范中提出的 Java 内存模型（Java Memory Model, JMM），是一个用来定义一个一致性、跨平台的内存模型，是缓存一致性协议，用来定义数据读写的规则。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/jmm-bridge.png">
+<meta property="og:image" content="http://example.com/2021/07/10/jmm/relationship.png">
+<meta property="og:image" content="http://example.com/2021/07/10/jmm/communication.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/10/jmm/jmm-operation.png">
+<meta property="og:image" content="http://example.com/2021/07/10/jmm/cache-visible.jpg">
 <meta property="article:published_time" content="2021-07-09T16:05:24.000Z">
-<meta property="article:modified_time" content="2021-07-31T15:42:46.454Z">
+<meta property="article:modified_time" content="2021-08-01T14:00:23.157Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
+<meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2021/07/10/jmm/jmm-bridge.png">
 
@@ -226,113 +231,164 @@
 </ul>
 <p>大概的对应图如下图左所示：</p>
 <p><img src="/2021/07/10/jmm/jmm-bridge.png"></p>
-<p>如图右：对于硬件内存架构来说，是没有区分栈和堆的，所有线程的栈和堆都分布于主存，部分线程栈和堆有时出现在 CPU 缓存和内部寄存器中。<br>主存是硬件的内存。为获取更好的运行速度，虚拟机及硬件系统可能会让工作内存优先存储于寄存器和高速缓存中</p>
-<p>中间虚线处框出来的，就是 JVM 与硬件内存架构之间的桥接。<br>在此桥接的基础上，JMM 定义了线程和主存间的抽象关系：</p>
+<p>再如图右及红色虚线框部分：对于硬件内存架构来说，是没有区分栈和堆的，所有线程的栈和堆都分布于主存，部分线程栈和堆有时出现在 CPU 缓存和内部寄存器中。  </p>
+<br>
+
+<p>下图展示了 JMM 定义的线程和主存间的抽象关系：</p>
 <ul>
-<li>线程之间的共享变量，也就是堆和方法区的数据，存储在主存中</li>
-<li>每个线程都各自保存一份<strong>本地内存</strong>（Local Memory）<ul>
+<li>线程之间的共享变量，也就是堆和方法区的数据，存储在<strong>主存</strong>中；</li>
+<li>每个线程都各自保存一份<strong>本地内存</strong>（Local Memory，也叫<strong>工作内存</strong> Working Memory）<ul>
 <li>涵盖了缓存、写缓冲区、寄存器及其它硬件和编译器优化</li>
 <li>存储了该线程已读/写共享变量的拷贝副本</li>
 <li>注：这是 JMM 的抽象概念，并不真实存在</li>
 </ul>
 </li>
-<li>JMM 的工作内存（working memory）是 CPU 的寄存器和高速缓存的抽象描述<ul>
-<li>JVM 静态内存储模型（JVM 内存模型）只是一种对内存的划分，只局限在 JVM 内存</li>
 </ul>
-</li>
+<p><img src="/2021/07/10/jmm/relationship.png"></p>
+<p>主存是硬件的内存。为获取更好的运行速度，虚拟机及硬件系统可能会让工作内存优先存储于寄存器和高速缓存中。</p>
+<p>因此，JMM 的本地内存是对 CPU 的寄存器和高速缓存的抽象描述，定义了 JVM 与硬件内存架构之间的桥接。</p>
+<h2 id="线程通信"><a href="#线程通信" class="headerlink" title="线程通信"></a>线程通信</h2><p>JMM 协议中的线程间通信：必须要经过主内存</p>
+<p><img src="/2021/07/10/jmm/communication.jpeg"></p>
+<p>如上：</p>
+<ul>
+<li>线程 A 将本地内存 A 中更新过的共享变量刷新回主内存</li>
+<li>线程 B 到主内存读取线程 A 之前已更新过的共享变量</li>
 </ul>
-<p>具体的交互协议：<br>同步操作及规则</p>
-<p>定义了 8 种操作完成主内存与工作内存具体的交互细节：</p>
-<p>lock（锁定）</p>
+<br>
+
+<h1 id="同步操作及规则"><a href="#同步操作及规则" class="headerlink" title="同步操作及规则"></a>同步操作及规则</h1><p>至于桥接的具体交互协议，JMM 定义了 <strong>8</strong> 种操作完成主内存与工作内存之间的具体交互细节：</p>
+<p><img src="/2021/07/10/jmm/jmm-operation.png"></p>
+<p><big>主内存操作：</big></p>
+<p><strong>lock</strong>（锁定）</p>
 <ul>
 <li>作用于主内存的变量</li>
-<li>将一个变量标识为一条线程独占状态</li>
+<li>将一个变量标识为被一条线程独占的状态</li>
 </ul>
-<p>unlock（解锁）</p>
+<p><strong>unlock</strong>（解锁）</p>
 <ul>
 <li>作用于主内存的变量</li>
-<li>将一个处于锁定状态的变量释放，释放后的变量才可被其他线程锁定</li>
+<li>将一个处于锁定状态的变量释放，变量要被释放后才可被其他线程锁定</li>
 </ul>
-<p>read（读取）</p>
+<br>
+<big>取值操作：</big>
+
+<p><strong>read</strong>（读取）</p>
 <ul>
 <li>作用于主内存的变量</li>
-<li>将一个变量值从主内存传输到线程工作内存中，以便随后的 load 操作使用</li>
+<li>将一个变量值从主内存传输到线程的工作内存中，以便随后的 load 操作使用</li>
 </ul>
-<p>load（载入）</p>
+<p><strong>load</strong>（载入）</p>
 <ul>
 <li>作用于工作内存的变量</li>
 <li>将 read 操作从主内存得到的变量值放入工作内存的变量副本中</li>
 </ul>
-<p>use（使用）</p>
+<p><strong>use</strong>（使用）</p>
 <ul>
 <li>作用于工作内存的变量</li>
-<li>将工作内存的一个变量值传递给执行引擎</li>
-<li>每当虚拟机遇到一个需要使用变量值的字节码指令：执行该操作</li>
+<li>将工作内存的一个变量值按需传递给执行引擎</li>
+<li>每当 JVM 遇到一个需要使用变量值的字节码指令时，Java 线程会执行该操作</li>
 </ul>
-<p>assign（赋值）</p>
+<br>
+<big>写值操作：</big>
+
+<p><strong>assign</strong>（赋值）</p>
 <ul>
 <li>作用于工作内存的变量</li>
 <li>将一个从执行引擎（Java Execution）接收到的值赋值给工作内存的变量</li>
-<li>每当虚拟机遇到一个给变量赋值的字节码指令：执行该操作</li>
+<li>每当 JVM 遇到一个给变量赋值的字节码指令时，Java 线程会执行该操作</li>
 </ul>
-<p>store（存储）</p>
+<p><strong>store</strong>（存储）</p>
 <ul>
 <li>作用于工作内存的变量</li>
 <li>将工作内存中一个变量值传送回主内存，以便随后的 write 操作</li>
 </ul>
-<p>write（写入）</p>
+<p><strong>write</strong>（写入）</p>
 <ul>
-<li>作用于工作内存的变量</li>
-<li>将 store 操作从工作内存中一个变量的值传送回主内存变量</li>
+<li>作用于主内存的变量</li>
+<li>将 store 操作送回来的工作内存变量值写回主内存变量的值</li>
 </ul>
-<p>同步规则：</p>
-<ul>
-<li>如要将一个变量从主内存复制到工作内存：需按序执行 read 和 load 操作</li>
-<li>如要将变量从工作内存同步回主内存：需按序执行 store 和 write 操作<ul>
-<li>JMM 只要求上述操作必须按顺序执行，没有保证必须连续执行</li>
-</ul>
-</li>
-<li>不允许 read 和 load、store 和 write 操作之一单独出现</li>
-<li>不允许一个线程丢弃它最近的 assign 操作<ul>
-<li>即：变量在工作内存中改变了之后必须同步回主内存</li>
-</ul>
-</li>
-<li>不允许一个线程无理由地（没发生任何 assign 操作）将数据从工作内存同步回主内存</li>
-<li>一个新变量只能在主内存诞生<ul>
-<li>不允许在工作内存直接使用一个未被初始化（load 或 assign）的变量</li>
-<li>即：对一个变量实施 use 和 store 操作之前，必须先执行过了 load 和 assign 操作</li>
+<h2 id="同步规则"><a href="#同步规则" class="headerlink" title="同步规则"></a>同步规则</h2><ol>
+<li>如果要将变量从主内存复制到工作内存，需要<strong>按序执行 read 和 load</strong> 操作；</li>
+<li>如果要将变量从工作内存同步回主内存，需要<strong>按序执行 store 和 write</strong> 操作</li>
+</ol>
+<p>注：JMM 只要求上述操作必须按顺序执行，没有保证必须连续执行</p>
+<ol start="3">
+<li>不允许 read 和 load 二者、store 和 write 二者之一单独出现</li>
+<li>不允许一个线程丢弃它最近的一次 assign 操作；也就是说，变量在工作内存中被改变了之后，必须同步回主内存</li>
+<li>相应地，不允许一个线程无理由地（没发生任何 assign 操作）将数据从工作内存同步回主内存</li>
+<li>一个<strong>新变量只能在主内存诞生</strong>，不允许在工作内存直接使用一个未被初始化（load 或 assign）的变量<ul>
+<li>对一个变量实施 use 操作之前，必须先执行过了 load 操作</li>
+<li>对一个变量实施 store 操作之前，必须先执行过了 assign 操作</li>
 </ul>
 </li>
-<li>一个变量在同一时刻只允许一条线程对其进行 lock 操作<ul>
+<li>一个变量在同一个时刻，只允许一条线程对其进行 lock 操作：独占锁<ul>
 <li>lock 操作可被同一线程重复执行多次</li>
 <li>多次执行 lock 后，只有再执行相同次数的 unlock 操作才会解锁变量</li>
-<li>即：lock 和 unlock 需成对出现</li>
+<li>即：lock 和 unlock 需成对出现，否则就死锁了</li>
 </ul>
 </li>
-<li>如对一个变量执行 lock 操作：清空工作内存中此变量的值<ul>
-<li>执行引擎（Java Execution）使用该变量前需重新执行 load 或 assign 操作来初始化变量的值</li>
+<li>如果一个线程需要锁住（lock）一个变量，需要先清空该线程工作内存中这个变量的值<ul>
+<li>执行引擎（Java Execution）在使用该变量前，需要重新执行 load 或 assign 操作来初始化变量的值</li>
 </ul>
 </li>
-<li>如一个变量事先没被 lock 锁定：不允许执行 unlock 操作<ul>
-<li>不允许 unlock 一个被其他线程锁定的变量</li>
-</ul>
-</li>
-<li>对一个变量 unlock 前：需将此变量同步到主内存中（执行 store 和 write 操作）</li>
-</ul>
-<p>JMM 解决的问题</p>
-<p>问题概述：</p>
-<ol>
-<li>线程缓存导致的可见性问题</li>
+<li>如一个变量事先没被 lock 锁定，不允许执行 unlock 操作；而且绝对不允许 unlock 一个被其他线程锁定的变量</li>
+<li>对一个变量 unlock 前：需将此变量同步到主内存中（执行 store 和 write 操作）。</li>
 </ol>
+<br>
+
+<h1 id="JMM-解决的问题"><a href="#JMM-解决的问题" class="headerlink" title="JMM 解决的问题"></a>JMM 解决的问题</h1><h2 id="线程缓存导致的可见性问题"><a href="#线程缓存导致的可见性问题" class="headerlink" title="线程缓存导致的可见性问题"></a>线程缓存导致的可见性问题</h2><p>问题一：在没有正确使用 volatile 声明或同步的时候，多个线程共享一个对象。</p>
+<p>问题二：一个线程更新一个共享变量的时候，该操作可能对其他线程不可见</p>
 <ul>
-<li>多个线程没有在正确使用 volatile 声明或同步时共享一个对象</li>
-<li>一个线程更新该共享变量可能对其他线程不可见<ul>
-<li>共享对象被初始化在主内存</li>
+<li>首先，共享对象在主内存被初始化</li>
 <li>跑在 CPU 上的一个线程将该共享对象读到 CPU 缓存，然后修改</li>
-<li>只要 CPU 缓存没被刷新回主内存，对象修改后的状态对于跑在其它 CPU 上的线程均不可见</li>
+<li>只要 CPU 缓存中被修改的值没被刷新回主内存，对象修改后的状态对于跑在其它 CPU 上的线程均不可见。</li>
+</ul>
+<p>这会导致当每个线程拥有该共享对象的私有拷贝的时候，每份拷贝都停留在不同的 CPU 缓存中。<br>如下图，左线程读取 count 之后加一到了 2，右线程读取 count 后无操作，它们都是 count 在主存中的副本，且相互不可见。</p>
+<p><img src="/2021/07/10/jmm/cache-visible.jpg"></p>
+<h2 id="重排序导致的可见性问题"><a href="#重排序导致的可见性问题" class="headerlink" title="重排序导致的可见性问题"></a>重排序导致的可见性问题</h2><p>先说一下 Java 程序中的 有序性 这玩意儿：</p>
+<p>如在本地线程内观察，Java 程序（线程）内所有操作都是有序的，在线程内的表现为串行（Within-Thread <strong>As-If-Serial</strong> Semantics 语义）</p>
+<ul>
+<li>不管怎样重排序（编译器和处理器为提高并行度），（单线程）程序执行结果不变</li>
+<li>编译器、runtime 和处理器必须遵守这一个语义</li>
+</ul>
+<p>如在一个线程中出发去观察另一个线程，所有操作又都是无序的</p>
+<ul>
+<li>指令重排序</li>
+<li>线程工作内存与主内存同步延迟</li>
+</ul>
+<p>序 2：指令序列重排序：<br>编译器优化的重排序</p>
+<ul>
+<li>编译器在不改变单线程程序语义前提下，可重新安排语句执行顺序<br>指令级并行的重排序</li>
+<li>现代处理器采用指令级并行技术（Instruction-Level Parallelism，ILP）来将多条指令重叠执行</li>
+<li>如不存在数据依赖性，处理器可改变语句对应机器指令的执行顺序<br>内存系统的重排序</li>
+<li>由于处理器使用缓存和读/写缓冲区，使得加载和存储操作看上去可能是乱序执行</li>
+<li>每个处理器上的写缓冲区仅对它所在的处理器可见<ul>
+<li>导致处理器执行内存操作的顺序可能会与内存实际操作执行顺序不一致</li>
 </ul>
 </li>
-<li>导致每个线程拥有该共享对象的私有拷贝，每份拷贝停留在不同 CPU 缓存中</li>
+<li>由于现代处理器都会使用写缓冲区：都会允许对写-读操作进行重排序</li>
+</ul>
+<p>序 3：数据依赖</p>
+<ul>
+<li>编译器和处理器在重排序时会遵守数据依赖性</li>
+<li>编译器和处理器不会改变存在数据依赖关系的两个操作的执行顺序<ul>
+<li>仅针对单个处理器中执行指令序列和单个线程中执行的操作</li>
+<li>不同处理器之间和不同线程之间的数据依赖性不被编译器和处理器所考虑</li>
+</ul>
+</li>
+</ul>
+<p>happens-before</p>
+<ul>
+<li>JSR-133 from JDK 5</li>
+<li>JMM 中如一个操作执行的结果需要对另一操作可见，该两个操作必须存在 happens-before 关系：<ul>
+<li>程序顺序规则：一个线程中每个操作，happens-before 于该线程中任意后续操作</li>
+<li>监视器锁规则：对一个锁的解锁，happens-before 于随后对该锁的加锁</li>
+<li>volatile 变量规则：对一个 volatile 域的写，happens-before 于任意后续对该 volatile 域的读</li>
+<li>传递性：如 A happens-before B，且 B happens-before C，则 A happens-before C</li>
+</ul>
+</li>
+<li>两个操作可在同一线程内，也可在不同线程内</li>
+<li>一个 happens-before 规则对应于一个或多个编译器和处理器重排序规则</li>
 </ul>
 
     </div>
@@ -344,6 +400,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/JVM/" rel="tag"># JVM</a>
           </div>
 
         
@@ -417,7 +474,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">基本结构</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">基本结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1"><span class="nav-number">1.1.</span> <span class="nav-text">线程通信</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E6%93%8D%E4%BD%9C%E5%8F%8A%E8%A7%84%E5%88%99"><span class="nav-number">2.</span> <span class="nav-text">同步操作及规则</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E8%A7%84%E5%88%99"><span class="nav-number">2.1.</span> <span class="nav-text">同步规则</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JMM-%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">JMM 解决的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%BC%93%E5%AD%98%E5%AF%BC%E8%87%B4%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">3.1.</span> <span class="nav-text">线程缓存导致的可见性问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E6%8E%92%E5%BA%8F%E5%AF%BC%E8%87%B4%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">3.2.</span> <span class="nav-text">重排序导致的可见性问题</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -431,7 +488,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
