@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/reorder.png">
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/race-condition.jpg">
 <meta property="article:published_time" content="2021-07-09T16:05:24.000Z">
-<meta property="article:modified_time" content="2021-08-03T15:22:10.834Z">
+<meta property="article:modified_time" content="2021-08-03T16:21:21.686Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -437,8 +437,10 @@
 </ul>
 <p>以下为不同的屏障类型：<br>| 屏障类型              | 指令示例                    | 说明                            |<br>| :——-:            | :—–:                   | :———–                     |<br>| LoadLoad Barriers    | Load1;LoadLoad;Load2      | 确保 Load1 数据的装载先于 Load2 及所有后续装载指令的装载 |<br>| StoreStore Barriers  | Store1;StoreStore;Store2  | 确保 Store1 数据对其他处理器可见（刷新到内存）先于 Store2 及所有后续存储指令的存储  |<br>| LoadStore Barriers   | Load1;LoadStore;Store2    | 确保 Load1 数据的装载先于 Store2 及所有后续的存储指令刷新到内存 |<br>| StoreLoad Barriers   | Store1;StoreLoad;Load2    | 确保 Store1 数据对其他处理器可见（刷新到内存）先于 Load2 及所有后续装载指令的装载。StoreLoad Barriers 会使该屏障之前的所有内存访问指令（存储和装载指令）完成之后，才执行该屏障之后的内存访问指令。 |</p>
 <ol start="4">
-<li>使用原子性保证多线程写同步问题<br>执行过程中不会被其他线程中断</li>
+<li>使用原子性保证多线程写同步问题</li>
 </ol>
+<p><code>java.util.concurrent.atomic</code> 包中有很多类方法保证了操作的原子性</p>
+<p>执行过程中不会被其他线程中断</p>
 <p>（待补充）</p>
 
     </div>
