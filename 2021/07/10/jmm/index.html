@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/reorder.png">
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/race-condition.jpg">
 <meta property="article:published_time" content="2021-07-09T16:05:24.000Z">
-<meta property="article:modified_time" content="2021-08-02T15:30:18.014Z">
+<meta property="article:modified_time" content="2021-08-03T15:22:10.834Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -208,15 +208,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>在 JSR-133 规范中提出的 Java 内存模型（Java Memory Model, <strong>JMM</strong>），是一个用来定义一个一致性、跨平台的内存模型，是缓存一致性协议，用来定义数据读写的规则。</p>
+        <p>在 JSR-133 规范中提出的 Java 内存模型（Java Memory Model, <strong>JMM</strong>），是一个用来定义一个一致性、跨平台的内存模型，是<strong>缓存一致性协议</strong>，用来定义数据读写的规则。</p>
 <span id="more"></span>
-
-<p>JMM 用以屏蔽各种硬件和操作系统的内存访问差异，以实现让 Java 程序在各种平台都能达到一致的并发效果。<br>JMM 的目标，就是去规范 JVM 与计算机内存如何协同工作：</p>
+<p>JMM 定义了在虚拟机中如何将变量存储进内存，以及从内存取出来的细节，其目标就是去规范 JVM 与计算机内存如何协同工作：</p>
 <ul>
 <li>规定了一个线程如何，以及何时能看到由其他线程修改过后的共享变量的值；</li>
 <li>必须如何同步地访问共享变量。</li>
 </ul>
-<p>也就是说，JMM 定义了在虚拟机中如何将变量存储进内存，以及从内存取出来的细节。</p>
+<p>另外，JMM 也用以屏蔽各种硬件和操作系统的内存访问差异，以实现让 Java 程序在各种平台都能达到一致的并发效果。</p>
 <br>
 
 <h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>首先简单回顾一下不同 Java 对象的存储位置：</p>
@@ -338,7 +337,8 @@
 </ol>
 <br>
 
-<h1 id="JMM-解决的问题"><a href="#JMM-解决的问题" class="headerlink" title="JMM 解决的问题"></a>JMM 解决的问题</h1><h2 id="线程缓存导致的可见性问题"><a href="#线程缓存导致的可见性问题" class="headerlink" title="线程缓存导致的可见性问题"></a>线程缓存导致的可见性问题</h2><p>问题一：在没有正确使用 volatile 声明或同步的时候，多个线程共享一个对象。</p>
+<h1 id="JMM-解决的问题"><a href="#JMM-解决的问题" class="headerlink" title="JMM 解决的问题"></a>JMM 解决的问题</h1><p>主要围绕着两点展开：<big><strong>指令重排</strong></big>，<big><strong>内存可见</strong></big>。</p>
+<h2 id="线程缓存导致的可见性问题"><a href="#线程缓存导致的可见性问题" class="headerlink" title="线程缓存导致的可见性问题"></a>线程缓存导致的可见性问题</h2><p>问题一：在没有正确使用 volatile 声明或同步的时候，多个线程共享一个对象。</p>
 <p>问题二：一个线程更新一个共享变量的时候，该操作可能对其他线程不可见：</p>
 <ul>
 <li>首先，共享对象在主内存被初始化</li>
@@ -413,7 +413,7 @@
 <li>解决线程缓存导致的可见性问题</li>
 </ol>
 <ul>
-<li>使用 volatile 关键字：保证新值能立即同步到主内存</li>
+<li>使用 volatile 关键字（重点）：保证新值能立即同步到主内存</li>
 <li>使用 synchronized 关键字</li>
 <li>final 关键字</li>
 </ul>
@@ -435,7 +435,7 @@
 </li>
 <li>通过禁止特定类型的编译器重排序和处理器重排序，为程序员提供一致的内存可见性保证</li>
 </ul>
-<p>以下为不同的屏障类型：<br>| 屏障类型              | 指令示例                    | 说明                                                                     |<br>| :——-:            | :—–:                   | ———–                                                              |<br>| LoadLoad Barriers    | Load1;LoadLoad;Load2      | 确保 Load1 数据的装载先于 Load2 及所有后续装载指令的装载                        |<br>| StoreStore Barriers  | Store1;StoreStore;Store2  | 确保 Store1 数据对其他处理器可见（刷新到内存）先于 Store2 及所有后续存储指令的存储  |<br>| LoadStore Barriers   | Load1;LoadStore;Store2    | 确保 Load1 数据的装载先于 Store2 及所有后续的存储指令刷新到内存                  |<br>| StoreLoad Barriers   | Store1;StoreLoad;Load2    | 确保 Store1 数据对其他处理器可见（刷新到内存）先于 Load2 及所有后续装载指令的装载。StoreLoad Barriers 会使该屏障之前的所有内存访问指令（存储和装载指令）完成之后，才执行该屏障之后的内存访问指令。 |</p>
+<p>以下为不同的屏障类型：<br>| 屏障类型              | 指令示例                    | 说明                            |<br>| :——-:            | :—–:                   | :———–                     |<br>| LoadLoad Barriers    | Load1;LoadLoad;Load2      | 确保 Load1 数据的装载先于 Load2 及所有后续装载指令的装载 |<br>| StoreStore Barriers  | Store1;StoreStore;Store2  | 确保 Store1 数据对其他处理器可见（刷新到内存）先于 Store2 及所有后续存储指令的存储  |<br>| LoadStore Barriers   | Load1;LoadStore;Store2    | 确保 Load1 数据的装载先于 Store2 及所有后续的存储指令刷新到内存 |<br>| StoreLoad Barriers   | Store1;StoreLoad;Load2    | 确保 Store1 数据对其他处理器可见（刷新到内存）先于 Load2 及所有后续装载指令的装载。StoreLoad Barriers 会使该屏障之前的所有内存访问指令（存储和装载指令）完成之后，才执行该屏障之后的内存访问指令。 |</p>
 <ol start="4">
 <li>使用原子性保证多线程写同步问题<br>执行过程中不会被其他线程中断</li>
 </ol>

@@ -28,7 +28,7 @@
 <meta property="og:description" content="本帖用来整理一些常见的 Java 语言中的关键字（保留字）。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-13T16:14:48.000Z">
-<meta property="article:modified_time" content="2021-07-23T15:55:04.947Z">
+<meta property="article:modified_time" content="2021-08-03T16:20:16.328Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -205,7 +205,11 @@
 <h1 id="abstract"><a href="#abstract" class="headerlink" title="abstract"></a>abstract</h1><ul>
 <li>修饰抽象类或方法</li>
 </ul>
+<br>
+
 <h1 id="assert"><a href="#assert" class="headerlink" title="assert"></a>assert</h1><p>断言（Since Java 4），用于查找内部程序错误</p>
+<br>
+
 <h1 id="final"><a href="#final" class="headerlink" title="final"></a>final</h1><p>final 关键字在 Java 中被称为“完结器”，表示最终的意思。<br>它能声明类、方法、属性（方法参数和变量）。</p>
 <pre><code>Java classes declared as final cannot be extended. 
 </code></pre>
@@ -215,14 +219,14 @@
 <p>final 声明的方法不能被重写，但不影响被继承。</p>
 <pre><code>The variable declared as final should be initialized only once and cannot be changed. 
 </code></pre>
-<p>final 声明的变量只能被赋值一次，不可被修改。</p>
+<p>final 声明的变量<strong>只能被赋值一次</strong>，不可被修改（Java 虚拟机为变量设定的默认值，并不计作一次赋值）。</p>
 <ul>
 <li>修饰基本类型：值不可变，即常量</li>
 <li>修饰对象：该变量被赋予的引用不可变</li>
 </ul>
-<p>对于被 final 修饰的对象，不可改变的只是该变量所保存的引用，并不是该引用指向的对象。</p>
+<p>对于被 final 修饰的对象，不可改变的只是该变量所保存的引用，并不是该引用指向的对象：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> StringBuilder s = <span class="keyword">new</span> StringBuilder();  <span class="comment">// final 修饰的是 s，即 s 保存的地址不能变</span></span><br><span class="line">s.append(<span class="string">&quot;a&quot;</span>);    <span class="comment">// 无误，s 指向的对象是可以被修改的</span></span><br><span class="line">s = <span class="keyword">null</span>;         <span class="comment">// 报错，s 的值不能被修改</span></span><br></pre></td></tr></table></figure>
-<p>“被赋值一次”：Java 虚拟机为变量设定的默认值不计作一次赋值</p>
+
 <p>被 final 修饰的变量必须被初始化：</p>
 <ul>
 <li>定义时初始化</li>
@@ -230,11 +234,13 @@
 <li>类的构造器（Constructor）中初始化</li>
 <li>静态变量也可在静态初始化中初始化</li>
 </ul>
-<p>注：一个被 final 定义并同时指定了初始值，且初始值为编译时就被确定的</p>
-<ul>
-<li>该 final 变量为宏变量</li>
-<li>编译器会将程序所有用到该变量的地方直接替换成该变量的值：宏替换<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> String a = <span class="string">&quot;hello&quot;</span>;    <span class="comment">// 宏变量</span></span><br><span class="line"><span class="keyword">final</span> String b = a;          <span class="comment">// 非宏变量</span></span><br></pre></td></tr></table></figure></li>
-</ul>
+<p>注：使用 final 修饰的共享数据结构，<strong>在它的对象构造函数完成后才能对其他线程可见（其他线程在其初始化完成后才能看到这个对象）</strong>。</p>
+<p>一个小的知识点：一个被 final 定义并同时指定了初始值，且初始值为编译时就被确定的变量，被称作<strong>宏变量</strong>。编译器会将程序所有用到该变量的地方直接替换成该变量的值，这叫做<strong>宏替换</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> String a = <span class="string">&quot;hello&quot;</span>;    <span class="comment">// 宏变量</span></span><br><span class="line"><span class="keyword">final</span> String b = a;          <span class="comment">// 非宏变量，编译时会替换成 b = &quot;hello&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+<br>
+
 <h1 id="finally"><a href="#finally" class="headerlink" title="finally"></a>finally</h1><p>只能被用在 <code>try</code> / <code>catch</code> 语句中</p>
 <pre><code>The finally block always executes when the try block exits. This ensures that the finally block is executed even if an unexpected exception occurs. 
 </code></pre>
@@ -243,9 +249,13 @@
 <li><code>return</code>, <code>continue</code>, <code>break</code> 所在语句块的内容会先输出，然后轮到 finally</li>
 <li>但 finally 块是在他们被执行之前执行的</li>
 </ul>
+<br>
+
 <h1 id="finalize"><a href="#finalize" class="headerlink" title="finalize"></a>finalize</h1><p><code>finalize()</code> 方法为 Object 类的方法：</p>
 <pre><code>Before an object is garbage collected, the runtime system calls its finalize() method. 
 </code></pre>
+<br>
+
 <h1 id="static"><a href="#static" class="headerlink" title="static"></a>static</h1><ul>
 <li>修饰静态类、类成员方法、类成员变量以及 static 静态代码块</li>
 <li>不能修饰局部变量</li>
@@ -261,6 +271,8 @@
 </li>
 <li>调用方式不同：静态变量只能通过类名调用，普通变量只能通过对象调用</li>
 </ul>
+<br>
+
 <h1 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h1><ul>
 <li>用来修饰一个方法或者一个代码块</li>
 <li>能够保证在同一时刻最多只有一个线程执行这段代码</li>
@@ -292,7 +304,7 @@
 <li>T2 将 <code>x = 1</code> 写入工作内存及主内存</li>
 <li>T1 和 T2 一共计算了<strong>两次</strong>，但 <code>x</code> 的值只增加了 1</li>
 </ol>
-<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="同步某个方法"><a href="#同步某个方法" class="headerlink" title="同步某个方法"></a>同步某个方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> 数据返回类型 方法名() &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><h3 id="同步某个方法"><a href="#同步某个方法" class="headerlink" title="同步某个方法"></a>同步某个方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> 数据返回类型 方法名(参数) &#123; ... &#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>使用 synchronized 来修饰某个方法，则该方法称为<strong>同步方法</strong></li>
 <li>对于同步方法而言，无需显式指定同步监视器（Monitor）<ul>
@@ -317,6 +329,8 @@
 <ul>
 <li>静态方法独立于对象存在：因此所有访问该静态方法的线程共享一把锁</li>
 </ul>
+<br>
+
 <h3 id="同步代码块（同步阻塞）"><a href="#同步代码块（同步阻塞）" class="headerlink" title="同步代码块（同步阻塞）"></a>同步代码块（同步阻塞）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (同一个数据) &#123; ... &#125; </span><br></pre></td></tr></table></figure>
 <ul>
 <li>同一个数据：N 条线程同时访问一个数据</li>
@@ -358,6 +372,8 @@
 <li>即：多个线程调用该子类继承父类的方法时不会加锁</li>
 <li>除非重写并加上关键字</li>
 </ul>
+<br>
+
 <h2 id="synchronized-原理：可重入性"><a href="#synchronized-原理：可重入性" class="headerlink" title="synchronized 原理：可重入性"></a>synchronized 原理：<strong>可重入性</strong></h2><p>使用 synchronized 关键字同步的方法与锁的关系：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123; doSomething(); &#125;</span><br></pre></td></tr></table></figure>
 
@@ -390,6 +406,8 @@
 <li>如果同步方法或代码块执行时间很短的话，采用轻量级锁虽然会占用 CPU 资源，但是相对比使用重量级锁还是更高效的；</li>
 <li>但是如果同步方法或代码块执行的时间很长，则使用轻量级锁自旋带来的性能消耗就远比使用重量级锁要大，这时候就需要升级为重量级锁了。</li>
 </ol>
+<br>
+
 <h1 id="transient"><a href="#transient" class="headerlink" title="transient"></a>transient</h1><p><code>transient</code> 只能用于修饰变量，用来标识非永久性（不能被序列化）的数据。</p>
 <ul>
 <li>当对象被序列化/反序列化时，被 transient 关键字修饰的变量不会被持久化/恢复<ul>
@@ -398,14 +416,10 @@
 </ul>
 </li>
 </ul>
+<br>
+
 <h1 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h1><p>在了解 Java 内存模型的时候，我们知道，编译器为了加快程序运行速度，对一些变量的写操作会先在寄存器或 CPU 缓存进行，最后再写入主内存。</p>
-<p>也就是说，每个线程在处理器的高速缓存中都拥有一份工作内存，保存它用到的共享变量的副本。</p>
-<ul>
-<li>工作内存中的变量是从主内存中读取拷贝，在被修改后再写回主内存的<ul>
-<li>在这个过程中，变量新值，即工作内存变量值对其他线程不可见</li>
-</ul>
-</li>
-</ul>
+<p>也就是说，每个线程在处理器的高速缓存中都拥有一份工作内存，保存它用到的共享变量的副本。<br>工作内存中的变量是从主内存中读取拷贝，在被修改后再写回主内存的；在这个过程中，变量新值，即工作内存变量值对其他线程不可见。</p>
 <p>并发正常工作所必须满足的三个条件：</p>
 <p><strong>1. 可见性</strong></p>
 <ul>
@@ -481,10 +495,10 @@
 <h2 id="使用场景：状态标记"><a href="#使用场景：状态标记" class="headerlink" title="使用场景：状态标记"></a>使用场景：状态标记</h2><ul>
 <li>利用有序性及可见性，规避非原子性操作</li>
 </ul>
-<p>例：单例模式的 double check</p>
+<p>例：多线程环境开发下，单例模式的 double check</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> Singleton instance = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> x;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123; x = <span class="number">1</span>; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">                <span class="keyword">if</span>(instance == <span class="keyword">null</span>)</span><br><span class="line">                    instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 由于instance = new Singleton() 非原子操作，会被拆成三步，利用 volatile 避免指令重排序避免出错</span></span><br><span class="line"><span class="comment"> 三步分别是：</span></span><br><span class="line"><span class="comment">     1. 为对象分配内存</span></span><br><span class="line"><span class="comment">     2. 调用构造函数初始化成员变量（如有）</span></span><br><span class="line"><span class="comment">     3. 将 instance 指向新对象</span></span><br><span class="line"><span class="comment"> 可能的顺序：123, 132，若 instance 为 volatile 则只能为 123</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"> 出错的情况（instance 不为 volatile）：</span></span><br><span class="line"><span class="comment"> 1. T1 调用，instance == null, 通过判断拿到锁，开始初始化对象</span></span><br><span class="line"><span class="comment"> 2. 指令重排序为 132</span></span><br><span class="line"><span class="comment">     a. 为对象分配内存</span></span><br><span class="line"><span class="comment">     b. 将 instance 指向新对象, instance != null</span></span><br><span class="line"><span class="comment">     c. T1 阻塞</span></span><br><span class="line"><span class="comment">     d. 调用 instance 构造方法，初始化成员变量，等</span></span><br><span class="line"><span class="comment"> 3. T2 在 2.b 与 2.d 之间调用，由于 instance != null，直接返回 instance，指向已经分配内存但未调用构造方法的对象，此时成员变量未初始化，可能出错</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
 
-<p>注：使用 final 修饰的共享数据结构，其他线程在对象构造函数完成后才能看到该对象</p>
+
 <p>另：<code>java.util.concurrent.atomic</code> 包中有很多类方法保证了操作的原子性</p>
 
     </div>
