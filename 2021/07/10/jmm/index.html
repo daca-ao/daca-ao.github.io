@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/reorder.png">
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/race-condition.jpg">
 <meta property="article:published_time" content="2021-07-09T16:05:24.000Z">
-<meta property="article:modified_time" content="2021-08-06T16:50:56.036Z">
+<meta property="article:modified_time" content="2021-08-06T17:04:43.393Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -246,17 +246,16 @@
 
 <p>下图展示了 JMM 定义的线程和主存间的抽象关系：</p>
 <ul>
-<li>线程之间的共享变量，也就是堆和方法区的数据，存储在<strong>主存</strong>中；</li>
+<li>线程之间的<strong>共享变量</strong>，也就是堆和方法区的数据，存储在<strong>主存</strong>中；</li>
 <li>每个线程都各自保存一份<strong>本地内存</strong>（Local Memory，也叫<strong>工作内存</strong> Working Memory）<ul>
-<li>涵盖了缓存、写缓冲区、寄存器及其它硬件和编译器优化</li>
-<li>存储了该线程已读/写共享变量的拷贝副本</li>
-<li>注：这是 JMM 的抽象概念，并不真实存在</li>
+<li>“内存”范围涵盖了缓存、写缓冲区、寄存器及其它硬件和编译器优化</li>
+<li>除了<strong>局部变量</strong>外，还存储了该线程已读/写共享变量的拷贝副本</li>
 </ul>
 </li>
 </ul>
 <p><img src="/2021/07/10/jmm/relationship.png"></p>
-<p>主存是硬件的内存。为获取更好的运行速度，虚拟机及硬件系统可能会让工作内存优先存储于寄存器和高速缓存中。</p>
-<p>因此，JMM 的本地内存是对 CPU 的寄存器和高速缓存的抽象描述，定义了 JVM 与硬件内存架构之间的桥接。</p>
+<p>主存是硬件的内存。为获取更好的运行速度，虚拟机及硬件系统可能会让工作内存优先存储于寄存器和高速缓存中。<br>因此，JMM 中的“本地内存”是对 CPU 的寄存器和高速缓存的抽象描述，并不真实存在。</p>
+<p>而整个 JMM 所定义的，是 JVM 与硬件内存架构之间的桥接。</p>
 <h2 id="线程通信"><a href="#线程通信" class="headerlink" title="线程通信"></a>线程通信</h2><p>JMM 协议中的线程间通信：<big><strong>共享内存</strong></big>，即<strong>隐式通信，显式同步</strong>。</p>
 <p><img src="/2021/07/10/jmm/communication.jpeg"></p>
 <p>如上：</p>
