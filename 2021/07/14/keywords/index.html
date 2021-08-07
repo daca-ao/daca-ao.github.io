@@ -28,7 +28,7 @@
 <meta property="og:description" content="本帖用来整理一些常见的 Java 语言中的关键字（保留字）。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-13T16:14:48.000Z">
-<meta property="article:modified_time" content="2021-08-03T16:21:06.926Z">
+<meta property="article:modified_time" content="2021-08-07T13:36:02.008Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -418,7 +418,7 @@
 </ul>
 <br>
 
-<h1 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h1><p>在了解 Java 内存模型的时候，我们知道，编译器为了加快程序运行速度，对一些变量的写操作会先在寄存器或 CPU 缓存进行，最后再写入主内存。</p>
+<h1 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h1><p>在了解 <a href="/2021/07/10/jmm">Java 内存模型</a>的时候，我们知道，编译器为了加快程序运行速度，对一些变量的写操作会先在寄存器或 CPU 缓存进行，最后再写入主内存。</p>
 <p>也就是说，每个线程在处理器的高速缓存中都拥有一份工作内存，保存它用到的共享变量的副本。<br>工作内存中的变量是从主内存中读取拷贝，在被修改后再写回主内存的；在这个过程中，变量新值，即工作内存变量值对其他线程不可见。</p>
 <p>并发正常工作所必须满足的三个条件：</p>
 <p><strong>1. 可见性</strong></p>
