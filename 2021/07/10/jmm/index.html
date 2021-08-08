@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/reorder.png">
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/race-condition.jpg">
 <meta property="article:published_time" content="2021-07-09T16:05:24.000Z">
-<meta property="article:modified_time" content="2021-08-07T16:50:28.661Z">
+<meta property="article:modified_time" content="2021-08-08T07:36:03.443Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -215,7 +215,13 @@
 <li>规定了一个线程如何，以及何时能看到由其他线程修改过后的共享变量的值；</li>
 <li>必须如何同步地访问共享变量。</li>
 </ul>
-<p>另外，JMM 也用以屏蔽各种硬件和操作系统的内存访问差异，以实现让 Java 程序在各种平台都能达到一致的并发效果。</p>
+<p>另外，JMM 屏蔽各种硬件和操作系统的内存访问差异，以实现让 Java 程序在各种平台都能达到一致的并发效果。</p>
+<p>JMM 的设计意图：</p>
+<ul>
+<li><strong>强内存模型</strong>：内存模型要为程序员提供足够强的内存可见性保证（代码要执行正确），易于程序员理解和使用</li>
+<li><strong>弱内存模型</strong>：内存模型对编译器和处理器的限制要尽可能放松，这样编译器和处理器就可以做尽可能多的优化来提高性能</li>
+</ul>
+<p>因此，设计 JMM 的时候就需要找到一个平衡点。</p>
 <br>
 
 <h1 id="内存模型基础"><a href="#内存模型基础" class="headerlink" title="内存模型基础"></a>内存模型基础</h1><p>包括<strong>通信</strong>和<strong>同步</strong>。</p>
@@ -355,35 +361,15 @@
 </ul>
 <p>这会导致当每个线程拥有该共享对象的私有拷贝的时候，每份拷贝都停留在不同的 CPU 缓存中。<br>如下图，左线程读取 count 之后加一到了 2，右线程读取 count 后无操作，它们都是 count 在主存中的副本，且相互不可见。</p>
 <p><img src="/2021/07/10/jmm/cache-visible.jpg"></p>
-<h2 id="重排序导致的可见性问题"><a href="#重排序导致的可见性问题" class="headerlink" title="重排序导致的可见性问题"></a>重排序导致的可见性问题</h2><p>先说一下 Java 程序中的 有序性 这玩意儿：</p>
-<p>如在本地线程内观察，Java 程序（线程）内所有操作都是有序的，在线程内的表现为串行语义（Within-Thread <strong>As-If-Serial</strong> Semantics）：</p>
+<h2 id="重排序导致的可见性问题"><a href="#重排序导致的可见性问题" class="headerlink" title="重排序导致的可见性问题"></a>重排序导致的可见性问题</h2><p>在讲这个问题之前，先展开介绍一下重排序以及相关规则。</p>
+<h3 id="啥是重排序"><a href="#啥是重排序" class="headerlink" title="啥是重排序"></a>啥是重排序</h3><p>从 Java 程序中的 有序性 这玩意儿入手：</p>
+<p>在本地线程内观察，Java 程序（线程）内所有操作都是有序的，在线程内的表现为串行语义（Within-Thread <strong>As-If-Serial</strong> Semantics）：</p>
 <ul>
 <li>编译器和处理器为了增强并行度，从而提高性能，有的时候会重新安排语句执行顺序</li>
-<li>但是不管怎样重排序，在单线程环境下，程序执行结果是不能被改变的</li>
+<li>但是不管怎样重排序，在单线程环境下，程序执行结果是不能被改变的，从而既保护了单线程程序，也保证了内存可见性</li>
 <li>编译器、runtime 和处理器必须要遵守 as-if-serial 语义。</li>
 </ul>
-<p>如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> f = <span class="keyword">false</span>;</span><br><span class="line">i = <span class="number">1</span>;        <span class="comment">// 1</span></span><br><span class="line">f = <span class="keyword">true</span>;     <span class="comment">// 2</span></span><br><span class="line"><span class="comment">// 1 和 2 无依赖，执行顺序可能为：12 或 21</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> a = <span class="number">10</span>;    <span class="comment">// 1</span></span><br><span class="line"><span class="keyword">int</span> r = <span class="number">2</span>;     <span class="comment">// 2</span></span><br><span class="line">a = a + <span class="number">3</span>;     <span class="comment">// 3</span></span><br><span class="line">r = a * a;     <span class="comment">// 4</span></span><br><span class="line"><span class="comment">// 由于 3 和 4 对 1 有依赖，所以编译期在进行指令重排序的时候，会确保 3 和 4 在 1 后面执行</span></span><br><span class="line"><span class="comment">// 可能的顺序 1234, 1324, 2134</span></span><br></pre></td></tr></table></figure>
-
-<p>然而，如果在一个线程中出发去观察另一个线程，所有操作又都是无序的；其中有线程工作内存与主内存同步延迟的原因，也有上述第一点提到的<strong>指令重排序</strong>的因素。</p>
-<p>指令序列重排序包括以下步骤：</p>
-<p><strong>1. 编译器优化的重排序</strong>：编译器在不改变单线程程序语义的前提下，可重新安排语句执行顺序。</p>
-<p><strong>2. 指令级并行的重排序</strong>：</p>
-<ul>
-<li>背景：现代处理器采用指令级并行技术（Instruction-Level Parallelism，ILP）来将多条指令重叠执行</li>
-<li>如指令之间<strong>不存在数据依赖性</strong>，处理器可改变语句对应机器指令的执行顺序</li>
-</ul>
-<p><strong>3. 内存系统的重排序</strong>：</p>
-<ul>
-<li>背景：由于处理器使用缓存和读/写缓冲区，使得程序在运行的时候，相关的加载和存储操作看上去可能是乱序执行的；</li>
-<li>每个处理器上的写缓冲区仅对它所在的处理器可见<ul>
-<li>所以：导致处理器执行内存操作的顺序可能会与内存实际操作执行顺序不一致</li>
-</ul>
-</li>
-<li>由于现代处理器都会使用写缓冲区，因此都会允许对写-读操作进行重排序</li>
-</ul>
-<p><img src="/2021/07/10/jmm/reorder.png"></p>
-<p>再说说上面提到的<strong>数据依赖</strong>：<br>假设两个操作访问到了同一个变量，且两个操作中有一个是<strong>写</strong>操作，即两个操作之间存在着数据依赖。</p>
+<p>这个语义所基于的，是<strong>数据依赖</strong>的概念：<br>假设两个操作访问到了同一个变量，且两个操作中有一个是<strong>写</strong>操作，即两个操作之间存在着数据依赖。</p>
 <table>
 <thead>
 <tr>
@@ -404,30 +390,53 @@
 <td align="center">a = b; <br>b = 1;</td>
 </tr>
 </tbody></table>
-<p>以上情况只要指令发生重排序，程序的执行结果就会被改变；因此编译器和处理器在进行重排序的时候，会遵守数据依赖性，不会改变存在数据依赖关系的两个操作的执行顺序。</p>
-<p>注意：</p>
-<ul>
-<li>所遵守的数据依赖性，仅限于<strong>单个处理器</strong>中的执行指令序列，和<strong>单个线程</strong>中执行的操作</li>
-<li>不同处理器之间和不同线程之间的数据依赖性，是不会被编译器和处理器所考虑的</li>
-</ul>
-<p>举个简单的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReorderExample</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        a = <span class="number">1</span>;  <span class="comment">// 1</span></span><br><span class="line">        flag = <span class="keyword">true</span>;  <span class="comment">// 2</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (flag) &#123;  <span class="comment">// 3</span></span><br><span class="line">            <span class="keyword">int</span> i = a * a;  <span class="comment">// 4</span></span><br><span class="line">            ... </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上情况只要指令发生了重排序，程序的执行结果就会被改变；因此编译器和处理器在进行重排序的时候，会遵守数据依赖性，不会改变存在数据依赖关系的两个操作的执行顺序。</p>
+<p>举两个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> f = <span class="keyword">false</span>;</span><br><span class="line">i = <span class="number">1</span>;        <span class="comment">// 1</span></span><br><span class="line">f = <span class="keyword">true</span>;     <span class="comment">// 2</span></span><br><span class="line"><span class="comment">// 1 和 2 无依赖，执行顺序可能为：12 或 21</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> a = <span class="number">10</span>;    <span class="comment">// 1</span></span><br><span class="line"><span class="keyword">int</span> r = <span class="number">2</span>;     <span class="comment">// 2</span></span><br><span class="line">a = a + <span class="number">3</span>;     <span class="comment">// 3</span></span><br><span class="line">r = a * a;     <span class="comment">// 4</span></span><br><span class="line"><span class="comment">// 由于 3 和 4 对 1 有依赖，所以编译期在进行指令重排序的时候，会确保 3 和 4 在 1 后面执行</span></span><br><span class="line"><span class="comment">// 可能的顺序 1234, 1324, 2134</span></span><br></pre></td></tr></table></figure>
 
-<p>如上述代码片段，flag 用于标记变量 a 是否被写入。<br>简单分析代码段之后可知，操作 1 和操作 2 没有数据依赖关系，编译器和处理器可对这两个操作重排序；<br>同样操作 3 和操作 4 也没有数据依赖关系，编译器和处理器也可对这两个操作重排序。</p>
-<p>假设有线程 A 首先去执行 writer()，紧接着线程 B 执行 reader() 方法。<br>线程 B 在执行操作 4（<code>int i = a * a;</code>）的时候，能否看到线程 A 在操作 1 对共享变量 a 的写入？</p>
-<p>不一定。</p>
+<p>所以程序中所谓的“有序性”其实是幻觉。语句会有一定的重排序，但是给我们的错觉是按顺序执行（包括在调试的时候）。</p>
+<br>
+
+<p>然而，如果从一个线程出发去观察另一个线程，所有操作又都是无序的；其中有线程工作内存与主内存同步延迟的原因，也有上述提到的<strong>指令重排序</strong>的因素。</p>
+<p>指令序列重排序包括以下步骤：</p>
+<p><strong>1. 编译器优化的重排序</strong>：编译器在不改变单线程程序语义的前提下，可重新安排语句执行顺序。</p>
+<p><strong>2. 指令级并行的重排序</strong>：</p>
+<ul>
+<li>背景：现代处理器采用指令级并行技术（Instruction-Level Parallelism，ILP）来将多条指令重叠执行</li>
+<li>如指令之间<strong>不存在数据依赖性</strong>，处理器可改变语句对应机器指令的执行顺序</li>
+</ul>
+<p><strong>3. 内存系统的重排序</strong>：</p>
+<ul>
+<li>背景：由于处理器使用缓存和读/写缓冲区，使得程序在运行的时候，相关的加载和存储操作看上去可能是乱序执行的；</li>
+<li>每个处理器上的写缓冲区仅对它所在的处理器可见<ul>
+<li>所以：导致处理器执行内存操作的顺序可能会与内存实际操作执行顺序不一致</li>
+</ul>
+</li>
+<li>由于现代处理器都会使用写缓冲区，因此都会允许对写-读操作进行重排序</li>
+</ul>
+<p><img src="/2021/07/10/jmm/reorder.png"></p>
 <br>
 
 <p>另外：<br>编译器和处理器在进行重排序的时候，除了在单线程内遵守 As-If-Serial 语义之外，还需接受 JMM <strong>happens-before</strong> 规则的约束：</p>
-<h3 id="什么是-happens-before？"><a href="#什么是-happens-before？" class="headerlink" title="什么是 happens-before？"></a>什么是 <strong>happens-before</strong>？</h3><p>happens-before 是从 Java 5 就引入的 JSR-133 规范中的规则。</p>
-<p>在 JMM 中，如果一个操作执行的结果需要对另一操作可见，那么这两个操作之间必须存在 happens-before 关系：</p>
+<h3 id="什么是-happens-before？"><a href="#什么是-happens-before？" class="headerlink" title="什么是 happens-before？"></a>什么是 <strong>happens-before</strong>？</h3><p>happens-before 是从 Java 5 就引入的 JSR-133 规范中的规则，是 JMM <strong>最核心的概念</strong>。</p>
+<p>在 JMM 中，如果一个操作执行的结果需要对另一操作<strong>可见</strong>，那么这两个操作之间必须存在 happens-before 关系：</p>
 <ul>
-<li><strong>程序顺序规则</strong>：一个线程中每个操作，happens-before 于该线程中任意后续操作</li>
+<li><strong>程序顺序规则</strong>：一个线程中的每个操作，happens-before 于该线程中任意的后续操作（包含了 as-if-serial 语义）</li>
 <li><strong>监视器锁规则</strong>：对一个锁的解锁，happens-before 于随后对该锁的加锁</li>
-<li>volatile 变量规则：对一个 volatile 域的写，happens-before 于任意后续对该 volatile 域的读</li>
-<li>传递性：如 A happens-before B，且 B happens-before C，则 A happens-before C</li>
+<li><strong>volatile 变量规则</strong>：对一个 volatile 域的写，happens-before 于任意后续对该 volatile 域的读</li>
+<li><strong>传递性</strong>：如果 A happens-before B，且 B happens-before C，则 A happens-before C</li>
+<li><strong>start() 规则</strong>：如果线程 A 执行操作 <code>ThreadB.start()</code>（启动线程 B），那么线程 A 中的 ThreadB.start() 操作 happens-before 于线程 B 中的任意操作<ul>
+<li>因为线程 A 在启动线程 B 之前，它所做的所有对共享变量的修改结果必须要对线程 B 可见，要不启动新线程之后带来同步问题就麻烦了</li>
 </ul>
-<p>以上规则中的两个操作可发生在同一线程内，也可在不同线程内。</p>
+</li>
+<li><strong>join() 规则</strong>：如果线程 A 执行操作 <code>ThreadB.join()</code> 并成功返回，那么线程 B 中任意操作 happens-before 于线程 A 从 ThreadB.join() 操作的那一次成功返回<ul>
+<li>因为线程 B 的所有操作和对共享变量的修改必须要对线程 A 可见，线程 A 才能在执行 join() 的时候拿到正确的返回结果</li>
+</ul>
+</li>
+<li><strong>线程中断规则</strong>：对线程的 interrupt() 方法的调用，happens-before 于该被中断线程的代码检测到中断事件的发⽣</li>
+<li><strong>对象终结规则</strong>：一个对象的初始化的完成（构造函数执行结束），一定 happens-before 于它的 finalize() 方法</li>
+</ul>
+<p>以上规则中的两个操作可发生在同一线程内，也<strong>可在不同线程</strong>内。</p>
 <p>一个 happens-before 规则对应于一个或多个编译器和处理器的重排序规则。</p>
 <p>不同处理器的重排序规则如下：</p>
 <table>
@@ -477,29 +486,37 @@
 <p>注：<code>N</code> 表示处理器不允许两个操作重排序，<code>Y</code> 表示允许重排序。</p>
 <br>
 
+<p>总的来说，JMM 允许不会改变程序执行结果的重排序，但禁止会改变程序执行结果的重排序。</p>
+<p>注意：</p>
+<ul>
+<li>所遵守的数据依赖性，仅限于<strong>单个处理器</strong>中的执行指令序列，和<strong>单个线程</strong>中执行的操作；</li>
+<li>不同处理器之间和不同线程之间的数据依赖性，是不会被编译器和处理器所考虑的。</li>
+</ul>
+<p>举个简单的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReorderExample</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        a = <span class="number">1</span>;  <span class="comment">// 1</span></span><br><span class="line">        flag = <span class="keyword">true</span>;  <span class="comment">// 2</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (flag) &#123;  <span class="comment">// 3</span></span><br><span class="line">            <span class="keyword">int</span> i = a * a;  <span class="comment">// 4</span></span><br><span class="line">            ... </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如上述代码片段，flag 用于标记变量 a 是否被写入。<br>简单分析代码段之后可知，操作 1 和操作 2 没有数据依赖关系，编译器和处理器可对这两个操作重排序；<br>同样操作 3 和操作 4 也没有数据依赖关系，编译器和处理器也可对这两个操作重排序。</p>
+<p>假设有线程 A 首先去执行 writer()，紧接着线程 B 执行 reader() 方法。<br>线程 B 在执行操作 4（<code>int i = a * a;</code>）的时候，能否看到线程 A 在操作 1 对共享变量 a 的写入？</p>
+<p>不一定。</p>
+<br>
+
 <h2 id="多线程竞争（Race-Conditions）带来的同步问题"><a href="#多线程竞争（Race-Conditions）带来的同步问题" class="headerlink" title="多线程竞争（Race Conditions）带来的同步问题"></a>多线程竞争（Race Conditions）带来的同步问题</h2><p>两个或更多个线程共享一个对象，多个线程在该共享对象上更新变量：</p>
 <p><img src="/2021/07/10/jmm/race-condition.jpg"></p>
 <p>如上图：线程 A 和 B 均读取了共享变量的值 1，且均加了 1；这两个操作是被并发执行的，如果此时都写回去的话，最终只添加了 1，而不是 2。</p>
 <br>
 
-<h2 id="问题的解决"><a href="#问题的解决" class="headerlink" title="问题的解决"></a>问题的解决</h2><ol>
-<li>解决线程缓存导致的可见性问题</li>
-</ol>
+<h2 id="问题的解决"><a href="#问题的解决" class="headerlink" title="问题的解决"></a>问题的解决</h2><p><strong>1. 解决线程缓存导致的可见性问题</strong></p>
 <ul>
 <li>使用 <a href="/2021/07/14/keywords/#volatile">volatile</a> 关键字（重点）：保证新值能立即同步到主内存</li>
 <li>使用 <a href="/2021/07/14/keywords/#synchronized">synchronized</a> 关键字</li>
 <li><a href="/2021/07/14/keywords/#final">final</a> 关键字</li>
 </ul>
-<ol start="2">
-<li>保证线程之间操作有序性</li>
-</ol>
+<p><strong>2. 保证线程之间操作有序性</strong></p>
 <ul>
 <li>volatile</li>
 <li>synchronized</li>
 </ul>
-<ol start="3">
-<li>内存屏障禁止特定类型的处理器重排序</li>
-</ol>
+<p><strong>3. 内存屏障禁止特定类型的处理器重排序</strong></p>
 <ul>
 <li>重排序可能导致多线程程序出现内存可见性问题</li>
 <li>对于处理器重排序，JMM 处理器重排序规则会要求 Java 编译器生成指令序列时，插入特定类型的内存屏障（Memory Barrier）指令<ul>
@@ -538,9 +555,7 @@
 <td align="left">确保 Store1 数据对其他处理器可见（刷新到内存）先于 Load2 及所有后续装载指令的装载。StoreLoad Barriers 会使该屏障之前的所有内存访问指令（存储和装载指令）完成之后，才执行该屏障之后的内存访问指令。</td>
 </tr>
 </tbody></table>
-<ol start="4">
-<li>使用原子性保证多线程写同步问题</li>
-</ol>
+<p><strong>4. 使用原子性保证多线程写同步问题</strong></p>
 <p><code>java.util.concurrent.atomic</code> 包中有很多类方法保证了操作的原子性</p>
 <p>执行过程中不会被其他线程中断</p>
 <p>（待补充）</p>
@@ -628,7 +643,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">内存模型基础</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">基本结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1"><span class="nav-number">2.1.</span> <span class="nav-text">线程通信</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E6%93%8D%E4%BD%9C%E5%8F%8A%E8%A7%84%E5%88%99"><span class="nav-number">3.</span> <span class="nav-text">同步操作及规则</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E8%A7%84%E5%88%99"><span class="nav-number">3.1.</span> <span class="nav-text">同步规则</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JMM-%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">JMM 解决的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%BC%93%E5%AD%98%E5%AF%BC%E8%87%B4%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">4.1.</span> <span class="nav-text">线程缓存导致的可见性问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E6%8E%92%E5%BA%8F%E5%AF%BC%E8%87%B4%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.</span> <span class="nav-text">重排序导致的可见性问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-happens-before%EF%BC%9F"><span class="nav-number">4.2.1.</span> <span class="nav-text">什么是 happens-before？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%AB%9E%E4%BA%89%EF%BC%88Race-Conditions%EF%BC%89%E5%B8%A6%E6%9D%A5%E7%9A%84%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98"><span class="nav-number">4.3.</span> <span class="nav-text">多线程竞争（Race Conditions）带来的同步问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3"><span class="nav-number">4.4.</span> <span class="nav-text">问题的解决</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">内存模型基础</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">基本结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1"><span class="nav-number">2.1.</span> <span class="nav-text">线程通信</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E6%93%8D%E4%BD%9C%E5%8F%8A%E8%A7%84%E5%88%99"><span class="nav-number">3.</span> <span class="nav-text">同步操作及规则</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E8%A7%84%E5%88%99"><span class="nav-number">3.1.</span> <span class="nav-text">同步规则</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JMM-%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">JMM 解决的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%BC%93%E5%AD%98%E5%AF%BC%E8%87%B4%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">4.1.</span> <span class="nav-text">线程缓存导致的可见性问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E6%8E%92%E5%BA%8F%E5%AF%BC%E8%87%B4%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.</span> <span class="nav-text">重排序导致的可见性问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%95%A5%E6%98%AF%E9%87%8D%E6%8E%92%E5%BA%8F"><span class="nav-number">4.2.1.</span> <span class="nav-text">啥是重排序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-happens-before%EF%BC%9F"><span class="nav-number">4.2.2.</span> <span class="nav-text">什么是 happens-before？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%AB%9E%E4%BA%89%EF%BC%88Race-Conditions%EF%BC%89%E5%B8%A6%E6%9D%A5%E7%9A%84%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98"><span class="nav-number">4.3.</span> <span class="nav-text">多线程竞争（Race Conditions）带来的同步问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3"><span class="nav-number">4.4.</span> <span class="nav-text">问题的解决</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
