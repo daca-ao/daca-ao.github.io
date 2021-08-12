@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/reorder.png">
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/race-condition.jpg">
 <meta property="article:published_time" content="2021-07-09T16:05:24.000Z">
-<meta property="article:modified_time" content="2021-08-12T16:00:47.354Z">
+<meta property="article:modified_time" content="2021-08-12T17:44:39.297Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -554,14 +554,14 @@
 
 <h2 id="问题的解决"><a href="#问题的解决" class="headerlink" title="问题的解决"></a>问题的解决</h2><p><strong>1. 解决线程缓存导致的可见性问题</strong></p>
 <ul>
-<li><a href="/2021/07/14/keywords/#final">final</a> 关键字</li>
-<li>使用 <a href="/2021/07/14/keywords/#synchronized">synchronized</a> 关键字</li>
-<li>使用 <a href="/2021/07/14/keywords/#volatile">volatile</a> 关键字（重点）：保证新值能立即同步到主内存</li>
+<li><a href="/2021/07/14/keywords/#final">final</a></li>
+<li><a href="/2021/07/14/keywords/#synchronized">synchronized</a>：通过锁来保证线程之间的通信</li>
+<li><a href="/2021/07/14/keywords/#volatile">volatile</a>（重点）：保证新值能立即同步到主内存</li>
 </ul>
 <p><strong>2. 保证线程之间操作有序性</strong></p>
 <ul>
 <li>synchronized：通过锁来保证有序性</li>
-<li>volatile</li>
+<li>volatile：禁止重排序</li>
 </ul>
 <p>如：上述 <code>ReorderExample</code> 的解决方案：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReorderExample</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;  <span class="comment">// 获取对象锁</span></span><br><span class="line">        a = <span class="number">1</span>;  <span class="comment">// 1</span></span><br><span class="line">        flag = <span class="keyword">true</span>;  <span class="comment">// 2</span></span><br><span class="line">    &#125;  <span class="comment">// 释放对象锁</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;  <span class="comment">// 获取对象锁</span></span><br><span class="line">        <span class="keyword">if</span> (flag) &#123;  <span class="comment">// 3</span></span><br><span class="line">            <span class="keyword">int</span> i = a * a;  <span class="comment">// 4</span></span><br><span class="line">            ... </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;  <span class="comment">// 释放对象锁</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

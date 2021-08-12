@@ -28,7 +28,7 @@
 <meta property="og:description" content="本帖用来整理一些常见的 Java 语言中的关键字（保留字）。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-13T16:14:48.000Z">
-<meta property="article:modified_time" content="2021-08-12T15:59:39.169Z">
+<meta property="article:modified_time" content="2021-08-12T17:53:21.229Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -402,6 +402,53 @@
 <li>如果同步方法或代码块执行时间很短的话，采用轻量级锁虽然会占用 CPU 资源，但是相对比使用重量级锁还是更高效的；</li>
 <li>但是如果同步方法或代码块执行的时间很长，则使用轻量级锁自旋带来的性能消耗就远比使用重量级锁要大，这时候就需要升级为重量级锁了。</li>
 </ol>
+<h2 id="synchronized-在-JMM-的语义"><a href="#synchronized-在-JMM-的语义" class="headerlink" title="synchronized 在 JMM 的语义"></a>synchronized 在 JMM 的语义</h2><p>通过锁的<strong>释放</strong>和<strong>获取</strong>而建立起来的 happens-before 关系（监视器锁规则）。</p>
+<p>假如有如下代码，俩线程 A 和 B 分别访问 writer() 和 reader()：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MonitorExample</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;  <span class="comment">// 1</span></span><br><span class="line">        a++;  <span class="comment">// 2</span></span><br><span class="line">    &#125;  <span class="comment">// 3</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;  <span class="comment">// 4</span></span><br><span class="line">        <span class="keyword">int</span> i = a * a;  <span class="comment">// 5</span></span><br><span class="line">        ... </span><br><span class="line">    &#125;  <span class="comment">// 6</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="center">时间片 Time</th>
+<th>线程 A</th>
+<th>线程 B</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">T1</td>
+<td>1. 获得锁</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">T2</td>
+<td>2. 执行临界区中的代码</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">T3</td>
+<td>3. 释放锁</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">T4</td>
+<td></td>
+<td>4. 获得同一个锁</td>
+</tr>
+<tr>
+<td align="center">T5</td>
+<td></td>
+<td>5. 执行临界区的代码</td>
+</tr>
+<tr>
+<td align="center">T6</td>
+<td></td>
+<td>6. 释放锁</td>
+</tr>
+</tbody></table>
+<p>程序顺序规则（1 + 2 + 3，4 + 5 + 6）和监视器锁规则结合之后，提供的 happens-before 保证，就是 2 happens-before 5。</p>
+<p>释放锁对应的内存语义：将加锁操作（临界区代码）对本地内存中共享变量的修改<strong>写回</strong>主内存的共享变量中。<br>实质上是线程向接下来将要获取这个锁的某个线程<strong>发出了消息</strong>，消息是该线程对共享变量所做的修改。</p>
+<p>获取锁对应的内存语义：先将本地内存中的共享变量<strong>置为无效</strong>，再去主内存中<strong>读取</strong>加锁操作所需要的共享变量到本地内存的副本中。<br>实质上是线程<strong>接收</strong>了先前某个线程发出的消息，消息是先前线程对共享变量所做的修改。</p>
+<p>结合以上解释，我们可以得知，线程 A 释放锁，线程 B 获得锁，实质上就是线程 A 通过主内存向线程 B 发送消息的过程。</p>
 <br>
 
 <h1 id="transient"><a href="#transient" class="headerlink" title="transient"></a>transient</h1><p><code>transient</code> 只能用于修饰变量，用来标识非永久性（不能被序列化）的数据。</p>
@@ -414,9 +461,9 @@
 </ul>
 <br>
 
-<h1 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h1><p>在了解 <a href="/2021/07/10/jmm">Java 内存模型</a>的时候，我们知道，编译器为了加快程序运行速度，对一些变量的写操作会先在寄存器或 CPU 缓存进行，最后再写入主内存。</p>
-<p>也就是说，每个线程在处理器的高速缓存中都拥有一份工作内存，保存它用到的共享变量的副本。<br>工作内存中的变量是从主内存中读取拷贝，在被修改后再写回主内存的；在这个过程中，变量新值，即工作内存变量值对其他线程不可见。</p>
-<p>并发正常工作所必须满足的三个条件：</p>
+<h1 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h1><p>在了解 <a href="/2021/07/10/jmm">Java 内存模型</a>的时候，我们知道，编译器为了加快程序运行速度，对一些变量的写操作会先在寄存器或 CPU 缓存进行，在高速缓存中拥有一份抽象的工作内存，操作完成后最后再写入主内存。</p>
+<p>工作内存中的变量是从主内存中读取拷贝，被修改后再写回主内存的；在这个过程中，变量新的值，即某次操作的工作内存变量值对其他操作线程是不可见的。</p>
+<p>多个线程并发操作想要正常工作，所必须满足的三个条件如下：</p>
 <p><strong>1. 可见性</strong></p>
 <ul>
 <li>一个线程修改了变量，其他线程要立即看得到</li>
@@ -430,16 +477,16 @@
 <p><strong>3. 有序性</strong></p>
 <ul>
 <li>指令重排序：处理器为提高效率，会对代码的执行顺序进行优化</li>
-<li>但会根据 happens-before 来保证执行结果和顺序执行的结果相同</li>
+<li>但会根据 as-if-serial 和 happens-before 来保证执行结果和顺序执行的结果相同</li>
 </ul>
 <p>如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">int</span> f = <span class="keyword">false</span>;</span><br><span class="line">i = <span class="number">1</span>;        <span class="comment">// 1</span></span><br><span class="line">f = <span class="keyword">true</span>;     <span class="comment">// 2</span></span><br><span class="line"><span class="comment">// 1 和 2 无依赖，执行顺序可能为：12 或 21</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> a = <span class="number">10</span>;    <span class="comment">// 1</span></span><br><span class="line"><span class="keyword">int</span> r = <span class="number">2</span>;     <span class="comment">// 2</span></span><br><span class="line">a = a + <span class="number">3</span>;     <span class="comment">// 3</span></span><br><span class="line">r = a * a;     <span class="comment">// 4</span></span><br><span class="line"><span class="comment">// 由于 3 和 4 对 1 有依赖，所以编译期在进行指令重排序的时候，会确保 3 和 4 在 1 后面执行</span></span><br><span class="line"><span class="comment">// 可能的顺序 1234, 1324, 2134</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">10</span>;    <span class="comment">// 1</span></span><br><span class="line"><span class="keyword">int</span> r = <span class="number">2</span>;     <span class="comment">// 2</span></span><br><span class="line">a = a + <span class="number">3</span>;     <span class="comment">// 3</span></span><br><span class="line">r = a * a;     <span class="comment">// 4</span></span><br><span class="line"><span class="comment">// 由于 3 和 4 对 1 有依赖，所以编译期在进行指令重排序的时候，会确保 3 和 4 在 1 后面执行</span></span><br><span class="line"><span class="comment">// 可能的顺序 1234, 1324, 2134</span></span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>但是多线程时，当依赖某个变量来判断语句的执行时，可能会因为指令重排序而出错<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Thread1</span></span><br><span class="line">context = loadContext();    <span class="comment">// 1</span></span><br><span class="line"><span class="keyword">boolean</span> inited = <span class="keyword">true</span>;      <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Thread2</span></span><br><span class="line"><span class="keyword">while</span>(!inited) sleep();     <span class="comment">// 1</span></span><br><span class="line">postInit(context);          <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 出错：Thread1.2 -&gt; Thread2.1 -&gt; Thread2.2 -&gt; Thread1.1（有可能 context = null）</span></span><br></pre></td></tr></table></figure></li>
+<li>但是多线程时，当依赖某个变量来判断语句的执行时，可能会因为指令重排序而出错<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Thread1</span></span><br><span class="line">context = loadContext();    <span class="comment">// 1</span></span><br><span class="line"><span class="keyword">boolean</span> inited = <span class="keyword">true</span>;      <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Thread2</span></span><br><span class="line"><span class="keyword">while</span>(!inited) sleep();     <span class="comment">// 1</span></span><br><span class="line">postInit(context);          <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 出错：Thread1.2 -&gt; Thread2.1 -&gt; Thread2.2 -&gt; Thread1.1（即有可能 context 还没被初始化，为空值）</span></span><br></pre></td></tr></table></figure></li>
 </ul>
 <h2 id="volatile-与并发"><a href="#volatile-与并发" class="headerlink" title="volatile 与并发"></a>volatile 与并发</h2><p><strong>1. 可见性</strong></p>
-<p>volatile 保证可见性</p>
+<p>volatile 可以保证可见性</p>
 <ul>
 <li>被修饰的成员变量在每次被线程访问时，都强迫其从共享内存中直接重读该成员变量的值<ul>
 <li>且：当成员变量发生变化时，强迫操作线程将变化值写回共享内存</li>
@@ -485,7 +532,7 @@
 <li>指令优化时，不能把对 volatile 的读/写的前置操作放在它的后面，也不能把 volatile 读/写的后续操作放在它的前面<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// x、y 为非 volatile 变量</span></span><br><span class="line"><span class="comment">// flag 为 volatile 变量</span></span><br><span class="line"><span class="keyword">int</span> x, y;</span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> f;</span><br><span class="line">x = <span class="number">2</span>;       <span class="comment">// 1</span></span><br><span class="line">y = <span class="number">0</span>;       <span class="comment">// 2</span></span><br><span class="line">f = <span class="keyword">true</span>;    <span class="comment">// 3</span></span><br><span class="line">x = <span class="number">4</span>;       <span class="comment">// 4</span></span><br><span class="line">y = -<span class="number">1</span>;      <span class="comment">// 5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 不可能的顺序：1或2 在 3 后面；4或5 在 3 前面</span></span><br><span class="line"><span class="comment">// 可能的顺序只有：12345, 12354, 21345, 21354</span></span><br></pre></td></tr></table></figure></li>
 </ol>
 <p>保证有序性的前提下，对前面的例子作修改：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> inited;</span><br><span class="line"></span><br><span class="line"><span class="comment">// T1</span></span><br><span class="line">context = loadContext();  <span class="comment">// 1</span></span><br><span class="line">inited = <span class="keyword">true</span>;            <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// T2</span></span><br><span class="line"><span class="keyword">while</span>(!inited) sleep();   <span class="comment">// 1</span></span><br><span class="line">postInit(context);        <span class="comment">// 2</span></span><br><span class="line"><span class="comment">// T1.1 必在 T1.2 前执行，由此来避免出错</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> inited;</span><br><span class="line"></span><br><span class="line"><span class="comment">// T1</span></span><br><span class="line">context = loadContext();  <span class="comment">// 1</span></span><br><span class="line">inited = <span class="keyword">true</span>;            <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// T2</span></span><br><span class="line"><span class="keyword">while</span>(!inited) sleep();   <span class="comment">// 1</span></span><br><span class="line">postInit(context);        <span class="comment">// 2</span></span><br><span class="line"><span class="comment">// T1.1 必在 T1.2 前执行，以此来避免出错</span></span><br></pre></td></tr></table></figure>
 
 
 <h2 id="使用场景：状态标记"><a href="#使用场景：状态标记" class="headerlink" title="使用场景：状态标记"></a>使用场景：状态标记</h2><ul>
@@ -576,7 +623,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#assert"><span class="nav-number">2.</span> <span class="nav-text">assert</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#final"><span class="nav-number">3.</span> <span class="nav-text">final</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#finally"><span class="nav-number">4.</span> <span class="nav-text">finally</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#finalize"><span class="nav-number">5.</span> <span class="nav-text">finalize</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#static"><span class="nav-number">6.</span> <span class="nav-text">static</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#synchronized"><span class="nav-number">7.</span> <span class="nav-text">synchronized</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E5%AD%97%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">7.1.</span> <span class="nav-text">关键字的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E6%9F%90%E4%B8%AA%E6%96%B9%E6%B3%95"><span class="nav-number">7.1.1.</span> <span class="nav-text">同步某个方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E4%BB%A3%E7%A0%81%E5%9D%97%EF%BC%88%E5%90%8C%E6%AD%A5%E9%98%BB%E5%A1%9E%EF%BC%89"><span class="nav-number">7.1.2.</span> <span class="nav-text">同步代码块（同步阻塞）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized-%E5%8E%9F%E7%90%86%EF%BC%9A%E5%8F%AF%E9%87%8D%E5%85%A5%E6%80%A7"><span class="nav-number">7.2.</span> <span class="nav-text">synchronized 原理：可重入性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized-%E9%94%81%E7%9A%84%E7%BA%A7%E5%88%AB"><span class="nav-number">7.3.</span> <span class="nav-text">synchronized 锁的级别</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#transient"><span class="nav-number">8.</span> <span class="nav-text">transient</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#volatile"><span class="nav-number">9.</span> <span class="nav-text">volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile-%E4%B8%8E%E5%B9%B6%E5%8F%91"><span class="nav-number">9.1.</span> <span class="nav-text">volatile 与并发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%8A%B6%E6%80%81%E6%A0%87%E8%AE%B0"><span class="nav-number">9.2.</span> <span class="nav-text">使用场景：状态标记</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#assert"><span class="nav-number">2.</span> <span class="nav-text">assert</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#final"><span class="nav-number">3.</span> <span class="nav-text">final</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#finally"><span class="nav-number">4.</span> <span class="nav-text">finally</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#finalize"><span class="nav-number">5.</span> <span class="nav-text">finalize</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#static"><span class="nav-number">6.</span> <span class="nav-text">static</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#synchronized"><span class="nav-number">7.</span> <span class="nav-text">synchronized</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E5%AD%97%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">7.1.</span> <span class="nav-text">关键字的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E6%9F%90%E4%B8%AA%E6%96%B9%E6%B3%95"><span class="nav-number">7.1.1.</span> <span class="nav-text">同步某个方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E4%BB%A3%E7%A0%81%E5%9D%97%EF%BC%88%E5%90%8C%E6%AD%A5%E9%98%BB%E5%A1%9E%EF%BC%89"><span class="nav-number">7.1.2.</span> <span class="nav-text">同步代码块（同步阻塞）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized-%E5%8E%9F%E7%90%86%EF%BC%9A%E5%8F%AF%E9%87%8D%E5%85%A5%E6%80%A7"><span class="nav-number">7.2.</span> <span class="nav-text">synchronized 原理：可重入性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized-%E9%94%81%E7%9A%84%E7%BA%A7%E5%88%AB"><span class="nav-number">7.3.</span> <span class="nav-text">synchronized 锁的级别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized-%E5%9C%A8-JMM-%E7%9A%84%E8%AF%AD%E4%B9%89"><span class="nav-number">7.4.</span> <span class="nav-text">synchronized 在 JMM 的语义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#transient"><span class="nav-number">8.</span> <span class="nav-text">transient</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#volatile"><span class="nav-number">9.</span> <span class="nav-text">volatile</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile-%E4%B8%8E%E5%B9%B6%E5%8F%91"><span class="nav-number">9.1.</span> <span class="nav-text">volatile 与并发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%8A%B6%E6%80%81%E6%A0%87%E8%AE%B0"><span class="nav-number">9.2.</span> <span class="nav-text">使用场景：状态标记</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
