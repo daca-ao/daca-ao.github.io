@@ -28,7 +28,7 @@
 <meta property="og:description" content="本帖用来整理一些常见的 Java 语言中的关键字（保留字）。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-13T16:14:48.000Z">
-<meta property="article:modified_time" content="2021-08-14T03:21:37.427Z">
+<meta property="article:modified_time" content="2021-08-14T15:44:54.612Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -533,18 +533,55 @@
 <li>volatile 保证有序性：<strong>禁止指令重排序</strong></li>
 <li>确保本条指令不会因为编译器和虚拟机的优化而被省略</li>
 </ul>
-<p>原则：</p>
-<ol>
-<li>执行对 volatile 的读/写操作前，前面的更改一定全部执行，且结果对后面可见；后面的更改一定还没有被执行</li>
-<li>指令优化时，不能把对 volatile 的读/写的前置操作放在它的后面，也不能把 volatile 读/写的后续操作放在它的前面<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// x、y 为非 volatile 变量</span></span><br><span class="line"><span class="comment">// flag 为 volatile 变量</span></span><br><span class="line"><span class="keyword">int</span> x, y;</span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> f;</span><br><span class="line">x = <span class="number">2</span>;       <span class="comment">// 1</span></span><br><span class="line">y = <span class="number">0</span>;       <span class="comment">// 2</span></span><br><span class="line">f = <span class="keyword">true</span>;    <span class="comment">// 3</span></span><br><span class="line">x = <span class="number">4</span>;       <span class="comment">// 4</span></span><br><span class="line">y = -<span class="number">1</span>;      <span class="comment">// 5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 不可能的顺序：1或2 在 3 后面；4或5 在 3 前面</span></span><br><span class="line"><span class="comment">// 可能的顺序只有：12345, 12354, 21345, 21354</span></span><br></pre></td></tr></table></figure></li>
-</ol>
+<p>原则：<br>指令优化时，不能把对 volatile 写的前置操作放在它的后面，也不能把 volatile 读的后续操作放在它的前面：</p>
+<ul>
+<li>当第⼆个操作是 volatile 写时，不管第⼀个操作是什么，都不能重排序。</li>
+<li>当第⼀个操作是 volatile 读时，不管第⼆个操作是什么，都不能重排序。</li>
+<li>当第⼀个操作是 volatile 写，第⼆个操作是 volatile 读时，不能重排序。</li>
+</ul>
+<table>
+    <tr>
+        <th>是否能重排序</th>
+        <th colspan="3">第二个操作</th>
+    </tr>
+    <tr>
+        <th>第一个操作</th>
+        <th>普通读/写</th>
+        <th>volatile 读</th>
+        <th>volatile 写</th>
+    </tr>
+    <tr>
+        <td>普通读/写</td>
+        <td></td>
+        <td></td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>volatile 读</td>
+        <td>NO</td>
+        <td>NO</td>
+        <td>NO</td>
+    </tr>
+    <tr>
+        <td>volatile 写</td>
+        <td></td>
+        <td>NO</td>
+        <td>NO</td>
+    </tr>
+</table>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// x、y 为非 volatile 变量</span></span><br><span class="line"><span class="comment">// flag 为 volatile 变量</span></span><br><span class="line"><span class="keyword">int</span> x, y;</span><br><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> f;</span><br><span class="line"></span><br><span class="line">x = <span class="number">2</span>;       <span class="comment">// 1</span></span><br><span class="line">y = <span class="number">0</span>;       <span class="comment">// 2</span></span><br><span class="line">f = <span class="keyword">true</span>;    <span class="comment">// 3</span></span><br><span class="line">x = <span class="number">4</span>;       <span class="comment">// 4</span></span><br><span class="line">y = -<span class="number">1</span>;      <span class="comment">// 5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 不可能的顺序：1或2 在 3 后面；4或5 在 3 前面</span></span><br><span class="line"><span class="comment">// 可能的顺序只有：12345, 12354, 21345, 21354</span></span><br></pre></td></tr></table></figure>
+
 <p>保证有序性的前提下，对前面的例子作修改：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> inited;</span><br><span class="line"></span><br><span class="line"><span class="comment">// T1</span></span><br><span class="line">context = loadContext();  <span class="comment">// 1</span></span><br><span class="line">inited = <span class="keyword">true</span>;            <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// T2</span></span><br><span class="line"><span class="keyword">while</span>(!inited) sleep();   <span class="comment">// 1</span></span><br><span class="line">postInit(context);        <span class="comment">// 2</span></span><br><span class="line"><span class="comment">// T1.1 必在 T1.2 前执行，以此来避免出错</span></span><br></pre></td></tr></table></figure>
+
+
 
 
 <h2 id="volatile-内存语义"><a href="#volatile-内存语义" class="headerlink" title="volatile 内存语义"></a>volatile 内存语义</h2><p>还是拿上面一段读写代码做例子，用 volatile 改一下，俩线程 A 和 B 分别访问 writer() 和 reader()：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReorderExample</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        a = <span class="number">1</span>;  <span class="comment">// 1</span></span><br><span class="line">        flag = <span class="keyword">true</span>;  <span class="comment">// 2</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (flag) &#123;  <span class="comment">// 3</span></span><br><span class="line">            <span class="keyword">int</span> i = a * a;  <span class="comment">// 4</span></span><br><span class="line">            ... </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>之前提过，volatile 能禁止指令重排序，因此 1 和 2 之间不会重排序，3 和 4 之间不会重排序。因此根据分析可知：</p>
 <table>
 <thead>
 <tr>
@@ -555,7 +592,7 @@
 </thead>
 <tbody><tr>
 <td align="center">T1</td>
-<td>2. 修改共享变量</td>
+<td>1. 修改共享变量 a</td>
 <td></td>
 </tr>
 <tr>
@@ -571,12 +608,13 @@
 <tr>
 <td align="center">T4</td>
 <td></td>
-<td>3. 读取共享变量</td>
+<td>4. 读取共享变量 a，并写入 i</td>
 </tr>
 </tbody></table>
-<p>volatile 写对应的内存语义：将加锁操作（临界区代码）对本地内存中共享变量的修改<strong>写回</strong>主内存的共享变量中。<br>实质上是线程向接下来将要获取这个锁的某个线程<strong>发出了消息</strong>，消息是该线程对共享变量所做的修改。</p>
-<p>volatile 读对应的内存语义：先将本地内存中的共享变量<strong>置为无效</strong>，再去主内存中<strong>读取</strong>加锁操作所需要的共享变量到本地内存的副本中。<br>实质上是线程<strong>接收</strong>了先前某个线程发出的消息，消息是先前线程对共享变量所做的修改。</p>
-<p>结合以上解释，我们可以得知，线程 A 释放锁，线程 B 获得锁，实质上就是线程 A 通过主内存向线程 B 发送消息的过程。</p>
+<p>由程序顺序规则（1 在 2 之前，3 在 4 之前）和 volatile 变量规则（volatile 写在读之前，即 2 在 3 之前）结合之后，提供的 happens-before 保证，就是 1 happens-before 4。</p>
+<p>volatile 写对应的内存语义：写 volatile 变量时，JMM 将本地内存中共享变量的值直接刷新到主内存的共享变量中。<br>实质上是这个操作线程向接下来将要读取这个 volatile 变量的某个线程<strong>发出了消息</strong>，消息是该线程对共享变量所做的修改。</p>
+<p>volatile 读对应的内存语义：先将本地内存中的共享变量<strong>置为无效</strong>，再去主内存中<strong>读取</strong>共享变量的值到本地内存的副本中。<br>实质上是这个操作线程<strong>接收</strong>了先前某个线程发出的消息，消息是先前线程对 volatile 变量所做的修改。</p>
+<p>结合以上解释，我们可以得知，线程 A 写一个 volatile 变量，线程 B 读取这个 volatile 变量，实质上就是线程 A 通过主内存向线程 B 发送消息的过程。</p>
 <h2 id="使用场景：状态标记"><a href="#使用场景：状态标记" class="headerlink" title="使用场景：状态标记"></a>使用场景：状态标记</h2><ul>
 <li>利用有序性及可见性，规避非原子性操作</li>
 </ul>
