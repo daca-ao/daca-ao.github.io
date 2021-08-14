@@ -28,7 +28,7 @@
 <meta property="og:description" content="本帖用来整理一些常见的 Java 语言中的关键字（保留字）。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-13T16:14:48.000Z">
-<meta property="article:modified_time" content="2021-08-13T16:20:05.813Z">
+<meta property="article:modified_time" content="2021-08-14T03:21:37.427Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -487,26 +487,26 @@
 </ul>
 <h2 id="volatile-与并发"><a href="#volatile-与并发" class="headerlink" title="volatile 与并发"></a>volatile 与并发</h2><p>volatile 的特性：把单个 volatile 变量的读和写，看作是使用同一个锁对单次读写操作做的同步。</p>
 <p><strong>1. 可见性</strong></p>
-<p>volatile 可以保证可见性</p>
+<p>volatile 可以保证变量的可见性</p>
 <ul>
 <li>被修饰的成员变量在每次被线程访问时，都强迫其从共享内存中直接重读该成员变量的值<ul>
 <li>且：当成员变量发生变化时，强迫操作线程将变化值写回共享内存</li>
 </ul>
 </li>
-<li>由此可知，在该机制下，任何时刻的两个不同的线程总是会看到某个成员变量的同一个值</li>
+<li>由此可知，在该机制下，任何时刻的两个不同的线程总是会看到某个成员变量的同一个值（看到其他线程对某个变量的写入）</li>
 <li>只能用来修饰变量</li>
 </ul>
-<p>例子：</p>
+<p>例 1：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VolatileExample</span> </span>&#123;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="keyword">long</span> v1 = <span class="number">0L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(<span class="keyword">long</span> l)</span> </span>&#123;</span><br><span class="line">        v1 = l;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getAndIncrement</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        v1++;  <span class="comment">// 复合多个变量的读写</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> v1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 无需给方法加锁</span></span><br></pre></td></tr></table></figure>
 
 <p>相当于以下实现：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VolatileExample</span> </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> v1 = <span class="number">0L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(<span class="keyword">long</span> l)</span> </span>&#123;  <span class="comment">// 写加锁</span></span><br><span class="line">        v1 = l;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getAndIncrement</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> temp = get();    <span class="comment">// 调用已同步的读方法</span></span><br><span class="line">        temp += <span class="number">1L</span>;           <span class="comment">// 普通写操作</span></span><br><span class="line">        set(temp);            <span class="comment">// 调用已同步的写方法</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">long</span> <span class="title">get</span><span class="params">()</span> </span>&#123;  <span class="comment">// 读加锁</span></span><br><span class="line">        <span class="keyword">return</span> v1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注意：<code>getAndIncrement()</code> 并没有加锁，因为就如下面要说到的，volatile <strong>并不能保证操作的原子性</strong>。</p>
+<p>注意：<code>getAndIncrement()</code> 并没有加锁，因为就如下面将要说到的：volatile <strong>并不能保证操作的原子性</strong>。</p>
 <p>上述例子采用 <code>long</code> 来举例，是想通过 <code>long</code>（64 位）数据的赋值来说明：如果程序在 32 位系统执行，则变量是会（Java 鼓励，不强求）分成高 32 位和低 32 位写入的，而且不是原子性的操作。</p>
 <p><strong>2. 原子性</strong></p>
 <ul>
 <li>volatile 变量不能提供原子性，不会主动发起阻塞</li>
-<li>对于非原子操作：单句代码会被拆解执行</li>
+<li>操作对于非原子操作，会将单句代码拆解，分别执行</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="keyword">int</span> inc = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</span><br><span class="line">    inc++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 10 个线程均执行以上循环，结果可能小于 1000*10</span></span><br></pre></td></tr></table></figure>
 
@@ -523,7 +523,11 @@
 <li>T1 计算 inc` = 11 并将其写进工作内存和主内存</li>
 <li>T2 计算 inc` = 11 并将其写进工作内存和主内存</li>
 </ol>
-<p>注意：加锁才保证操作的原子性，volatile 只保证操作的可见性。</p>
+<p>注意：</p>
+<ul>
+<li>加锁才保证操作的原子性，volatile 只保证操作的可见性。</li>
+<li>对 volatile 变量的赋值和取值是原子性的，复合操作并不保证原子性</li>
+</ul>
 <p><strong>3. 有序性</strong></p>
 <ul>
 <li>volatile 保证有序性：<strong>禁止指令重排序</strong></li>
@@ -537,7 +541,43 @@
 <p>保证有序性的前提下，对前面的例子作修改：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="keyword">boolean</span> inited;</span><br><span class="line"></span><br><span class="line"><span class="comment">// T1</span></span><br><span class="line">context = loadContext();  <span class="comment">// 1</span></span><br><span class="line">inited = <span class="keyword">true</span>;            <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// T2</span></span><br><span class="line"><span class="keyword">while</span>(!inited) sleep();   <span class="comment">// 1</span></span><br><span class="line">postInit(context);        <span class="comment">// 2</span></span><br><span class="line"><span class="comment">// T1.1 必在 T1.2 前执行，以此来避免出错</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="volatile-内存语义"><a href="#volatile-内存语义" class="headerlink" title="volatile 内存语义"></a>volatile 内存语义</h2><h2 id="使用场景：状态标记"><a href="#使用场景：状态标记" class="headerlink" title="使用场景：状态标记"></a>使用场景：状态标记</h2><ul>
+
+<h2 id="volatile-内存语义"><a href="#volatile-内存语义" class="headerlink" title="volatile 内存语义"></a>volatile 内存语义</h2><p>还是拿上面一段读写代码做例子，用 volatile 改一下，俩线程 A 和 B 分别访问 writer() 和 reader()：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReorderExample</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">volatile</span> <span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        a = <span class="number">1</span>;  <span class="comment">// 1</span></span><br><span class="line">        flag = <span class="keyword">true</span>;  <span class="comment">// 2</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">reader</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (flag) &#123;  <span class="comment">// 3</span></span><br><span class="line">            <span class="keyword">int</span> i = a * a;  <span class="comment">// 4</span></span><br><span class="line">            ... </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="center">时间片 Time</th>
+<th>线程 A</th>
+<th>线程 B</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">T1</td>
+<td>2. 修改共享变量</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">T2</td>
+<td>2. 写 volatile 变量</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">T3</td>
+<td></td>
+<td>3. 读取 volatile 变量</td>
+</tr>
+<tr>
+<td align="center">T4</td>
+<td></td>
+<td>3. 读取共享变量</td>
+</tr>
+</tbody></table>
+<p>volatile 写对应的内存语义：将加锁操作（临界区代码）对本地内存中共享变量的修改<strong>写回</strong>主内存的共享变量中。<br>实质上是线程向接下来将要获取这个锁的某个线程<strong>发出了消息</strong>，消息是该线程对共享变量所做的修改。</p>
+<p>volatile 读对应的内存语义：先将本地内存中的共享变量<strong>置为无效</strong>，再去主内存中<strong>读取</strong>加锁操作所需要的共享变量到本地内存的副本中。<br>实质上是线程<strong>接收</strong>了先前某个线程发出的消息，消息是先前线程对共享变量所做的修改。</p>
+<p>结合以上解释，我们可以得知，线程 A 释放锁，线程 B 获得锁，实质上就是线程 A 通过主内存向线程 B 发送消息的过程。</p>
+<h2 id="使用场景：状态标记"><a href="#使用场景：状态标记" class="headerlink" title="使用场景：状态标记"></a>使用场景：状态标记</h2><ul>
 <li>利用有序性及可见性，规避非原子性操作</li>
 </ul>
 <p>例：多线程环境开发下，单例模式的 double check</p>
