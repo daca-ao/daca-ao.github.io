@@ -28,7 +28,7 @@
 <meta property="og:description" content="本帖用来整理一些常见的 Java 语言中的关键字（保留字）。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-13T16:14:48.000Z">
-<meta property="article:modified_time" content="2021-08-16T15:36:19.078Z">
+<meta property="article:modified_time" content="2021-08-16T16:37:39.940Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -303,6 +303,7 @@
 <td></td>
 </tr>
 </tbody></table>
+<p>如上，因为变量 i 不是 final 域，编译的时候会被优化到构造函数之外，就会出问题。<br>而对于 final 域 j，因为刚刚提到，需要等到它<strong>所属的对象构造函数完成后，final 域才能对其他线程可见</strong>。所以 final 域的写操作不会被重排序到构造函数之外。</p>
 <br>
 
 <h1 id="finally"><a href="#finally" class="headerlink" title="finally"></a>finally</h1><p>只能被用在 <code>try</code> / <code>catch</code> 语句中</p>
