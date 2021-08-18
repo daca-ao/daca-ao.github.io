@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/reorder.png">
 <meta property="og:image" content="http://example.com/2021/07/10/jmm/race-condition.jpg">
 <meta property="article:published_time" content="2021-07-09T16:05:24.000Z">
-<meta property="article:modified_time" content="2021-08-16T15:37:56.055Z">
+<meta property="article:modified_time" content="2021-08-18T13:58:21.090Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -614,10 +614,21 @@
 </table>
 
 <p><strong>3. 使用原子性保证多线程写同步问题</strong></p>
-<p>synchronized 加锁保证操作原子性</p>
-<p><code>java.util.concurrent.atomic</code> 包中有很多类方法保证了操作的原子性</p>
-<p>执行过程中不会被其他线程中断</p>
-<p>（待补充）</p>
+<p>首先，synchronized 加锁保证操作原子性；</p>
+<p>再者，<code>java.util.concurrent.atomic</code> 包（Since Java 1.5）中有很多类方法保证了操作的原子性，执行过程中不会被其他线程中断。包括：</p>
+<p>原子更新基本类型</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">AtomicBoolean</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">AtomicInteger</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">addAndGet</span><span class="params">(<span class="keyword">int</span> delta)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">compareAndSet</span><span class="params">(<span class="keyword">int</span> expect, <span class="keyword">int</span> update)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">getAndIncrement</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">getAndSet</span><span class="params">(<span class="keyword">int</span> newValue)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">AtomicLong</span></span><br></pre></td></tr></table></figure>
+
+<p>原子更新数组</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">AtomicIntegerArray</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">addAndGet</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> delta)</span></span></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">compareAndSet</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> expect, <span class="keyword">int</span> update)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">AtomicLongArray</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">AtomicReferenceArray</span></span><br></pre></td></tr></table></figure>
+
+<p>原子更新引用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AtomicReference</span><br><span class="line"></span><br><span class="line">AtomicStampedReference</span><br><span class="line"></span><br><span class="line">AtomicMarkableReference</span><br></pre></td></tr></table></figure>
+
+<p>原子更新属性</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AtomicIntegerFieldUpdater</span><br><span class="line"></span><br><span class="line">AtomicLongFieldUpdater</span><br><span class="line"></span><br><span class="line">AtomicReferenceFieldUpdater</span><br></pre></td></tr></table></figure>
+
+<p>使用方法简单，性能更高效，线程安全。</p>
 
     </div>
 
