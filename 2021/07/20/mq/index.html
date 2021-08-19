@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-api.png">
 <meta property="article:published_time" content="2021-07-19T17:12:34.000Z">
-<meta property="article:modified_time" content="2021-08-03T14:09:28.123Z">
+<meta property="article:modified_time" content="2021-08-19T15:02:46.125Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -205,19 +205,73 @@
 <span id="more"></span>
 
 <p>消息队列（Message Queue, <strong>MQ</strong>）的通用场景可简单描述为：</p>
-<pre><code>当不需要立即获得结果，但是并发量又需要进行控制的时候。
+<pre><code>当不需要立即获得结果，但是又需要对并发量进行控制的时候。
 </code></pre>
-<p>消息队列广泛应用于应用程序之间的通信方法</p>
+<p>消息队列是生产者-消费者模型的典型代表；除了实现高性能、高可用、可伸缩和最终一致性架构之外，还除去了接收和发送应用程序同时执行的要求。</p>
+<br>
+
+<h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>消息队列的<strong>优点</strong>在于能够实现异步、解耦、流量削峰填谷，能解决相关特殊业务场景的问题。</p>
+<p>而<strong>缺点</strong>在于其系统可用性较为敏感，万一 MQ 崩溃了，系统相当一部分的功能会无法响应。<br>而且，消息队列提高了系统复杂性，需要考虑一些消息队列的常见问题和解决方案。<br>此外，消息队列还会带来一些一致性问题：</p>
 <ul>
-<li>应用场景包括：解耦、异步消息、流量削锋等问题</li>
-<li>是生产者-消费者的典型代表</li>
+<li>多个消费者中，如果其中一个消费失败，会导致数据不一致的情况</li>
+<li>带来消息重复消费、消息积压、消息顺序和消息事务的问题</li>
 </ul>
-<p>消息队列实现了高性能、高可用、可伸缩和最终一致性架构，它的使用除去了接收和发送应用程序同时执行的要求。</p>
-<h1 id="消息队列的消息传播模式"><a href="#消息队列的消息传播模式" class="headerlink" title="消息队列的消息传播模式"></a>消息队列的消息传播模式</h1><p>推（push）模式：服务器主动将信息送到客户端</p>
+<h2 id="重复消费问题"><a href="#重复消费问题" class="headerlink" title="重复消费问题"></a>重复消费问题</h2><p>通常由网络原因造成。</p>
+<p>正常情况：</p>
+<ol>
+<li>消息被成功消费后，消费者发送成功标志给 MQ</li>
+<li>MQ 收到标志后，表示消息被成功消费，不会再将消息发送给其他消费者</li>
+</ol>
+<p>出问题的情况：</p>
+<ol>
+<li>因网络出现问题，成功标志在传输过程中丢失</li>
+<li>MQ 没接收到该标志，认为该消息没有被成功消费</li>
+<li>因此 MQ 会再次发送该消息给其他消费者，造成重复消费</li>
+</ol>
+<p><strong>解决方法</strong>：根据去重的原理，保证消费端幂等性</p>
+<p>方法1：</p>
+<ul>
+<li>每个消息生成一个 id</li>
+<li>在第三方介质（如 Redis set）中准备类似于键值对的组合 &lt;消息 id, 消息&gt;</li>
+<li>开始消费前，在介质中查询有无该记录；如果存在该记录，说明已经发送过该消息，发送端就不再发送了</li>
+</ul>
+<p>方法2：针对数据库的插入操作</p>
+<ul>
+<li>以消息作为唯一主键，如果发生了重复消费，插入数据的时候会主键冲突</li>
+<li>下游业务在接收到消息，执行业务之后保存 message ID，便可作为其唯一标识</li>
+</ul>
+<h2 id="消息丢失问题"><a href="#消息丢失问题" class="headerlink" title="消息丢失问题"></a>消息丢失问题</h2><p>根据队列结构来看，无非就是三种情况：</p>
+<ol>
+<li>生产者弄丢数据</li>
+<li>消息队列弄丢数据</li>
+<li>消费者弄丢数据</li>
+</ol>
+<p><strong>解决方法</strong>：</p>
+<ol>
+<li>主流 MQ 都有确认机制或事务机制，可保证生产者将消息送达 MQ。如：RabbitMQ 就有事务模式和 confirm 模式</li>
+<li>只要开启 MQ 的持久化磁盘配置就能解决 MQ 弄丢数据的问题</li>
+<li>消费者弄丢数据，一般是因为采用了自动确认消息模式，在这个模式下，MQ 收到确认消息后会删除消息；<ul>
+<li>如果发送确认信息之后消费者发生异常，导致消息操作没执行完，想再次消费消息就没了</li>
+<li>改用手动确认就能解决</li>
+</ul>
+</li>
+</ol>
+<h2 id="消息顺序问题"><a href="#消息顺序问题" class="headerlink" title="消息顺序问题"></a>消息顺序问题</h2><p>常见的场景：电商平台的下单操作，下单后先减库存，然后生成订单</p>
+<ul>
+<li>首先生产者需要保证入队的顺序</li>
+<li>另外，发送消息时对消息通过 hash 取模，确保同一操作的消息发送到同一个队列中<ul>
+<li>一般的 MQ 中同一个队列都能保证 FIFO，由此确保出队时是顺序的</li>
+</ul>
+</li>
+</ul>
+<p>不过，如果多个消费者同时消费一个队列，一样可能出现顺序错乱的情况</p>
+<br>
+
+<h1 id="消息队列的消息传播模式"><a href="#消息队列的消息传播模式" class="headerlink" title="消息队列的消息传播模式"></a>消息队列的消息传播模式</h1><p><strong>推</strong>（<strong>push</strong>）模式：服务器主动将信息送到客户端</p>
 <p>优点：</p>
 <ul>
 <li>对用户要求低，方便用户获取需要的信息</li>
-<li>及时性好，服务器端即时向客户端推送更新的动态信息</li>
+<li>即时性好，服务器端及时向客户端推送更新的动态信息</li>
 </ul>
 <p>缺点：</p>
 <ul>
@@ -231,103 +285,31 @@
 </ul>
 </li>
 </ul>
-<p>拉（pull）模式：客户端主动发起获取信息</p>
+<p><strong>拉</strong>（<strong>pull</strong>）模式：客户端主动发起获取信息</p>
 <ul>
+<li>该模式下消息不是自动推送给消费者（客户端）的，而是由消费者主动从队列中请求获得</li>
 <li>如没有消费者在监听队列，消息将保留在队列中，直至消费者连接到队列，取到信息为止</li>
-<li>该模式下消息不实自动推送给消费者的，而是由消费者从队列中请求获得</li>
 </ul>
 <p>优点：</p>
 <ul>
 <li>针对性强，满足客户端个性化需求</li>
-<li>信息传输量较小，网络中传输的只是客户端的请求和服务器端对请求的响应</li>
-<li>服务器端任务轻，只是被动接受查询，对客户端的查询请求作出响应</li>
+<li>信息传输量相对较小：网络中传输的只是客户端的请求和服务器端对请求的响应</li>
+<li>服务器端任务轻：只是被动接受查询，对客户端的查询请求作出响应</li>
 </ul>
 <p>缺点：</p>
 <ul>
 <li>实时性差，针对服务器端实时更新的信息，客户端难以获取实时信息</li>
 <li>对于客户端用户的要求较高，需要对服务器端具有一定的了解</li>
 </ul>
-<h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>优点：</p>
-<ul>
-<li>实现异步、解耦、流量削峰填谷</li>
-<li>可解决以下特殊业务场景的问题</li>
-</ul>
-<p>缺点：</p>
-<ul>
-<li>系统可用性：万一 MQ 崩溃了就完了</li>
-<li>提高了系统复杂性，需要考虑一些消息队列的常见问题和解决方案</li>
-<li>一致性问题<ul>
-<li>多个消费者中其中一个消费失败，会导致数据不一致</li>
-<li>会有消息重复消费、消息积压、消息顺序和消息事务的问题</li>
-</ul>
-</li>
-</ul>
-<p>重复消费问题：通常由网络原因造成</p>
-<p>正常情况：</p>
-<ol>
-<li>消息被成功消费后，消费者发送成功标志给 MQ</li>
-<li>MQ 收到标志后，表示消息被成功消费，不会再将消息发送给其他消费者</li>
-</ol>
-<p>问题：</p>
-<ol>
-<li>成功标志因网络问题在传输过程丢失</li>
-<li>MQ 没接收到该标志，认为该消息没有被成功消费</li>
-<li>MQ 再次发送该消息给其他消费者，造成重复消费</li>
-</ol>
-<p>解决问题：保证消费端幂等性<br>主要原理：去重</p>
-<p>方法1：</p>
-<ul>
-<li>每个消息生成一个 id</li>
-<li>在第三方介质（如 Redis set）中准备 &lt;消息 id, 消息&gt;</li>
-<li>开始消费前，在 Redis 中查询有无该记录即可</li>
-</ul>
-<p>方法2：针对数据库插入操作</p>
-<ul>
-<li>以消息作为唯一主键，重复消费时会导致主键冲突<ul>
-<li>下游业务接收到 message 后，执行业务并保存 message ID</li>
-</ul>
-</li>
-</ul>
-<p>消息丢失问题<br>无非就是三种情况：</p>
-<ol>
-<li>生产者弄丢数据</li>
-<li>消息队列弄丢数据</li>
-<li>消费者弄丢数据</li>
-</ol>
-<p>解决方法：</p>
-<ol>
-<li>主流 MQ 都有确认机制或事务机制，可保证生产者将消息送达 MQ。如：RabbitMQ 就有事务模式和 confirm 模式</li>
-<li>只要开启 MQ 的持久化磁盘配置就能解决 MQ 弄丢数据的问题</li>
-<li>消费者丢数据一般是因为采用了自动确认消息模式，MQ 收到确认消息后会删除消息，如果消费者发生异常，消息就没了<ol>
-<li>改用手动确认就能解决</li>
-</ol>
-</li>
-</ol>
-<p>消息顺序问题<br>场景：电商平台的下单操作，下单后先减库存，然后生成订单</p>
-<ul>
-<li>首先生产者需要保证入队的顺序</li>
-<li>发送消息时通过 hash 取模<ul>
-<li>确保同一操作的消息发送到同一个队列中</li>
-<li>一般的 MQ 中同一个队列都能保证 FIFO，由此确保出队时是顺序的</li>
-</ul>
-</li>
-<li>如多个消费者同时消费一个队列，一样可能出现顺序错乱的情况</li>
-</ul>
-<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>AMQP</p>
-<p>AMQP（Advanced Message Queuing Protocol，高级消息队列协议）</p>
-<ul>
-<li>消息传递协议</li>
-<li>为具体实现和产品</li>
-<li>RabbitMQ 的基础，也是其所实现的其他协议的鼻祖</li>
-</ul>
-<p>注：消息队列的实现不一定都基于 AMQP 实现，有的基于 JMS 实现</p>
-<p>主要组件：</p>
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>消息队列的实现主要包括两种：<strong>AMQP</strong> 和 <strong>JMS</strong></p>
+<h2 id="AMQP"><a href="#AMQP" class="headerlink" title="AMQP"></a>AMQP</h2><p>全称 Advanced Message Queuing Protocol，高级消息队列协议，是 RabbitMQ 的基础，也是其所实现的其他协议的鼻祖。</p>
+<p><strong>主要组件</strong>：</p>
 <ol>
 <li>交换器 Exchange</li>
-<li>队列 Queue，消息（message）的载体</li>
-<li>绑定 Binding，决定交换器将信息投递到队列的规则</li>
+<li>队列 Queue：消息（message）的载体</li>
+<li>绑定 Binding：决定交换器将信息投递到队列的规则</li>
 </ol>
-<p>基本模型：</p>
+<p><strong>基本模型</strong>：</p>
 <ol>
 <li>消息发布者 Publisher 利用接口，将消息发布（publish）到 Exchange 中<ol>
 <li>消息一般包含消息体（payload）和标签（label）</li>
@@ -336,10 +318,11 @@
 <li>消息订阅者（消费者，Consumer）利用接口创建 Queue 并绑定到 Exchange，接收所期望的消息</li>
 <li>Exchange 会将消息分发（route）至对应的 Queue</li>
 <li>Queue 里面的 Consumer 发现 Queue 中有消息，就会将消息消耗（consume）掉<ol>
-<li>消耗时只消费消息体，丢弃标签<br>综上：AMQP 为发布-订阅模型的一部分</li>
+<li>消耗时只消费消息体，丢弃标签</li>
 </ol>
 </li>
 </ol>
+<p>综上：AMQP 为发布-订阅模型的一部分</p>
 <ul>
 <li>Publisher 为发布者（生产者）</li>
 <li>Consumer 为订阅者（消费者）</li>
@@ -354,8 +337,7 @@
 <li>主要传输二进制数据流</li>
 <li>提供帧的处理、信道服用、错误检测和数据表示等</li>
 </ul>
-<p>JMS Java 消息服务</p>
-<p>Java Message Service</p>
+<h2 id="JMS-Java-消息服务"><a href="#JMS-Java-消息服务" class="headerlink" title="JMS Java 消息服务"></a>JMS Java 消息服务</h2><p>全称 Java Message Service</p>
 <ul>
 <li>Java 平台中关于面向消息中间件（MOM）的技术规范，一个与具体平台无关的 API</li>
 <li>绝大多数 MOM 提供商都对 JMS 提供支持</li>
@@ -447,18 +429,17 @@
 <td align="center">功能较为简单，主要支持简单的 MQ 功能，在大数据领域实时计算以及日志采集被大规模采用</td>
 </tr>
 </tbody></table>
-<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>消息延迟推送应用：</p>
+<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>消息队列广泛应用于应用程序之间的通信方法，其应用场景包括：解耦、异步消息、流量削锋等问题。</p>
+<p>消息延迟推送应用：</p>
+<p><strong>1</strong>. 淘宝七天自动确认收货</p>
 <ul>
-<li>淘宝七天自动确认收货<ul>
 <li>签收后，物流系统在七天后延时发送一个消息给支付系统，通知支付系统七天后将款项打给商家</li>
 </ul>
-</li>
-<li>12306 购票支付确认界面<ul>
+<p><strong>2</strong>. 12306 购票支付确认界面</p>
+<ul>
 <li>选好票点击确定跳转的页面往往会有倒计时</li>
 <li>如 30 分钟内订单不确认将自动取消订单</li>
 <li>如 30 分钟内完成订单，则根据逻辑代码确定忽略接收到的延时信息</li>
-</ul>
-</li>
 </ul>
 <p>（待补充）</p>
 
@@ -544,7 +525,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9A%84%E6%B6%88%E6%81%AF%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">消息队列的消息传播模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">优缺点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%89%E5%9E%8B%E4%BE%9D%E6%8D%AE"><span class="nav-number">4.</span> <span class="nav-text">选型依据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">应用场景</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.</span> <span class="nav-text">重复消费问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">消息丢失问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%A1%BA%E5%BA%8F%E9%97%AE%E9%A2%98"><span class="nav-number">1.3.</span> <span class="nav-text">消息顺序问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9A%84%E6%B6%88%E6%81%AF%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">消息队列的消息传播模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AMQP"><span class="nav-number">3.1.</span> <span class="nav-text">AMQP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS-Java-%E6%B6%88%E6%81%AF%E6%9C%8D%E5%8A%A1"><span class="nav-number">3.2.</span> <span class="nav-text">JMS Java 消息服务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%89%E5%9E%8B%E4%BE%9D%E6%8D%AE"><span class="nav-number">4.</span> <span class="nav-text">选型依据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">应用场景</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
