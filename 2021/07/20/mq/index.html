@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-api.png">
 <meta property="article:published_time" content="2021-07-19T17:12:34.000Z">
-<meta property="article:modified_time" content="2021-08-19T15:02:46.125Z">
+<meta property="article:modified_time" content="2021-08-19T15:44:13.000Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -311,50 +311,53 @@
 </ol>
 <p><strong>基本模型</strong>：</p>
 <ol>
-<li>消息发布者 Publisher 利用接口，将消息发布（publish）到 Exchange 中<ol>
+<li>消息发布者 Publisher 利用接口，将消息发布（publish）到 Exchange 中<ul>
 <li>消息一般包含消息体（payload）和标签（label）</li>
-</ol>
+</ul>
 </li>
-<li>消息订阅者（消费者，Consumer）利用接口创建 Queue 并绑定到 Exchange，接收所期望的消息</li>
-<li>Exchange 会将消息分发（route）至对应的 Queue</li>
-<li>Queue 里面的 Consumer 发现 Queue 中有消息，就会将消息消耗（consume）掉<ol>
+<li>消息订阅者（消费者，Consumer）利用接口创建 Queue，并绑定到 Exchange，接收所期望的消息</li>
+<li>Exchange 会按照一定的路由规则（route）将消息分发至对应的 Queue</li>
+<li>Consumer 发现 Queue 中有消息，就会将消息消耗（consume）掉<ul>
 <li>消耗时只消费消息体，丢弃标签</li>
-</ol>
+</ul>
 </li>
 </ol>
-<p>综上：AMQP 为发布-订阅模型的一部分</p>
+<p>综上可知，AMQP 为发布-订阅模型的一部分</p>
 <ul>
 <li>Publisher 为发布者（生产者）</li>
 <li>Consumer 为订阅者（消费者）</li>
-<li>AMQP 协议扮演消息代理（Message Broker）的角色：维护生产-消费路线，保证数据按照指定的方式进行传输</li>
+<li>AMQP 协议扮演消息代理（Message Broker）的角色：维护生产-消费路线，保证数据按照指定的方式进行传输。</li>
 </ul>
-<p>AMQP 三层协议：<br>Module Layer：协议最高层</p>
+<p>AMQP 的三层协议：</p>
+<p><strong>Module Layer</strong>：协议最高层</p>
 <ul>
 <li>主要定义一些客户端调用的命令</li>
-<li>客户端可用这些命令实现自己的业务逻辑<br>Session Layer：中间层</li>
-<li>主要负责客户端命令发送给服务器，再将服务端 response 返回客户端</li>
-<li>提供可靠性同步机制和错误处理<br>Transport Layer：最底层</li>
-<li>主要传输二进制数据流</li>
-<li>提供帧的处理、信道服用、错误检测和数据表示等</li>
+<li>客户端可用这些命令实现自己的业务逻辑</li>
 </ul>
-<h2 id="JMS-Java-消息服务"><a href="#JMS-Java-消息服务" class="headerlink" title="JMS Java 消息服务"></a>JMS Java 消息服务</h2><p>全称 Java Message Service</p>
+<p><strong>Session Layer</strong>：中间层</p>
 <ul>
-<li>Java 平台中关于面向消息中间件（MOM）的技术规范，一个与具体平台无关的 API</li>
+<li>主要负责将客户端命令发送给服务器，再将服务端的 response 返回客户端</li>
+<li>提供可靠性同步机制和错误处理</li>
+</ul>
+<p><strong>Transport Layer</strong>：最底层</p>
+<ul>
+<li>主要传输二进制数据流</li>
+<li>提供帧的处理、信道复用、错误检测和数据表示等</li>
+</ul>
+<h2 id="JMS"><a href="#JMS" class="headerlink" title="JMS"></a>JMS</h2><p>全称 Java Message Service，Java 消息服务，是 Java 平台中关于“面向消息中间件（MOM）”的技术规范。</p>
+<ul>
+<li>具体来说，JMS 是一个与具体平台无关的 API</li>
 <li>绝大多数 MOM 提供商都对 JMS 提供支持</li>
 <li>用于在两个应用程序之间，或分布式系统中发送消息，进行异步通信</li>
 </ul>
 <p>JMS 规范目前支持两种消息模型：</p>
-<ol>
-<li>点对点（point to point, queue）：不可重复消费</li>
-</ol>
+<p><strong>1</strong>. <strong>点对点</strong>（point to point, <strong>queue</strong>）：不可重复消费</p>
 <ul>
 <li>消息生产者生产消息发送到 queue 中，然后消息消费者从 queue 中取出并且消费消息</li>
 <li>消息被消费以后，queue 中不再有存储，所以消息消费者不可能消费到已经被消费的消息</li>
 <li>Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费</li>
 </ul>
-<ol start="2">
-<li>发布/订阅（publish/subscribe, topic）：可重复消费</li>
-</ol>
+<p><strong>2</strong>. <strong>发布/订阅</strong>（publish/subscribe, <strong>topic</strong>）：可重复消费</p>
 <ul>
 <li>消息生产者（发布）将信息发布到 topic 中，同时有多个消息消费者（订阅）消费该消息</li>
 <li>和点对点方式不同，发布到 topic 的消息会被所有订阅者消费</li>
@@ -374,8 +377,44 @@
 <p>编程接口：</p>
 <p><img src="/2021/07/20/mq/jms-api.png"></p>
 <p>JMS 与 AMQP 的比较：</p>
-<p>JMS 提供的最主流的开源技术是 Apache ActiveMQ</p>
-<h1 id="选型依据"><a href="#选型依据" class="headerlink" title="选型依据"></a>选型依据</h1><p>生产环境使用较多的消息队列：ActiveMQ, RabbitMQ, ZeroMQ, Kafka, MetalMQ, RocketMQ 等</p>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">JMS</th>
+<th align="left">AMQP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">定义</td>
+<td align="left">Java API</td>
+<td align="left">协议</td>
+</tr>
+<tr>
+<td align="left">跨语言</td>
+<td align="left">否</td>
+<td align="left">是</td>
+</tr>
+<tr>
+<td align="left">跨平台</td>
+<td align="left">否</td>
+<td align="left">是</td>
+</tr>
+<tr>
+<td align="left">模型</td>
+<td align="left">2 + 1 种消息模型</td>
+<td align="left">5 种消息模型</td>
+</tr>
+<tr>
+<td align="left">支持消息类型</td>
+<td align="left">多种</td>
+<td align="left">byte[]</td>
+</tr>
+</tbody></table>
+<p>JMS 提供的最主流的开源技术是 Apache ActiveMQ。</p>
+<br>
+
+<h1 id="选型依据"><a href="#选型依据" class="headerlink" title="选型依据"></a>选型依据</h1><p>生产环境使用较多的消息队列：ActiveMQ, <a href="/2021/07/21/rabbitmq/">RabbitMQ</a>, ZeroMQ, Kafka, MetalMQ, RocketMQ 等。</p>
 <table>
 <thead>
 <tr>
@@ -441,7 +480,6 @@
 <li>如 30 分钟内订单不确认将自动取消订单</li>
 <li>如 30 分钟内完成订单，则根据逻辑代码确定忽略接收到的延时信息</li>
 </ul>
-<p>（待补充）</p>
 
     </div>
 
@@ -525,7 +563,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.</span> <span class="nav-text">重复消费问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">消息丢失问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%A1%BA%E5%BA%8F%E9%97%AE%E9%A2%98"><span class="nav-number">1.3.</span> <span class="nav-text">消息顺序问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9A%84%E6%B6%88%E6%81%AF%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">消息队列的消息传播模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AMQP"><span class="nav-number">3.1.</span> <span class="nav-text">AMQP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS-Java-%E6%B6%88%E6%81%AF%E6%9C%8D%E5%8A%A1"><span class="nav-number">3.2.</span> <span class="nav-text">JMS Java 消息服务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%89%E5%9E%8B%E4%BE%9D%E6%8D%AE"><span class="nav-number">4.</span> <span class="nav-text">选型依据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">应用场景</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.</span> <span class="nav-text">重复消费问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">消息丢失问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%A1%BA%E5%BA%8F%E9%97%AE%E9%A2%98"><span class="nav-number">1.3.</span> <span class="nav-text">消息顺序问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9A%84%E6%B6%88%E6%81%AF%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">消息队列的消息传播模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AMQP"><span class="nav-number">3.1.</span> <span class="nav-text">AMQP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS"><span class="nav-number">3.2.</span> <span class="nav-text">JMS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%89%E5%9E%8B%E4%BE%9D%E6%8D%AE"><span class="nav-number">4.</span> <span class="nav-text">选型依据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">应用场景</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
