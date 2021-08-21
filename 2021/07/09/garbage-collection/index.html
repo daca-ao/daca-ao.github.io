@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。今天就来唠一唠这个 Java 的重要思想和 JVM 重要的组成部分 —— 垃圾回收。">
+  <meta name="description" content="其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM 垃圾回收机制">
 <meta property="og:url" content="http://example.com/2021/07/09/garbage-collection/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。今天就来唠一唠这个 Java 的重要思想和 JVM 重要的组成部分 —— 垃圾回收。">
+<meta property="og:description" content="其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/root-search.png">
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/mark-sweep.jpg">
@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/cms_gc.jpg">
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/g1_gc.png">
 <meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
-<meta property="article:modified_time" content="2021-07-30T15:47:06.161Z">
+<meta property="article:modified_time" content="2021-08-21T02:23:04.812Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -211,15 +211,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。今天就来唠一唠这个 Java 的重要思想和 JVM 重要的组成部分 —— 垃圾回收。</p>
+        <p>其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。</p>
 <span id="more"></span>
 
+<p>今天就来唠一唠这个 Java 的重要思想和 JVM 重要的组成部分 —— 垃圾回收。</p>
 <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>啥是内存垃圾？</p>
 <p>当内存中的对象失去了所有的引用，变成了“孤魂野鬼”的时候，也就被称为“垃圾”。</p>
 <p>这里展示一个垃圾对象的诞生过程：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String str1 = <span class="keyword">new</span> String(<span class="string">&quot;abc&quot;</span>);  <span class="comment">// &quot;abc&quot; 这个 String 对象有一个引用 str1 指向它</span></span><br><span class="line">String str2 = str1;               <span class="comment">// &quot;abc&quot; 现在有两个引用：str1 和 str2 都指向它</span></span><br><span class="line">str1 = <span class="keyword">null</span>;  <span class="comment">// 失去引用 str1</span></span><br><span class="line">str2 = <span class="keyword">null</span>;  <span class="comment">// 失去引用 str2，失去全部引用，变成野对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 由此，new String(&quot;abc&quot;); 锁产生的对象失去了所有引用，将无法再被程序访问。*/</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String str1 = <span class="keyword">new</span> String(<span class="string">&quot;abc&quot;</span>);  <span class="comment">// &quot;abc&quot; 这个 String 对象有一个引用 str1 指向它</span></span><br><span class="line">String str2 = str1;               <span class="comment">// &quot;abc&quot; 现在有两个引用了：str1 和 str2 都指向它</span></span><br><span class="line">str1 = <span class="keyword">null</span>;  <span class="comment">// 失去引用 str1</span></span><br><span class="line">str2 = <span class="keyword">null</span>;  <span class="comment">// 失去引用 str2，失去全部引用，变成野对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 由此，new String(&quot;abc&quot;); 产生的对象失去了所有指向它的引用，将无法再被程序访问 */</span></span><br></pre></td></tr></table></figure>
 
-<p>C / C++ 语言中没有垃圾回收机制。<br>除非程序结束，否则在堆中申请后还没被释放，且没有任何指向的内存会一直处于“三无”状态：</p>
+<p>有了垃圾，怎么清理呢？</p>
+<p>就 C / C++ 语言来说，它们没有垃圾回收机制。<br>除非程序结束，否则在堆中申请后还没被释放，且没有任何指向的内存会一直处于“三无”状态：</p>
 <ul>
 <li>无法释放；</li>
 <li>无法调用；</li>
