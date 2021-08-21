@@ -28,7 +28,7 @@
 <meta property="og:description" content="事务（Transaction）：访问并可能更新数据库中各种数据项的一个程序执行单元">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-25T14:15:36.000Z">
-<meta property="article:modified_time" content="2021-07-29T17:03:39.201Z">
+<meta property="article:modified_time" content="2021-08-21T15:09:58.702Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary">
@@ -211,9 +211,12 @@
 </ul>
 </li>
 <li>全局事务<ul>
-<li>跨多个事务资源的事务，如在一个分布式系统中的事务<br>可以是：</li>
+<li>跨多个事务资源的事务，如在一个分布式系统中的事务</li>
 </ul>
 </li>
+</ul>
+<p>可以是：</p>
+<ul>
 <li>一条或一组 SQL 语句</li>
 <li>整个程序</li>
 </ul>
@@ -248,6 +251,148 @@
 <li>事务处理结束后，对数据的修改是永久的，即使系统故障也不会丢失</li>
 </ul>
 <p>并发会破坏数据库事务的隔离性：</p>
+<table>
+<thead>
+<tr>
+<th align="left">并发下的问题</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">脏写</td>
+<td align="left">事务回滚了其它事务对数据项的已提交修改<br>例：<br>&nbsp;&nbsp;&nbsp;&nbsp; 1. 事务 1 读取 A = 10（未提交）<br>&nbsp;&nbsp;&nbsp;&nbsp; 2. 随后事务 2 读取 A = 10，写回 A = 30，并提交（脏写）<br>&nbsp;&nbsp;&nbsp;&nbsp; 3. 随后事务 1 操作需要回滚，A 被回滚到 10，而不是已经提交的 30</td>
+</tr>
+<tr>
+<td align="left">丢失更新</td>
+<td align="left">事务覆盖了其它事务对数据的已提交修改<br>例：<br>&nbsp;&nbsp;&nbsp;&nbsp; 1. 事务 2 读取 A = 10<br>&nbsp;&nbsp;&nbsp;&nbsp; 2. 事务 1 读取 A = 10<br>&nbsp;&nbsp;&nbsp;&nbsp; 3. 事务 2 执行 A += 10，写回 A = 20，并提交<br>&nbsp;&nbsp;&nbsp;&nbsp; 4. 事务 1 执行 A -= 10，因其读取到的 A 的值是 10，执行后 A = 0<br>&nbsp;&nbsp;&nbsp;&nbsp; 5. 事务 1 提交，导致在其之前的事务 2 的提交被覆盖（丢失事务 2 的更新）</td>
+</tr>
+<tr>
+<td align="left">脏读 Dirty Read</td>
+<td align="left">一个事务读取了另一个未提交的事务中的数据</td>
+</tr>
+<tr>
+<td align="left">不可重复读 Non-repeatable Read</td>
+<td align="left">对于数据库中某个数据，在同一个事务范围内多次查询却返回不同数据值<br>因为在查询间隔，该数据被另一个事务修改并提交了<br>例：<br>&nbsp;&nbsp;&nbsp;&nbsp; 1. 事务 1 读取 A = 10<br>&nbsp;&nbsp;&nbsp;&nbsp; 2. 事务 2 读取 A = 10，执行 A *= 2，写回 A = 20，并提交<br>&nbsp;&nbsp;&nbsp;&nbsp; 3. 事务 1 读取 A = 20，与之前读取的 A = 10（已是不可重复的读取）不一致</td>
+</tr>
+<tr>
+<td align="left">幻读（多行的不可重复读）Phantom</td>
+<td align="left">一个事务多次查询之间的数据的条数不一致<br>针对一批数据整体出现的问题<br>例：<br>&nbsp;&nbsp;&nbsp;&nbsp; 1. 事务 1 读取 A &lt; 5 的数据有 (1, 2, 3)<br>&nbsp;&nbsp;&nbsp;&nbsp; 2. 事务 2 写入 A = 4，并提交<br>&nbsp;&nbsp;&nbsp;&nbsp; 3. 事务 1 读取 A &lt; 5 的数据有 (1, 2, 3, 4)，与之前读取的不一致</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="center">脏读示意</th>
+<th align="left">Session A</th>
+<th align="left">Session B</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="left">begin;</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="left"></td>
+<td align="left">begin;</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="left"></td>
+<td align="left">update city set name=’’ where id = 1;</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="left">select * from city where id = 1;</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="center">5</td>
+<td align="left">commit;</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="center">6</td>
+<td align="left"></td>
+<td align="left">rollback;</td>
+</tr>
+</tbody></table>
+<p>脏读 v.s. 不可重复读</p>
+<ul>
+<li>脏读读取的是事务未提交的脏数据</li>
+<li>不可重复读读取的是事务已经提交的数据</li>
+</ul>
+<p>幻读 v.s. 不可重复读</p>
+<ul>
+<li>不可重复读针对确定的某一行数据</li>
+<li>幻读针对不确定的多行数据（Result Set）</li>
+</ul>
+<h1 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h1><p>逐级提高：</p>
+<ul>
+<li>读未提交（Read Uncommitted）：所有事务都可看到其它事务修改过但未提交的内容数据<ul>
+<li>可能发生脏读、不可重复读和幻读问题</li>
+<li>没有解决任何并发问题，不常用</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>读提交（Read Committed）：一个事务只能读取其它事务已经提交的内容数据<ul>
+<li>如：事务 B 只能在事务 A 修改过并且提交之后，才能读取到事务 B 修改的数据</li>
+<li>解决了脏读问题，但没有解决不可重复读和幻读，也不常用</li>
+<li>Oracle 的默认级别</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>可重复读（Repeatable Read）：保证一个事务之间的多个实例在并发下能读取同一数据<ul>
+<li>对同一字段的多次读取结果是一样的，除非数据被自身事务修改</li>
+<li>MySQL InnoDB 的默认级别</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>串行化（Serializable）：事务之间只能顺序执行，使之没有任何冲突<ul>
+<li>最高级别</li>
+<li>通过加锁实现（读锁和写锁）</li>
+</ul>
+</li>
+</ul>
+<p>级别越高，越能保证数据完整性和一致性，对并发效率也越低。</p>
+<table>
+<thead>
+<tr>
+<th align="left">对象状态</th>
+<th align="left">脏读</th>
+<th align="left">不可重复读</th>
+<th align="left">幻读</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">读未提交</td>
+<td align="left"><font color="red">可能</font></td>
+<td align="left"><font color="red">可能</font></td>
+<td align="left"><font color="red">可能</font></td>
+</tr>
+<tr>
+<td align="left">读已提交</td>
+<td align="left"><font color="green">不会</font></td>
+<td align="left"><font color="red">可能</font></td>
+<td align="left"><font color="red">可能</font></td>
+</tr>
+<tr>
+<td align="left">可重复读</td>
+<td align="left"><font color="green">不会</font></td>
+<td align="left"><font color="green">不会</font></td>
+<td align="left"><font color="red">可能</font></td>
+</tr>
+<tr>
+<td align="left">串行化</td>
+<td align="left"><font color="green">不会</font></td>
+<td align="left"><font color="green">不会</font></td>
+<td align="left"><font color="green">不会</font></td>
+</tr>
+</tbody></table>
 <p>（待补充）</p>
 
     </div>
@@ -332,6 +477,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">事务隔离级别</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

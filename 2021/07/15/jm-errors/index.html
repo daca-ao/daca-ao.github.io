@@ -28,7 +28,7 @@
 <meta property="og:description" content="Java 程序中常见的内存毛病就是内存溢出和内存泄漏了。本帖专门来聊聊这俩毛病，以及做一下比较。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-15T14:46:15.000Z">
-<meta property="article:modified_time" content="2021-08-21T12:30:09.571Z">
+<meta property="article:modified_time" content="2021-08-21T12:56:21.580Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -236,7 +236,7 @@
 <ul>
 <li>执行某个 .class 文件之后，可以使用 <code>java -Xmx256M xxx.class</code> 来设置运行该 .class 时 JVM 所允许占用的最大内存是 256M</li>
 <li>对于 Tomcat：启动时对 JVM 设置内存限度，在 <code>catalina.bat</code>（<code>catalina.sh</code>）中添加<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> CATALINA_OPTS=-Xms128M -Xmx256M</span><br><span class="line"><span class="built_in">set</span> JAVA_OPTS=-Xms128M -Xmx256M</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者将 `%CATALINA_OPTS%` 和 `%JAVA_OPTS%` 代替为 `-Xmx128M -Xmx256M`</span></span><br></pre></td></tr></table></figure></li>
-<li>对于 Resin 容器：启动时对 JVM 设置内存限度，在 <code>bin</code> 文件夹下创建一个 <code>startup.bat</code><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">echo</span> off</span><br><span class="line">call <span class="string">&quot;httpd.exe&quot;</span> <span class="string">&quot;-Xms128M&quot;</span>(最小内存) <span class="string">&quot;-Xmx256M&quot;</span>(最大内存)</span><br><span class="line">:end</span><br></pre></td></tr></table></figure></li>
+<li>对于 Resin 容器：启动时对 JVM 设置内存限度，在 <code>bin</code> 文件夹下创建一个 <code>startup.bat</code><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">echo</span> off</span><br><span class="line"><span class="keyword">call</span> &quot;httpd.exe&quot; &quot;-Xms128M&quot; &quot;-Xmx256M&quot;</span><br><span class="line">:end</span><br></pre></td></tr></table></figure></li>
 </ul>
 <p><strong>2. 优化程序、释放垃圾（避免死循环）</strong></p>
 <h1 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h1><p>Memory Leak，指程序在申请内存后，无法释放已经申请的空间。</p>
