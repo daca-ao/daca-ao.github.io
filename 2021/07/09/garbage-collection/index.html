@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/cms_gc.jpg">
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/g1_gc.png">
 <meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
-<meta property="article:modified_time" content="2021-08-21T02:23:04.812Z">
+<meta property="article:modified_time" content="2021-08-21T02:48:00.829Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -241,7 +241,7 @@
 </ul>
 <p>所以我们说的 Java 语言有垃圾回收特性，其实是 JVM 提供的机制，Java 语言本身并没有提供释放已分配内存的显式操作方法。<br>而 Java 的内存管理，实际上就是对象的管理，包括对象的分配和释放。</p>
 <h2 id="如何标记垃圾"><a href="#如何标记垃圾" class="headerlink" title="如何标记垃圾"></a>如何标记垃圾</h2><p>主要有两种方法。</p>
-<p><strong>1</strong>. 计数法：</p>
+<p><strong>1</strong>. <strong>计数法</strong>：</p>
 <ul>
 <li>当新建一个对象，或者有引用指向该对象时，该对象的引用计数器 + 1；</li>
 <li>当一个对象引用超过了生存期限或指向新对象时，引用计数器 - 1；</li>
@@ -249,9 +249,10 @@
 </ul>
 <p>计数法的好处就是快、简单，但无法检测循环引用：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;<span class="keyword">public</span> B b;&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;<span class="keyword">public</span> A a;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    A a = <span class="keyword">new</span> A();</span><br><span class="line">    B b = <span class="keyword">new</span> B();</span><br><span class="line">    a.b = b;</span><br><span class="line">    b.a = a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>而且每一次的引用产生和消除，需要伴随着一个加减法操作，对系统的性能有一定的影响。</p>
 <p>基于以上问题，JVM 并没有选择此方法作为垃圾回收算法。</p>
-<p><strong>2</strong>. 跟踪法 / 根搜索算法：</p>
+<p><strong>2</strong>. 跟踪法 / <strong>根搜索算法</strong>：</p>
 <p>该算法从图论引入，它将一个调用链中所有的对象引用关系看作是一张<strong>图</strong>，虚拟机会从根节点开始，寻找对应的引用节点。<br>这样的一些根节点被称为 <strong>GC roots</strong>；以每个 GC root 为起点能够形成作用链，链中的每个对象都是有向图的顶点。  </p>
 <p>GC roots 包括：</p>
 <ul>
