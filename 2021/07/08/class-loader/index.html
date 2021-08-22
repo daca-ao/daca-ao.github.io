@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2021/07/08/class-loader/context-classloader.png">
 <meta property="og:image" content="http://example.com/2021/07/08/class-loader/tomcat-classloader.png">
 <meta property="article:published_time" content="2021-07-07T16:07:22.000Z">
-<meta property="article:modified_time" content="2021-07-27T18:07:02.411Z">
+<meta property="article:modified_time" content="2021-08-22T14:39:18.088Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -211,7 +211,7 @@
 <p>类加载器（Class Loader）作用：将类加载到 Java 虚拟机，并且检查类的完整性。</p>
 <p>类加载机制：</p>
 <ol>
-<li>将描述类的数据从 <code>.class</code> 文件加载到内存；</li>
+<li>将描述类的数据从 <code>.class</code> 文件（cafe babe 0000 0034 0022 0800 ….）加载到内存；</li>
 <li>对数据进行校验、转换解析和初始化；</li>
 <li>最终构造成可被虚拟机直接使用的 Java 类型。</li>
 </ol>
@@ -235,9 +235,10 @@
 <li>可从磁盘上读取文件，或者根据链接请求网络文件，等</li>
 </ul>
 </li>
-<li>将该字节流代表的<strong>静态存储结构</strong>转换为方法区的运行时数据结构</li>
-<li>在静态区（内存）生成代表这个类的 <code>java.lang.Class</code> 对象，作为方法区该类的各种数据结构的访问入口<ul>
+<li>解析流，将该字节流代表的<strong>静态存储结构</strong>转换为方法区的运行时数据结构，将类的信息存放到方法区中</li>
+<li>在静态区（内存）创建代表这个类的 <code>java.lang.Class</code> 实例，作为方法区该类的各种数据结构的访问入口<ul>
 <li>没有规定这个对象要在堆中：比较特殊，虽是对象，但是在方法区</li>
+<li>注意：这里创建的应该是<strong>实例</strong>，而不是对象。</li>
 </ul>
 </li>
 </ol>
@@ -251,23 +252,24 @@
 </ol>
 </li>
 <li><strong>准备 Preparation</strong>：为类的静态变量在方法区分配内存<ul>
-<li>一般的成员变量是在实例化的时候，随对象一起被分配到堆内存中</li>
 <li>final 的静态变量（也就是常量）在这个阶段赋值为其指定值</li>
 <li>非 final 的静态变量赋初始化默认值（0 值或 null）<ul>
 <li>如有 <code>static int a = 1;</code> 静态变量 a 在准备阶段被赋值为 0，在初始化阶段被赋值为 1</li>
 </ul>
 </li>
+<li>然后，一般的成员变量是在实例化的时候，随对象一起被分配到堆内存中</li>
 </ul>
 </li>
 <li><strong>解析 Resolution</strong>：将 .class 二进制数据中常量池（即：静态常量池）中的符号引用替换成直接引用<ul>
-<li><strong>符号引用</strong>：类名、方法名、字段名，具有人类可读性，类似于 OS 中的逻辑地址</li>
-<li><strong>直接引用</strong>：内存偏移量，指示内存真实地址，类似于 OS 中的物理地址</li>
-<li>符号引用指向的目标不一定加载到了内存中，而直接引用的目标一定已经加载到了内存中</li>
+<li><strong>符号引用</strong>：类名、方法名、字段名，具有人类可读性，类似于 OS 中的逻辑地址（<code>javap -verbose xxx.class</code> 的输出）；</li>
+<li><strong>直接引用</strong>：内存偏移量，指示内存真实地址，类似于 OS 中的物理地址；</li>
+<li>符号引用只是编译的结果，其指向的目标不一定加载到了内存中，而直接引用的目标一定已经加载到了内存中</li>
 </ul>
 </li>
 </ol>
 <p><strong>3. 初始化 Initialization</strong>：赋予静态变量以程序原本指定的值，如上面说的 <code>static int a = 1;</code>，并初始化静态代码块</p>
 <ul>
+<li>到了这个阶段，说明类已经顺利地被加载到了系统中</li>
 <li>此时真正执行类中定义的 Java 程序代码</li>
 <li>不是必然发生的</li>
 </ul>
@@ -604,7 +606,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-count">36</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

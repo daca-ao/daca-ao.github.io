@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/memory-allocate.png">
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/object-allocate.png">
 <meta property="article:published_time" content="2021-07-07T14:44:49.000Z">
-<meta property="article:modified_time" content="2021-07-31T15:58:13.290Z">
+<meta property="article:modified_time" content="2021-08-22T15:47:53.746Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -274,7 +274,7 @@
 <p>JVM 只有一个堆区，在 JVM 启动的时候被创建，被所有线程共享，更是垃圾回收的主要战场。<br>堆用于存储对象（包括数组，因为数组也是一种对象），是 JVM 的内存数据区。分为以下几个部分：</p>
 <ul>
 <li><strong>新生代</strong>（<code>YoungGen</code>, Y）<ul>
-<li>= <code>Eden</code>(4/5) + <code>From Survivor</code>(1/10) + <code>To Survivor</code>(1/10)</li>
+<li>= <code>Eden</code>(4/5) + <code>From Survivor</code>(S0, 1/10) + <code>To Survivor</code>(S1, 1/10)</li>
 <li>Eden 空间不足时，存活的对象转移到 Survivor，多个 Survivor 用于交换</li>
 <li>JVM 每次只会使用 Eden 和其中一块 Survivor 来为对象服务，所以无论什么时候，总会有另一块 Survivor 是空闲着的</li>
 <li>因此，新生代实际可用的内存空间为 9/10（即 90%）的新生代空间。</li>
@@ -299,9 +299,10 @@
 <br>
 
 <p><strong><big>2. 方法区 Method Area</big></strong></p>
+<p>方法区是 JVM 的一个<strong>概念</strong>，各个不同的 JVM 有不一样的具体实现，不同版本的 JDK 对应的 JVM 也会根据设计规范有不一样的实现。</p>
 <p>方法区存放的东西有很多，主要包括：</p>
 <ol>
-<li>Object Class Data（类的类定义数据，即类型信息）</li>
+<li>Object Class Data（类的类定义数据，即类信息）</li>
 <li>域（Field）信息</li>
 <li>方法（Method）信息</li>
 <li>即时编译器 JIT 编译后的代码缓存（CodeCache）</li>
@@ -346,7 +347,6 @@
 <p>正是因为方法区所存储的数据与堆有一种类比关系，而且方法区不属于堆的一部分，所以也被称为“非堆” No-Heap。<br>不过，正因为方法区不属于堆，所以它很少会触发垃圾回收，发生内存回收的目的主要是针对<strong>常量池的回收</strong>和<strong>类的卸载</strong>。</p>
 <p><img src="/2021/07/07/jvm-basics/method-area.png"></p>
 <p><big><strong>随 JDK 版本变迁的方法区实现（对于 Hotspot 虚拟机而言）</strong></big></p>
-<p>方法区是 JVM 的一个<strong>概念</strong>，各个不同的 JVM 有不一样的具体实现。这里只讨论 Hotspot 虚拟机：</p>
 <ul>
 <li>Until Java 6：PermGen 被分配在 JVM 堆中，与堆相互隔离，大小在启动 JVM 时固定</li>
 <li>Java 7：将 PermGen 中的静态变量、字符串常量池等移到堆中，其他不变<ul>
@@ -374,9 +374,10 @@
 <h2 id="线程私有区域"><a href="#线程私有区域" class="headerlink" title="线程私有区域"></a><font color="#FFC000">线程私有区域</font></h2><p>包括<strong>程序计数器</strong>、<strong>本地方法栈</strong>和<strong>虚拟机栈</strong>。</p>
 <p><strong><big>1. 程序计数器 Program Counter Register</big></strong></p>
 <ul>
-<li>当前线程执行的字节码的行号位置指示器：正在执行的字节码的地址<ul>
+<li>当前线程执行的非 native 字节码的行号位置指示器：正在执行的字节码的地址<ul>
 <li>类似于操作系统的 PC 计数器</li>
 <li>指定下一条需要执行的虚拟机字节码指令的地址</li>
+<li>对于 native 方法的字节码是空的</li>
 </ul>
 </li>
 <li>指示执行哪条指令，分支、循环、跳转、异常等情况，以及线程恢复等基础功能均依赖其指示来实现；</li>
@@ -384,7 +385,7 @@
 <li>比较小，是唯一没有规定 OOM 的区域。</li>
 </ul>
 <p><strong><big>2. 虚拟机栈 VM Stack</big></strong></p>
-<p>又叫栈内存。线程创建时被创建，线程结束后，内存就被释放。有的翻译译作“Java 方法栈”的，大概是因为它描述的是 Java <strong>方法执行</strong>时的内存模型。</p>
+<p>又叫<strong>栈</strong>内存。线程创建时被创建，线程结束后，内存就被释放。有的翻译译作“Java 方法栈”的，大概是因为它描述的是 Java <strong>方法执行</strong>时的内存模型。</p>
 <p>我们都知道，Java 指令是由<strong>操作码</strong>（方法本身）和<strong>操作数</strong>（方法内部变量）组成的。操作码保存在栈内存中；操作数跟在操作码之后，具体有<strong>两种</strong>：基本类型变量保存在栈中，对象类型变量将地址保存在栈中，将值保存在堆中。</p>
 <p>也就是说，Java 对象<strong>方法本身</strong>、<strong>基本类型变量</strong>和<strong>对象地址</strong>都存储在虚拟机栈里。</p>
 <ul>
@@ -404,7 +405,7 @@
 </ul>
 <p>注意区分：<font color="#548235">方法区</font>存储的是<strong>常量和静态变量</strong>，而<font color="#FFC000">栈</font>存储的是<strong>方法内部（局部）变量</strong>，即：类的方法是该类的所有对象共享的，而类的成员变量在不同对象中各不相同。</p>
 <p>每个虚拟机栈的栈帧存储了：</p>
-<p><strong>1. 局部变量表 Local Variables</strong></p>
+<p><strong>a. 局部变量表 Local Variables</strong></p>
 <ul>
 <li>是一个以一个字长（8 bits）为单位、从 0 开始计数的数组：通过 index 索引访问</li>
 <li>存放了编译期可知的各种基本数据类型，以及对象的引用</li>
@@ -416,16 +417,17 @@
 </li>
 <li>其内存空间在编译期完成分配，运行时也不会被改变</li>
 </ul>
-<p><strong>2. 操作数栈 Operand Stack</strong></p>
+<p><strong>b. 操作数栈 Operand Stack</strong></p>
 <ul>
 <li>结构与局部变量表一致，但对它的访问是通过 push 和 pop 操作来进行的，而不是通过索引；</li>
 <li>可以被看成是栈帧所对应的方法的计算过程中，数据的临时存储区域</li>
 </ul>
-<p><strong>3. 帧数据 Frame Data</strong></p>
+<p><strong>c. 帧数据 Frame Data</strong></p>
 <p>包括：</p>
 <ul>
 <li>解析方法内引用的常量池中的数据</li>
-<li>保存返回地址 Return Address（指向下一条字节码指令的地址），用于方法执行完后返回，恢复调用方的现场</li>
+<li>保存动态链接（指向下一条字节码指令的地址）</li>
+<li>保存方法出口，用于方法执行完后返回，恢复调用方的现场</li>
 <li>保存异常表，用于方法执行过程中抛出异常时的异常处理<ul>
 <li>当出现异常时，虚拟机查找相对应的异常表看是否有对应的 catch 语句</li>
 <li>如没有就抛出异常终止该方法调用</li>
@@ -435,7 +437,7 @@
 <p><strong><big>3. 本地方法栈 Native Method Stack</big></strong></p>
 <ul>
 <li>与虚拟机栈作用类似</li>
-<li>虚拟机栈为 JVM 提供执行 Java 方法的服务，而本地方法栈则是为 JVM 提供执行 native 方法的服务</li>
+<li>区别在于：虚拟机栈为 JVM 提供执行 Java 方法的服务，而本地方法栈则是为 JVM 提供执行 native 方法的服务</li>
 </ul>
 <br>
 
@@ -585,7 +587,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-count">36</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
