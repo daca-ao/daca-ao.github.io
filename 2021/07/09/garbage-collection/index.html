@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/cms_gc.jpg">
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/g1_gc.png">
 <meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
-<meta property="article:modified_time" content="2021-08-21T15:13:08.956Z">
+<meta property="article:modified_time" content="2021-08-23T15:04:55.419Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -265,7 +265,7 @@
 <li><p>本地方法栈中引用的对象。</p>
 </li>
 </ul>
-<p>GC roots 不可达的对象将会被回收。</p>
+<p>从根结点开始去访问某些对象，如果能被访问到，就将这些对象是<strong>可触及的</strong>。从 GC roots 开始，不可触及（不可达）的对象将会被回收。</p>
 <br>
 
 <p><img src="/2021/07/09/garbage-collection/root-search.png"></p>

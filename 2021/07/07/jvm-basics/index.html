@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/memory-allocate.png">
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/object-allocate.png">
 <meta property="article:published_time" content="2021-07-07T14:44:49.000Z">
-<meta property="article:modified_time" content="2021-08-22T16:00:33.181Z">
+<meta property="article:modified_time" content="2021-08-23T14:55:34.525Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -289,7 +289,7 @@
 <ul>
 <li>存在于 Java 8 之前的 Hotspot 虚拟机中，其他类型 JVM 没有这个概念</li>
 <li>从 Java 8 开始，PermGen 被取消，以 Metaspace 元空间代替</li>
-<li>存放 Class 和 Meta 信息等，GC 时一般不清理。</li>
+<li>内存的永久保存区域，存放 Class 和 Meta 信息等，GC 时不清理。</li>
 </ul>
 <p>实际上，堆只保存对象实例的<strong>属性类型</strong>、<strong>属性值</strong>（多数在常量池中）、<strong>运行时数据</strong>和<strong>对象本身类型标记</strong>（在<a href="/2021/07/16/object-header">对象头</a>中）等，并不保存对象的方法（保存在栈里）。</p>
 <p>要注意的是，在创建一个对象的时候：</p>
@@ -302,7 +302,7 @@
 <p>方法区是 JVM 的一个<strong>概念</strong>，各个不同的 JVM 有不一样的具体实现，不同版本的 JDK 对应的 JVM 也会根据设计规范有不一样的实现。</p>
 <p>方法区存放的东西有很多，主要包括：</p>
 <ol>
-<li>Object Class Data（类的类定义数据，即类信息）</li>
+<li>Object Class Data（类的类定义数据，即类型信息）</li>
 <li>域（Field）信息</li>
 <li>方法（Method）信息</li>
 <li>即时编译器 JIT 编译后的代码缓存（CodeCache）</li>
@@ -366,7 +366,8 @@
 <ol>
 <li>设置的永久区空间大小，不太好确定，更容易遇到内存溢出的问题</li>
 <li>垃圾回收的时候会扫描永久区：耗时</li>
-<li>对永久区调优比较困难</li>
+<li>而且对永久区的调优是比较困难的</li>
+<li>Hotspot 为了能与 Oracle JRockit（没有永久区）合并而做的改动</li>
 </ol>
 <br>
 <br>
@@ -392,6 +393,7 @@
 <li>每个方法开始执行时创建栈帧（stack frame），压入虚拟机栈；执行结束时栈帧出栈<ul>
 <li>返回至返回地址（Return Address，即指针）</li>
 <li>每个<strong>方法使用时才会被压入栈</strong>，方法不被使用时则不占用内存</li>
+<li>栈顶对应于<strong>正在执行</strong>的方法</li>
 </ul>
 </li>
 <li>每个栈帧对应于一个方法名，就是一个方法的内存模型<ul>
@@ -407,7 +409,7 @@
 <p><strong>a. 局部变量表 Local Variables</strong></p>
 <ul>
 <li>是一个以一个字长（8 bits）为单位、从 0 开始计数的数组：通过 index 索引访问</li>
-<li>存放了编译期可知的各种基本数据类型，以及对象的引用</li>
+<li>存放了编译期可知（作用域）的各种基本数据类型，以及对象的引用</li>
 <li><code>short</code>、<code>byte</code>、<code>char</code> 和 <code>boolean</code> 等类型变量值在存入该数组前要被转换成 <strong><code>int</code></strong> 值</li>
 <li>而 <code>long</code> 和 <code>double</code> 因为在数组中会占据连续的两项：<ul>
 <li>在访问局部变量中的 <code>long</code> 或 <code>double</code> 时，只需取出连续两项的第一项的索引值即可</li>
@@ -419,7 +421,7 @@
 <p><strong>b. 操作数栈 Operand Stack</strong></p>
 <ul>
 <li>结构与局部变量表一致，但对它的访问是通过 push 和 pop 操作来进行的，而不是通过索引；</li>
-<li>可以被看成是栈帧所对应的方法的计算过程中，数据的临时存储区域</li>
+<li>可以被看成是栈帧所对应的方法的计算过程中，数据的临时存储区域，可以保存中间结果</li>
 </ul>
 <p><strong>c. 帧数据 Frame Data</strong></p>
 <p>包括：</p>
@@ -440,9 +442,11 @@
 </ul>
 <br>
 
-<p>比如：一个 Java 类中定义了 doMath() 方法。</p>
+<p>例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StackFrameTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        StackFrameTest test = <span class="keyword">new</span> StackFrameTest();</span><br><span class="line">        test.method1(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">2</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;method1 i = &quot;</span> + i);</span><br><span class="line">        method2(i, num);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">3</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;method2 i = &quot;</span> + i + <span class="string">&quot;, j = &quot;</span> + j);</span><br><span class="line">        method3(i, j, num);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method3</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j, <span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">4</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;method3 i = &quot;</span> + i + <span class="string">&quot;, j = &quot;</span> + j + <span class="string">&quot;, x = &quot;</span> + x);</span><br><span class="line">        method4(i, j, x, num);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method4</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j, <span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;method3 i = &quot;</span> + i + <span class="string">&quot;, j = &quot;</span> + j + <span class="string">&quot;, x = &quot;</span> + x + <span class="string">&quot;, y = &quot;</span> + y);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <ul>
-<li>执行该方法的时候，除了 main 栈帧及其它方法对应的栈帧之外，栈帧 doMath 的变量表、操作数栈、帧数据的变化，以及程序计数器、本地方法栈等如下图：</li>
+<li>执行 main() 方法时，对应栈帧的变量表、操作数栈、帧数据的变化，以及程序计数器、本地方法栈等如下图：</li>
 </ul>
 <p><img src="/2021/07/07/jvm-basics/vm-stack.png"></p>
 <br>
