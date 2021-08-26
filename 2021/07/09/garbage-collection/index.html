@@ -39,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/cms_gc.jpg">
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/g1_gc.png">
 <meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
-<meta property="article:modified_time" content="2021-08-26T15:07:04.242Z">
+<meta property="article:modified_time" content="2021-08-26T15:10:44.406Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -377,7 +377,7 @@
 <p>当堆空间很大的时候，执行一次 GC 会非常耗时。</p>
 <p><img src="/2021/07/09/garbage-collection/division.jpg"></p>
 <p>分区算法的好处是：可以<strong>控制一次回收多少小空间，而不是整个堆</strong>，避免 GC 时间过长，造成系统停顿。</p>
-<p>如上：绿转白的是指定回收的内存块。</p>
+<p>如上：绿转白的是指定回收的内存块，可通过设置垃圾占比阈值来控制回收与否。</p>
 <br>
 
 <h1 id="回收策略"><a href="#回收策略" class="headerlink" title="回收策略"></a>回收策略</h1><p>JVM 的 GC 算法为<strong>分代收集</strong>，具体的设计为：</p>
