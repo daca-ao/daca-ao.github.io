@@ -27,16 +27,17 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="消息队列是中间件的一种，是分布式系统中非常重要的组件。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2021/07/20/mq/amqp.webp">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-p2p.png">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-ps.png">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-psg.png">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-api.png">
 <meta property="article:published_time" content="2021-07-19T17:12:34.000Z">
-<meta property="article:modified_time" content="2021-08-30T12:39:52.774Z">
+<meta property="article:modified_time" content="2021-08-30T14:41:56.947Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2021/07/20/mq/jms-p2p.png">
+<meta name="twitter:image" content="http://example.com/2021/07/20/mq/amqp.webp">
 
 <link rel="canonical" href="http://example.com/2021/07/20/mq/">
 
@@ -313,13 +314,14 @@
 <li>绑定 Binding：决定交换器将信息投递到队列的规则</li>
 </ol>
 <p><strong>基本模型</strong>：</p>
+<p><img src="/2021/07/20/mq/amqp.webp"></p>
 <ol>
 <li>消息发布者 Publisher 利用接口，将消息发布（publish）到 Exchange 中<ul>
 <li>消息一般包含消息体（payload）和标签（label）</li>
 </ul>
 </li>
 <li>消息订阅者（消费者，Consumer）利用接口创建 Queue，并绑定到 Exchange，接收所期望的消息</li>
-<li>Exchange 会按照一定的路由规则（route）将消息分发至对应的 Queue</li>
+<li>Exchange 会按照一定的路由规则（route）确定各种绑定（Binding），将消息分发至对应的 Queue</li>
 <li>Consumer 发现 Queue 中有消息，就会将消息消耗（consume）掉<ul>
 <li>消耗时只消费消息体，丢弃标签</li>
 </ul>
@@ -329,7 +331,10 @@
 <ul>
 <li>Publisher 为发布者（生产者）</li>
 <li>Consumer 为订阅者（消费者）</li>
-<li>AMQP 协议扮演消息代理（Message Broker）的角色：维护生产-消费路线，保证数据按照指定的方式进行传输。</li>
+<li>AMQP 协议扮演消息代理（Message Broker）的角色：维护生产-消费路线，保证数据按照指定的方式进行传输。<ul>
+<li>Exchange, Bindings 和 Queues 合起来就是消息队列服务器实体，也就是 Broker</li>
+</ul>
+</li>
 </ul>
 <p>AMQP 的三层协议：</p>
 <p><strong>Module Layer</strong>：协议最高层</p>
@@ -375,7 +380,7 @@
 <li>这样订阅者很容易实现消费能力线性扩展</li>
 </ul>
 <p><img src="/2021/07/20/mq/jms-psg.png"></p>
-<p>编程接口：</p>
+<p>JMS 编程接口：</p>
 <p><img src="/2021/07/20/mq/jms-api.png"></p>
 <h2 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h2><table>
 <thead>
@@ -472,13 +477,13 @@
 <p>消息延迟推送应用：</p>
 <p><strong>1</strong>. 淘宝七天自动确认收货</p>
 <ul>
-<li>签收后，物流系统在七天后延时发送一个消息给支付系统，通知支付系统七天后将款项打给商家</li>
+<li>签收后，物流系统在七天后延时发送一个消息给支付系统，通知支付系统七天后将款项打给商家。</li>
 </ul>
 <p><strong>2</strong>. 12306 购票支付确认界面</p>
 <ul>
 <li>选好票点击确定跳转的页面往往会有倒计时</li>
 <li>如 30 分钟内订单不确认将自动取消订单</li>
-<li>如 30 分钟内完成订单，则根据逻辑代码确定忽略接收到的延时信息</li>
+<li>如 30 分钟内完成订单，则根据逻辑代码确定忽略接收到的延时信息。</li>
 </ul>
 
     </div>
