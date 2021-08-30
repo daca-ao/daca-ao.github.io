@@ -28,7 +28,7 @@
 <meta property="og:description" content="数据库索引的本质是一种数据结构。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-28T15:08:51.000Z">
-<meta property="article:modified_time" content="2021-08-29T15:56:00.507Z">
+<meta property="article:modified_time" content="2021-08-30T12:16:31.618Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary">
@@ -203,7 +203,7 @@
 <span id="more"></span>
 
 <p>索引是定义在<strong>数据表</strong>的基础之上的，包括某个表中一列或若干列值，以及指向相对应数据页的逻辑指针。</p>
-<p>建立索引的意义，在于能够通过缩小一张表中需要查询的记录/行的数目，来加快搜索所需数据的速度。<br>相当于图书的目录，可根据目录的页码快速找到所需内容</p>
+<p>建立索引的意义，在于能够通过缩小一张表中需要查询的记录/行的数目，来加快搜索所需数据的速度。<br>相当于图书的目录，可根据目录的页码快速找到所需内容。</p>
 <p>一个好的数据库表设计，从一开始就应考虑添加索引。<br>因为索引数据的存储是有序的，通过查询索引数据去找东西，不需要遍历所有记录。<br>最极端情况也就是：索引查询的效率等于二分法查询，趋近于 <code>log2(N)</code>。</p>
 <h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>索引最大的优点，是能够大大加快数据的检索速度。这是创建索引的最主要原因。</p>
 <ul>
@@ -225,8 +225,10 @@
 </ul>
 <h1 id="设计原则"><a href="#设计原则" class="headerlink" title="设计原则"></a>设计原则</h1><ul>
 <li>对于经常查询的字段，建议创建索引</li>
-<li>索引不是越多越好：表如果有大量索引，不仅占用磁盘空间，而且影响 insert，delete，update 等语句的性能</li>
-<li>避免对经常更新的表进行过多的索引：表中数据更改的同时，索引也会进行调整和更新，十分消耗系统资源</li>
+<li>索引不是越多越好：表如果有大量索引，不仅占用磁盘空间，而且影响 insert，delete，update 等语句的性能<ul>
+<li>所以：避免对经常更新的表进行过多的索引，因为表中数据被更改的同时，索引也会进行调整和更新，十分消耗系统资源</li>
+</ul>
+</li>
 <li>数据量小的表建议不要创建索引：此时索引不仅起不到明显的优化效果，对于索引结构的维护反而消耗系统资源</li>
 <li>不要在区分度低的字段建立索引：如性别字段，只有“男”“女”，建索引完全起不到优化效果</li>
 <li>当唯一性是某字段本身的特征时，指定唯一索引能提高查询字段</li>
@@ -234,7 +236,7 @@
 </ul>
 <h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>采用的数据结构：B-Tree</p>
 <p>为什么不使用 Hash 搜索呢？</p>
-<p>Hash 的查询、插入、修改、删除的平均时间为 <code>O(1)</code>，而树的对应复杂度则为 <code>O(log(n))</code>。<br>对于单行查询的需求，Hash 索引更快；但 SQL 的应用场景多为排序（order by）、分组（group by）和比较大小等操作，如果仍然使用 Hash，时间会退化为 <code>O(n)</code>。<br>所以根据 SQL 的需求，索引一般设计为树。</p>
+<p>Hash 的查询、插入、修改、删除的平均时间为 <code>O(1)</code>，而树的对应复杂度则为 <code>O(log(n))</code>。<br>对于单行查询的需求，Hash 索引更快；但 SQL 的应用场景多为排序（order by）、分组（group by）和比较大小等操作，如果仍然使用 Hash，时间会退化为 <code>O(n)</code>。<br>所以根据 SQL 的需求，索引一般设计为树的数据结构。</p>
 
     </div>
 
