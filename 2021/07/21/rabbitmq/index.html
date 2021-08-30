@@ -28,7 +28,7 @@
 <meta property="og:description" content="RabbitMQ 是由 Erlang 语言开发的 AMQP 的开源实现。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-21T05:43:29.000Z">
-<meta property="article:modified_time" content="2021-08-30T15:18:47.905Z">
+<meta property="article:modified_time" content="2021-08-30T16:02:16.778Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -237,14 +237,17 @@
 <li>消费者</li>
 <li>代理：RabbitMQ 本身，自身不产生消息</li>
 </ul>
-<p>重要组件：</p>
+<p>至于细化到内部，基本上也是 AMQP 的相关概念：</p>
+<p>![]</p>
+<p>如上图所示，除了消息 Message 之外，还包括：</p>
+<p>Publisher</p>
 <ul>
-<li>ConnectionFactory（连接管理器）：应用程序与 RabbitMQ 之间建立连接的管理器，在程序代码中使用</li>
 <li>Channel（信道）：消息推送使用的通道</li>
 <li>Exchange（交换器）：用于接收、分发消息</li>
 <li>Queue（队列）：存储生产者的消息</li>
 <li>RoutingKey（路由键）：将发布者的数据按照某种规则分配到交换器上</li>
 <li>BindingKey（绑定键）：将交换器的消息绑定到队列上</li>
+<li>ConnectionFactory（连接管理器）：应用程序与 RabbitMQ 之间建立连接的管理器，在程序代码中使用</li>
 </ul>
 <br>
 
