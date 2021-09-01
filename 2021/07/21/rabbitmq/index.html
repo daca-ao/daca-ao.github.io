@@ -34,8 +34,14 @@
 <meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/fanout-exchange.png">
 <meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/topic-exchange.png">
 <meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/fair-dispatch.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/mail-serial.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/mail-parallel.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/mail-mq.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/coupling.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/decoupling.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/flow-cut.png">
 <meta property="article:published_time" content="2021-07-21T05:43:29.000Z">
-<meta property="article:modified_time" content="2021-09-01T05:52:47.220Z">
+<meta property="article:modified_time" content="2021-09-01T14:04:27.877Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -439,25 +445,63 @@
 <p>RabbitMQ 集群要求最少有一个磁盘节点。</p>
 <br>
 
-<h1 id="死信队列"><a href="#死信队列" class="headerlink" title="死信队列"></a>死信队列</h1><br>
+<h1 id="死信队列"><a href="#死信队列" class="headerlink" title="死信队列"></a>死信队列</h1><p>先说说什么叫死信。</p>
+<p>当一个消息遇到以下情况：</p>
+<ul>
+<li>被拒（Basic.Reject / Basic.Nack），而且达到了 retry 上限，或者 requeue = false，不能重新进入队列；</li>
+<li>消息 TTL（time to live）过期；</li>
+<li>队列已满（x-max-length），无法再添加。</li>
+</ul>
+<p>这样的消息被称为<strong>死信</strong>（<strong>D</strong>ead <strong>L</strong>etter）。</p>
+<p>当一个消息在队列中变为死信之后，它将被重新投递到另一个 Exchange 中，这个 Exchange 叫做死信交换器（<strong>D</strong>ead-<strong>L</strong>etter e<strong>X</strong>change, <strong>DLX</strong>）。</p>
+<p>DLX 根据 routing key 所绑定的 Queue 就是<strong>死信队列</strong>。</p>
+<p>设置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Exchange:</span> <span class="string">dlx.exchange</span></span><br><span class="line"><span class="attr">Queue:</span> <span class="string">dlx.queue</span></span><br><span class="line"><span class="attr">RoutingKey:</span> <span class="comment">#</span></span><br><span class="line"><span class="comment"># 表示只要有消息到达了 Exchange，那么都会路由到这个 queue 上</span></span><br></pre></td></tr></table></figure>
 
-<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+<p>死信队列接收消息后并不消费该消息，所以可以监听死信队列中的消息做相应的处理。</p>
+<br>
 
+<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Connection 的制造工厂</span></span><br><span class="line"><span class="keyword">import</span> com.rabbitmq.client.ConnectionFactory;</span><br><span class="line"></span><br><span class="line"><span class="comment">// RabbitMQ 的 socket（TCP）连接，封装了 socket 协议相关逻辑</span></span><br><span class="line"><span class="keyword">import</span> com.rabbitmq.client.Connection;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 网络信道，消息读写的通道，与 RabbitMQ 打交道的主要接口</span></span><br><span class="line"><span class="keyword">import</span> com.rabbitmq.client.Channel;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 几乎所有操作都在 channel 对象中进行，包括：</span></span><br><span class="line"><span class="comment"> *    定义 Exchange 和 Queue</span></span><br><span class="line"><span class="comment"> *    绑定 Exchange 和 Queue</span></span><br><span class="line"><span class="comment"> *    发布消息</span></span><br><span class="line"><span class="comment"> * 客户端基于一个 Connection 可建立多个 channel 实例，</span></span><br><span class="line"><span class="comment"> * 即一个 TCP 连接上建立多个 RabbitMQ 会话，大大节省资源</span></span><br><span class="line"><span class="comment"> * 每个 channel 表示一个会话任务</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><p>异步处理</p>
-<p>场景：用户注册后需要发送注册邮件和注册短信<br>传统设计：</p>
+<p>比如：设置公平分发</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> prefetchCount = <span class="number">1</span>;</span><br><span class="line">channel.basicQos(prefetchCount);</span><br></pre></td></tr></table></figure>
+
+<p>比如：设置消费者不消费消息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">channel.basicNack()</span><br><span class="line">channel.basicReject(messageId, <span class="keyword">true</span>)  <span class="comment">// 消息被分配到其他订阅者</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>延迟队列</strong>：存储对应的延迟消息</p>
+<ul>
+<li>当消息被发送以后，并不想让消费者立即拿到消息</li>
+<li>等待特定的时间后，消费者才能拿到这个消息进行消费</li>
+</ul>
+<p>实现：</p>
+<ul>
+<li>3.6.x -：采用死信队列 + TTL 过期时间实现延迟队列</li>
+<li>3.6.x +：官方提供延迟队列插件，下载放置 RabbitMQ 根目录的 plugin/ 下</li>
+</ul>
+<p><strong>优先级队列</strong>：优先级高的队列会先被消费</p>
+<ul>
+<li>可通过 <code>x-max-priority</code> 参数实现</li>
+<li>当消费速度大于生产速度，且 Broker 没有堆积时：优先级显得没有意义</li>
+</ul>
+<br>
+
+<h2 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h2><h3 id="异步处理"><a href="#异步处理" class="headerlink" title="异步处理"></a><strong>异步处理</strong></h3><p>场景：用户注册后需要发送注册邮件和注册短信</p>
+<p>传统设计：</p>
 <ul>
 <li>串行化：将注册信息写入数据库后，先发送注册邮件再发送注册短信<ul>
 <li>以上三个任务全部完成后才返回给客户端</li>
 </ul>
 </li>
 </ul>
+<p><img src="/2021/07/21/rabbitmq/mail-serial.png"></p>
 <ul>
 <li>并行化：将注册信息写入数据库后，发送邮件的同时发送短信<ul>
 <li>以上三个任务全部完成后才返回给客户端</li>
 </ul>
 </li>
 </ul>
+<p><img src="/2021/07/21/rabbitmq/mail-parallel.png"></p>
 <p>新设计：消息队列</p>
 <ul>
 <li>前提：邮件和短信对用户正常使用网站没有任何影响<ul>
@@ -467,9 +511,10 @@
 <li>将不是必须的业务逻辑（发送邮件、短信）异步处理</li>
 <li>响应时间大大缩短</li>
 </ul>
-<p>应用解耦</p>
-<p>场景：在电商应用中，用户下单后，订单系统通知库存系统</p>
+<p><img src="/2021/07/21/rabbitmq/mail-mq.png"></p>
+<h3 id="应用解耦"><a href="#应用解耦" class="headerlink" title="应用解耦"></a><strong>应用解耦</strong></h3><p>场景：在电商应用中，用户下单后，订单系统通知库存系统</p>
 <p>传统设计：订单系统直接调用库存系统接口</p>
+<p><img src="/2021/07/21/rabbitmq/coupling.png"></p>
 <p>缺点：</p>
 <ul>
 <li>库存系统出现故障时，订单就会失败</li>
@@ -482,20 +527,20 @@
 <li>即使库存系统奔溃，消息队列也能保证消息可靠传递，不会导致消息丢失</li>
 <li>即使用 MQ 进行 RPC 通信的分布式系统</li>
 </ul>
-<p>流量削峰</p>
-<p>场景：秒杀活动，一般会因为瞬时流量过大导致应用宕机</p>
+<p><img src="/2021/07/21/rabbitmq/decoupling.png"></p>
+<h3 id="流量削峰"><a href="#流量削峰" class="headerlink" title="流量削峰"></a><strong>流量削峰</strong></h3><p>场景：秒杀活动，一般会因为瞬时流量过大导致应用宕机</p>
 <p>设计：一般在应用前端引入消息队列</p>
 <ol>
 <li>服务器收到用户请求后，首先写入消息队列</li>
 <li>加入消息队列长度超过最大值：直接抛弃用户请求，或跳转到错误页面</li>
 <li>秒杀业务根据消息队列中的请求，再作后续的处理</li>
 </ol>
+<p><img src="/2021/07/21/rabbitmq/flow-cut.png"></p>
 <p>作用：</p>
 <ul>
 <li>控制活动人数，超过一定阀值的订单直接丢弃</li>
 <li>可避免短时间的高流量压垮应用，应用按照自身最大处理能力获取订单</li>
 </ul>
-<p>（待补充）</p>
 
     </div>
 
@@ -579,7 +624,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">运行机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Exchange"><span class="nav-number">2.1.</span> <span class="nav-text">Exchange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">任务分发机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E8%BF%90%E8%BD%AC"><span class="nav-number">2.3.</span> <span class="nav-text">生产者消息运转</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E6%8E%A5%E6%94%B6%E6%B6%88%E6%81%AF%E6%B5%81%E7%A8%8B"><span class="nav-number">2.4.</span> <span class="nav-text">消费者接收消息流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E5%9F%BA%E4%BA%8E-TCP"><span class="nav-number">2.5.</span> <span class="nav-text">为啥不直接基于 TCP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">消息稳定性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">消息持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">3.2.</span> <span class="nav-text">消息确认机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">集群化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97"><span class="nav-number">4.</span> <span class="nav-text">死信队列</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.1.</span> <span class="nav-text">应用场景</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">运行机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Exchange"><span class="nav-number">2.1.</span> <span class="nav-text">Exchange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">任务分发机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E8%BF%90%E8%BD%AC"><span class="nav-number">2.3.</span> <span class="nav-text">生产者消息运转</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E6%8E%A5%E6%94%B6%E6%B6%88%E6%81%AF%E6%B5%81%E7%A8%8B"><span class="nav-number">2.4.</span> <span class="nav-text">消费者接收消息流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E5%9F%BA%E4%BA%8E-TCP"><span class="nav-number">2.5.</span> <span class="nav-text">为啥不直接基于 TCP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">消息稳定性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">消息持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">3.2.</span> <span class="nav-text">消息确认机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">集群化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97"><span class="nav-number">4.</span> <span class="nav-text">死信队列</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.1.</span> <span class="nav-text">应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86"><span class="nav-number">5.1.1.</span> <span class="nav-text">异步处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E8%A7%A3%E8%80%A6"><span class="nav-number">5.1.2.</span> <span class="nav-text">应用解耦</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E5%89%8A%E5%B3%B0"><span class="nav-number">5.1.3.</span> <span class="nav-text">流量削峰</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
