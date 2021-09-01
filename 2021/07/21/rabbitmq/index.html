@@ -27,11 +27,19 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="RabbitMQ 是由 Erlang 语言开发的 AMQP 的开源实现。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/rabbitmq.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/exchange.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/queue.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/direct-exchange.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/fanout-exchange.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/topic-exchange.png">
+<meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/fair-dispatch.png">
 <meta property="article:published_time" content="2021-07-21T05:43:29.000Z">
-<meta property="article:modified_time" content="2021-08-30T16:02:16.778Z">
+<meta property="article:modified_time" content="2021-08-31T17:50:13.787Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/07/21/rabbitmq/rabbitmq.png">
 
 <link rel="canonical" href="http://example.com/2021/07/21/rabbitmq/">
 
@@ -238,20 +246,120 @@
 <li>代理：RabbitMQ 本身，自身不产生消息</li>
 </ul>
 <p>至于细化到内部，基本上也是 AMQP 的相关概念：</p>
-<p>![]</p>
-<p>如上图所示，除了消息 Message 之外，还包括：</p>
-<p>Publisher</p>
+<p><img src="/2021/07/21/rabbitmq/rabbitmq.png"></p>
+<p>如上图所示，具体包括：</p>
+<p><strong>Message</strong>：包括消息体和 Routing Key 和 properties（消息优先级、延迟等特性）等消息头信息。</p>
+<p><strong>Publisher</strong>：消息生产者。在 RabbitMQ 中是一个向 Exchange 发布消息的客户端应用程序 Client。</p>
+<p><strong>Exchange</strong>：交换器。用于接收生产者发送的消息，并且分发消息给队列 Queue。</p>
+<p><img src="/2021/07/21/rabbitmq/exchange.png"></p>
+<p><strong>RoutingKey</strong>：路由键。将 Publisher 的数据按照某种规则分配到特定 Exchange 上。</p>
+<p><strong>Binding</strong>：绑定。基于 Binding Key 将 Exchange 和 Queue 之间连接起来，组成一个路由规则。Exchange 可以被理解为是由多个 Binding 组成的路由表。</p>
+<p><strong>BindingKey</strong>：绑定键。指定了 Exchange 和相应 Queue 之间的 binding key 之后，Exchange 根据对应的关系，将消息推送到相应的 Queue 中。</p>
 <ul>
-<li>Channel（信道）：消息推送使用的通道</li>
-<li>Exchange（交换器）：用于接收、分发消息</li>
-<li>Queue（队列）：存储生产者的消息</li>
-<li>RoutingKey（路由键）：将发布者的数据按照某种规则分配到交换器上</li>
-<li>BindingKey（绑定键）：将交换器的消息绑定到队列上</li>
-<li>ConnectionFactory（连接管理器）：应用程序与 RabbitMQ 之间建立连接的管理器，在程序代码中使用</li>
+<li>多个 Binding 允许使用相同的 binding key 将多个 Queue 与同一个 Exchange 绑定。</li>
+</ul>
+<p><strong>Queue</strong>：队列，存储消息，先进先出。</p>
+<p><img src="/2021/07/21/rabbitmq/queue.png"></p>
+<p>结构通常分为两部分：</p>
+<p><code>rabbit_amqqueue_process</code>：负责协议（AMQP）相关的消息处理，包括：</p>
+<ul>
+<li>接收生产者发布的消息</li>
+<li>向消费者交付消息</li>
+<li>处理消息的确认（生产端的 confirm，消费端的 ack 等）</li>
+</ul>
+<p><code>backing_queue</code>：消息存储的具体形式和引擎</p>
+<ul>
+<li>向 rabbit_amqqueue_process 提供相关接口以供调用</li>
+</ul>
+<p><strong>Connection</strong>：网络连接，比如一个 TCP 连接</p>
+<ul>
+<li>另：<strong>ConnectionFactory</strong>：连接管理器。应用程序与 RabbitMQ 之间建立连接的管理器，在程序代码中使用。</li>
+</ul>
+<p><strong>Channel</strong>：信道。消息推送使用的通道，是多路复用连接中的一条独立的双向数据流通道。</p>
+<ul>
+<li>AMQP 无论是发布消息、订阅队列还是接收消息，都是通过信道完成。</li>
+<li>一个 Connection 中有一个或多个 Channel</li>
+</ul>
+<p><strong>Consumer</strong>：消息消费者。在 RabbitMQ 中表示一个从 Queue 中获取消息客户端应用程序 Client。</p>
+<p><strong>Virtual Host</strong>（vhost）：虚拟主机，AMQP 概念的基础，必须在连接时指定。本质上就是一个 mini 版的 RabbitMQ 服务器。</p>
+<ul>
+<li>每一个 vhost 拥有自己的 Exchange、Queue、Binding 和权限机制</li>
+<li>同一个 vhost 里可以有多个 Exchange 和 Queue，但不能有同名的 Exchange 或 Queue</li>
+<li>每个 RabbitMQ 服务器均可创建 vhost，默认为 “/“</li>
+</ul>
+<p><strong>Broker</strong>：表示消息队列服务器实体。</p>
+<p>自动创建队列的问题：</p>
+<ul>
+<li>消费者和生产者都可以创建队列</li>
+<li>如创建了一个已经存在的队列：不会有任何的影响</li>
 </ul>
 <br>
 
-<h1 id="运行机制"><a href="#运行机制" class="headerlink" title="运行机制"></a>运行机制</h1><h2 id="Exchange"><a href="#Exchange" class="headerlink" title="Exchange"></a>Exchange</h2><h2 id="任务分发机制"><a href="#任务分发机制" class="headerlink" title="任务分发机制"></a>任务分发机制</h2><h2 id="为啥不直接基于-TCP"><a href="#为啥不直接基于-TCP" class="headerlink" title="为啥不直接基于 TCP"></a>为啥不直接基于 TCP</h2><p>channel 通过建立真实 TCP 连接建立虚拟连接：</p>
+<h1 id="运行机制"><a href="#运行机制" class="headerlink" title="运行机制"></a>运行机制</h1><p>基本上分为两种：交换（Exchange）机制和分发机制。</p>
+<h2 id="Exchange"><a href="#Exchange" class="headerlink" title="Exchange"></a>Exchange</h2><p><strong>1. Direct Exchange</strong></p>
+<ul>
+<li>RabbitMQ 默认的交换方式，采用轮询方式</li>
+<li>发送至 routing key = binding key 的订阅者（Queue），类似于点对点</li>
+<li>其他不相等的 routing key 的消息会被丢弃</li>
+</ul>
+<p><img src="/2021/07/21/rabbitmq/direct-exchange.png"></p>
+<p><strong>2. Fanout Exchange</strong></p>
+<ul>
+<li>发送（route）至与该 Exchange 绑定的所有订阅者（Queue），类似于广播</li>
+<li>最快的转发</li>
+</ul>
+<p><img src="/2021/07/21/rabbitmq/fanout-exchange.png"></p>
+<p><strong>3. Topic Exchange</strong></p>
+<ul>
+<li>采用匹配模式</li>
+<li>发送至 routing key 与 binding key <strong>模糊匹配</strong>的订阅者（Queue）</li>
+<li>约定：<ul>
+<li>routing key 为用点号分隔的字符串，binding key 与其模式相同 </li>
+<li>binding key 可使用 *（匹配一个单词）和 #（匹配多个或 0 个单词）用于模糊匹配</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2021/07/21/rabbitmq/topic-exchange.png"></p>
+<p>根据上图的模糊匹配，比如有下面不同的 routing key：</p>
+<ul>
+<li>routing key = F.C.E：路由到 Queue1</li>
+<li>routing key = A.C.E：路由到 Queue1 和 Queue2</li>
+<li>routing key = A.F.B：路由到 Queue2</li>
+</ul>
+<p><strong>4. Headers Exchange</strong></p>
+<ul>
+<li>采用轮询方式</li>
+<li>通过消息头订阅，不依赖于 routing key 和 binding key 的匹配规则<ul>
+<li>消息发布前为消息定义一个或多个键值对的消息头</li>
+<li>消费者在接收消息的同时，需要定义类似的键值对请求头</li>
+<li>请求头与消息头匹配才可接收消息</li>
+</ul>
+</li>
+<li>和 Direct 方式完全一致，但性能差很多，基本用不到</li>
+</ul>
+<h2 id="任务分发机制"><a href="#任务分发机制" class="headerlink" title="任务分发机制"></a>任务分发机制</h2><p><strong>1. Round-robin Dispatching</strong>：循环分发，轮询</p>
+<ul>
+<li>场景：多个消费者订阅同一个 Queue：Queue 消息平分给其他消费者</li>
+<li>默认：RabbitMQ 不会顾虑消费者处理消息的能力，即使其中有的消费者闲置过久，有的却高负荷工作<ul>
+<li>问题：资源分配不均，有的消费者持续工作，其他的持续空闲</li>
+</ul>
+</li>
+<li>RabbitMQ 会逐个发送消息到在序列中的下一个消费者<ul>
+<li>不考虑每个任务的时长等，且是提前一次性分配，并非一个个分配</li>
+<li>平均每个消费者获得相同数量的消息</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. Fair Dispatch</strong>：公平分发<br>根据消费者的消费能力进行分发处理</p>
+<ul>
+<li>使用 prefetchCount 限制每次发送给消费者消息的个数</li>
+<li>使每个消费者在同一时间点最多处理规定的数量级个数的 message</li>
+<li>在接收该消费者的 ack 前，队列不会将新的 message 分发给该消费者</li>
+</ul>
+<p><img src="/2021/07/21/rabbitmq/fair-dispatch.png"></p>
+<br>
+
+<h2 id="为啥不直接基于-TCP"><a href="#为啥不直接基于-TCP" class="headerlink" title="为啥不直接基于 TCP"></a>为啥不直接基于 TCP</h2><p>channel 通过建立真实 TCP 连接建立虚拟连接：</p>
 <ul>
 <li>对于 OS 来说，建立和关闭 TCP 连接是有代价的</li>
 <li>频繁建立和关闭 TCP 连接对于系统的性能有很大影响，且 TCP 的连接数也有限制，从而限制了系统处理高并发的能力</li>
@@ -263,46 +371,19 @@
 <ul>
 <li>但消息过多会导致处理效率的下降</li>
 </ul>
-<p>避免消息丢失：</p>
+<p>要想提高消息的稳定性，避免消息丢失，通常有以下方法：</p>
 <ul>
 <li>消息持久化</li>
 <li>ACK 确认机制</li>
 <li>设置集群镜像模式</li>
 <li>消息补偿机制</li>
 </ul>
-<p>如何保证消息的稳定性：消息确认机制</p>
+<h2 id="消息持久化"><a href="#消息持久化" class="headerlink" title="消息持久化"></a>消息持久化</h2><p>RabbitMQ 消息有以下状态：</p>
 <ol>
-<li>Confirm 模式（生产者重试模式，发布/确认模式）</li>
-</ol>
-<ul>
-<li>根据实际业务，选择 channel.basicAck() 手动确认消息被消费</li>
-<li>生产者将 channel 设置为 confirm 确认模式<ul>
-<li>确认后，所有在该 channel 发布的消息都会被指定一个唯一 ID</li>
-</ul>
-</li>
-<li>如一个队列没有消费者：消息会被缓存，不会被丢弃</li>
-<li>消费者处理完数据后，需要向 MQ Server 发送确认信息（acknowledge, ack）：接收确认<ul>
-<li>MQ 会发送 ack 给生产者（包含 ID）：发送确认</li>
-</ul>
-</li>
-<li>如消息被某个消费者正确接收：消息会被从队列中移除</li>
-<li>如有数据没有被 ack，MQ Server 不会删除消息，而是将其发送给下一个消费者</li>
-</ul>
-<ol start="2">
-<li>AMQP 事务机制：主要是对信道 channel 的设置<br>与事务机制相关的方法：</li>
-</ol>
-<ul>
-<li>channel.txSelect()：用于将当前的信道设置成事务模式</li>
-<li>channel.txCommit()：用于提交事务</li>
-<li>channel.txRoolback()：用于事务回滚<br>如事务提交执行前 RabbitMQ 异常崩溃或其他原因抛出异常：通过 txRollback() 回滚<br>当 autoAck=true 时，事务无效</li>
-<li>此时消息时自动消费确认，RabbitMQ 直接将消息从队列中擦除，即使后面事务回滚也不能起到任何作用</li>
-</ul>
-<p>消息状态及持久化</p>
-<ol>
-<li>alpha：消息内容（包括消息体、属性和 headers）和消息索引都存储在内存</li>
-<li>beta：消息内容保存在磁盘，消息索引保存在内存</li>
-<li>gamma：消息内容保存在磁盘，消息索引分别保存在磁盘和内存</li>
-<li>delta：消息内容和索引都在磁盘中</li>
+<li><code>alpha</code>：消息内容（包括消息体、属性和 headers）和消息索引都存储在内存</li>
+<li><code>beta</code>：消息内容保存在磁盘，消息索引保存在内存</li>
+<li><code>gamma</code>：消息内容保存在磁盘，消息索引分别保存在磁盘和内存</li>
+<li><code>delta</code>：消息内容和索引都在磁盘中</li>
 </ol>
 <ul>
 <li>Exchange 和 Queue 创建时指定 durable=True 可完成持久化</li>
@@ -326,7 +407,34 @@
 <li>消息已经到达持久化 Exchange 上</li>
 <li>消息已经到达持久化的队列</li>
 </ul>
-<p>（待补充）</p>
+<h2 id="消息确认机制"><a href="#消息确认机制" class="headerlink" title="消息确认机制"></a>消息确认机制</h2><p><strong>1. Confirm 模式</strong>（生产者重试模式，发布/确认模式）</p>
+<ul>
+<li>根据实际业务，选择 <code>channel.basicAck()</code> 手动确认消息被消费</li>
+<li>生产者将 channel 设置为 confirm 确认模式<ul>
+<li>确认后，所有在该 channel 发布的消息都会被指定一个唯一 ID</li>
+</ul>
+</li>
+<li>如一个队列没有消费者：消息会被缓存，不会被丢弃</li>
+<li>消费者处理完数据后，需要向 MQ Server 发送确认信息（acknowledge, ack）：接收确认<ul>
+<li>MQ 会发送 ack 给生产者（包含 ID）：发送确认</li>
+</ul>
+</li>
+<li>如消息被某个消费者正确接收：消息会被从队列中移除</li>
+<li>如有数据没有被 ack，MQ Server 不会删除消息，而是将其发送给下一个消费者</li>
+</ul>
+<p><strong>2. AMQP 事务机制</strong>：主要是对信道 channel 的设置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 与事务机制相关的方法：</span></span><br><span class="line">channel.txSelect()  <span class="comment">// 用于将当前的信道设置成事务模式</span></span><br><span class="line">channel.txCommit()  <span class="comment">// 用于提交事务</span></span><br><span class="line">channel.txRoolback()  <span class="comment">// 用于事务回滚</span></span><br></pre></td></tr></table></figure>
+<p>如事务提交执行前 RabbitMQ 异常崩溃或其他原因抛出异常：通过 txRollback() 回滚<br>当 autoAck=true 时，事务无效</p>
+<ul>
+<li>此时消息时自动消费确认，RabbitMQ 直接将消息从队列中擦除，即使后面事务回滚也不能起到任何作用</li>
+</ul>
+<h2 id="集群化"><a href="#集群化" class="headerlink" title="集群化"></a>集群化</h2><p>要将 RabbitMQ 集群化，集群中应有以下的节点类型：</p>
+<ul>
+<li>内存节点：ram，将变更写入内存</li>
+<li>磁盘节点：disc，磁盘写入操作</li>
+</ul>
+<p>RabbitMQ 集群要求最少有一个磁盘节点。</p>
+<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><p>（待补充）</p>
 
     </div>
 
@@ -410,7 +518,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">运行机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Exchange"><span class="nav-number">2.1.</span> <span class="nav-text">Exchange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">任务分发机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E5%9F%BA%E4%BA%8E-TCP"><span class="nav-number">2.3.</span> <span class="nav-text">为啥不直接基于 TCP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">消息稳定性</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">运行机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Exchange"><span class="nav-number">2.1.</span> <span class="nav-text">Exchange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">任务分发机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E5%9F%BA%E4%BA%8E-TCP"><span class="nav-number">2.3.</span> <span class="nav-text">为啥不直接基于 TCP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">消息稳定性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">消息持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">3.2.</span> <span class="nav-text">消息确认机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">集群化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">应用</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
