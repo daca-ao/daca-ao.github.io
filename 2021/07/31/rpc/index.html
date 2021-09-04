@@ -27,14 +27,17 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="RPC 全称 Remote Procedure Call Protocol，远程过程调用协议。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2021/07/31/rpc/roadmap.png">
 <meta property="og:image" content="http://example.com/2021/07/31/rpc/rpc-call.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/31/rpc/sequence-diagram.jpg">
+<meta property="og:image" content="http://example.com/2021/07/31/rpc/rpc-call.png">
 <meta property="og:image" content="http://example.com/2021/07/31/rpc/framework.jpeg">
 <meta property="article:published_time" content="2021-07-31T15:44:42.000Z">
-<meta property="article:modified_time" content="2021-09-01T15:25:09.177Z">
+<meta property="article:modified_time" content="2021-09-04T15:10:30.882Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2021/07/31/rpc/rpc-call.jpeg">
+<meta name="twitter:image" content="http://example.com/2021/07/31/rpc/roadmap.png">
 
 <link rel="canonical" href="http://example.com/2021/07/31/rpc/">
 
@@ -205,15 +208,39 @@
         <p>RPC 全称 Remote Procedure Call Protocol，远程过程调用协议。</p>
 <span id="more"></span>
 
-<p>应用背景：</p>
+<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>单体服务的时代：</p>
 <ul>
-<li>以前只需要一个服务器，将程序全部打包，部署好便可提供服务；随着业务增加，项目会变得臃肿，耦合严重，维护困难</li>
-<li>引入垂直架构后，虽然维护效率提高，但随着流量增大，应用间调用的网络成本逐渐增加，常规的垂直应用架构已无法应对</li>
+<li>以前用户量和数据量都比较小，项目所有功能模块都在一个工程中编码、编译、打包，随后部署在一个服务器中，部署好了便可提供服务；</li>
+<li>特点就是：各部分服务，包括数据库都是使用<strong>单节点</strong>（all-in-one）进行部署的</li>
+<li>初期：这种单体应用的优点就是简单实用，迭代快，维护也简单，成本低</li>
+<li>随着业务增加，项目会变得臃肿，<strong>耦合变得严重</strong>，<strong>维护周期变长，变得困难</strong>了；而且一个模块出现了问题，会影响另一个模块的功能以及维护。</li>
 </ul>
-<p>SOA (Service-Oriented Architecture)，即⾯向服务的架构。其思想就是根据实际业务，把系统拆分成合适的、独⽴部署的模块，模块之间相互独⽴（通过Webservice/Dubbo等技术进⾏通信）。因此衍⽣出了⼀系列相应的技术，如对服务提供、服务调⽤、连接处理、通信协议、序列化⽅式、服务发现、服务路由、⽇志输出等⾏为进⾏封装的服务框架。</p>
-<p>因此就有了<strong>分布式</strong>的概念，但是要做到通过网络请求远程计算机程序的服务时，要能像本地调用一样方便，让调用者感知不到远程调用的逻辑。</p>
-<p>由此，RPC 应运而生。它是一种通过网络从远程计算机程序请求服务，而不需要了解底层网络技术的思想，并不是一种具体的规范或者协议，使用 TCP、UDP 都可以。</p>
-<p>使用代表：</p>
+<p>垂直架构的时代：</p>
+<ul>
+<li>按照业务对应用作垂直划分，相当于将一个单体架构拆分成一堆单体应用，组成一个集群</li>
+<li>这样就能针对不同的模块进行优化，且<strong>模块之间影响减小</strong>，避免上面单体应用出现的问题；而且<strong>方便水平扩展</strong>，<strong>负载均衡</strong>，<strong>迭代高效</strong>，容错率也提高了</li>
+<li>有一个明显的缺点是：服务之间的调用方式变了，需要通过网络调用，采用的协议根据不同的业务场景很难统一起来（Webservice、HTTP …）<ul>
+<li>而且多个垂直应用一共要维护大量的接口地址。如果某个服务端口或 IP 地址发生改变，调用的系统得手动改变</li>
+<li>随着系统的发展，调用关系会越来越复杂</li>
+</ul>
+</li>
+<li>而且随着流量增大，应用间调用的网络成本逐渐增加；集群化的负载均衡实现也比较复杂</li>
+<li>服务监控也不到位</li>
+</ul>
+<p>面向服务的架构：Service-Oriented Architecture, <strong>SOA</strong></p>
+<ul>
+<li>根据实际业务，把系统拆分成合适的、独⽴部署的模块，模块之间相互独⽴（通过 Webservice / Dubbo 等技术进⾏通信），不仅仅是按照业务划分。<ul>
+<li>越是核心的业务，越要拆出来</li>
+</ul>
+</li>
+<li>因此衍⽣出了⼀系列相应的技术，如对服务提供、服务调⽤、连接处理、通信协议、序列化⽅式、服务发现、服务路由、⽇志输出等⾏为进⾏封装的服务框架。</li>
+</ul>
+<p>由此可见，我们总结了服务由单体 -&gt; 负载均衡（水平） -&gt; 分布式（垂直） -&gt; 垂直+水平的优化与升级（以 Dubbo 的发展为例）：</p>
+<p><img src="/2021/07/31/rpc/roadmap.png"></p>
+<p>因此业界常说的<strong>分布式服务</strong>的概念，与 RPC 紧密相关。</p>
+<p>既然是比垂直 MVC 架构的负载更均衡，RPC 要做到的，就是能通过网络请求远程计算机程序的服务时，要能像本地调用一样方便，让调用者感知不到远程调用的逻辑。</p>
+<p>总的来说，它属于<strong>跨进程通信</strong>的范畴，是一种通过网络从远程计算机程序请求服务，而不需要了解底层网络技术的<strong>思想</strong>，并不是一种具体的规范或者协议，使用 TCP、UDP 都可以。</p>
+<p>RPC 的使用代表：</p>
 <ul>
 <li>应用及服务框架：Dubbo, Spring Boot</li>
 <li>远程通信协议：RMI, Socket, SOAP(HTTP with XML), REST(HTTP with JSON)</li>
@@ -221,71 +248,62 @@
 </ul>
 <br>
 
-<h1 id="完整框架"><a href="#完整框架" class="headerlink" title="完整框架"></a>完整框架</h1><p>核心调用：</p>
-<p><img src="/2021/07/31/rpc/rpc-call.jpeg"></p>
-<p><img src="/2021/07/31/rpc/framework.jpeg"></p>
-<p>如上图，主要有以下功能组成模块：</p>
-<p>客户端（client）：服务调用方</p>
-<p>客户端存根（Client stub）</p>
+<h1 id="完整框架"><a href="#完整框架" class="headerlink" title="完整框架"></a>完整框架</h1><p>先说说在 RPC 思想中主要的功能组成模块：</p>
+<p><strong>客户端</strong>（<strong>client</strong>）：服务调用方。</p>
+<p><strong>客户端存根</strong>（<strong>client stub</strong>）</p>
 <ul>
-<li>存放服务方地址信息</li>
+<li>存放服务端服务的地址信息</li>
 <li>将客户端的请求参数数据信息打包（marshalling，或序列化）成网络消息，再通过网络传输发送到服务端</li>
-<li>stub 为一辅助对象，不执行任何实际功能</li>
+<li>通过网络传输接收服务端返回的处理结果，并将其解包（unmarshalling，或反序列化）成具体的返回值，返回给客户端</li>
+<li>除了上述工作之外，stub 为一辅助对象，不执行任何实际功能</li>
 </ul>
-<p>服务端存根（Server stub）</p>
+<p><strong>服务端存根</strong>（<strong>server stub</strong>）</p>
 <ul>
-<li>接收客户端发送过来的请求信息，并进行解包（unmarshalling）</li>
-<li>再调用本地服务进行处理</li>
+<li>通过网络传输接收到客户端发送过来的请求信息，并进行解包，随后发送至（调用）服务端</li>
+<li>接收服务端的处理结果，并将其打包成网络信息，通过网络传输发送到客户端</li>
+<li>和客户端的存根一样，除了上述工作之外，stub 为一辅助对象，不执行任何实际功能</li>
 </ul>
-<p>服务端（Server）：服务真正提供者</p>
-<p>网络服务：底层传输，可为 TCP 或 HTTP</p>
-<p>一次 RPC 的过程：</p>
+<p><strong>服务端</strong>（<strong>server</strong>）：服务真正提供者。</p>
+<p><strong>网络服务</strong>：底层传输，可为 TCP 或 HTTP。</p>
+<p>在一次网络调用中，RPC 的核心调用如下：</p>
+<p><img src="/2021/07/31/rpc/rpc-call.jpeg"></p>
+<p>时序图：</p>
+<p><img src="/2021/07/31/rpc/sequence-diagram.jpg"></p>
 <ol>
 <li>客户端通过本地调用，执行需要调用的语句，并传递参数</li>
-<li>客户端 stub 接收到调用请求后，将方法、入餐等信息序列化（组装、marshalling）成能够进行网络传输的消息体</li>
-<li>客户端 stub 找到远程服务地址，发送网络消息</li>
-<li>服务器 stub 收到信息后，解析（unmarshalling，或反序列化）取得方法名和参数</li>
-<li>服务器 stub 根据解析的结果，调用本地服务执行远程过程（服务）</li>
-<li>服务端执行过程完毕，将结果返回服务器 stub</li>
-<li>服务器 stub 将处理结果序列化</li>
-<li>服务器 stub 通过网络服务发送结果至客户端</li>
+<li>客户端 stub 接收到调用请求后，将方法、入参等信息序列化成能够进行网络传输的消息体</li>
+<li>客户端 stub 找到远程服务地址，发送网络消息到服务端</li>
+<li>服务端 stub 接收到信息后，解析取得方法名和参数</li>
+<li>服务端 stub 根据解析的结果，调用本地服务执行服务（即“远程过程”）</li>
+<li>服务端执行过程完毕，将结果返回服务端 stub</li>
+<li>服务端 stub 将处理结果序列化</li>
+<li>服务端 stub 通过网络服务发送结果至客户端</li>
 <li>客户端 stub 接收到结果，对结果进行解码</li>
 <li>客户端接收到调用语句返回的结果数据</li>
 </ol>
-<p>实现 RPC 的技术点：</p>
-<ol>
-<li>服务寻址</li>
-</ol>
+<p><img src="/2021/07/31/rpc/rpc-call.png"></p>
+<p>上图在原来的核心调用之外，多了一个“<strong>RPC Runtime</strong>”的概念：发送和接收请求，其中客户端的 RPC Runtime 多了等待远端执行结果的功能。</p>
+<p>完整的 RPC 架构图如下：</p>
+<p><img src="/2021/07/31/rpc/framework.jpeg"></p>
+<br>
+
+<h1 id="技术点"><a href="#技术点" class="headerlink" title="技术点"></a>技术点</h1><h2 id="服务寻址"><a href="#服务寻址" class="headerlink" title="服务寻址"></a>服务寻址</h2><p>我们要调用某个方法的函数体是由函数指针指定的；但放在远程调用中，因为两个进程的地址空间完全不同，函数指针无效。</p>
+<p>因此在 RPC 中，所有函数必须有自己的 ID，该 ID 在所有进程中唯一确定；客户端作远程调用时必须附上 ID。</p>
+<p>客户端和服务端分别维护 “函数 &lt;—&gt; <strong>Call ID</strong>” 的<strong>映射表</strong>：</p>
 <ul>
-<li>使用 Call ID 映射<ul>
-<li>原因：<ul>
-<li>函数体由函数指针指定，但</li>
-<li>远程调用中两个进程的地址空间完全不同，函数指针无效</li>
+<li>客户端执行远程调用的时候：查表，找出对应 ID，传给服务端</li>
+<li>服务端接收到 ID 后，通过查表，确定客户端需要调用的函数，执行</li>
 </ul>
-</li>
-<li>RPC 中所有函数必须有自己的 ID，该 ID 在所有进程中唯一确定</li>
-<li>客户端做远程调用时必须附上 ID</li>
-</ul>
-</li>
-<li>另：客户端和服务端分别维护 “函数 &lt;—&gt; Call ID” 对应表<ul>
-<li>客户端执行远程调用：查表，找出对应 ID，传给服务端</li>
-<li>服务端通过查表，确定客户端需要调用的函数，执行</li>
-</ul>
-</li>
-<li>实现方式：服务注册中心</li>
-<li>实现案例：RMI</li>
-</ul>
-<ol start="2">
-<li>数据流的序列化和反序列化</li>
-</ol>
+<p>可以引入服务注册中心（Service Registry）来实现寻址；RMI 就是这么实现的。</p>
+<h2 id="数据流的序列化和反序列化"><a href="#数据流的序列化和反序列化" class="headerlink" title="数据流的序列化和反序列化"></a>数据流的序列化和反序列化</h2><p>说多一嘴：什么是序列化和反序列化</p>
+<p>序列化和反序列化属于通信协议的一部分</p>
 <ul>
-<li>本地调用：将参数压入栈，函数自己去栈里读</li>
-<li>远程调用：客户端和服务端不能通过内存传递参数</li>
+<li>序列化：将数据结构或对象转换成二进制串的过程</li>
+<li>反序列化：将在序列化过程中所产生的二进制串转换成数据结构或者对象的过程（序列化的逆过程）</li>
 </ul>
-<ol start="3">
-<li>网络传输</li>
-</ol>
-<ul>
+<p>再说回 RPC，方法在本地调用的时候，JVM 将参数压入栈，函数自己去栈里读就好；而远程调用的客户端和服务端不能通过内存传递参数，只能通过网络，因此需要有序列化和反序列化的存在。</p>
+<p>在 OSI 协议模型中，表示层（Presentation Layer）的主要功能就是序列化和反序列化。</p>
+<h2 id="网络传输"><a href="#网络传输" class="headerlink" title="网络传输"></a>网络传输</h2><ul>
 <li>客户端和服务端通过网络连接，所有数据需要通过网络传输</li>
 <li>需要一个网络传输层传递 Call ID + 序列化的参数字节流（去），以及序列化的调用结果（来）</li>
 <li>协议不限<ul>
@@ -300,7 +318,9 @@
 <li>序列化与反序列化：可自己写，也可使用 Protobuf 或 FlatBuffers 等</li>
 <li>网络传输库：可自己写 Socket，也可用 Asio, ZeroMQ, Netty 等</li>
 </ul>
-<p>使用场景（大型网站，内部子系统较多、接口非常多的系统）：</p>
+<br>
+
+<h1 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h1><p>（大型网站，内部子系统较多、接口非常多的系统）：</p>
 <ul>
 <li>长链接：不必每次通信都像 HTTP 一样三次握手，减少网络开销</li>
 <li>注册发布机制：监控管理、发布、下线接口、动态扩展</li>
@@ -435,7 +455,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E6%A1%86%E6%9E%B6"><span class="nav-number">1.</span> <span class="nav-text">完整框架</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E6%A0%88%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">2.</span> <span class="nav-text">技术栈的比较</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RPC-v-s-RESTful"><span class="nav-number">2.1.</span> <span class="nav-text">RPC v.s. RESTful</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RPC-or-HTTP"><span class="nav-number">2.2.</span> <span class="nav-text">RPC or HTTP?</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E6%A1%86%E6%9E%B6"><span class="nav-number">2.</span> <span class="nav-text">完整框架</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">技术点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%AF%BB%E5%9D%80"><span class="nav-number">3.1.</span> <span class="nav-text">服务寻址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%B5%81%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">3.2.</span> <span class="nav-text">数据流的序列化和反序列化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93"><span class="nav-number">3.3.</span> <span class="nav-text">网络传输</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">使用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E6%A0%88%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">5.</span> <span class="nav-text">技术栈的比较</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RPC-v-s-RESTful"><span class="nav-number">5.1.</span> <span class="nav-text">RPC v.s. RESTful</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RPC-or-HTTP"><span class="nav-number">5.2.</span> <span class="nav-text">RPC or HTTP?</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -449,7 +469,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
