@@ -32,8 +32,10 @@
 <meta property="og:image" content="http://example.com/2021/07/31/rpc/sequence-diagram.jpg">
 <meta property="og:image" content="http://example.com/2021/07/31/rpc/rpc-call.png">
 <meta property="og:image" content="http://example.com/2021/07/31/rpc/framework.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/31/rpc/network-transmission.png">
+<meta property="og:image" content="http://example.com/2021/07/31/rpc/network-transmission-mq.png">
 <meta property="article:published_time" content="2021-07-31T15:44:42.000Z">
-<meta property="article:modified_time" content="2021-09-04T15:10:30.882Z">
+<meta property="article:modified_time" content="2021-09-05T03:29:12.329Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta name="twitter:card" content="summary">
@@ -303,75 +305,110 @@
 </ul>
 <p>再说回 RPC，方法在本地调用的时候，JVM 将参数压入栈，函数自己去栈里读就好；而远程调用的客户端和服务端不能通过内存传递参数，只能通过网络，因此需要有序列化和反序列化的存在。</p>
 <p>在 OSI 协议模型中，表示层（Presentation Layer）的主要功能就是序列化和反序列化。</p>
-<h2 id="网络传输"><a href="#网络传输" class="headerlink" title="网络传输"></a>网络传输</h2><ul>
-<li>客户端和服务端通过网络连接，所有数据需要通过网络传输</li>
-<li>需要一个网络传输层传递 Call ID + 序列化的参数字节流（去），以及序列化的调用结果（来）</li>
-<li>协议不限<ul>
+<h2 id="网络传输"><a href="#网络传输" class="headerlink" title="网络传输"></a>网络传输</h2><p>要讨论的就是上图“核心功能”的那一块：</p>
+<p><img src="/2021/07/31/rpc/network-transmission.png"></p>
+<p>客户端和服务端通过网络连接，所有数据需要通过网络传输。<br>在网络传输中，我们需要一个网络传输层传递 Call ID + 序列化的参数字节流，以及序列化的调用结果（一来一去）。</p>
+<p>网络传输的实现协议不限：</p>
+<ul>
 <li>大部分 RPC 框架使用 TCP 协议（最常见）</li>
 <li>gRPC 使用 HTTP2</li>
 </ul>
+<h3 id="基于-TCP"><a href="#基于-TCP" class="headerlink" title="基于 TCP"></a><strong>基于 TCP</strong></h3><ol>
+<li>由服务调用方（客户端）与服务提供方（服务端）建立 Socket 连接</li>
+<li>服务调用方通过 Socket 将需要调用的接口名称、方法名称和参数序列化后传递给服务提供方</li>
+<li>服务提供方反序列化后，再利用反射调用相关方法</li>
+<li>执行方法后，将结果序列化，返回服务调用方</li>
+</ol>
+<p>在实际应用中会进行一系列封装，如 RMI。</p>
+<h3 id="基于-HTTP"><a href="#基于-HTTP" class="headerlink" title="基于 HTTP"></a><strong>基于 HTTP</strong></h3><p>服务调用方向服务提供方发送请求，请求为 GET, POST, PUT, DELETE 等其中的一种；<br>服务提供方根据不同请求作不同处理，或某个方法只允许某种请求方式。</p>
+<p>流程概述：</p>
+<ul>
+<li>根据请求中的 URL 调用具体方法</li>
+<li>方法所需要的参数，可以是对服务调用方传输过去的 XML 或 JSON 数据解析出来的部分或全部结果</li>
+<li>最后返回 XML 或 JSON 数据结果</li>
+</ul>
+<p>实现起来更加容易，请求也更像访问网页一般，返回结果更加简单、单一。</p>
+<p>两者的对比如下：</p>
+<p><strong>基于 TCP 实现的 RPC 调用</strong></p>
+<ul>
+<li>TCP 协议处于协议栈靠下的层次中</li>
+<li>能够更灵活地对协议字段进行定制</li>
+<li>减少网络开销，提高性能，实现更大吞吐量和并发数</li>
+<li>需更多关注底层复杂的细节，实现代价更高</li>
+</ul>
+<p><strong>基于 HTTP 实现的 RPC 调用</strong></p>
+<ul>
+<li>能够使用 JSON 和 XML 格式请求或响应数据：格式标准相当通用，解析工具成熟，二次开发便捷且简单</li>
+<li>HTTP 为靠上层的协议<ul>
+<li>发送包含同等内容的信息，使用 HTTP 传输所占用字节数比 TCP 的更高</li>
+<li>在同样的网络状态下：HTTP 传输相同内容的效率比 TCP 低传输占用时间更长，不过通过压缩数据能缩小这一差距</li>
+</ul>
 </li>
 </ul>
-<p>具体的 RPC 实现：</p>
+<h3 id="基于消息队列"><a href="#基于消息队列" class="headerlink" title="基于消息队列"></a><strong>基于消息队列</strong></h3><p><img src="/2021/07/31/rpc/network-transmission-mq.png"></p>
+<p>总的来说，使用消息队列实现能够保证 RPC 在消息传递过程中的安全性和稳定性。</p>
+<p>更具体一点：</p>
 <ul>
+<li>消息队列能让请求从同步变异步，实现更加轻松<ul>
+<li>使用线程池的话：缺点是要自己实现，且强耦合</li>
+</ul>
+</li>
+<li>低内聚高耦合：解耦，减少强依赖</li>
+<li>流量削峰：通过消息队列设置请求最大值，超过阈值的会被抛弃或转到错误界面</li>
+<li>网络通信性能提高<ul>
+<li>每次连接都要建立一次 TCP 连接，高峰期成千上万的连接会造成巨大的性能瓶颈和资源浪费</li>
+<li>消息队列采用信道通信，不采用 TCP 直接通信</li>
+<li>一个线程一条信道，多个线程多条信道，共用一个 TCP 连接</li>
+</ul>
+</li>
+</ul>
+<h2 id="具体的-RPC-实现"><a href="#具体的-RPC-实现" class="headerlink" title="具体的 RPC 实现"></a>具体的 RPC 实现</h2><ul>
 <li>Call ID：可直接使用函数字符串，也可使用整数 ID；映射表一般为哈希表</li>
-<li>序列化与反序列化：可自己写，也可使用 Protobuf 或 FlatBuffers 等</li>
-<li>网络传输库：可自己写 Socket，也可用 Asio, ZeroMQ, Netty 等</li>
+<li>序列化与反序列化：可以自己实现，也可使用 <code>Protobuf</code> 或 <code>FlatBuffers</code> 等</li>
+<li>网络传输库：可以自己写 Socket，不过不多，更多的是应用 <code>Asio</code>, <code>ZeroMQ</code>, <code>Netty</code> 等现成的框架。</li>
 </ul>
 <br>
 
-<h1 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h1><p>（大型网站，内部子系统较多、接口非常多的系统）：</p>
+<h1 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h1><p>RPC 多应用在大型网站，内部子系统较多、接口非常多的系统中。</p>
 <ul>
 <li>长链接：不必每次通信都像 HTTP 一样三次握手，减少网络开销</li>
 <li>注册发布机制：监控管理、发布、下线接口、动态扩展</li>
 <li>安全性：没有暴露资源操作</li>
 <li>微服务支持</li>
 </ul>
-<h1 id="技术栈的比较"><a href="#技术栈的比较" class="headerlink" title="技术栈的比较"></a>技术栈的比较</h1><h2 id="RPC-v-s-RESTful"><a href="#RPC-v-s-RESTful" class="headerlink" title="RPC v.s. RESTful"></a>RPC v.s. RESTful</h2><ol>
-<li>面对对象不同</li>
-</ol>
+<br>
+
+<h1 id="与其它技术栈的比较"><a href="#与其它技术栈的比较" class="headerlink" title="与其它技术栈的比较"></a>与其它技术栈的比较</h1><h2 id="RPC-v-s-RESTful"><a href="#RPC-v-s-RESTful" class="headerlink" title="RPC v.s. RESTful"></a>RPC v.s. RESTful</h2><p><strong>1</strong>. 面向的对象不同</p>
 <ul>
-<li>RPC 更侧重于动作，REST 的主体是资源</li>
-<li>REST 是面向资源的设计架构，但系统中很多对象不能抽象成资源，如登录，修改密码等</li>
+<li>REST 的主体是资源，而 RPC 更侧重于动作</li>
+<li>REST 是面向资源的设计架构，但系统中很多对象不能被抽象成资源，如登录，修改密码等</li>
 <li>RPC 可通过动作去操作资源<ul>
 <li>操作全面性：RPC &gt; REST</li>
 </ul>
 </li>
 </ul>
-<ol start="2">
-<li>传输效率不同</li>
-</ol>
+<p><strong>2</strong>. 传输效率不同</p>
 <ul>
 <li>RPC 使用自定义 TCP 协议，请求报文体积更小，效率更高</li>
 <li>HTTP2 协议也可很好地减少报文体积</li>
 </ul>
-<ol start="3">
-<li>复杂度不同</li>
-</ol>
+<p><strong>3</strong>. 复杂度不同</p>
 <ul>
 <li>RPC 实现复杂，流程繁琐</li>
 <li>REST 调用和测试都很方便</li>
 </ul>
-<ol start="4">
-<li>灵活性</li>
-</ol>
+<p><strong>4</strong>. 灵活性</p>
 <ul>
 <li>HTTP 相对更规范，更标准，更通用，不限制于语言</li>
 <li>RPC 可实现跨语言调用，但整体灵活性不如 REST</li>
 </ul>
-<h2 id="RPC-or-HTTP"><a href="#RPC-or-HTTP" class="headerlink" title="RPC or HTTP?"></a>RPC or HTTP?</h2><ul>
-<li>HTTP 接口在接口不多、系统与系统交互较少时，解决信息孤岛初期常使用的通信手段<ul>
-<li>优点：简单、直接、开发方便</li>
-</ul>
-</li>
-<li>如系统内部子系统较多，接口多时，RPC 优势更大<ul>
+<h2 id="RPC-or-HTTP"><a href="#RPC-or-HTTP" class="headerlink" title="RPC or HTTP?"></a>RPC or HTTP?</h2><p>HTTP 接口在接口不多、系统与系统交互较少时，是解决信息孤岛初期常使用的通信手段。<br>因此 HTTP 具有简单、直接、开发方便的优点。</p>
+<p>如果系统内部子系统较多，接口多时，RPC 优势更大。因为：</p>
+<ul>
 <li>长连接，不必每一次通信都像 HTTP 一样进行三次握手，减少网络开销</li>
 <li>RPC 的注册中心的监控管理功能丰富，可发布、动态扩展等</li>
-<li>安全</li>
+<li>安全。</li>
 </ul>
-</li>
-</ul>
-<p>（待补充）</p>
 
     </div>
 
@@ -455,7 +492,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E6%A1%86%E6%9E%B6"><span class="nav-number">2.</span> <span class="nav-text">完整框架</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">技术点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%AF%BB%E5%9D%80"><span class="nav-number">3.1.</span> <span class="nav-text">服务寻址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%B5%81%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">3.2.</span> <span class="nav-text">数据流的序列化和反序列化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93"><span class="nav-number">3.3.</span> <span class="nav-text">网络传输</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">使用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E6%A0%88%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">5.</span> <span class="nav-text">技术栈的比较</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RPC-v-s-RESTful"><span class="nav-number">5.1.</span> <span class="nav-text">RPC v.s. RESTful</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RPC-or-HTTP"><span class="nav-number">5.2.</span> <span class="nav-text">RPC or HTTP?</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E6%A1%86%E6%9E%B6"><span class="nav-number">2.</span> <span class="nav-text">完整框架</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">技术点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%AF%BB%E5%9D%80"><span class="nav-number">3.1.</span> <span class="nav-text">服务寻址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%B5%81%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-number">3.2.</span> <span class="nav-text">数据流的序列化和反序列化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93"><span class="nav-number">3.3.</span> <span class="nav-text">网络传输</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-TCP"><span class="nav-number">3.3.1.</span> <span class="nav-text">基于 TCP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-HTTP"><span class="nav-number">3.3.2.</span> <span class="nav-text">基于 HTTP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">3.3.3.</span> <span class="nav-text">基于消息队列</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E7%9A%84-RPC-%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.4.</span> <span class="nav-text">具体的 RPC 实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">使用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8E%E5%85%B6%E5%AE%83%E6%8A%80%E6%9C%AF%E6%A0%88%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">5.</span> <span class="nav-text">与其它技术栈的比较</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RPC-v-s-RESTful"><span class="nav-number">5.1.</span> <span class="nav-text">RPC v.s. RESTful</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RPC-or-HTTP"><span class="nav-number">5.2.</span> <span class="nav-text">RPC or HTTP?</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
