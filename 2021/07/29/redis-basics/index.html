@@ -28,7 +28,7 @@
 <meta property="og:description" content="在非关系型数据库（NoSQL）中，Redis 绝对是 C 位的存在。今天就开一个帖来专门唠唠 Redis。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-07T13:55:03.786Z">
+<meta property="article:modified_time" content="2021-09-07T15:03:10.075Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -217,13 +217,6 @@
 <p>前五种为基本数据类型，后两种为高级对象。</p>
 <p>Redis 具有内置的复制，Lua 脚本，LRU 淘汰策略，事务和不同级别的磁盘持久性，并通过 Redis Sentinel 和 Redis Cluster 的自动分区提供高可用性。</p>
 <p>Redis 所有的单个操作都是原子性的，多个操作支持事务。</p>
-<p>Redis 是单进程单线程的模型，对于数据的操作完全基于内存，因此 CPU 不是瓶颈；而且单线程容易实现。<br>为何 Redis 是单线程模型，处理起来还仍然这么快？</p>
-<ul>
-<li>数据结构简单，对数据的操作也简单</li>
-<li>数据存储类似于 HashMap：查找和操作的时间复杂度是 O(1)</li>
-<li>采用单线程，避免不必要的上下文切换和竞争条件</li>
-<li>使用非阻塞 IO</li>
-</ul>
 <br>
 
 <p>在详细介绍 Redis 的数据类型之前，先来看看 Redis 数据存储的具体模型：</p>
@@ -325,8 +318,9 @@
     </tr>
 </table>
 
+<br>
 
-<h2 id="基本对象"><a href="#基本对象" class="headerlink" title="基本对象"></a>基本对象</h2><p>redisObject</p>
+<h2 id="基本对象"><a href="#基本对象" class="headerlink" title="基本对象"></a>基本对象</h2><p>RedisObject</p>
 <ul>
 <li>Redis 对象类型、内部编码、内存回收、共享对象等功能均需其支持<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">　　<span class="keyword">unsigned</span> type:<span class="number">4</span>; <span class="comment">/* 对象的类型，占 4 bit */</span></span><br><span class="line">　　<span class="keyword">unsigned</span> encoding:<span class="number">4</span>; <span class="comment">/* 对象的内部编码，占 4 bit */</span></span><br><span class="line">　　<span class="keyword">unsigned</span> lru:REDIS_LRU_BITS; <span class="comment">/* lru time (relative to server.lruclock) */</span></span><br><span class="line">   <span class="comment">/* 记录对象最后一次被命令程序访问的时间 */</span></span><br><span class="line">　　<span class="keyword">int</span> refcount; <span class="comment">/* 记录该对象被引用次数 */</span></span><br><span class="line">　　<span class="keyword">void</span> *ptr; <span class="comment">/* 指向具体的数据，val 对应的 SDS */</span></span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
 大小为 16 B</li>
@@ -579,6 +573,13 @@
 </table>
 
 <p>编码转换在 Redis 写入数据时完成，而且转换过程是不可逆的，只能从小内存编码向大内存编码转换。</p>
+<h1 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h1><p>Redis 是单进程单线程的模型，对于数据的操作完全基于内存，因此 CPU 不是瓶颈；而且单线程容易实现。<br>为何 Redis 是单线程模型，处理起来还仍然这么快？</p>
+<ul>
+<li>数据结构简单，对数据的操作也简单</li>
+<li>数据存储类似于 HashMap：查找和操作的时间复杂度是 O(1)</li>
+<li>采用单线程，避免不必要的上下文切换和竞争条件</li>
+<li>使用非阻塞 IO</li>
+</ul>
 <h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><p>设置 key 的有效时间（过期机制）：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">EXPIRE key seconds  # 为 key 设置过时时间，以秒计算</span><br><span class="line"></span><br><span class="line">EXPIREAT key timestamp  # 设置 key 的超时时间至某个时间戳</span><br></pre></td></tr></table></figure>
 
@@ -683,7 +684,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.1.</span> <span class="nav-text">基本对象</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">5.</span> <span class="nav-text">持久化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-number">6.</span> <span class="nav-text">集群搭建</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.1.</span> <span class="nav-text">基本对象</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">持久化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-number">7.</span> <span class="nav-text">集群搭建</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
