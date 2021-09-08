@@ -28,7 +28,7 @@
 <meta property="og:description" content="在非关系型数据库（NoSQL）中，Redis 绝对是 C 位的存在。今天就开一个帖来专门唠唠 Redis。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-07T15:06:54.006Z">
+<meta property="article:modified_time" content="2021-09-08T15:30:24.534Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -219,224 +219,103 @@
 <p>Redis 所有的单个操作都是原子性的（Lua 脚本保证），多个操作支持事务。</p>
 <br>
 
-<p>在详细介绍 Redis 的数据类型之前，先来看看 Redis 数据存储的具体模型：</p>
-<h1 id="内存模型"><a href="#内存模型" class="headerlink" title="内存模型"></a>内存模型</h1><p>Redis 作为 NoSQL 类型的内存数据库，在内存中主要以键值对（key-value）的方式存储内容。</p>
-<p>内存统计：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$info memory</span><br><span class="line"># Memory</span><br><span class="line">used_memory:809936</span><br><span class="line">used_memory_human:790.95K</span><br><span class="line">used_memory_rss:7909376</span><br><span class="line">used_memory_peak:809936</span><br><span class="line">used_memory_peak_human:790.95K</span><br><span class="line">used_memory_lua:35870</span><br><span class="line">mem_fragmentation_ratio:9.77</span><br><span class="line">mem_allocator:jemalloc-3.6.0</span><br></pre></td></tr></table></figure>
+<h1 id="基本对象"><a href="#基本对象" class="headerlink" title="基本对象"></a>基本对象</h1><p>先来说说 Redis 里面基本对象的源码：</p>
+<h2 id="redisObject"><a href="#redisObject" class="headerlink" title="redisObject"></a><strong>redisObject</strong></h2><ul>
+<li>Redis 的对象类型、内部编码、内存回收、共享对象等功能均需其支持</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="comment">// 对象的类型，占 4 bit</span></span><br><span class="line">    <span class="keyword">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对象的内部编码，占 4 bit</span></span><br><span class="line">    <span class="keyword">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指向底层实现数据结构的指针，即 val 对应的 SDS</span></span><br><span class="line">    <span class="keyword">void</span> *ptr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> notused:<span class="number">2</span>;  <span class="comment">/* Not used */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录对象最后一次被命令程序访问的时间</span></span><br><span class="line">    <span class="comment">// REDIS_LRU_BITS 为 22</span></span><br><span class="line">    <span class="keyword">unsigned</span> lru:REDIS_LRU_BITS;  <span class="comment">/* lru time (relative to server.lruclock) */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录该对象被引用的次数</span></span><br><span class="line">    <span class="keyword">int</span> refcount; </span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
 
-<p>其中：</p>
-<p><code>used_memory</code></p>
-<ul>
-<li>Redis 分配器分配的内存总量（Byte）</li>
-<li>包括使用的虚拟内存（swap）</li>
-</ul>
-<p><code>used_memory_human</code></p>
-<ul>
-<li>used_memory 更友好的显示方式</li>
-</ul>
-<p><code>used_memory_rss</code></p>
-<ul>
-<li>Redis 进程占据操作系统的内存（Byte），与 top 和 ps 命令看到的值一致</li>
-<li>包括：<ul>
-<li>Redis 分配器分配的内存</li>
-<li>进程运行本身需要的内存</li>
-<li>内存碎片</li>
-<li>……</li>
-</ul>
-</li>
-<li>不包括虚拟内存</li>
-</ul>
-<p><code>used_memory</code> 与 <code>used_memory_rss</code> 比较：</p>
-<ul>
-<li>前者为从 Redis 得到的量</li>
-<li>后者从操作系统角度得到的量</li>
-<li>两者不同的原因：<ol>
-<li>内存碎片和 Redis 进程运行需要占用内存：前者可能比后者小</li>
-<li>存在虚拟内存：前者可能比后者大</li>
-</ol>
-</li>
-</ul>
-<p><code>mem_fragmentation_ratio</code></p>
-<ul>
-<li>内存碎片比率，used_memory_rss / used_memory</li>
-<li>实际应用中 Redis 数据量比较大：进程运行占用内存与 Redis 数据量和内存碎片相比会小很多</li>
-<li>一般大于 1，值越大内存碎片比例越大</li>
-<li>小于 1，说明 Redis 使用了虚拟内存：要及时排查</li>
-<li>1.03 为比较健康的状态</li>
-</ul>
-<p><code>mem_allocator</code></p>
-<ul>
-<li>Redis 使用的内存分配器，编译时指定</li>
-<li>可以是 libc, jemalloc 或 tcmalloc，默认 jemalloc</li>
-</ul>
-<p>jemalloc 将内存空间划分为小、大、巨大三个范围，每个范围内划分许多小的内存块单位。</p>
-<p>划分的内存单元：</p>
+
+<p><big><strong>type</strong></big></p>
+<p>redisObject 一共有 5 种数据类型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_STRING 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_LIST 1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_SET 2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ZSET 3</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_HASH 4</span></span><br></pre></td></tr></table></figure>
+
+<p>4 位 type 字段最多能排出 15 种组合，记录 5 种数据类型足够。</p>
+<p><big><strong>encoding</strong></big></p>
+<p>redisObject 一共有 10 种编码类型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_RAW 0     <span class="comment">/* Raw representation */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_INT 1     <span class="comment">/* Encoded as integer */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_HT 2      <span class="comment">/* Encoded as hash table */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_ZIPMAP 3  <span class="comment">/* Encoded as zipmap */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_LINKEDLIST 4 <span class="comment">/* Encoded as regular linked list */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_ZIPLIST 5 <span class="comment">/* Encoded as ziplist */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_INTSET 6  <span class="comment">/* Encoded as intset */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_SKIPLIST 7  <span class="comment">/* Encoded as skiplist */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_EMBSTR 8  <span class="comment">/* Embedded sds string encoding */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_QUICKLIST 9 <span class="comment">/* Encoded as linked list of ziplists */</span></span></span><br></pre></td></tr></table></figure>
+
 <table>
-    <tr>
-        <th>Category</th>
-        <th>Spacing</th>
-        <th>Size</th>
-    </tr>
-    <tr>
-        <th rowspan="7">Small</th>
-        <td>8</td>
-        <td>[8]</td>
-    </tr>
-    <tr>
-        <td>16</td>
-        <td>[16, 32, 48, ..., 128]</td>
-    </tr>
-    <tr>
-        <td>32</td>
-        <td>[160, 192, 224, 256]</td>
-    </tr>
-    <tr>
-        <td>64</td>
-        <td>[320, 384, 448, 512]</td>
-    </tr>
-    <tr>
-        <td>128</td>
-        <td>[640, 768, 896, 1024]</td>
-    </tr>
-    <tr>
-        <td>256</td>
-        <td>[1280, 1536, 1792, 2048]</td>
-    </tr>
-    <tr>
-        <td>512</td>
-        <td>[2560, 3072, 3584]</td>
-    </tr>
-    <tr>
-        <th>Large</th>
-        <td>4 KiB</td>
-        <td>[4 KiB, 8 KiB, 12 KiB, ..., 4072 KiB]</td>
-    </tr>
-    <tr>
-        <th>Huge</th>
-        <td>4 MiB</td>
-        <td>[4 MiB, 8 MiB, 12 MiB, ...]</td>
-    </tr>
-</table>
-
-<br>
-
-<h2 id="基本对象"><a href="#基本对象" class="headerlink" title="基本对象"></a>基本对象</h2><p>RedisObject</p>
+<thead>
+<tr>
+<th>encoding 常量</th>
+<th>编码所对应的底层数据结构</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>REDIS_ENCODING_RAW</td>
+<td>SDS</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_INT</td>
+<td>long 类型的整数</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_HT</td>
+<td>字典</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_ZIPMAP</td>
+<td>zipmap</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_LINKEDLIST</td>
+<td>双向链表</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_ZIPLIST</td>
+<td>压缩列表</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_INTSET</td>
+<td>整数集合</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_SKIPLIST</td>
+<td>跳表 + 字典</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_EMBSTR</td>
+<td>embstr 编码的 SDS</td>
+</tr>
+<tr>
+<td>REDIS_ENCODING_QUICKLIST</td>
+<td>linked list of ziplists</td>
+</tr>
+</tbody></table>
+<p>4 位 encoding 字段最多能排出 15 种组合，记录 10 种编码类型足够。</p>
+<p><big><strong>lru</strong></big></p>
+<p>通过对比 lru 的值与当前时间，可计算某个对象的空转时间（object idletime）并打印出来。</p>
+<p>lru 与 Redis 内存回收关系颇为密切。<br>如果 Redis 打开了 <code>maxmemory</code> 选项，且内存回收算法选择 <code>volatile-lru</code> 或 <code>allkeys-lru</code> 作为淘汰策略的话，当内存占用超过 maxmemory 阈值时，Redis 会优先选择 object idletime 最长的对象释放。</p>
+<p><big><strong>refcount</strong></big>：主要用于对象引用计数和内存回收（计数法）</p>
 <ul>
-<li>Redis 对象类型、内部编码、内存回收、共享对象等功能均需其支持<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">　　<span class="keyword">unsigned</span> type:<span class="number">4</span>; <span class="comment">/* 对象的类型，占 4 bit */</span></span><br><span class="line">　　<span class="keyword">unsigned</span> encoding:<span class="number">4</span>; <span class="comment">/* 对象的内部编码，占 4 bit */</span></span><br><span class="line">　　<span class="keyword">unsigned</span> lru:REDIS_LRU_BITS; <span class="comment">/* lru time (relative to server.lruclock) */</span></span><br><span class="line">   <span class="comment">/* 记录对象最后一次被命令程序访问的时间 */</span></span><br><span class="line">　　<span class="keyword">int</span> refcount; <span class="comment">/* 记录该对象被引用次数 */</span></span><br><span class="line">　　<span class="keyword">void</span> *ptr; <span class="comment">/* 指向具体的数据，val 对应的 SDS */</span></span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
-大小为 16 B</li>
-</ul>
-<p>SDS：Simple Dynamic String，简单动态字符串</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> len;  <span class="comment">// buf 已使用的长度 */</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">free</span>; <span class="comment">/* buf 未使用长度 */</span></span><br><span class="line">    <span class="keyword">char</span> buf[]; <span class="comment">/* 字节数组，len(buf)=len+free+1 */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>SDS 在 C 字符串基础上加入 free 和 len：<br>杜绝缓冲区溢出<br>存储二进制数据</p>
-<p>内存占用主要有以下部分：</p>
-<ol>
-<li>数据</li>
-</ol>
-<ul>
-<li>最主要的部分，其占用内存统计在 used_memory 中</li>
-<li>每种类型可能有 2 种或更多的内部编码实现</li>
-<li>存储数据对象时：并不是直接将数据扔进内存，而是对对象进行各种包装：如 redisObject、SDS 等</li>
-</ul>
-<ol start="2">
-<li>进程本身运行需要的内存</li>
-</ol>
-<ul>
-<li>代码、常量池等</li>
-<li>大多数场景中，这部分的内存占用可忽略</li>
-<li>不由 jemalloc 分配，因此不会统计在 used_memory 中</li>
-<li>除主进程外，Redis 创建的子进程也会占用内存：执行 AOF、RDB 重写时创建的子进程<ul>
-<li>这部分内存不属于 Redis 进程，不会统计在 used_memory 和 used_memory_rss 中</li>
-</ul>
-</li>
-</ul>
-<ol start="3">
-<li>缓冲内存，包括：</li>
-</ol>
-<ul>
-<li>客户端缓冲区：存储客户端连接的输入输出缓冲</li>
-<li>复制积压缓冲区：用于部分复制功能</li>
-<li>AOF 缓冲区：在进行 AOF 重写时，保存最近的写入命令</li>
-<li>…</li>
-</ul>
-<ol start="4">
-<li>内存碎片</li>
-</ol>
-<ul>
-<li>Redis 分配、回收物理内存过程中产生的<ul>
-<li>如：对数据的更改频繁，且数据之间的大小相差很大</li>
-<li>可能导致 Redis 释放的空间在物理内存中并没有释放，但 Redis 又无法有效利用：形成内存碎片</li>
-</ul>
-</li>
-<li>不会统计在 used_memory 中</li>
-<li>其产生与对数据进行的操作、数据的特点等有关</li>
-<li>与使用的内存分配器有关：如内存分配器设计合理，可尽可能减少内存碎片产生</li>
-<li>如内存碎片很大：安全重启减小内存碎片<ul>
-<li>重启后 Redis 重新从备份文件中读取数据，在内存中进行重排</li>
-</ul>
-</li>
-</ul>
-<p>数据存储的细节<br>例：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set hello world</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>对 Redis 每个键值对都有一个 dictEntry，存储指向 key 和 val 的指针；next 指向下一个 dictEntry</li>
-<li>key 为 “hello”：并不是以字符串存储，而是存储在 SDS 结构中</li>
-<li>val 为 “world”：不以字符串或 SDS 结构存储，而是存储在 redisObject 中<ul>
-<li>type：指明 val 对象的类型</li>
-<li>ptr：指向对象所在的地址</li>
-<li>字符串对象 “world” 仍存储于 SDS</li>
-</ul>
-</li>
-<li>内存分配器分配内存<ul>
-<li>如：dictEntry 有三个指针，占用 24 字节：分配 32 字节</li>
-</ul>
-</li>
-</ul>
-<p>lru：通过对比 lru 时间与当前时间，可计算某个对象的空转时间（object idletime）</p>
-<ul>
-<li>除了通过 object idletime 打印外，还与 Redis 内存回收有关系</li>
-<li>如 Redis 打开了 maxmemory 选项，且内存回收算法选择 volatile-lru 或 allkeys-lru <ul>
-<li>当 Redis 内存占用超过 maxmemory 指定值时，Redis 会优先选择空转时间最长的对象释放</li>
-</ul>
-</li>
-</ul>
-<p>refcount</p>
-<ul>
-<li>主要用于对象引用计数和内存回收<ul>
 <li>创建新对象：refcount=1</li>
 <li>有新程序使用该对象：refcount + 1</li>
 <li>对象不再被一个新程序使用：refcount - 1</li>
 <li>refcount = 0：对象占用内存会被释放</li>
 </ul>
-</li>
-<li>被多次使用的对象称为共享对象（refcount&gt;1）<ul>
-<li>某些对象重复出现时，新程序不会创建新对象，而是仍然使用原来的对象</li>
-<li>节省内存</li>
-<li>仅支持整数值的字符串对象</li>
-</ul>
-</li>
-<li>共享对象具体实现<ul>
-<li>只支持整数值的字符串对象：对内存和 CPU（时间）的平衡<ul>
-<li>共享对象虽降低内存消耗，但判断两个对象是否相等需消耗额外时间</li>
+<p>refcount&gt;1，意味着该对象被多次使用，其被称为共享对象。<br>这就意味着当某些对象重复出现时，新程序不会创建新对象，而是仍然使用原来的对象；这样可以节省内存。</p>
+<p>Redis 五种类型都可以使用共享对象，但仅支持整数值的字符串对象：因为这考虑到对内存和 CPU（时间）的平衡</p>
+<ul>
+<li>共享对象虽然降低了内存消耗，但判断两个对象是否相等需消耗额外时间</li>
 <li>整数值判断操作复杂度为 O(1)；普通字符串为 O(n)；列表等为 O(n2)</li>
 </ul>
-</li>
-<li>五种类型都可以使用共享对象</li>
-<li>Redis 服务器初始化时会创建 10000 个字符串对象：0 - 9999<ul>
-<li>Redis 需要使用值为其中的字符串对象时可直接使用</li>
+<p>Redis 服务器初始化时会创建 10000 个字符串对象：0 - 9999</p>
+<ul>
+<li>Redis 需要使用值为该范围其中的字符串对象时可直接使用。</li>
 </ul>
-</li>
-</ul>
-</li>
-</ul>
+<p>再说说刚刚提到的 SDS：</p>
+<h2 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a><strong>SDS</strong></h2><p>全称 Simple Dynamic String，简单动态字符串。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> len;  <span class="comment">// buf 已使用的长度</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">free</span>;  <span class="comment">// buf 未使用长度</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字节数组，len(buf)=len+free+1</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>SDS 在 C 字符串基础上加入了 <code>len</code> 和 <code>free</code> 字段，是为了杜绝缓冲区溢出，并且能存储二进制数据。</p>
 <br>
 
 <h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h1><p>Redis 是基于键值对的数据库，其中“值”的类型有：</p>
 <p><big><strong>String</strong></big></p>
 <ul>
 <li>Redis 最基本的数据类型，长度不超过 512 MB</li>
-<li>二进制安全，可以包含任何数据，如 jpg 图像或者序列化的对象</li>
+<li>该类型二进制安全，可以包含任何数据，如 jpg 图像或者序列化的对象</li>
 </ul>
 <p>Redis String 有以下编码方式：</p>
 <ol>
@@ -449,8 +328,8 @@
 </ol>
 <p>编码说明：</p>
 <ul>
-<li>embstr 与 raw 都使用 RedisObject 和 SDS 保存数据</li>
-<li>embstr 的使用只分配一次内存空间（RedisObject 和 SDS 连续）<ul>
+<li>embstr 与 raw 都使用 redisObject 和 SDS 保存数据</li>
+<li>embstr 的使用只分配一次内存空间（redisObject 和 SDS 连续）<ul>
 <li>好处：创建时少分配一次空间，删除时少释放一次空间；对象所有数据连在一起，寻找方便</li>
 <li>坏处：字符串长度增加需要重新分配内存时，整个 RedisObject 和 SDS 都需要重新分配空间</li>
 <li>因此 embstr 实现为只读</li>
@@ -460,7 +339,7 @@
 </ul>
 <p>String 编码转换：</p>
 <ul>
-<li>当 int 数据不再是整数，或大小超过 long 范围：自动转为 raw</li>
+<li>当 int 数据不再是整数，或大小超过 long 范围时，String 自动转为 raw</li>
 <li>因 embstr 的实现是只读：修改时先转化为 raw 再进行修改</li>
 </ul>
 <p><strong>Hash</strong></p>
@@ -573,6 +452,156 @@
 </table>
 
 <p>编码转换在 Redis 写入数据时完成，而且转换过程是不可逆的，只能从小内存编码向大内存编码转换。</p>
+<h1 id="内存模型"><a href="#内存模型" class="headerlink" title="内存模型"></a>内存模型</h1><p>Redis 作为 NoSQL 类型的内存数据库，在内存中主要以键值对（key-value）的方式存储内容。</p>
+<p>内存统计：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$info memory</span><br><span class="line"># Memory</span><br><span class="line">used_memory:809936</span><br><span class="line">used_memory_human:790.95K</span><br><span class="line">used_memory_rss:7909376</span><br><span class="line">used_memory_peak:809936</span><br><span class="line">used_memory_peak_human:790.95K</span><br><span class="line">used_memory_lua:35870</span><br><span class="line">mem_fragmentation_ratio:9.77</span><br><span class="line">mem_allocator:jemalloc-3.6.0</span><br></pre></td></tr></table></figure>
+
+<p>内存统计中各字段的含义：</p>
+<p><code>used_memory</code>：Redis 内存分配器分配的内存总量（Byte），包括使用的虚拟内存（swap）</p>
+<p><code>used_memory_human</code>：used_memory 更友好的显示方式</p>
+<p><code>used_memory_rss</code>：Redis 进程占据操作系统的内存（Byte），与 top 和 ps 命令看到的值是一样的，包括：</p>
+<ul>
+<li>Redis 分配器分配的内存</li>
+<li>进程运行本身需要的内存</li>
+<li>内存碎片</li>
+<li>…</li>
+</ul>
+<p>但并不包括虚拟内存。</p>
+<p>注：<code>used_memory</code> 与 <code>used_memory_rss</code> 比较：</p>
+<ul>
+<li>前者为从 Redis 得到的量；后者从操作系统角度得到的量</li>
+<li>两者不同的原因：<ol>
+<li>内存碎片和 Redis 进程运行需要占用内存：前者可能比后者小</li>
+<li>存在虚拟内存：前者可能比后者大</li>
+</ol>
+</li>
+</ul>
+<p><code>mem_fragmentation_ratio</code>：内存碎片比率，等于 used_memory_rss / used_memory</p>
+<ul>
+<li>实际应用中 Redis 数据量比较大：进程运行占用内存与 Redis 数据量和内存碎片相比会小很多</li>
+<li>一般大于 1，值越大内存碎片比例越大</li>
+<li>小于 1，说明 Redis 使用了虚拟内存：要及时排查</li>
+<li>1.03 为比较健康的状态</li>
+</ul>
+<p><code>mem_allocator</code>：定义 Redis 使用的内存分配器，在编译时指定</p>
+<ul>
+<li>可以是 libc, jemalloc 或 tcmalloc，默认使用 jemalloc</li>
+</ul>
+<p>jemalloc 将内存空间划分为小、大、巨大三个范围，每个范围内划分许多小的内存块单位。</p>
+<p>划分的内存单元：</p>
+<table>
+    <tr>
+        <th>Category</th>
+        <th>Spacing</th>
+        <th>Size</th>
+    </tr>
+    <tr>
+        <th rowspan="7">Small</th>
+        <td>8</td>
+        <td>[8]</td>
+    </tr>
+    <tr>
+        <td>16</td>
+        <td>[16, 32, 48, ..., 128]</td>
+    </tr>
+    <tr>
+        <td>32</td>
+        <td>[160, 192, 224, 256]</td>
+    </tr>
+    <tr>
+        <td>64</td>
+        <td>[320, 384, 448, 512]</td>
+    </tr>
+    <tr>
+        <td>128</td>
+        <td>[640, 768, 896, 1024]</td>
+    </tr>
+    <tr>
+        <td>256</td>
+        <td>[1280, 1536, 1792, 2048]</td>
+    </tr>
+    <tr>
+        <td>512</td>
+        <td>[2560, 3072, 3584]</td>
+    </tr>
+    <tr>
+        <th>Large</th>
+        <td>4 KiB</td>
+        <td>[4 KiB, 8 KiB, 12 KiB, ..., 4072 KiB]</td>
+    </tr>
+    <tr>
+        <th>Huge</th>
+        <td>4 MiB</td>
+        <td>[4 MiB, 8 MiB, 12 MiB, ...]</td>
+    </tr>
+</table>
+
+<p>内存占用主要有以下部分：</p>
+<ol>
+<li>数据</li>
+</ol>
+<ul>
+<li>最主要的部分，其占用内存统计在 used_memory 中</li>
+<li>每种类型可能有 2 种或更多的内部编码实现</li>
+<li>存储数据对象时：并不是直接将数据扔进内存，而是对对象进行各种包装：如 redisObject、SDS 等</li>
+</ul>
+<ol start="2">
+<li>进程本身运行需要的内存</li>
+</ol>
+<ul>
+<li>代码、常量池等</li>
+<li>大多数场景中，这部分的内存占用可忽略</li>
+<li>不由 jemalloc 分配，因此不会统计在 used_memory 中</li>
+<li>除主进程外，Redis 创建的子进程也会占用内存：执行 AOF、RDB 重写时创建的子进程<ul>
+<li>这部分内存不属于 Redis 进程，不会统计在 used_memory 和 used_memory_rss 中</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>缓冲内存，包括：</li>
+</ol>
+<ul>
+<li>客户端缓冲区：存储客户端连接的输入输出缓冲</li>
+<li>复制积压缓冲区：用于部分复制功能</li>
+<li>AOF 缓冲区：在进行 AOF 重写时，保存最近的写入命令</li>
+<li>…</li>
+</ul>
+<ol start="4">
+<li>内存碎片</li>
+</ol>
+<ul>
+<li>Redis 分配、回收物理内存过程中产生的<ul>
+<li>如：对数据的更改频繁，且数据之间的大小相差很大</li>
+<li>可能导致 Redis 释放的空间在物理内存中并没有释放，但 Redis 又无法有效利用：形成内存碎片</li>
+</ul>
+</li>
+<li>不会统计在 used_memory 中</li>
+<li>其产生与对数据进行的操作、数据的特点等有关</li>
+<li>与使用的内存分配器有关：如内存分配器设计合理，可尽可能减少内存碎片产生</li>
+<li>如内存碎片很大：安全重启减小内存碎片<ul>
+<li>重启后 Redis 重新从备份文件中读取数据，在内存中进行重排</li>
+</ul>
+</li>
+</ul>
+<p>数据存储的细节<br>例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set hello world</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>对 Redis 每个键值对都有一个 dictEntry，存储指向 key 和 val 的指针；next 指向下一个 dictEntry</li>
+<li>key 为 “hello”：并不是以字符串存储，而是存储在 SDS 结构中</li>
+<li>val 为 “world”：不以字符串或 SDS 结构存储，而是存储在 redisObject 中<ul>
+<li>type：指明 val 对象的类型</li>
+<li>ptr：指向对象所在的地址</li>
+<li>字符串对象 “world” 仍存储于 SDS</li>
+</ul>
+</li>
+<li>内存分配器分配内存<ul>
+<li>如：dictEntry 有三个指针，占用 24 字节：分配 32 字节</li>
+</ul>
+</li>
+</ul>
+<br>
+
 <h1 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h1><p>Redis 是单进程单线程的模型，对于数据的操作完全基于内存，因此 CPU 不是瓶颈；而且单线程容易实现。<br>为何 Redis 是单线程模型，处理起来还仍然这么快？</p>
 <ul>
 <li>数据结构简单，对数据的操作也简单</li>
@@ -684,7 +713,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.1.</span> <span class="nav-text">基本对象</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">持久化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-number">7.</span> <span class="nav-text">集群搭建</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">基本对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#redisObject"><span class="nav-number">2.1.</span> <span class="nav-text">redisObject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SDS"><span class="nav-number">2.2.</span> <span class="nav-text">SDS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">内存模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">7.</span> <span class="nav-text">持久化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-number">8.</span> <span class="nav-text">集群搭建</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
