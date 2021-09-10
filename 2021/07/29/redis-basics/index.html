@@ -28,7 +28,7 @@
 <meta property="og:description" content="在非关系型数据库（NoSQL）中，Redis 绝对是 C 位的存在。今天就开一个帖来专门唠唠 Redis。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-09T10:36:06.545Z">
+<meta property="article:modified_time" content="2021-09-10T06:44:32.131Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -223,9 +223,9 @@
 <h2 id="redisObject"><a href="#redisObject" class="headerlink" title="redisObject"></a><strong>redisObject</strong></h2><ul>
 <li>Redis 的对象类型、内部编码、内存回收、共享对象等功能均需其支持</li>
 </ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="comment">// 对象的类型，占 4 bit</span></span><br><span class="line">    <span class="keyword">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对象的内部编码，占 4 bit</span></span><br><span class="line">    <span class="keyword">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指向底层实现数据结构的指针，即 val 对应的 SDS</span></span><br><span class="line">    <span class="keyword">void</span> *ptr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> notused:<span class="number">2</span>;  <span class="comment">/* Not used */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录对象最后一次被命令程序访问的时间</span></span><br><span class="line">    <span class="comment">// REDIS_LRU_BITS 为 22</span></span><br><span class="line">    <span class="keyword">unsigned</span> lru:REDIS_LRU_BITS;  <span class="comment">/* lru time (relative to server.lruclock) */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录该对象被引用的次数</span></span><br><span class="line">    <span class="keyword">int</span> refcount; </span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="comment">// 对象的类型，占 4 bit</span></span><br><span class="line">    <span class="keyword">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对象的内部编码，占 4 bit</span></span><br><span class="line">    <span class="keyword">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指向底层实现数据结构（即 val 对应的 SDS）的指针</span></span><br><span class="line">    <span class="keyword">void</span> *ptr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> notused:<span class="number">2</span>;  <span class="comment">/* Not used */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录对象最后一次被命令程序访问的时间</span></span><br><span class="line">    <span class="comment">// REDIS_LRU_BITS 在不同版本中的 Redis 的长度也有所不同</span></span><br><span class="line">    <span class="keyword">unsigned</span> lru:REDIS_LRU_BITS;  <span class="comment">/* lru time (relative to server.lruclock) */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录该对象被引用的次数</span></span><br><span class="line">    <span class="keyword">int</span> refcount; </span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
 
-
+<p>一个 redisObject 占用 <strong>16</strong> 字节的空间。</p>
 <p><big><strong>1. type</strong></big></p>
 <p>redisObject 一共有 5 种数据类型：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_STRING 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_LIST 1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_SET 2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ZSET 3</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_HASH 4</span></span><br></pre></td></tr></table></figure>
@@ -248,7 +248,7 @@
 </tr>
 <tr>
 <td>REDIS_ENCODING_INT</td>
-<td>long 类型的整数</td>
+<td>long 类型（8 字节长，64 位）的整数</td>
 </tr>
 <tr>
 <td>REDIS_ENCODING_HT</td>
@@ -260,11 +260,11 @@
 </tr>
 <tr>
 <td>REDIS_ENCODING_LINKEDLIST</td>
-<td>双向链表</td>
+<td>双向链表，非循环</td>
 </tr>
 <tr>
 <td>REDIS_ENCODING_ZIPLIST</td>
-<td>压缩列表</td>
+<td>压缩列表，访问速度较快</td>
 </tr>
 <tr>
 <td>REDIS_ENCODING_INTSET</td>
@@ -287,13 +287,17 @@
 <p><strong>注</strong>：这里比较一下 <code>REDIS_ENCODING_EMBSTR</code> 和 <code>REDIS_ENCODING_RAW</code>（下面简称 embstr 和 raw）：</p>
 <ul>
 <li>embstr 与 raw 都使用 redisObject 和 SDS 保存数据</li>
-<li>embstr 的使用只分配一次内存空间，redisObject 和 SDS 空间上连续<ul>
+<li>从 Redis 3.0 开始引进 embstr，意为 “embedded string”，使用时只分配一次内存空间（因为 redisObject 和 SDS 空间上连续）<ul>
+<li>存储不大于 44 字节的字符串（Redis 3.2 之前是 39）</li>
 <li>好处是：创建时少分配一次空间，删除时少释放一次空间；对象所有数据连在一起，寻找方便</li>
 <li>坏处是：字符串长度增加需要重新分配内存时，整个 redisObject 和 SDS 都需要重新分配空间</li>
 <li>因此 embstr 实现是只读</li>
 </ul>
 </li>
-<li>raw 需要分别为 redisObject 和 SDS 分别分配内存空间</li>
+<li>raw 需要分别为 redisObject 和 SDS 分配内存空间<ul>
+<li>存储大于 44 字节的字符串（Redis 3.2 之前是 39）</li>
+</ul>
+</li>
 </ul>
 <p><big><strong>3. lru</strong></big></p>
 <p>通过对比 lru 的值与当前时间，可计算某个对象的空转时间（object idletime）并打印出来。</p>
@@ -317,7 +321,9 @@
 </ul>
 <p>再说说刚刚提到的 SDS：</p>
 <h2 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a><strong>SDS</strong></h2><p>全称 Simple Dynamic String，简单动态字符串。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> len;  <span class="comment">// buf 已使用的长度</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">free</span>;  <span class="comment">// buf 未使用长度</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字节数组，len(buf)=len+free+1</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之前）</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> len;  <span class="comment">// buf 已使用的长度</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">free</span>;  <span class="comment">// buf 未使用长度</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字节数组，len(buf)=len+free+1</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之后，关于 SDS 有了多种结构：sdshdr5，sdshdr8，sdshdr16，sdshdr32，sdshdr64）</span></span><br><span class="line"><span class="comment">// sdshdr8：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len;  <span class="comment">// 字符数组长度</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc;  <span class="comment">// 字符数组总共分配内存大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags;  <span class="comment">// 标记字符数组属性</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字符串真正的值</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>SDS 在 C 字符串基础上加入了 <code>len</code> 和 <code>free</code> 字段，是为了杜绝缓冲区溢出，并且能存储二进制数据。</p>
 <br>
@@ -329,38 +335,29 @@
 <li>Redis K-V 中的 key 只能为 String 类型</li>
 <li>该类型二进制安全，可以包含任何数据，如 jpg 图像或者序列化的对象</li>
 </ul>
-<p>Redis String 有以下编码方式：</p>
-<ol>
-<li><code>int</code>：8 个字节的长整型<ol>
-<li>字符串值为整型时，该值使用 long 整型表示</li>
-</ol>
-</li>
-<li><code>embstr</code>：&lt;= 39 字节的字符串</li>
-<li><code>raw</code>：大于 39 字节的字符串</li>
-</ol>
 <p>String 编码转换：</p>
 <ul>
 <li>当 int 数据不再是整数，或大小超过 long 范围时，String 自动转为 raw 编码方式</li>
 <li>因 embstr 的实现是只读：修改 String 的值时，先将 embstr 转化为 raw 再进行修改</li>
 </ul>
-<p><strong>Hash</strong></p>
+<p><big><strong>Hash</strong></big></p>
 <ul>
 <li>键值对（key-value）集合</li>
 <li>本质为 String 类型的 field 和 value 的映射表</li>
 <li>指令以 h 开头</li>
 </ul>
-<p><strong>List</strong></p>
+<p><big><strong>List</strong></big></p>
 <ul>
 <li>简单的 String 列表，按照插入顺序排序</li>
 <li>可添加至列表头（左）或尾（右）</li>
 <li>相关操作指令以 l 开头</li>
 </ul>
-<p><strong>Set</strong></p>
+<p><big><strong>Set</strong></big></p>
 <ul>
 <li>元素为 String 的无序不重复集合，通过哈希表实现</li>
 <li>相关操作指令以 s 开头</li>
 </ul>
-<p><strong>zset</strong>（Sorted Set）</p>
+<p><big><strong>zset</strong></big>（Sorted Set）</p>
 <ul>
 <li>String 有序不重复集合，与 Set 类似</li>
 <li>每个元素关联一个 double 类型的权重，Redis 根据权重从小到大排序</li>
@@ -403,12 +400,11 @@
         <td>REDIS_ENCODING_ZIPLIST</td>
         <td>使用压缩列表实现的 hash 对象</td>
         <td></td>
-        <td>存储、读取、修改用户属性</td>
+        <td rowspan="2">存储、读取、修改用户属性</td>
     </tr>
     <tr>
         <td>REDIS_ENCODING_HT</td>
         <td>使用字典实现的 hash 对象</td>
-        <td></td>
         <td></td>
     </tr>
     <tr>
@@ -416,12 +412,11 @@
         <td>REDIS_ENCODING_ZIPLIST</td>
         <td>使用压缩列表实现的列表对象</td>
         <td></td>
-        <td>最新消息排行等功能</td>
+        <td rowspan="2">最新消息排行；消息队列等功能</td>
     </tr>
     <tr>
         <td>REDIS_ENCODING_LINKEDLIST</td>
         <td>使用双向链表实现的列表对象</td>
-        <td></td>
         <td></td>
     </tr>
     <tr>
@@ -429,12 +424,11 @@
         <td>REDIS_ENCODING_INTSET</td>
         <td>使用整数集合实现的集合对象</td>
         <td></td>
-        <td>共同好友<br>利用唯一性统计访问网站的所有独立 IP<br>好友推荐：根据 tag 求交集</td>
+        <td rowspan="2">共同好友<br>利用唯一性统计访问网站的所有独立 IP<br>好友推荐：根据 tag 求交集</td>
     </tr>
     <tr>
         <td>REDIS_ENCODING_HT</td>
         <td>使用字典实现的集合对象</td>
-        <td></td>
         <td></td>
     </tr>
     <tr>
@@ -442,12 +436,11 @@
         <td>REDIS_ENCODING_ZIPLIST</td>
         <td>使用压缩列表实现的有序集合对象</td>
         <td></td>
-        <td>排行榜<br>带权重的消息队列</td>
+        <td rowspan="2">排行榜<br>带权重的消息队列</td>
     </tr>
     <tr>
         <td>REDIS_ENCODING_SKIPLIST</td>
-        <td>使用跳表和字典实现的有续集合对象</td>
-        <td></td>
+        <td>使用跳表和字典实现的有序集合对象</td>
         <td></td>
     </tr>
 </table>
@@ -594,7 +587,7 @@
 <h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><p>设置 key 的有效时间（过期机制）：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">EXPIRE key seconds  <span class="comment"># 为 key 设置过时时间，以秒计算</span></span><br><span class="line"></span><br><span class="line">EXPIREAT key timestamp  <span class="comment"># 设置 key 的超时时间至某个时间戳</span></span><br></pre></td></tr></table></figure>
 
-
+<p>使用 list 实现消息队列</p>
 <h1 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h1><h1 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h1><p>分区：将数据分隔到多个 Redis 实例，每个实例只保存所有 key 的一个子集</p>
 <p>优势：</p>
 <ul>
