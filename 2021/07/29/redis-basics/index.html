@@ -30,9 +30,10 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-encoding-embstr.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-encoding-raw.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redisobj.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-encoding-int.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-type-encoding-mapping.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-13T05:39:38.408Z">
+<meta property="article:modified_time" content="2021-09-13T15:52:13.125Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -331,13 +332,14 @@
 <li>Redis 需要使用值为该范围其中的字符串对象时可直接使用。</li>
 </ul>
 <p>再说说刚刚提到的 SDS：</p>
-<h2 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a><strong>SDS</strong></h2><p>全称 Simple Dynamic String，简单动态字符串。</p>
+<h2 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a><strong>SDS</strong></h2><p>全称 Simple Dynamic String，简单动态字符串，是 Redis 自己开发的字符串抽象类型。</p>
 <p>所谓“动态”，意思是 Redis 能根据 redisObject 不同的值去对应上不同的编码。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之前）</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span> len;  <span class="comment">// buf 已使用的长度</span></span><br><span class="line">    <span class="keyword">int</span> <span class="built_in">free</span>;  <span class="comment">// buf 未使用长度</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字节数组，len(buf)=len+free+1</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之前）</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> len;  <span class="comment">// buf 已使用的长度</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="built_in">free</span>;  <span class="comment">// buf 未使用长度</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字节数组，len(buf)=len+free+1</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之后，关于 SDS 有了多种结构：sdshdr5，sdshdr8，sdshdr16，sdshdr32，sdshdr64）</span></span><br><span class="line"><span class="comment">// sdshdr8：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len;  <span class="comment">// 字符数组长度</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc;  <span class="comment">// 字符数组总共分配内存大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags;  <span class="comment">// 标记字符数组属性</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字符数组，字符串真正的值</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 相比于 Redis 3.2 之前的 sdshdr 优化了 5 个字节的空间，使 embstr 数据空间多了 5 字节</span></span><br></pre></td></tr></table></figure>
 
-<p>SDS 在 C 字符串基础上加入了 <code>len</code> 和 <code>free</code> 字段，是为了杜绝缓冲区溢出，并且能存储二进制数据。</p>
+<p>SDS 在 C 字符串基础上加入了 <code>len</code> 和 <code>free</code>（<code>alloc</code>） 字段，是为了杜绝缓冲区溢出（C 字符串在没有进行足够的内存分配时，会存在缓冲区溢出的情况），并且能存储二进制数据；<br>同时 <code>len</code> 字段降低了原本 C 字符串读取字符长度的复杂度（从 <strong>O</strong>(n) 降为 <strong>O</strong>(1)）。</p>
+<p>这也是 Redis 使用自己开发的字符串的原因。</p>
 <br>
 
 <h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h1><p>Redis 作为 NoSQL 类型的内存数据库，在内存中主要以键值对（key-value）的方式存储内容：</p>
@@ -350,11 +352,74 @@
 <li>Redis K-V 中的 key 只能为 String 类型</li>
 <li>该类型二进制安全，可以包含任何数据，如 jpg 图像或者序列化的对象</li>
 </ul>
+<p>String 最简单的编码：</p>
+<p><img src="/2021/07/29/redis-basics/redis-encoding-int.png"></p>
 <p>String 编码转换：</p>
 <ul>
 <li>当 int 数据不再是整数，或大小超过 long 范围时，String 自动转为 raw 编码方式</li>
-<li>因 embstr 的实现是只读：修改 String 的值时，先将 embstr 转化为 raw 再进行修改</li>
+<li>因 embstr 的实现是只读：修改 String 的值时，要先将 embstr 转化为 raw，再进行修改</li>
 </ul>
+<p>String 类型相关指令：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>set key value</td>
+<td>将对应 key 赋值为 value</td>
+</tr>
+<tr>
+<td>get key</td>
+<td>获取 key 对应的 value 值</td>
+</tr>
+<tr>
+<td>del key</td>
+<td>删除 key</td>
+</tr>
+<tr>
+<td>expire key seconds</td>
+<td>设置 key 在 seconds 秒后过期</td>
+</tr>
+<tr>
+<td>expireat key timestamp</td>
+<td>设置 key 的超时时间至某个时间戳</td>
+</tr>
+<tr>
+<td>setex key timeout value</td>
+<td>如果 key 存在，则将值更新为 value，过期时间为 timeout 秒</td>
+</tr>
+<tr>
+<td>ttl key</td>
+<td>查看 key 还有多久过期</td>
+</tr>
+<tr>
+<td>setnx key value</td>
+<td>如果 key 不存在，就新增 key 和 value</td>
+</tr>
+<tr>
+<td>strlen key</td>
+<td>计算 key 对应 value 的长度</td>
+</tr>
+<tr>
+<td>incr key</td>
+<td>如果 key 对应的 value 值为 int 类型，则自增 1；否则报错</td>
+</tr>
+<tr>
+<td>incrby key numbers</td>
+<td>如果 key 对应的 value 值为 int 类型，则增加对应的值；否则报错</td>
+</tr>
+<tr>
+<td>mset key1 value1 key2 value2 …</td>
+<td>批量添加</td>
+</tr>
+<tr>
+<td>mget key1 key2 key3 …</td>
+<td>批量设置</td>
+</tr>
+</tbody></table>
 <p><big><strong>Hash</strong></big></p>
 <ul>
 <li>键值对（key-value）集合</li>
@@ -598,10 +663,7 @@
 <li>采用单线程，避免不必要的上下文切换和竞争条件</li>
 <li>使用非阻塞 IO</li>
 </ul>
-<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><p>设置 key 的有效时间（过期机制）：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">EXPIRE key seconds  <span class="comment"># 为 key 设置过时时间，以秒计算</span></span><br><span class="line"></span><br><span class="line">EXPIREAT key timestamp  <span class="comment"># 设置 key 的超时时间至某个时间戳</span></span><br></pre></td></tr></table></figure>
-
-<p>使用 list 实现消息队列</p>
+<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><p>使用 list 实现消息队列</p>
 <h1 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h1><h1 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h1><p>分区：将数据分隔到多个 Redis 实例，每个实例只保存所有 key 的一个子集</p>
 <p>优势：</p>
 <ul>
