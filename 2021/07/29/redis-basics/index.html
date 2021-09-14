@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-encoding-int.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-type-encoding-mapping.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-14T01:17:39.155Z">
+<meta property="article:modified_time" content="2021-09-14T15:37:54.141Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -338,7 +338,15 @@
 
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之后，关于 SDS 有了多种结构：sdshdr5，sdshdr8，sdshdr16，sdshdr32，sdshdr64）</span></span><br><span class="line"><span class="comment">// sdshdr8：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len;  <span class="comment">// 字符数组长度</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc;  <span class="comment">// 字符数组总共分配内存大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags;  <span class="comment">// 标记字符数组属性</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字符数组，字符串真正的值</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 相比于 Redis 3.2 之前的 sdshdr 优化了 5 个字节的空间，使 embstr 数据空间多了 5 字节</span></span><br></pre></td></tr></table></figure>
 
-<p>SDS 在 C 字符串基础上加入了 <code>len</code> 和 <code>free</code>（<code>alloc</code>） 字段，是为了杜绝缓冲区溢出（C 字符串在没有进行足够的内存分配时，会存在缓冲区溢出的情况），并且能存储二进制数据；<br>同时 <code>len</code> 字段降低了原本 C 字符串读取字符长度的复杂度（从 <strong>O</strong>(n) 降为 <strong>O</strong>(1)）。</p>
+<p>SDS 在 C 字符串基础上加入了 <code>len</code> 和 <code>free</code>（<code>alloc</code>） 字段，是为了杜绝缓冲区溢出（C 字符串在没有进行足够的内存分配时，会存在缓冲区溢出的情况），并且能存储二进制数据；</p>
+<p>同时 <code>len</code> 字段降低了原本 C 字符串读取字符长度的复杂度（从 <strong>O</strong>(n) 降为 <strong>O</strong>(1)）；</p>
+<p>另外，SDS 通过<strong>空间预分配</strong>和<strong>惰性空间释放</strong>来解决内存重新分配带来的性能问题：</p>
+<ul>
+<li>对 SDS 的值进行修改之后，如 SDS 的长度小于 1 M，此时分配的 len = free</li>
+<li>如 &gt;= 1 M，就按照 1 M 分配</li>
+<li>修改删除部分元素时，不及时释放，还保留空间（len 减少掉的数量加到 free 里）</li>
+</ul>
+<p>针对 C 字符串只能通过 ‘\0’ 判断字符串结束，且不能存储空字符串的特性，SDS 通过 len 字段判定结尾，且能够存储任意数据。</p>
 <p>这也是 Redis 使用自己开发的字符串的原因。</p>
 <br>
 
@@ -417,7 +425,7 @@
 </tr>
 <tr>
 <td>mget key1 key2 key3 …</td>
-<td>批量设置</td>
+<td>批量获取</td>
 </tr>
 </tbody></table>
 <p><big><strong>Hash</strong></big></p>
@@ -426,12 +434,54 @@
 <li>本质为 String 类型的 field 和 value 的映射表</li>
 <li>指令以 h 开头</li>
 </ul>
+<p>ziplist 编码特点：如上，所有数据内存上连续，以实现快速访问。</p>
 <p><big><strong>List</strong></big></p>
 <ul>
 <li>简单的 String 列表，按照插入顺序排序</li>
 <li>可添加至列表头（左）或尾（右）</li>
 <li>相关操作指令以 l 开头</li>
 </ul>
+<p>List 类型相关指令：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>lpush key value1 value2</td>
+<td>往 key 的左侧插入 value1、value2 …</td>
+</tr>
+<tr>
+<td>rpush key value1 value2</td>
+<td>往 key 的右侧插入 value1、value2 …</td>
+</tr>
+<tr>
+<td>lpop key</td>
+<td>从 key 的左侧弹出元素</td>
+</tr>
+<tr>
+<td>rpop key</td>
+<td>从 key 的右侧弹出元素</td>
+</tr>
+<tr>
+<td>llen key</td>
+<td>查看 key 的长度（元素个数）</td>
+</tr>
+<tr>
+<td>lindex key index</td>
+<td>查看列表 key 中某个 index 对应的值</td>
+</tr>
+<tr>
+<td>lrange key startIndex endIndex</td>
+<td>查看指定范围内元素，下标从 0 开始</td>
+</tr>
+<tr>
+<td>ltrim key startIndex endIndex</td>
+<td>保留指定范围内元素，删除其他元素；下标从 0 开始</td>
+</tr>
+</tbody></table>
 <p><big><strong>Set</strong></big></p>
 <ul>
 <li>元素为 String 的无序不重复集合，通过哈希表实现</li>
@@ -454,73 +504,61 @@
         <th>类型</th>
         <th>编码（Redis 3.0）</th>
         <th>简介</th>
-        <th>特性</th>
         <th>应用场景</th>
     </tr>
     <tr>
         <th rowspan="3">String (REDIS_STRING)</th>
         <td>REDIS_ENCODING_INT</td>
         <td>使用整数值实现的字符串对象</td>
-        <td></td>
         <td rowspan="3"></td>
     </tr>
     <tr>
         <td>REDIS_ENCODING_EMBSTR</td>
         <td>使用 embstr 编码的 SDS 实现的字符串对象</td>
-        <td></td>
     </tr>
     <tr>
         <td>REDIS_ENCODING_RAW</td>
         <td>使用 SDS 实现的字符串对象</td>
-        <td></td>
     </tr>
     <tr>
         <th rowspan="2">Hash (REDIS_HASH)</th>
         <td>REDIS_ENCODING_ZIPLIST</td>
         <td>使用压缩列表实现的 hash 对象</td>
-        <td></td>
         <td rowspan="2">存储、读取、修改用户属性</td>
     </tr>
     <tr>
         <td>REDIS_ENCODING_HT</td>
         <td>使用字典实现的 hash 对象</td>
-        <td></td>
     </tr>
     <tr>
         <th rowspan="2">List (REDIS_LIST)</th>
         <td>REDIS_ENCODING_ZIPLIST</td>
         <td>使用压缩列表实现的列表对象</td>
-        <td></td>
         <td rowspan="2">最新消息排行；消息队列等功能</td>
     </tr>
     <tr>
         <td>REDIS_ENCODING_LINKEDLIST</td>
         <td>使用双向链表实现的列表对象</td>
-        <td></td>
     </tr>
     <tr>
         <th rowspan="2">Set (REDIS_SET)</th>
         <td>REDIS_ENCODING_INTSET</td>
         <td>使用整数集合实现的集合对象</td>
-        <td></td>
         <td rowspan="2">共同好友<br>利用唯一性统计访问网站的所有独立 IP<br>好友推荐：根据 tag 求交集</td>
     </tr>
     <tr>
         <td>REDIS_ENCODING_HT</td>
         <td>使用字典实现的集合对象</td>
-        <td></td>
     </tr>
     <tr>
         <th rowspan="2">Sorted Set (REDIS_ZSET)</th>
         <td>REDIS_ENCODING_ZIPLIST</td>
         <td>使用压缩列表实现的有序集合对象</td>
-        <td></td>
         <td rowspan="2">排行榜<br>带权重的消息队列</td>
     </tr>
     <tr>
         <td>REDIS_ENCODING_SKIPLIST</td>
         <td>使用跳表和字典实现的有序集合对象</td>
-        <td></td>
     </tr>
 </table>
 
