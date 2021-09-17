@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-type-encoding-mapping.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/list-message-queue.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-17T15:24:39.426Z">
+<meta property="article:modified_time" content="2021-09-17T15:28:06.073Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -853,6 +853,10 @@
 <h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><p>实现要点：</p>
 <h2 id="高级对象实现：位图-bitmap"><a href="#高级对象实现：位图-bitmap" class="headerlink" title="高级对象实现：位图 bitmap"></a>高级对象实现：位图 bitmap</h2><h1 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h1><p>AOF</p>
 <p>RDB</p>
+<p>相关参数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> &#123;</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
 <h1 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h1><p>分区：将数据分隔到多个 Redis 实例，每个实例只保存所有 key 的一个子集</p>
 <p>优势：</p>
 <ul>
