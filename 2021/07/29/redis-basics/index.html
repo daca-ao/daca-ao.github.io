@@ -41,8 +41,9 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/zset-encoding-skiplist.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-type-encoding-mapping.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/list-message-queue.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/list-message-queue-model.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-18T16:20:36.877Z">
+<meta property="article:modified_time" content="2021-09-19T05:48:33.061Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -849,7 +850,16 @@
 <h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><p>可以使用 list 实现消息队列。基本操作与模型的对应如下：</p>
 <p><img src="/2021/07/29/redis-basics/list-message-queue.png"></p>
 <p>基于主流配置，结合生产者与消费者的模型如下：</p>
-<p>![]</p>
+<p><img src="/2021/07/29/redis-basics/list-message-queue-model.png"></p>
+<p>可以使用 <code>blpop</code> 或 <code>brpop</code> （<code>b</code> 表示阻塞 blocking）实现“拉”的消息获取。</p>
+<ul>
+<li>不过，因为操作会一直阻塞 list，Redis 监测到一段时间 list 没有消息，会抛出异常，令 MQ 终止。</li>
+<li>因此实现消息队列时需要捕获这种异常并加以处理（重建队列，…）</li>
+</ul>
+<p>如果要实现延时队列的话，需要将模型改为 <code>zset</code>，给某一个时段进入的消息赋予一定的 score，然后通过对应操作（如 <code>zrangebyscore</code>）获取消息。</p>
+<p>因为市面上成熟的 AMQP 产品很多，同时 MySQL 也有消息队列功能提供，一般不会使用 Redis 来做消息队列。</p>
+<br>
+
 <h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><p>加锁操作：<code>setnx</code> + 过期时间</p>
 <p>解锁：<code>del key</code>，原子性操作</p>
 <p>实现要点：</p>
@@ -870,12 +880,18 @@
 </ul>
 <p>解决方法：加锁（set 操作）的时候，value 带上<strong>唯一标识</strong>（如线程 ID），就会避免解错锁的情况。</p>
 <p><strong>3. 单点问题</strong></p>
-<p>甲线程获得锁之后</p>
-<h2 id="高级对象实现：位图-bitmap"><a href="#高级对象实现：位图-bitmap" class="headerlink" title="高级对象实现：位图 bitmap"></a>高级对象实现：位图 bitmap</h2><h1 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h1><p>AOF</p>
+<p>在 Redis <strong>集群环境</strong>中，甲线程获得锁之后，将信息保存到主节点；<br>在信息同步至从节点的过程中，主节点挂掉了（……）；从节点会升级为主节点，但是它并没有保存到甲线程获取到锁的信息，导致锁会被其它线程获取到。</p>
+<p>解决方法：Redlock 算法</p>
+<br>
+
+<h2 id="高级对象实现：位图-bitmap"><a href="#高级对象实现：位图-bitmap" class="headerlink" title="高级对象实现：位图 bitmap"></a>高级对象实现：位图 bitmap</h2><br>
+
+<h1 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h1><p>AOF</p>
 <p>RDB</p>
 <p>相关参数</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> &#123;</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<br>
 
 <h1 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h1><p>分区：将数据分隔到多个 Redis 实例，每个实例只保存所有 key 的一个子集</p>
 <p>优势：</p>
