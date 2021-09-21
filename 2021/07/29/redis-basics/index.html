@@ -45,7 +45,7 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/distributed-lock.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/rdb.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-21T14:29:47.977Z">
+<meta property="article:modified_time" content="2021-09-21T14:40:08.616Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -901,11 +901,12 @@
 <li>对于内存比较大的实例会造成长时间的阻塞</li>
 <li>已被逐渐废弃，线上环境不建议使用</li>
 </ul>
-<p>BGSAVE</p>
+<p>BGSAVE (<strong>B</strong>ack<strong>G</strong>round <strong>SAVE</strong>)</p>
 <ul>
 <li>Redis 进程执行 fork 操作创建子进程，由该子进程负责 RDB 的持久化，完成后自动结束</li>
 <li>由此可知，定时执行初始化使用的就是 BGSAVE</li>
 <li>阻塞只发生在 fork 阶段，只占很短的一段时间</li>
+<li>系统的条件检测器 Server Cron 每 <strong>100ms</strong> 进行一次条件检测，满足备份条件才会创建子进程执行持久化</li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Background saving started</span><br></pre></td></tr></table></figure>
 
@@ -921,8 +922,8 @@
 </ul>
 <br>
 
-<h2 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h2><p>全称 <strong>A</strong>ppend <strong>O</strong>nly <strong>F</strong>ile</p>
-<p>AOF 频率比 RDB 高。</p>
+<h2 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h2><p>全称 <strong>A</strong>ppend <strong>O</strong>nly <strong>F</strong>ile。</p>
+<p>AOF 频率比 RDB 高；如果开启了 AOF 开关，服务器会先执行 AOF，否则会执行 RDB。</p>
 <br>
 
 <h1 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h1><p>分区：将数据分隔到多个 Redis 实例，每个实例只保存所有 key 的一个子集</p>
