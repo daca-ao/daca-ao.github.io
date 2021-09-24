@@ -47,7 +47,7 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/aof.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/write-sync.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-24T01:26:39.235Z">
+<meta property="article:modified_time" content="2021-09-24T14:49:24.802Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -929,8 +929,20 @@
 <p><img src="/2021/07/29/redis-basics/aof.png"></p>
 <p>多提一嘴：其实真正的写入文件，是包括写入和同步的：</p>
 <p><img src="/2021/07/29/redis-basics/write-sync.png"></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes  <span class="comment"># 开关</span></span><br><span class="line"></span><br><span class="line">appendfilename <span class="string">&quot;appendonly.aof&quot;</span>  <span class="comment"># 文件名</span></span><br><span class="line"></span><br><span class="line">appendfsync always  <span class="comment"># 将 aof_buf 的内容写入并同步到 AOF 文件中</span></span><br><span class="line">appendfsync everysec  <span class="comment"># </span></span><br><span class="line">appendfsync no  <span class="comment"># </span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes  <span class="comment"># 开关</span></span><br><span class="line"></span><br><span class="line">appendfilename <span class="string">&quot;appendonly.aof&quot;</span>  <span class="comment"># 文件名</span></span><br></pre></td></tr></table></figure>
 
+<p>比较一下这三种写入策略：</p>
+<p><code>appendfsync always</code>：将 aof_buf 的内容写入并同步到 AOF 文件中，真正地将指令写入了磁盘</p>
+<ul>
+<li>优点：能够保证基本数据不丢失</li>
+<li>缺点：效率低，给磁盘带来的压力很大</li>
+</ul>
+<p><code>appendfsync everysec</code>：将 aof_buf 的内容先行写入 AOF 文件中；若上次同步时间距今超过 1 秒，则进行 AOF 同步</p>
+<ul>
+<li>默认设置</li>
+</ul>
+<p><code>appendfsync no</code>：将 aof_buf 的内容先行写入 AOF 文件中，但不同步 AOF 文件；何时同步由操作系统决定。</p>
+<p>由此显而易见，AOF 的<strong>缺陷</strong>是：文件会增长。<br>不仅会占用大量的空间，还会拖慢 Redis 服务启动时数据的加载速度。</p>
 <br>
 
 <h1 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h1><p>分区：将数据分隔到多个 Redis 实例，每个实例只保存所有 key 的一个子集</p>
