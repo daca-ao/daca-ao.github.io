@@ -47,8 +47,9 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/aof.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/write-sync.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/aof-rewrite.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-cluster.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-25T15:33:16.528Z">
+<meta property="article:modified_time" content="2021-09-26T15:29:36.924Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -974,7 +975,9 @@
 </ul>
 <br>
 
-<h1 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h1><p>（待补充）</p>
+<h1 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h1><p><img src="/2021/07/29/redis-basics/redis-cluster.png"></p>
+<p>master 支持数据的更新和修改，slave 只支持数据的查看。</p>
+<p>同时，Redis 的主从切换，需要 Sentinel 的支持。</p>
 
     </div>
 
