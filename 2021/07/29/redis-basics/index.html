@@ -49,7 +49,7 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/aof-rewrite.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-cluster.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-26T15:29:36.924Z">
+<meta property="article:modified_time" content="2021-09-27T15:41:57.928Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -872,7 +872,7 @@
 <p><img src="/2021/07/29/redis-basics/distributed-lock.png"></p>
 <p>概述：</p>
 <ul>
-<li>加锁操作：<code>setnx</code> + 过期时间</li>
+<li>加锁操作：<code>setnx</code> + 过期时间 -&gt; <code>set key value ex timeout nx</code></li>
 <li>解锁：<code>del key</code>，原子性操作</li>
 </ul>
 <p>实现要点：</p>

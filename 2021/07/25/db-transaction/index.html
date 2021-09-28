@@ -28,7 +28,7 @@
 <meta property="og:description" content="我们常说到的数据库事务（Transaction），指的是访问并可能更新数据库中各种数据项的一个程序执行单元。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-25T14:15:36.000Z">
-<meta property="article:modified_time" content="2021-08-29T14:19:53.187Z">
+<meta property="article:modified_time" content="2021-09-28T14:58:09.931Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary">
@@ -496,7 +496,9 @@
 <li>脏读读取的是其它事务<strong>未提交</strong>的脏数据</li>
 <li>不可重复读读取的是其它事务<strong>已经提交</strong>的数据</li>
 </ul>
-<table>
+<br>
+
+<h2 id="幻读"><a href="#幻读" class="headerlink" title="幻读"></a>幻读</h2><table>
 <thead>
 <tr>
 <th align="center">幻读示意</th>
@@ -1081,7 +1083,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E5%AF%B9%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E6%80%A7%E7%9A%84%E7%A0%B4%E5%9D%8F"><span class="nav-number">1.</span> <span class="nav-text">并发对数据库事务隔离性的破坏</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%8F%E5%86%99"><span class="nav-number">1.1.</span> <span class="nav-text">脏写</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%A2%E5%A4%B1%E6%9B%B4%E6%96%B0"><span class="nav-number">1.2.</span> <span class="nav-text">丢失更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%8F%E8%AF%BB"><span class="nav-number">1.3.</span> <span class="nav-text">脏读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB"><span class="nav-number">1.4.</span> <span class="nav-text">不可重复读</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">2.</span> <span class="nav-text">事务隔离级别</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E5%8F%91%E5%AF%B9%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E6%80%A7%E7%9A%84%E7%A0%B4%E5%9D%8F"><span class="nav-number">1.</span> <span class="nav-text">并发对数据库事务隔离性的破坏</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%8F%E5%86%99"><span class="nav-number">1.1.</span> <span class="nav-text">脏写</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%A2%E5%A4%B1%E6%9B%B4%E6%96%B0"><span class="nav-number">1.2.</span> <span class="nav-text">丢失更新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%8F%E8%AF%BB"><span class="nav-number">1.3.</span> <span class="nav-text">脏读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB"><span class="nav-number">1.4.</span> <span class="nav-text">不可重复读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%BB%E8%AF%BB"><span class="nav-number">1.5.</span> <span class="nav-text">幻读</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">2.</span> <span class="nav-text">事务隔离级别</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
