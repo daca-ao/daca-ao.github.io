@@ -27,11 +27,13 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="今天在学习整理系统并发的知识点的时候，发现自己对操作系统调度的某些概念有些模糊了，特别是线程这一块。今天就另开一个帖子记一下。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2021/08/03/threads/threads-and-processes.png">
 <meta property="article:published_time" content="2021-08-03T14:24:37.000Z">
-<meta property="article:modified_time" content="2021-08-08T17:18:42.387Z">
+<meta property="article:modified_time" content="2021-09-28T15:20:34.880Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="操作系统">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/08/03/threads/threads-and-processes.png">
 
 <link rel="canonical" href="http://example.com/2021/08/03/threads/">
 
@@ -219,15 +221,18 @@
 </ul>
 <p>而线程，是对程序中单独顺序控制流程的封装，即一个执行流程</p>
 <ul>
+<li>进程<strong>调度的最小单元</strong></li>
 <li>线程本身依靠程序的进行而运行（总是属于某个进程），只能使用分配给它所依靠的进程的资源和环境</li>
 <li>主要由线程ID、当前指令指针（PC）、寄存器集合（Registers）和堆栈（Heap &amp; Stack）等组成</li>
 <li>一个进程可运行多个线程，多个线程共享进程的内存<ul>
 <li>包括内存空间和打开的文件</li>
 </ul>
 </li>
-<li>线程也叫“轻量级进程（Light-Weight Process, LWP）”</li>
+<li>线程也叫“<strong>轻量级进程</strong>（<strong>Light-Weight Process</strong>, <strong>LWP</strong>）”</li>
 </ul>
+<p>处理器在线程之间高速地切换，让使用者感觉线程在同时执行。</p>
 <p>刚刚说到，一个进程可以包含不止一个线程。<br>单线程，指的是程序中只存在一个线程；实际上，程序的主方法就是一个主线程。<br>多线程，指的是在一个程序中运行多个任务，目的是更好的使用CPU资源。一个程序中多个线程如果同时执行的时候，我们称之为<strong>并发</strong>。</p>
+<p><img src="/2021/08/03/threads/threads-and-processes.png"></p>
 <br>
 
 <h1 id="线程状态"><a href="#线程状态" class="headerlink" title="线程状态"></a>线程状态</h1><p><strong>就绪</strong></p>
