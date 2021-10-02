@@ -18,7 +18,7 @@ JVM 的具体实现和调优纷繁复杂，本帖主要记录一些开发和测�
 JVM 的启动参数共分为三类：
 1. 标准参数（-）：所有的 JVM 实现都必须实现这些参数的功能，而且向后兼容；
 2. 非标准参数（-X）：默认的 JVM 实现这些参数的功能，但是并不保证所有 JVM 的实现都满足，且不保证向后兼容；
-3. 非Stable参数（-XX）：此类参数各个 JVM 的实现会有所不同，将来可能会随时取消，需要慎重使用。
+3. 非 Stable 参数（-XX）：此类参数各个 JVM 的实现会有所不同，将来可能会随时取消，需要慎重使用。
 
 <br/>
 
@@ -57,8 +57,8 @@ JVM 的启动参数共分为三类：
 # 注：因永久区在 Java 8 已被取消，上述两个参数仅适用于 Java 7 及之前版本
 
 # 仅适用于 Java 8 及以后版本
--XX:MaxMetaspaceSize=<max_metaspace_size>[unit]  # 设置 Metaspace 元数据区最大值，默认没有限制
-
+-XX:MaxMetaspaceSize=<max_metaspace_size>[unit]  # 设置 Metaspace 元空间最大值，默认没有限制
+# 设置了值之后，每当元空间达到阈值之后，方法区开始内存回收。
 
 -XX:SurvivorRatio=<ratio>  # 设置 Survivor 区与 Eden 区的比例，默认为 0.25
 # 如: -XX:SurvivorRatio=0.25
@@ -128,9 +128,6 @@ verbose:gc  # 启动 JVM 时，输出 JVM 里面的 GC 信息
 ```
 
 
-#
-
-
 # 其他
 
 ```bash
@@ -157,31 +154,10 @@ verbose:gc  # 启动 JVM 时，输出 JVM 里面的 GC 信息
 -XX:+PrintCommandLineFlags  # 打印虚拟机显式和隐式参数
 -XX:+PrintFlagsFinal  # 打印所有系统参数
 -XX:+PrintTLAB  # 打印 TLAB 相关分配信息
--XX:+UseTLAB  # 打开 TLAB
+-XX:+UseTLAB  # 打开 TLAB，默认开启
 -XX:TLABSize  # 设置 TLAB 大小
 -XX:+ResizeTLAB  # 自动调整 TLAB 大小
+-XX:TLABWasteTargetPercent  # 设置 TLAB 所占用 Eden 空间的百分比
 -XX:+DisableExplicitGC  # 禁用显式 GC（System.gc()）
 -XX:+ExplicitGCInvokesConcurrent  # 使用并发方式处理显式 GC
 ```
-
-<br/>
-
-## 另：逃逸分析（Escape Analysis）浅析
-* Java Hotspot 虚拟机可分析新创建对象的使用范围，并决定是否要在 Java 堆上分配内存的一项技术
-
-对象的逃逸状态：
-1. 全局逃逸：对象作用范围逃出了当前方法或当前线程
-    1. 对象是一个静态变量
-    2. 对象是一个已经发生逃逸的对象
-    3. 对象作为当前方法的返回值
-2. 参数逃逸：一个对象被作为方法参数传递或者被参数引用
-    1. 但在调用过程中不会发生全局逃逸
-    2. 状态通过被调方法的字节码确定的
-3. 没有逃逸
-
-当一个对象没有发生逃逸时，可得到以下几个虚拟机的优化：
-* 锁消除：编译器确定当前对象只有被当前线程使用的时候，会移除该对象的同步锁
-    * 如：移除当前线程的 StringBuffer 的同步锁
-* 标量替换：将聚合量（对象）打散、分解成标量，将其成员变量分解为分散的变量
-    * 如一个对象没有发生逃逸，则无需创建它，只会在栈或寄存器创建它通道的成员标量，节省内存空间
-* 在栈上分配

@@ -15,8 +15,8 @@ tags:
 
 # 字符串常量池
 在编译期间就把所有字符串文字放入一个常量池中：
-1. 对于 `String s = “hello”;` 直接生成放入常量池
-2. 对于 `String s = new String(“hello”);` 常量池生成 “hello” 常量，new 的实例会在运行时在堆中创建
+1. 对于 `String s = "hello";` 直接生成放入常量池
+2. 对于 `String s = new String("hello");` 常量池生成 "hello" 常量，new 的实例会在运行时在堆中创建
 
 实现：`StringTable` 类，类似于一个 Hash 表
 1. Java 6 及之前版本：长度固定为 1009
@@ -26,7 +26,7 @@ tags:
 * 节省内存空间：在常量池中，所有相同的字符串常量会被合并，最终只占一个空间。
 * 节省运行时间：比较字符串时 `==` 比 `equals()` 快；对于两个引用变量，只用 `==` 判断引用是否相等，也就可以判断实际值是否相等。
 
-小问题：两个线程共享字符串常量池同一个字符串，其中一个线程改变它会如何？  
+**小问题**：两个线程共享字符串常量池同一个字符串，其中一个线程改变它会如何？  
 答：线程安全，因为 String 是 `final` 类
 
 <br/>
@@ -59,17 +59,19 @@ tags:
 
 ![](constant-pool/constant-pool.png)
 
+
 其他信息：
 1. Java 6 及之前，常量池位于方法区，从 Java 7 之后移到了堆中
 2. 类加载期间就把常量加载进了常量池
-3. 部分原子类型及其包装类也有自己的常量池
-    * `byte`, `short`, `int`, `long`, `char`, `boolean` 类型的常量池范围：除 `boolean` (`true`/`false`)、`char` [0 - 127] 外全部为 [-128, 127]
-    * `float` 和 `double` 类型没有常量池：与精度有关
+3. 部分原子类型的包装类也有自己的常量池
+    * `Byte`, `Short`, `Integer`, `Long`, `Character`, `Boolean` 类型的常量池范围：除 `Boolean` (`true`/`false`)、`Character` [0 - 127] 外全部为 [-128, 127]
+    * `Float` 和 `Double` 类型没有常量池：与精度有关
 4. 原始数据类型的包装类和 `String` 作为方法参数时，是值传递。
 
-示例代码 1：
+
+测试代码：
 ```java
-public class Test {
+public class ConstantPoolTest {
 
     private static final String hel = "hel";
     private static final String lo = "lo";
@@ -84,7 +86,7 @@ public class Test {
 
         Integer i3 = -128;
         Integer i4 = -128;
-        // i3 == i4, 指向常量池中同一内存(-128~127)：Java 5+ 的机制
+        // i3 == i4, 指向常量池中同一内存(-128~127)：since Java 5 的机制
         // 自动装箱，Integer i3 = Integer.valueOf(-128);
         // valueOf 会返回常量池中的对象或新生成堆中对象，此处返回常量池对象
         // 注：算术计算（加减乘除）时也会自动拆箱
@@ -114,62 +116,55 @@ public class Test {
         String hello = "hello", hel = "hel", lo = "lo";
         /**
          * hello == "hello", 指向常量池中同一内存
-         * hello == "hel" + "lo", 编译器自动对操作符右边进行优化：编译阶段就进行拼接
+         * 
+         * hello == "hel" + "lo", 编译器自动对操作符右边的常量拼接进行优化：编译阶段就进行拼接
+         * 
          * hello != "hel" + lo, 编译器不会优化变量，过程相当于：
-         *     new StringBuilder().append("hel").append(lo).toString();
-         *     通过 StringBuilder::toString 返回 new String()，指向堆中的变量
-         * hello != hel + lo, 变量拼接不可预料无法优化
-         * hello == Test.hel + Test.lo, static final常量指向常量池中的常量
+         *   - new StringBuilder().append("hel").append(lo).toString();
+         *   - 通过 StringBuilder::toString 返回 new String()，所以是指向堆中的变量
+         * 
+         * hello != hel + lo, 变量拼接不可预料，无法优化
+         * hello == Test.hel + Test.lo, 静态常量指向常量池中的常量
          * hello == (hel + lo).intern()，手动载入常量池
-         *     true，因执行 intern 后返回的是”hello”在常量池中的对象
+         *     true，因执行 intern() 后返回的是 "hello" 在常量池中的对象
          * Test.hel + Test.lo == (hel + lo).intern()，手动载入常量池
          */
 
         hello.intern();
-        // 手动载入常量池，将对应的符号常量作特殊处理
-        // Java 6 及之前：字符串如已存在于常量池，则直接返回该常量，否则将其加入到字符串常量池
-        // Java 7 及以后：字符串如已存在于常量池，则直接返回该常量，否则说明字符串在堆中，将堆中对改字符串的引用添加至字符串常量池
-        //     以后拿到的是该字符串的引用，实际则存在于堆中
+        // 手动将字符串载入常量池，并将对应的符号常量作特殊处理
+        // Java 6 及之前：字符串如已存在于常量池，则直接返回该常量；否则将其加入到常量池
+        // Java 7 及以后：字符串如已存在于常量池，则直接返回该常量；否则说明字符串在堆中，将对在堆中的该字符串的引用（引用指向堆中的字符串）添加至常量池
+        //   - 以后拿到的是该字符串的引用，实际则存在于堆中
 
-        String str1 = new String("1"); // 执行前在常量池创建"1"，执行时 new 一个"1"的对象存放到堆，然后 str1 指向堆中的变量
-        str1.intern(); // 查看"1"是否在常量池中，存在则直接返回该常量
-        String str2 = "1"; // 此时"1"已存在于常量池，str2 指向常量池的对象
+        String str1 = new String("1");
+        // 执行前：在常量池创建 "1"
+        // 执行时：new 一个 "1" 的对象存放到堆，然后 str1 指向堆中的变量
+        str1.intern();  // 查看 "1" 是否在常量池中，存在则直接返回该常量
+        String str2 = "1";  // 此时 "1" 已存在于常量池，str2 指向常量池的对象
         System.out.println(str1 == str2);  // false，因指向不同的位置
 
-        String str3 = new String("2") + new String("2"); // 底层调用 StringBuilder::append 拼接"2"和"2"，再调用 toString 方法 new 一个 String 对象"22"，因此是在堆里创建的
-        str3.intern(); // 此时堆中有"22"，但常量池还没有"22"，此时 Java 6- 会在常量池创建"22"，Java 7+ 则将堆中对"22"的引用放入常量池
-        String str4 = "22"; // Java 6- 指向常量池，Java 7+ 指向堆中的变量
-        System.out.println(str3 == str4); // Java 6- 为 false，Java 7+ 为 true
+        String str3 = new String("2") + new String("2");
+        // 底层调用 StringBuilder::append 拼接 "2" 和 "2"，再调用 toString() 去 new 一个 String 对象 "22"
+        // 因此 "22" 是在堆里创建的
+        str3.intern();  // 此时堆中有 "22"，但常量池还没有 "22"
+        // Java 6-：在常量池创建 "22"
+        // Java 7+：将堆中对 "22" 的引用放入常量池
+        String str4 = "22";
+        // Java 6- 指向常量池中的 "22"
+        // Java 7+ 指向常量池中的引用，即 str3，最终指向堆中的变量
+        System.out.println(str3 == str4);
+        // Java 6- 为 false（同 str1 与 str2 的比较）
+        // Java 7+ 为 true
+
+        String str5 = new String("3");
+        String str6 = "3";
+        str5.intern();  // "3" 已经存在于常量池中
+        System.out.println(str5 == str6);  // false
+
+        String str7 = new String("4") + new String("4");  // 该 "44" 在堆里创建
+        String str8 = "44";  // 该 "44" 在常量池中创建
+        str7.intern();  // "44" 已经存在于常量池中，此时无论是 Java 6- 还是 Java 7+ 都直接返回常量值 "44"
+        System.out.println(str7 == str8);  // false
     }
 }
 ```
-
-示例代码 2：
-```java
-String s = new String("1");
-s.intern();
-String s2 = "1";
-System.out.println(s == s2); // false
-
-String s3 = new String("1") + new String("1");
-s3.intern();
-String s4 = "11";
-System.out.println(s3 == s4); // false(Java 6-) true(Java 7+)
-```
-
-示例代码 3：
-```java
-String s = new String("1");
-String s2 = "1";
-s.intern();
-System.out.println(s == s2); // false
-
-String s3 = new String("1") + new String("1");
-String s4 = "11";
-s3.intern();
-System.out.println(s3 == s4);
-```
-
-![](constant-pool/string-intern-6.png)
-![](constant-pool/string-intern-7-1.png)
-![](constant-pool/string-intern-7-2.png)

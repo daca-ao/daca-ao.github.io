@@ -148,8 +148,8 @@ getClassLoader()    // 获得类的类加载器
 ```
 
 `Class.forName()` 和 `ClassLoader.loadClass()` 的区别：
-* `Class.forName()` 除了将类的 .class 文件加载到 JVM 中之外，还可将类进行初始化
-* `ClassLoader.loadClass()` 只是将 .class 文件加载到 JVM 中，不会进行初始化
+* `Class.forName()` 是已经将类的 .class 文件加载到 JVM 中，并且将类初始化完成了的；
+* `ClassLoader.loadClass()` 只是将 .class 文件加载到 JVM 中，还没经过链接，更不用说初始化了。
 
 <br/>
 

@@ -41,6 +41,7 @@ tags:
 <br/>
 
 # 结构
+
 ![](singleton/singleton-diagram.png)
 
 以上，可见单例模式就包括一个角色：
@@ -111,6 +112,7 @@ private ClazzName clazz;
 
 private ClazzName() {}
 
+
 /** 
  * 单例实例 1
  * 当调用该方法时，如果类持有的引用不为空，就返回这个引用
@@ -123,6 +125,7 @@ public static ClazzName getInstance1() {
     }
     return clazz;
 }
+
 
 /**
  * 单例实例 2：静态内部类
@@ -140,15 +143,22 @@ public static ClazzName getInstance2() {
 // 静态内部类的加载不需要依附外部类，其在使用时才会被加载
 private static class Holder {
     // 初次：在运行时常量池将符号引用替换为直接引用，此时静态变量被创建
-    // JVM 创建对象的 init 方法在多线程环境中有自动加锁和同步机制，多个创建静态内部类的请求最终只会创建一个实例
-    // 同一个类加载器的在同一个 init 方法下，同一个类只能被初始化一次
+    // JVM 执行类的加载并随后初始化的时候，在多线程环境中有自动加锁和同步机制
+    // 多个创建静态内部类的请求最终只会创建一个实例，由此解决线程安全问题
     private static final ClazzName SINGLE_TON = new ClazzName();
 }
 ```
-缺点：并发高的情况下会阻塞；不能传递参数
+
+![](singleton/singleton-new-instance.png)
+
+
+虽然简单，但是缺点：并发高的情况下会阻塞；仅能实现静态变量的延迟初始化；不能传递参数
 
 
 ### 双重检查锁（Double-checked Locking）
+
+常见于多线程环境下。
+
 ```java
 public class Singleton {
     private volatile static Singleton uniqueSingleton;  // 禁止重排序
@@ -170,7 +180,7 @@ public class Singleton {
 
 解析：
 
-**1. 使用 `volatile` 禁止指令重排序：**  
+**1. 使用 `volatile` 限制指令重排序：**  
 背景：执行程序时为了提高性能，处理器和编译器常会对指令重排序  
 重排序的准则：
 1. 单线程环境下不能改变程序运行的结果（不影响数据的结果）
@@ -181,16 +191,21 @@ public class Singleton {
 uniqueSingleton = new Singleton();
 ```
 包含以下三步：
-1. 分配内存空间
-2. 初始化对象
-3. 将对象指向刚分配的内存空间
+```java
+memory = allocate();  // 1. 分配内存空间
+ctorInstance(memory);  // 2. 初始化对象
+uniqueSingleton = memory;  // 3. 将对象指向刚分配的内存空间
+```
 
 有些编译器为了性能原因，可能会将第二步和第三步重排序，结果变成了：
-1. 分配内存空间
-2. 将对象指向刚分配的内存空间
-3. 初始化对象
+```java
+memory = allocate();  // 1. 分配内存空间
+uniqueSingleton = memory;  // 3. 将对象指向刚分配的内存空间（对象还没被初始化）
+ctorInstance(memory);  // 2. 初始化对象
+```
 
 如果不禁止重排序的话，考虑两个线程访问单例，在时间片中如下：
+
 | 时间片 Time      | 线程 A                        | 线程 B                                     |
 | :---------:     | -----                        | -----                                      |
 | T1              | 检查到 uniqueSingleton 为空    |                                           |
@@ -203,7 +218,7 @@ uniqueSingleton = new Singleton();
 | **T8**          | 初始化 uniqueSingleton        |                                            |
 
 由上，可以发现 A 线程从时间片 T4 开始的步骤是经过重排序的，结果会导致 B 线程访问到的是一个还没初始化的对象。  
-因此使用 volatile 禁止重排序，所有读操作必须发生在写操作之后。
+因此使用 volatile 禁止重排序，所有对变量的读操作（将对象指向刚分配的内存空间）必须发生在写操作（分配内存空间，及初始化对象）之后。
 
 <br/>
 
@@ -211,12 +226,13 @@ uniqueSingleton = new Singleton();
 情景：两个线程同时在初始化 context 中调用 getInstance()  
 此时 singleton == null，两个线程均可通过第一层空值判断。
 
-* 随后，两个线程中的一个获取锁，如果没有第二层空值判断的话，获得锁的线程创建完单例，释放锁之后，**另一个线程获得锁之后，仍然会去创建单例**。
-* 此时单例变多例，违反设计模式。
+* 随后，两个线程中的一个获取锁。如果没有第二层空值判断的话，先获得锁的线程创建完单例，释放锁之后，**另一个线程随即获得锁，仍然会去创建单例**，停不下来了。
+* 此时单例变多例，违反了设计模式。
 
-因此加上第二层空值判断，这样的话前面的线程获得锁，创建单例，再释放锁之后，随后的线程就不会重新创建单例了。
+因此加上第二层空值判断，这样的话前面的线程获得锁，创建完单例后释放锁，随后的线程经过空值判断之后，就不会重新创建单例了。
 
-如果没有第一层空值判断：**每一个进程访问都需要进入一次锁**，非常消耗性能。
+如果没有第一层空值判断：看似是可以实现了单例模式，但是**每一个进程访问都需要进入一次锁**，非常消耗性能。  
+在 Java 6 及之前会带来很大的性能消耗，Java 7 开始引入了锁的升级机制，大大优化性能。
 
 <br/>
 
