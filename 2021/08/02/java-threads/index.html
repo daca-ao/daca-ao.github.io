@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/08/02/java-threads/java-threads.png">
 <meta property="article:published_time" content="2021-08-02T15:39:40.000Z">
-<meta property="article:modified_time" content="2021-09-28T15:31:00.819Z">
+<meta property="article:modified_time" content="2021-10-03T13:44:26.368Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -210,14 +210,15 @@
 <p><strong>2</strong>. <strong>运行</strong>（<strong>Runnable</strong>）</p>
 <p>当一个新创建的线程对象被调用了 start() 之后：线程便进入了可运行线程池中，进入可运行（runnable）状态，等待获取 CPU 的使用权；</p>
 <ul>
+<li>Java 线程将操作系统中的“就绪”和“运行”两种状态笼统地称作“运行中”</li>
 <li>该线程可能正在运行（running），也可能没运行（ready），取决于操作系统提供的时间片。</li>
 </ul>
 <p><strong>3</strong>. <strong>阻塞</strong>（<strong>Blocked</strong>）</p>
-<p>当线程试图去获取一个内部对象的同步锁（如进入 <code>synchronized</code> 块，非 <code>java.util.concurrent</code> 的锁），而该锁被其他线程持有的时候，该线程就会因某种原因放弃 CPU 的使用权，从而<strong>暂时停止运行</strong>，直到进入就绪状态。</p>
+<p>当线程试图去获取一个内部对象的<strong>同步锁</strong>（如进入 <code>synchronized</code> 块，非 <code>java.util.concurrent</code> 的锁），而该锁被其他线程持有的时候，该线程就会因某种原因放弃 CPU 的使用权，从而<strong>暂时停止运行</strong>，直到进入就绪状态。</p>
 <p>JVM 会将该线程放入锁池；当所有其他线程释放了这个锁，且线程调度器允许本线程去持有它时，该线程脱离阻塞状态。</p>
 <p><strong>4</strong>. <strong>等待</strong>（<strong>Waiting</strong>）</p>
 <p>又称等待阻塞（不知道是谁提出的这个说法）。</p>
-<p>处于运行态的线程需要等待另一个线程去通知调度器一个条件（Condition 对象）的时候，该线程进入等待状态。JVM 将该线程放入等待池。</p>
+<p>处于 Running 态的线程需要等待另一个线程去通知调度器一个条件（Condition 对象）的时候，该线程进入等待状态。JVM 将该线程放入等待池。</p>
 <ul>
 <li>进入该状态方法：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Object.wait()</span><br><span class="line">Thread.join()</span><br><span class="line">LockSupport.park()</span><br></pre></td></tr></table></figure></li>
 </ul>
