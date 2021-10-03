@@ -29,8 +29,9 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/08/03/threads/threads-and-processes.png">
 <meta property="article:published_time" content="2021-08-03T14:24:37.000Z">
-<meta property="article:modified_time" content="2021-10-03T03:17:58.096Z">
+<meta property="article:modified_time" content="2021-10-03T13:23:44.224Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
+<meta property="article:tag" content="多线程编程">
 <meta property="article:tag" content="操作系统">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2021/08/03/threads/threads-and-processes.png">
@@ -272,7 +273,18 @@
 <li>两个线程互相等待竞争资源，导致两边都无法得到资源，使自己无法执行</li>
 <li>或：两个线程均无法达到执行所需条件</li>
 </ul>
-<p>此时可以引入<strong>生产者与消费者模型</strong>来解决问题：</p>
+<p>举个死锁的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DeadLockDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String A = <span class="string">&quot;A&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String B = <span class="string">&quot;B&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> DeadLockDemo().deadLock();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">deadLock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (A) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.currentThread().sleep(<span class="number">2000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">synchronized</span> (B) &#123;</span><br><span class="line">                        System.out.println(<span class="string">&quot;t1&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        Thread t2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (B) &#123;</span><br><span class="line">                    <span class="keyword">synchronized</span> (A) &#123;</span><br><span class="line">                        System.out.println(<span class="string">&quot;t2&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        t1.start();</span><br><span class="line">        t2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>t1 获得锁 A 之后，在尝试获得锁 B 的时候，t2 获得了锁 B，并在尝试获得锁 A；两者互相尝试去获得对方已经获得的锁，自然就会发生死锁。</p>
+<p>如何避免死锁？</p>
+<ul>
+<li>避免一个线程同时获得多个锁</li>
+<li>避免一个线程在锁内同时占用多个资源</li>
+<li>尝试使用定时锁</li>
+<li>加锁和解锁必须在一个数据库连接里</li>
+</ul>
+<p>另外，引入<strong>生产者与消费者模型</strong>可以解决问题：</p>
 <ol>
 <li>生产者仅在仓储未满时生产，仓满则停止生产；</li>
 <li>消费者仅在仓储有产品时才能消费，仓空则等待；</li>
@@ -291,6 +303,21 @@
 <p>起更多的线程，并不能保证程序最大程度上并发执行；若想要通过多线程让程序执行得更快，则需要面临很多的问题和挑战。<br>最大的问题，便是<strong>上下文切换</strong>和线程<strong>创建/销毁</strong>的开销。</p>
 <h2 id="上下文切换"><a href="#上下文切换" class="headerlink" title="上下文切换"></a>上下文切换</h2><p>支持多线程执行程序的单核 CPU 通过给每个线程分配 CPU 时间片（一般是几十 ms），并且通过时间片分配算法，在不同的时间片之间高速切换，以执行不同线程的任务。</p>
 <p>因为切换速度飞快且频繁，才让人感觉多个线程好像在同时执行。<br>而且在切换至下一个时间片之前，需要保存上一个时间片执行任务的状态，以便到时候切换回上一个时间片的正确状态，重新加载并执行。<br>以上都是上下文切换消耗资源，影响执行效率的原因。</p>
+<p>如何<strong>减少上下文切换</strong>？</p>
+<p>从程序设计的角度来看，可以尽量不在程序中使用锁，即采用无锁编程（无锁并发）：比如先将数据的 ID 通过 hash 算法取模，不同的线程根据模的值来处理不同的数据。</p>
+<p>实在是需要锁的话，最好使用 CAS 算法来实现乐观锁的机制。</p>
+<p>另外，可以通过协程来实现在单线程里实现多任务的调度，维护多任务的切换。</p>
+<h2 id="线程的创建和销毁"><a href="#线程的创建和销毁" class="headerlink" title="线程的创建和销毁"></a>线程的创建和销毁</h2><p>使用线程池来减少创建销毁线程带来的系统开销。</p>
+<br>
+
+<h1 id="线程管理的资源限制"><a href="#线程管理的资源限制" class="headerlink" title="线程管理的资源限制"></a>线程管理的资源限制</h1><p>并发代码运行的环境通常会受到硬件资源和软件资源的限制。</p>
+<ul>
+<li>硬件资源限制包括网络带宽、硬盘读写速度、CPU 处理速度等；</li>
+<li>软件资源限制包括数据库连接数、socket 连接数等。</li>
+</ul>
+<p>将某个程序的串行程序改造成并行之后，如果由于资源限制使得程序仍然是在串行执行，这样便会使得 CPU 在串行执行程序的时候<strong>依然需要切换时间片</strong>和<strong>调度资源</strong>，程序比改造前还慢。</p>
+<p>集群可以克服硬件资源限制；资源池可以克服软件资源限制。</p>
+<p>运行环境实在是受限制的话，程序应该根据限制的情况调整并发度。</p>
 
     </div>
 
@@ -300,6 +327,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B/" rel="tag"># 多线程编程</a>
               <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
           </div>
 
@@ -374,7 +402,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81"><span class="nav-number">2.</span> <span class="nav-text">线程状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5"><span class="nav-number">3.</span> <span class="nav-text">线程同步</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">4.</span> <span class="nav-text">多线程编程的优势</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B0%B1%E4%B8%80%E5%AE%9A%E5%BF%AB%E5%90%97%EF%BC%9F"><span class="nav-number">5.</span> <span class="nav-text">多线程就一定快吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2"><span class="nav-number">5.1.</span> <span class="nav-text">上下文切换</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81"><span class="nav-number">2.</span> <span class="nav-text">线程状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5"><span class="nav-number">3.</span> <span class="nav-text">线程同步</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">4.</span> <span class="nav-text">多线程编程的优势</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B0%B1%E4%B8%80%E5%AE%9A%E5%BF%AB%E5%90%97%EF%BC%9F"><span class="nav-number">5.</span> <span class="nav-text">多线程就一定快吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2"><span class="nav-number">5.1.</span> <span class="nav-text">上下文切换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%88%9B%E5%BB%BA%E5%92%8C%E9%94%80%E6%AF%81"><span class="nav-number">5.2.</span> <span class="nav-text">线程的创建和销毁</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%AE%A1%E7%90%86%E7%9A%84%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6"><span class="nav-number">6.</span> <span class="nav-text">线程管理的资源限制</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
