@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2021/08/02/java-threads/threads-block-waiting.png">
 <meta property="og:image" content="http://example.com/2021/08/02/java-threads/java-threads.png">
 <meta property="article:published_time" content="2021-08-02T15:39:40.000Z">
-<meta property="article:modified_time" content="2021-10-11T15:27:49.076Z">
+<meta property="article:modified_time" content="2021-10-12T15:14:18.301Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -220,22 +220,24 @@
 <p><strong>4</strong>. <strong>等待</strong>（<strong>Waiting</strong>）</p>
 <p>又称等待阻塞（不知道是谁提出的这个说法）。</p>
 <p>对于某个处于 Running 态的线程来说，如果它需要等待另一个线程去通知调度器一个条件（Condition 对象）的时候，该线程进入等待状态。JVM 将该线程放入<strong>等待池</strong>。</p>
-<ul>
-<li>进入该状态方法：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Object.wait()</span><br><span class="line">Thread.join()</span><br><span class="line">LockSupport.park()</span><br></pre></td></tr></table></figure></li>
-</ul>
+<p>使线程进入该状态的方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Object.wait()</span><br><span class="line">Thread.join()</span><br><span class="line">LockSupport.park()</span><br></pre></td></tr></table></figure>
+
 <p>举一个场景说明一下阻塞和等待：</p>
 <p><img src="/2021/08/02/java-threads/threads-block-waiting.png"></p>
 <p><strong>5</strong>. <strong>计时等待</strong>（<strong>Timed waiting</strong>）</p>
-<ul>
-<li>线程被调用一些超时计时方法后，会进入计时等待，JVM 将该线程放入等待池。</li>
-</ul>
+<p>线程被调用一些超时计时方法后，会进入计时等待，JVM 将该线程放入等待池。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Object.wait(millis)</span><br><span class="line">Thread.sleep(millis)</span><br><span class="line">Thread.join(millis)</span><br><span class="line">Lock.tryLock(millis, unit)</span><br><span class="line">Condition.await(millis, unit)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 底层方法：</span></span><br><span class="line">LockSupport.parkNanos(blocker, nanos)</span><br><span class="line">LockSupport.parkUntil(blocker, deadline)</span><br></pre></td></tr></table></figure>
 
 <p>该状态一直保持到计时结束或接收到其他通知，随后线程会被被切换到 Runnable 状态。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.Thread;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">join</span><span class="params">()</span>    <span class="comment">// 等待某个指定的线程执行完毕</span></span></span><br><span class="line"><span class="function"><span class="comment">// 父线程等到调用该方法的子线程执行完毕才结束</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">join</span><span class="params">(<span class="keyword">long</span> millis)</span>    <span class="comment">// 等待指定的线程被终止或经过指定的时间</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">sleep</span><span class="params">(<span class="keyword">long</span> millis)</span>    <span class="comment">// 休眠给定的毫秒数</span></span></span><br><span class="line"><span class="function"><span class="comment">// sleep 方法可能抛出 InterruptedException</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.Thread;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">join</span><span class="params">()</span>    <span class="comment">// 等待某个指定的线程执行完毕</span></span></span><br><span class="line"><span class="function"><span class="comment">// 父线程等到调用该方法的子线程执行完毕才结束</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">join</span><span class="params">(<span class="keyword">long</span> millis)</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">join</span><span class="params">(<span class="keyword">long</span> millis, <span class="keyword">int</span> nanos)</span></span></span><br><span class="line"><span class="function"><span class="comment">// 等待指定的线程被终止或经过指定的时间</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">sleep</span><span class="params">(<span class="keyword">long</span> millis)</span>    <span class="comment">// 休眠给定的毫秒数</span></span></span><br><span class="line"><span class="function"><span class="comment">// sleep 方法可能抛出 InterruptedException</span></span></span><br></pre></td></tr></table></figure>
+
+<p><code>join()</code> 阻塞的是调用者所在的线程。因为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">join</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (isAlive()) &#123;</span><br><span class="line">        wait(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>线程处于被阻塞或等待状态：暂时不活动，不执行任何代码，且消耗最少的资源。</p>
 <p><strong>6</strong>. <strong>死亡</strong>（Dead / <strong>Terminated</strong>）</p>
+<p>以下情况线程进入死亡态：</p>
 <ul>
 <li>线程执行完成（run() 正常退出）：自然死亡</li>
 <li>未捕获到的异常事件终止了 run()：突然死亡</li>
@@ -305,9 +307,9 @@
 <br>
 
 <h1 id="方法比较"><a href="#方法比较" class="headerlink" title="方法比较"></a>方法比较</h1><p><code>wait()</code> v.s. <code>sleep()</code>：</p>
+<p>首先，wait 会释放同步锁，而 sleep 不释放同步锁。</p>
+<p><strong>wait 是 Object 的方法</strong></p>
 <ul>
-<li>wait 会释放同步锁，sleep 不释放同步锁</li>
-<li><strong>wait 是 Object 的方法</strong><ul>
 <li>可对任意一个对象调用；调用时一定会释放调用线程持有的对象锁，让调用线程进入等待此对象的等待池<ul>
 <li>因此其依赖于 <code>synchronized</code> 关键字（<strong>必须在 <code>synchronized</code> 代码块中被调用</strong>）</li>
 </ul>
@@ -317,16 +319,14 @@
 <li>适用范围：等待线程、数据库连接</li>
 <li>另：wait(millis) —— 加上了超时时间，等待指定时间后会自动苏醒</li>
 </ul>
-</li>
-<li><strong>sleep 是 Thread 的静态方法</strong><ul>
+<p><strong>sleep 是 Thread 的静态方法</strong></p>
+<ul>
 <li>sleep(millis)：让线程休眠指定的时间，将执行机会转让给其他线程；但监控状态依然保持，线程会在休眠时间结束时恢复</li>
 <li>即：sleep 的控制范围由当前线程决定，其并不依赖于 <code>synchronized</code> 关键字</li>
 <li>sleep 不是 Object 的方法，不能改变对象的内部锁状态，只是让线程进入阻塞态</li>
 <li>给其他线程执行机会的最佳方式，通常用在不需要等待资源情况下的阻塞</li>
 </ul>
-</li>
-<li>wait 涉及到线程之间的通信问题；而 sleep 主要是线程的运行状态控制</li>
-</ul>
+<p>wait 涉及到线程之间的通信问题；而 sleep 主要是线程的运行状态控制</p>
 <p>wait(millis) 和 sleep(millis)：</p>
 <ul>
 <li>都是等待指定时间后自动苏醒</li>
