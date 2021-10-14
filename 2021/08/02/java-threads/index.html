@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2021/08/02/java-threads/threads-block-waiting.png">
 <meta property="og:image" content="http://example.com/2021/08/02/java-threads/java-threads.png">
 <meta property="article:published_time" content="2021-08-02T15:39:40.000Z">
-<meta property="article:modified_time" content="2021-10-14T15:28:45.159Z">
+<meta property="article:modified_time" content="2021-10-14T15:49:44.608Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -395,19 +395,14 @@
 <li>读取当前线程所持 ThreadLocalMap 实例成员变量；</li>
 <li>再从该 ThreadLocalMap 实例中以当前 ThreadLocal 实例为 key 找到对应的 value</li>
 </ol>
-<p>子线程</p>
-<ul>
-<li>当使用 ThreadLocal 保存变量，其保存在 ThreadLocalMap 中的变量只有持有该 map 的变量可以访问</li>
-<li>我们可以用 InheritableThreadLocal<ul>
-<li>其保存的变量不仅当前线程可以访问，还可以在子线程中被访问，从而实现变量传递<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    InheritableThreadLocal&lt;String&gt; threadLocal = <span class="keyword">new</span> InheritableThreadLocal&lt;&gt;();</span><br><span class="line">    Thread root = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">        threadLocal.set(<span class="string">&quot;ray&quot;</span>);</span><br><span class="line">        Thread leaf = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            System.out.println(threadLocal.get());</span><br><span class="line">        &#125;);</span><br><span class="line">        leaf.start();</span><br><span class="line">    &#125;);</span><br><span class="line">    root.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
+<p>当使用 ThreadLocal 保存变量，其保存在 ThreadLocalMap 中的变量只有持有该 map 的变量可以访问。<br>如果想要子线程也可以访问数据，我们可以使用 <code>InheritableThreadLocal</code>：其保存的变量不仅当前线程可以访问，还可以在子线程中被访问，从而实现变量传递。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    InheritableThreadLocal&lt;String&gt; threadLocal = <span class="keyword">new</span> InheritableThreadLocal&lt;&gt;();</span><br><span class="line">    Thread root = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">        threadLocal.set(<span class="string">&quot;ray&quot;</span>);</span><br><span class="line">        Thread leaf = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">            System.out.println(threadLocal.get());</span><br><span class="line">        &#125;);</span><br><span class="line">        leaf.start();</span><br><span class="line">    &#125;);</span><br><span class="line">    root.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>使用 ThreadLocal 会导致内存泄漏吗？</p>
 <p>表象</p>
 <ul>
-<li>使用 ThreadLocal 保存变量，线程持有 ThreadLocalMap 实例</li>
-<li>因此线程由线程池管理时：线程存在复用，ThreadLocalMap 实例不会消失<ul>
+<li>使用 ThreadLocal 保存变量时，线程持有 ThreadLocalMap 实例</li>
+<li>线程由线程池管理时：线程存在复用，ThreadLocalMap 实例不会消失<ul>
 <li>ThreadLocalMap 中 Entry 的 key（ThreadLocal 实例）和 value 会被一直持有</li>
 <li>导致内存泄漏</li>
 </ul>
@@ -415,7 +410,7 @@
 </ul>
 <p>实际</p>
 <ul>
-<li>key 并非强引用的 ThreadLocal 实例，而是指向该实例的 弱引用</li>
+<li>key 并非强引用的 ThreadLocal 实例，而是指向该实例的<strong>弱引用</strong></li>
 <li>一个对象失去所有强引用，只有弱引用时：该对象会被 GC 标记为可回收</li>
 <li>ThreadLocal 实例 key 被回收后，ThreadLocalMap 中会存在 key 为 null 的 Entry<ul>
 <li>同时 get / set / remove 方法均会清理 key 为 null 的 Entry</li>
@@ -429,7 +424,7 @@
 <li>Session 管理</li>
 <li>事务管理</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ThreadLocalRandom;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ThreadLocalRandom <span class="title">current</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="comment">// 返回特定于当前线程的 Random 类实例</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ThreadLocalRandom;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> ThreadLocalRandom <span class="title">current</span><span class="params">()</span>  <span class="comment">// 返回特定于当前线程的 Random 类实例</span></span></span><br></pre></td></tr></table></figure>
 
 <br>
 
