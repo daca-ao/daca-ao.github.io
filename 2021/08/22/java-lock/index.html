@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/aqs.png">
 <meta property="article:published_time" content="2021-08-22T15:29:25.000Z">
-<meta property="article:modified_time" content="2021-10-21T16:23:52.779Z">
+<meta property="article:modified_time" content="2021-10-21T16:32:21.421Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -241,7 +241,7 @@
 <p><img src="/2021/08/22/java-lock/aqs.png"></p>
 <p>显然，AQS 采用了模版方法设计模式（抽象类），自身并没有实现任何同步接口，仅仅定义了若干个同步状态获取和释放的方法。<br>AQS 既可以支持独占式地获取同步状态，也可以支持共享式获取状态，方便不同类型同步组件的实现。<br>使用者必须要继承同步器，重写指定的方法（如上图 <code>#</code> 方法），或者继承 AQS 的一些实体类来实现具体的锁。</p>
 <p>自定义的 Lock 在使用时，一般被定义为静态内部类。<br>自定义的 Lock 在调用 lock() 时，会调用 AQS 的 <code>acquire()</code> 方法。</p>
-<p>大概的区别是：<br>AQS 面向锁的实现者，锁面向锁的使用者。</p>
+<p>大概的区别是：<br>AQS 面向<strong>锁的实现者</strong>，简化了锁的实现方式，屏蔽了同步状态的管理，线程的排队、等待、唤醒等操作；锁面向<strong>锁的使用者</strong>，定义了使用者和锁的交互接口。</p>
 <br>
 
 <h2 id="实现：ReentrantLock"><a href="#实现：ReentrantLock" class="headerlink" title="实现：ReentrantLock"></a>实现：ReentrantLock</h2><p>顾名思义，这是能够重入的锁：即线程可重复获得已经持有的锁。</p>
