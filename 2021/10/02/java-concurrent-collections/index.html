@@ -28,7 +28,7 @@
 <meta property="og:description" content="线程安全集合类是 Java 除了并发工具类和多线程执行器之外，另外一种成熟的并发编程解决方案。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-10-01T16:17:13.000Z">
-<meta property="article:modified_time" content="2021-10-02T14:34:42.995Z">
+<meta property="article:modified_time" content="2021-10-22T15:42:29.754Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="Collection">
@@ -368,7 +368,7 @@
 </ul>
 <br>
 
-<h2 id="ConcurrentLinkedQueue"><a href="#ConcurrentLinkedQueue" class="headerlink" title="ConcurrentLinkedQueue"></a>ConcurrentLinkedQueue</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentLinkedQueue;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 构造一个可被多线程安全访问的无边界非阻塞的队列</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * 非阻塞的 FIFO 并发队列</span></span><br><span class="line"><span class="comment"> * 采用 CAS（Compare and Set）操作保证同步：在 set 之前先 compare 该值有没有变化，没有变化才对其赋值</span></span><br><span class="line"><span class="comment"> * 底层采用链表实现</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">ConcurrentLinkedQueue&lt;E&gt;()</span><br></pre></td></tr></table></figure>
+<h2 id="ConcurrentLinkedQueue"><a href="#ConcurrentLinkedQueue" class="headerlink" title="ConcurrentLinkedQueue"></a>ConcurrentLinkedQueue</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentLinkedQueue;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 构造一个可被多线程安全访问的无边界非阻塞的队列</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * 非阻塞的 FIFO 并发队列</span></span><br><span class="line"><span class="comment"> * 采用 CAS 操作保证同步：在 set 之前先 compare 该值有没有变化，没有变化才对其赋值</span></span><br><span class="line"><span class="comment"> * 底层采用链表实现</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">ConcurrentLinkedQueue&lt;E&gt;()</span><br></pre></td></tr></table></figure>
 
 <br>
 
