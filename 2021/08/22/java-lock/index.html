@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/aqs.png">
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/aqs-queue.png">
 <meta property="article:published_time" content="2021-08-22T15:29:25.000Z">
-<meta property="article:modified_time" content="2021-11-01T16:29:23.465Z">
+<meta property="article:modified_time" content="2021-11-01T16:32:04.472Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -252,8 +252,8 @@
 
 
 <h3 id="同步队列"><a href="#同步队列" class="headerlink" title="同步队列"></a><strong>同步队列</strong></h3><p>AQS 通过同步队列完成对同步状态的管理。</p>
-<p>当前线程获取同步状态失败时：同步器将当前线程和它的等待状态等信息构造成一个独占式节点，随后添加到同步队列里面；<br>此时当前线程会被阻塞。</p>
-<p>当同步状态被释放的时候：唤醒头节点代表的线程，该线程会尝试再次获取同步状态。</p>
+<p>当前线程获取同步状态失败（AQS 的 <code>state</code> &lt; <code>0</code>）时：同步器将当前线程和它的等待状态等信息构造成一个独占式节点，随后添加到同步队列里面；<br>此时当前线程会被阻塞。</p>
+<p>当同步状态被释放（<code>state</code> &gt; <code>0</code>）的时候：唤醒头节点代表的线程，该线程会尝试再次获取同步状态。</p>
 <p><img src="/2021/08/22/java-lock/aqs-queue.png"></p>
 <p>同步队列里的每一个节点，都代表着一个获取同步状态失败的线程，用来保存该线程的引用、等待状态、前驱后驱节点等信息。</p>
 <p>头节点永远是一个哑节点，不代表任何线程；但有的时候可以被看作代表当前持有锁的线程。<br>因此 head 指向的 Node 对象中的 thread 属性永远是 <code>null</code>。</p>
