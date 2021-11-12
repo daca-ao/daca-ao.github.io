@@ -28,7 +28,7 @@
 <meta property="og:description" content="本帖用来整理一些常见的 Java 语言中的关键字（保留字）。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-13T16:14:48.000Z">
-<meta property="article:modified_time" content="2021-10-19T12:52:17.429Z">
+<meta property="article:modified_time" content="2021-11-12T15:06:29.553Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -566,10 +566,11 @@
 <li>即：调用同一对象的 m1 或 m2 方法时，所有线程共享一把锁</li>
 <li>锁被获得（进入）了两次，monitor 对象被持有了两次，记数 2</li>
 <li>进入该对象 m1 的线程在进入 m2 时可直接获得该锁，这也体现了“可重入性”</li>
-<li>锁被释放一次，即 monitor 对象被释放一次，计数器就减 1，直到计数器为 0，锁就被释放掉了。</li>
+<li>锁被释放一次，即 monitor 对象被释放一次，计数器就减 1，直到计数器为 0，锁就被释放掉了，先到先得。</li>
 </ul>
 <p>注意：</p>
 <ul>
+<li>非持有锁的线程在计数器大于 0 的时候访问该对象，线程只能等待</li>
 <li>可重入的代码不能使用静态或全局变量作为锁芯，同时不会调用不可重用的代码</li>
 <li>当 synchronized 方法 A 调用某方法 B，B 没有上锁，且可被其他线程直接调用<ul>
 <li>等于开了免锁操作 B 方法的后门，造成线程不安全</li>
