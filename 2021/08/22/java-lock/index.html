@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/aqs-flow.png">
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/aqs-timed-flow.png">
 <meta property="article:published_time" content="2021-08-22T15:29:25.000Z">
-<meta property="article:modified_time" content="2021-11-14T16:06:37.080Z">
+<meta property="article:modified_time" content="2021-11-15T13:42:47.453Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -328,10 +328,10 @@
 <br>
 
 <p>我们现在回过头来看前面提到的独占式获取同步状态：</p>
-<p>如果一个已经占有锁的线程尝试再次获得同一个锁，那么按照代码逻辑，它自己就会被阻塞了。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 构建可重入锁</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">ReentrantLock()</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 构建带公平策略的锁</span></span><br><span class="line"><span class="comment"> * 公平锁偏爱等待时间最长的线程，但大大降低性能</span></span><br><span class="line"><span class="comment"> * 默认为 false</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">ReentrantLock(<span class="keyword">boolean</span> fair)</span><br></pre></td></tr></table></figure>
+<p>如果一个已经占有锁的线程尝试再次获得同一个锁，那么按照代码逻辑，它自己会被自己阻塞；因为上述的独占式基本结构没有考虑这个场景。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 构建可重入锁</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">ReentrantLock()</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 构建带公平策略的锁</span></span><br><span class="line"><span class="comment"> * 默认为 false</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * 锁的公平性：先发起的对锁获取的请求一定会先被满足，这样才是公平的；反过来是不公平的</span></span><br><span class="line"><span class="comment"> * 公平锁偏爱等待时间最长的线程，但会大大降低性能</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">ReentrantLock(<span class="keyword">boolean</span> fair)</span><br></pre></td></tr></table></figure>
 
-<p>基本结构：</p>
+<p>基本结构的使用：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">myLock.lock();</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// critical section</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">finally</span> &#123;</span><br><span class="line">    myLock.unlock();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>小结：</p>
@@ -339,7 +339,7 @@
 <li>确保任何时候只有一个线程进入 critical section</li>
 <li>当其他线程调用 lock() 时将会被阻塞，直到第一个线程释放该锁对象</li>
 </ul>
-<p><code>synchronized</code> 也隐式地实现了可重入性。</p>
+<p><code>synchronized</code> 也“隐式”地实现了可重入性，因为在每次的 <code>monitorenter</code> 和 <code>monitorexit</code> 之间维护了一个计数器。</p>
 <p>注意：</p>
 <ul>
 <li>锁不能使用在 <code>try-with-resource</code> 语句<ul>
