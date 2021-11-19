@@ -32,8 +32,9 @@
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/aqs-acquire.png">
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/aqs-flow.png">
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/aqs-timed-flow.png">
+<meta property="og:image" content="http://example.com/2021/08/22/java-lock/reentrantreadwritelock-state.png">
 <meta property="article:published_time" content="2021-08-22T15:29:25.000Z">
-<meta property="article:modified_time" content="2021-11-19T15:23:10.902Z">
+<meta property="article:modified_time" content="2021-11-19T15:56:33.942Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -408,8 +409,10 @@
 <br>
 
 <h3 id="实现与设计（以-ReentrantReadWriteLock-为例）"><a href="#实现与设计（以-ReentrantReadWriteLock-为例）" class="headerlink" title="实现与设计（以 ReentrantReadWriteLock 为例）"></a><strong>实现与设计（以 <code>ReentrantReadWriteLock</code> 为例）</strong></h3><p><strong>1</strong>. 读写状态的设计</p>
-<p>万变不离其宗，还是以 <code>state</code> 来定义资源，记录同步器的状态：在 <code>ReentrantReadWriteLock</code> 中代表的是读写状态。<br>往细了说，就是读锁和写锁<strong>被获取的次数</strong>。</p>
-<p>只不过，<code>ReentrantReadWriteLock</code> 对于读写状态的设计的确是巧妙。</p>
+<p>万变不离其宗，还是以 <code>state</code> 来定义资源，记录同步器的状态：在 <code>ReentrantReadWriteLock</code> 中代表的是读写状态。<br>往细了说，就是读锁和写锁<strong>被获取的次数</strong>，记录着多个读线程的状态和一个写线程的状态。</p>
+<p>单单一个 <code>int</code> 类型的变量，怎么能记录这么多状态？<br>只能说，<code>ReentrantReadWriteLock</code> 对于读写状态的设计的确是巧妙。</p>
+<p><img src="/2021/08/22/java-lock/reentrantreadwritelock-state.png"></p>
+<p>上图显然已经给出答案了：将 state <strong>按位切割</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantReadWriteLock;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReentrantReadWriteLock</span> <span class="keyword">implements</span> <span class="title">ReadWriteLock</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> Sync sync;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 组合自定义同步器</span></span><br><span class="line">    <span class="keyword">abstract</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Sync</span> <span class="keyword">extends</span> <span class="title">AbstractQueuedSynchronizer</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><strong>2</strong>. 写锁的获取与释放</p>
