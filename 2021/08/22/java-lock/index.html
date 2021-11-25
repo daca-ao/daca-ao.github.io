@@ -33,8 +33,11 @@
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/aqs-flow.png">
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/aqs-timed-flow.png">
 <meta property="og:image" content="http://example.com/2021/08/22/java-lock/reentrantreadwritelock-state.png">
+<meta property="og:image" content="http://example.com/2021/08/22/java-lock/condition-wait-queue.png">
+<meta property="og:image" content="http://example.com/2021/08/22/java-lock/condition-wait.png">
+<meta property="og:image" content="http://example.com/2021/08/22/java-lock/condition-notify.png">
 <meta property="article:published_time" content="2021-08-22T15:29:25.000Z">
-<meta property="article:modified_time" content="2021-11-24T14:17:02.155Z">
+<meta property="article:modified_time" content="2021-11-25T13:05:22.578Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -449,20 +452,86 @@
 <br>
 
 <p><strong>4</strong>. 锁降级</p>
+<p>并没有任何一篇文档中写明写锁比读锁更高级，不过从上述源码浅析中可以看到，在同步状态操作的时候，的确会对写锁一些照顾。（参照<strong>写锁的获取</strong>）</p>
+<p>读写锁中的“锁降级”，指的是线程持有锁的变化：持有写锁的线程，去获得读锁，随后再释放写锁。<br>感兴趣可以读一下 <code>ReentrantReadWriteLock</code> 的 javadoc 给出的示例。</p>
+<p>由此定义反推的“升级”是不可以的，试想一下，获取读锁之后，线程再次获得写锁就会将自己阻塞掉了，而且可能就没有其他线程唤醒它了，很容易造成死锁。</p>
 <br>
 
 <h1 id="Condition-接口"><a href="#Condition-接口" class="headerlink" title="Condition 接口"></a>Condition 接口</h1><p>有的时候根据业务，某些线程进入临界区 critical section 后，还需要满足一定条件才能执行。<br>注：不能在多线程中简单使用判定后读写的方法 —— 有可能在 if 判断后被中断。</p>
 <p>可以使用 Condition 对象来管理已获得锁但不能做有用工作的线程。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Condition;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 将线程放入该条件等待集里面</span></span><br><span class="line"><span class="comment"> * 调用后当前线程被阻塞，持有锁的话，放弃锁</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * 与当前在等待获得锁的线程不同：</span></span><br><span class="line"><span class="comment"> *  - 当锁可用时，该线程需等待另一线程调用同一条件的 signalAll() 才可解除阻塞</span></span><br><span class="line"><span class="comment"> *  - 如没有其他线程激活等待线程：死锁</span></span><br><span class="line"><span class="comment"> *  - 如没有任何线程解除其他线程的阻塞：程序挂起</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * 注：调用应在循环体中：</span></span><br><span class="line"><span class="comment"> *     while (!okToBeProceed()) &#123; condition.await(); &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">await</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">/**</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 进入该条件的等待集，直至线程从等待集里面移出，或到指定时间才解除阻塞</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 超时期限到：返回 false，否则为 true</span></span></span><br><span class="line"><span class="comment"><span class="function"> */</span></span></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">await</span><span class="params">(<span class="keyword">long</span> time, TimeUnit unit)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">/**</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 进入该条件等待集，直到线程从等待集中被移出才解除阻塞</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 不响应中断：如线程被中断，不会抛出 InterruptedException 异常</span></span></span><br><span class="line"><span class="comment"><span class="function"> */</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">awaitUninterruptibly</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">/**</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 解除该条件的等待集里面所有线程的阻塞状态</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 不会立即激活线程：解除阻塞的线程还需通过竞争访问数据</span></span></span><br><span class="line"><span class="comment"><span class="function"> */</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">signalAll</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">/**</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 从该条件的等待集中随机选择一个线程，解除其阻塞状态</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 如随机选择线程仍不能运行：再次被阻塞</span></span></span><br><span class="line"><span class="comment"><span class="function"> */</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">signal</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
 <p><small>注：Condition 方法的命名（<code>await()</code>、<code>signal()</code>、<code>signalAll()</code>）分别与 Object 同样功能的 <code>wait()</code>、<code>notify()</code>、<code>notifyAll()</code> 区分开。</small></p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>关键点：</p>
+<p>Object 监视器（Monitor）方法和 <code>synchronized</code> 关键字配合使用，Condition 接口和 <code>Lock</code> 配合使用。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Object Monitor Methods</th>
+<th>Condition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>前置条件</td>
+<td>获取对象的锁</td>
+<td>调用 Lock.lock() 获取锁<br>调用 Lock.newCondition() 获取 Condition 对象</td>
+</tr>
+<tr>
+<td>调用方式</td>
+<td>直接调用<br>如 object.wait()</td>
+<td>直接调用<br>如 condition.await()</td>
+</tr>
+<tr>
+<td>等待队列个数</td>
+<td>一个</td>
+<td>多个</td>
+</tr>
+<tr>
+<td>当前线程释放锁并进入等待状态</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>当前线程释放锁并进入等待状态，在等待状态中不响应中断</td>
+<td>不支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>当前线程释放锁并进入超时等待状态</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>当前线程释放锁并进入等待状态到超时时间</td>
+<td>不支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>唤醒等待队列的一个线程</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>唤醒等待队列的全部线程</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+</tbody></table>
+<p>注：锁和条件都不是面向对象的设计</p>
+<p>关键点：</p>
 <ul>
 <li>锁用来保护代码片段，任何时刻只能有一个线程执行被保护的代码</li>
 <li>锁可管理试图进入被保护代码段的线程</li>
 <li>锁可拥有一个或多个相关条件对象</li>
 <li>每个条件对象管理已进入被保护代码段但未能运行的线程</li>
 </ul>
-<p>注：锁和条件都不是面向对象的设计</p>
+<br>
+
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>等待队列</p>
+<p><img src="/2021/08/22/java-lock/condition-wait-queue.png"></p>
+<p>等待</p>
+<p><img src="/2021/08/22/java-lock/condition-wait.png"></p>
+<p>通知</p>
+<p><img src="/2021/08/22/java-lock/condition-notify.png"></p>
 
     </div>
 
