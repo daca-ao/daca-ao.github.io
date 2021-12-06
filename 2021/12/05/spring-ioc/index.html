@@ -28,7 +28,7 @@
 <meta property="og:description" content="首先我们要明确的是，IoC 并不是最近才兴起的说法，更不是只有 Spring 才能应用的逻辑，而是自 OOP 面世以来就有的概念。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-12-05T05:08:48.000Z">
-<meta property="article:modified_time" content="2021-12-06T13:33:12.603Z">
+<meta property="article:modified_time" content="2021-12-06T15:14:21.229Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -203,56 +203,50 @@
         <p>首先我们要明确的是，IoC 并不是最近才兴起的说法，更不是只有 Spring 才能应用的逻辑，而是自 OOP 面世以来就有的概念。</p>
 <span id="more"></span>
 
-<h1 id="什么是-IoC？"><a href="#什么是-IoC？" class="headerlink" title="什么是 IoC？"></a>什么是 IoC？</h1><p><strong>Inversion of Control</strong>，<strong>控制反转</strong>，是 OOP 的一种设计原则和架构模式（算不上是设计模式）<br>“Don’t call me, I’ll call you. “<br>问题：</p>
+<h1 id="什么是-IoC？"><a href="#什么是-IoC？" class="headerlink" title="什么是 IoC？"></a>什么是 IoC？</h1><p><strong>Inversion of Control</strong>，<strong>控制反转</strong>，是 OOP 的一种设计原则和架构模式（算不上是设计模式）。</p>
+<p>一句经典的解释，就是：<br><strong>“Don’t call me, I’ll call you. “</strong></p>
+<br>
+
+<h2 id="问题与解决"><a href="#问题与解决" class="headerlink" title="问题与解决"></a>问题与解决</h2><p>针对“控制反转”这个概念，我们先提出三个问题：</p>
 <ol>
-<li>（Q1）什么的控制？</li>
-<li>（Q2）为何反转？</li>
-<li>（Q3）如何反转？</li>
+<li>（<strong>Q1</strong>）什么的控制？</li>
+<li>（<strong>Q2</strong>）为何反转？</li>
+<li>（<strong>Q3</strong>）如何反转？</li>
 </ol>
-<p>传统 Java 代码中的 HAS-A 结构：</p>
+<p>首先，我们来看一下传统 Java 代码中的 HAS-A 结构：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> A a;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">B</span><span class="params">(A a)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.a = a;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// somewhere else in code</span></span><br><span class="line">A a = <span class="keyword">new</span> A();</span><br><span class="line">B b = <span class="keyword">new</span> B(a);</span><br></pre></td></tr></table></figure>
-<p>耦合度较强</p>
-<p>此类代码中至少有一处需要：</p>
+
+<p>这种耦合度较强的代码，至少有一处需要：</p>
 <ol>
 <li>显式或隐式地创建 A 对象</li>
-<li>将 A 对象传入 B 类的构造方法<br>对于每一次 HAS-A 都需要程序代码进行上述控制（Q1），当复杂度升高时便难以掌控（Q2）</li>
+<li>将 A 对象传入 B 类的构造方法</li>
 </ol>
-<p>IoC 代替程序代码包办了这层控制，从而降低耦合度</p>
+<p>对于每一次的 HAS-A，都需要这样的程序代码进行上述控制（<strong>Q1</strong>），当复杂度升高时，便难以掌控了（<strong>Q2</strong>）。</p>
+<p>针对 HAS-A 的典型问题，IoC 代替程序代码包办了这层控制，从而降低耦合度：</p>
 <ul>
-<li>为了解耦：使用一个统一的对象依赖控制器</li>
-<li>程序代码只需向 IoC 控制器“索要”依赖的对象，而不是自己“造”</li>
-<li>即：依赖对象的获得被反转了（Q3），所反转的“控制”是对象间的依赖</li>
-</ul>
-<p>基本：</p>
-<ul>
-<li>利用 反射 编程</li>
-</ul>
-<p>特点（Q2）：</p>
-<ul>
-<li>体现软件工程原则之一：解耦</li>
-<li>对实例的控制由程序转移到了控制器/容器/框架，随后注入到引用中</li>
-<li>为模块化提供支撑</li>
-<li>“热插拔”</li>
-</ul>
-<p>实现：</p>
-<ul>
-<li>IoC 仅为一种设计，通常还结合 DIP（Dependency Inversion Principle）使用</li>
-<li>实现：并不是非 Spring 不可<ul>
-<li>可用策略模式 + 工厂模式实现</li>
-<li>可用模板方法模式实现</li>
-<li>可用依赖注入（DI）或依赖查找（DL）实现</li>
+<li>为了解耦，需要使用一个统一的对象依赖控制器</li>
+<li>程序代码只需向 IoC 控制器“索要”依赖的对象，而不是自己“造”<ul>
+<li>即：<strong>依赖对象的获得被反转了</strong>（<strong>Q3</strong>），所反转的“控制”是对象间的依赖。</li>
 </ul>
 </li>
-<li>实际应用中——提供三种方式<ol>
+</ul>
+<p>所以 IoC 是利用<strong>反射</strong>编程实现控制的反转。</p>
+<h2 id="特点（Q2）"><a href="#特点（Q2）" class="headerlink" title="特点（Q2）"></a>特点（<strong>Q2</strong>）</h2><ul>
+<li>体现软件工程原则之一：解耦</li>
+<li>对实例的控制由程序转移到了控制器/容器/框架，随后便可以注入到引用中</li>
+<li>为模块化提供支撑</li>
+<li>实现“热插拔”</li>
+</ul>
+<h2 id="IoC-的实现"><a href="#IoC-的实现" class="headerlink" title="IoC 的实现"></a>IoC 的实现</h2><p>IoC 仅为一种设计原则，通常还结合 DIP（Dependency Inversion Principle）使用。</p>
+<p>其实现并不是非 Spring 不可，可以结合多种设计模式实现，如策略模式 + 工厂模式、模板方法模式、依赖注入（DI）或依赖查找（DL）实现。</p>
+<p>实际应用中有三种方式可以实现控制反转：</p>
+<ol>
 <li>构造方法注入</li>
 <li>setter 注入</li>
 <li>成员变量注入</li>
 </ol>
-</li>
-</ul>
-<p>DI（Dependency Injection，依赖注入）</p>
+<h3 id="具体实现：DI"><a href="#具体实现：DI" class="headerlink" title="具体实现：DI"></a>具体实现：DI</h3><p>Dependency Injection，依赖注入，属于设计模式的一种，是 IoC 的一种具体实现。</p>
 <ul>
-<li>设计模式的一种，IoC 的一种具体实现</li>
 <li>被反转的控制是对象依赖的注值<ul>
 <li>即：被注入对象依赖 IoC 容器配置依赖对象</li>
 </ul>
@@ -276,19 +270,20 @@
 </li>
 <li>基于参数（Parameter Injection）</li>
 <li>基于注解</li>
-<li>……</li>
+<li>…</li>
 </ul>
 </li>
 </ul>
-<p>一个简单的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TextEditor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> SpellChecker checker;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TextEditor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.checker = <span class="keyword">new</span> SpellChecker();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以上：TextEditor 依赖于 SpellChecker</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TextEditor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> IocSpellChecker checker;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TextEditor</span><span class="params">(IocSpellChecker checker)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.checker = checker;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以上：改过后，在构造函数传入依赖 IocSpellChecker</p>
-<p>如此一来，再调用 TextEditor 的时候就可以：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SpellChecker sc = <span class="keyword">new</span> SpellChecker; <span class="comment">// dependency</span></span><br><span class="line">TextEditor textEditor = <span class="keyword">new</span> TextEditor(sc); <span class="comment">// get the dependency</span></span><br></pre></td></tr></table></figure>
+<p>举一个简单的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TextEditor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> SpellChecker checker;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TextEditor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.checker = <span class="keyword">new</span> SpellChecker();  <span class="comment">// TextEditor 依赖于 SpellChecker</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>DL（Dependency Lookup，依赖查找）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TextEditor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> IocSpellChecker checker;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TextEditor</span><span class="params">(IocSpellChecker checker)</span> </span>&#123;  <span class="comment">// 改过后：在构造函数注入依赖 IocSpellChecker</span></span><br><span class="line">        <span class="keyword">this</span>.checker = checker;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如此一来，再调用 TextEditor 的时候就可以：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SpellChecker sc = <span class="keyword">new</span> SpellChecker;  <span class="comment">// dependency</span></span><br><span class="line">TextEditor textEditor = <span class="keyword">new</span> TextEditor(sc);  <span class="comment">// get the dependency (inject the dependency)</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="具体实现：DL"><a href="#具体实现：DL" class="headerlink" title="具体实现：DL"></a>具体实现：DL</h3><p>Dependency Lookup，依赖查找</p>
 <ul>
 <li>比依赖注入更加主动</li>
 <li>在需要时通过调用框架提供的方法主动索取相对应类型的对象</li>
@@ -302,7 +297,7 @@
 </ul>
 <p>各种概念的层次：</p>
 <p>某个具体的实现流程：</p>
-<h1 id="Spring-IoC"><a href="#Spring-IoC" class="headerlink" title="Spring IoC"></a>Spring IoC</h1><p>PRE：关于控制反转：IoC<br>将原本在程序中手动创建对象的控制权，交由 Spring 框架来管理</p>
+<h1 id="Spring-IoC"><a href="#Spring-IoC" class="headerlink" title="Spring IoC"></a>Spring IoC</h1><p>将原本在程序中手动创建对象的控制权，交由 Spring 框架来管理</p>
 <p>Spring IoC 定义以下概念：</p>
 <ul>
 <li>Bean<ul>
@@ -342,10 +337,14 @@
 <li>最简单，为 DI 提供基本支持</li>
 <li>其与其相关接口在 Spring 中仍存在大量与 Spring 整合第三方框架的反向兼容性的目的</li>
 <li>相对于 ApplicationContext 更轻量级，数据量和速度可观<ul>
-<li>用于移动设备或基于 applet 的应用<br>实现类：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">XmlBeanFactory <span class="comment">// 从 XML 文件读取配置元数据</span></span><br><span class="line"><span class="comment">// @Deprecated 应使用 ApplicationContext</span></span><br><span class="line"></span><br><span class="line">XmlBeanFactory factory = <span class="keyword">new</span> XmlBeanFactory(<span class="keyword">new</span> ClassPathResource(<span class="string">&quot;Beans.xml&quot;</span>));</span><br><span class="line">HelloWorld obj = (HelloWorld) factory.getBean(<span class="string">&quot;helloWorld”);</span></span><br></pre></td></tr></table></figure></li>
+<li>用于移动设备或基于 applet 的应用</li>
 </ul>
 </li>
 </ul>
+<p>实现类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">XmlBeanFactory <span class="comment">// 从 XML 文件读取配置元数据</span></span><br><span class="line"><span class="comment">// @Deprecated 应使用 ApplicationContext</span></span><br><span class="line"></span><br><span class="line">XmlBeanFactory factory = <span class="keyword">new</span> XmlBeanFactory(<span class="keyword">new</span> ClassPathResource(<span class="string">&quot;Beans.xml&quot;</span>));</span><br><span class="line">HelloWorld obj = (HelloWorld) factory.getBean(<span class="string">&quot;helloWorld&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+
 <ol start="2">
 <li>ApplicationContext（org.springframework.context.ApplicationContext 接口）</li>
 </ol>
@@ -363,14 +362,14 @@
 <li>WebApplicationContext<br>XmlWebApplicationContext // 在 Web application 范围内加载在 XML 文件中已被定义的 bean</li>
 </ol>
 <p>通过配置文件完成管理的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> pojo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Source</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String fruit; <span class="comment">// 类型</span></span><br><span class="line">    <span class="keyword">private</span> String sugar; <span class="comment">// 糖分描述</span></span><br><span class="line">    <span class="keyword">private</span> String size; <span class="comment">// 大小杯</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* setter and getter */</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> pojo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Source</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String fruit;  <span class="comment">// 类型</span></span><br><span class="line">    <span class="keyword">private</span> String sugar;  <span class="comment">// 糖分描述</span></span><br><span class="line">    <span class="keyword">private</span> String size;  <span class="comment">// 大小杯</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* setter and getter */</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>配置文件管理：src/applicationContext.xml（位置和名称任意，此处为例子）</p>
 <ul>
-<li>Spring Framework 利用该文件创建所有已定义的 Bean，按照标签定义分配唯一的 ID<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8”?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans” xmlns:xsi=&quot;</span><span class="attr">http:</span>//<span class="attr">www.w3.org</span>/<span class="attr">2001</span>/<span class="attr">XMLSchema-instance</span>” <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd”&gt;</span></span></span><br><span class="line"><span class="string"><span class="tag"></span></span></span><br><span class="line"><span class="string"><span class="tag">    &lt;bean name=&quot;</span><span class="attr">source</span>&quot;  &lt;!<span class="attr">--</span> 用于之后从 <span class="attr">Spring</span> 容器获得实例时使用 <span class="attr">--</span>&gt;</span></span><br><span class="line">            class=&quot;pojo.Source”&gt; <span class="comment">&lt;!-- 配置全限定名称 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;fruit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;橙子”/&gt;</span></span></span><br><span class="line"><span class="string"><span class="tag">        &lt;property name=&quot;</span><span class="attr">sugar</span>&quot; <span class="attr">value</span>=<span class="string">&quot;多糖”/&gt;</span></span></span><br><span class="line"><span class="string"><span class="tag">        &lt;property name=&quot;</span><span class="attr">size</span>&quot; <span class="attr">value</span>=<span class="string">&quot;超大杯”/&gt;</span></span></span><br><span class="line"><span class="string"><span class="tag">    &lt;/bean&gt;</span></span></span><br><span class="line"><span class="string"><span class="tag"></span></span></span><br><span class="line"><span class="string"><span class="tag">&lt;/beans&gt;</span></span></span><br></pre></td></tr></table></figure></li>
+<li>Spring Framework 利用该文件创建所有已定义的 Bean，按照标签定义分配唯一的 ID<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">name</span>=<span class="string">&quot;source&quot;</span> <span class="attr">class</span>=<span class="string">&quot;pojo.Source&quot;</span>&gt;</span>  <span class="comment">&lt;!-- 用于之后从 Spring 容器获得实例时使用，配置全限定名称 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;fruit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;橙子&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;sugar&quot;</span> <span class="attr">value</span>=<span class="string">&quot;多糖&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;size&quot;</span> <span class="attr">value</span>=<span class="string">&quot;超大杯&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
 </ul>
 <p>调用：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 该 API 创建应用上下文</span></span><br><span class="line">ApplicationContext ctx = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">&quot;applicationContext.xml&quot;</span>);</span><br><span class="line">Source source = (Source) ctx.getBean(<span class="string">&quot;source”); // 直接从 Spring 获取一个对象</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">System.out.println(source.getFruit() + “ ” + source.getSugar() + “ ” + source.getSize());</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">/*</span></span><br><span class="line"><span class="string"> * 输出结果：</span></span><br><span class="line"><span class="string"> *</span></span><br><span class="line"><span class="string"> * 橙子 多糖 超大杯</span></span><br><span class="line"><span class="string"> */</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 该 API 创建应用上下文</span></span><br><span class="line">ApplicationContext ctx = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">&quot;applicationContext.xml&quot;</span>);</span><br><span class="line">Source source = (Source) ctx.getBean(<span class="string">&quot;source&quot;</span>);  <span class="comment">// 直接从 Spring 获取一个对象</span></span><br><span class="line"></span><br><span class="line">System.out.println(source.getFruit() + <span class="string">&quot; &quot;</span> + source.getSugar() + <span class="string">&quot; &quot;</span> + source.getSize());</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 输出结果：</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 橙子 多糖 超大杯</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
 
 <p>区别：</p>
 <table>
@@ -478,7 +477,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-IoC%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">什么是 IoC？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-IoC"><span class="nav-number">2.</span> <span class="nav-text">Spring IoC</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-IoC%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">什么是 IoC？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%B8%8E%E8%A7%A3%E5%86%B3"><span class="nav-number">1.1.</span> <span class="nav-text">问题与解决</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9%EF%BC%88Q2%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">特点（Q2）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IoC-%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.3.</span> <span class="nav-text">IoC 的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0%EF%BC%9ADI"><span class="nav-number">1.3.1.</span> <span class="nav-text">具体实现：DI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0%EF%BC%9ADL"><span class="nav-number">1.3.2.</span> <span class="nav-text">具体实现：DL</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-IoC"><span class="nav-number">2.</span> <span class="nav-text">Spring IoC</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
