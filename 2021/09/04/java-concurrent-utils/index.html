@@ -27,12 +27,14 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="本帖再介绍多几个 Java 多线程编程的工具类。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2021/09/04/java-concurrent-utils/fork-join.png">
 <meta property="article:published_time" content="2021-09-04T15:26:01.000Z">
-<meta property="article:modified_time" content="2021-11-26T14:05:47.628Z">
+<meta property="article:modified_time" content="2021-12-09T14:38:43.741Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/09/04/java-concurrent-utils/fork-join.png">
 
 <link rel="canonical" href="http://example.com/2021/09/04/java-concurrent-utils/">
 
@@ -205,8 +207,8 @@
 
 <h1 id="CountDownLatch"><a href="#CountDownLatch" class="headerlink" title="CountDownLatch"></a>CountDownLatch</h1><h1 id="CyclicBarrier"><a href="#CyclicBarrier" class="headerlink" title="CyclicBarrier"></a>CyclicBarrier</h1><h1 id="Semaphore"><a href="#Semaphore" class="headerlink" title="Semaphore"></a>Semaphore</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.Semaphore;</span><br><span class="line"></span><br><span class="line">acquire();  <span class="comment">// 获取访问许可，获取时并不会加持任何锁</span></span><br><span class="line">release();  <span class="comment">// 释放访问许可</span></span><br></pre></td></tr></table></figure>
 
-<p>Mutex v.s. Semaphore</p>
-<p>信号量用于保持在 0 和指定最大值之间的一个计数值</p>
+
+<h2 id="Mutex-v-s-Semaphore"><a href="#Mutex-v-s-Semaphore" class="headerlink" title="Mutex v.s. Semaphore"></a>Mutex v.s. Semaphore</h2><p>信号量用于保持在 0 和指定最大值之间的一个计数值</p>
 <ul>
 <li>当线程完成一次对该信号量对象的等待（wait）时，计数值减一</li>
 <li>当线程完成一次对该信号量对象的释放（release）时，计数值加一</li>
@@ -229,6 +231,7 @@
 <li>相当于上述区别的 3：mutex 所有权不能被抢夺，而 binary semaphore 必要时会被占用</li>
 </ol>
 <h1 id="Fork-Join-框架"><a href="#Fork-Join-框架" class="headerlink" title="Fork-Join 框架"></a>Fork-Join 框架</h1><p>满足应用对每个处理器内核分别使用一个线程，完成计算密集型任务的需求（分治）</p>
+<p><img src="/2021/09/04/java-concurrent-utils/fork-join.png"></p>
 <p>伪代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (problemSize &lt; threshold)</span><br><span class="line">    <span class="comment">// solve problem directly</span></span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * break problem into subproblems</span></span><br><span class="line"><span class="comment">     * recursively solve each subproblem</span></span><br><span class="line"><span class="comment">     * combine the results</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -240,7 +243,6 @@
 
 <p>实例：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> ForkJoinPool mainPool = <span class="keyword">new</span> ForkJoinPool();</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sort</span><span class="params">(<span class="keyword">long</span>[] array)</span> </span>&#123;</span><br><span class="line">   mainPool.invoke(<span class="keyword">new</span> SortTask(array, <span class="number">0</span>, array.length));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 
 <p>（待补充）</p>
 
@@ -327,7 +329,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CountDownLatch"><span class="nav-number">1.</span> <span class="nav-text">CountDownLatch</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CyclicBarrier"><span class="nav-number">2.</span> <span class="nav-text">CyclicBarrier</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Semaphore"><span class="nav-number">3.</span> <span class="nav-text">Semaphore</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Fork-Join-%E6%A1%86%E6%9E%B6"><span class="nav-number">4.</span> <span class="nav-text">Fork-Join 框架</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CountDownLatch"><span class="nav-number">1.</span> <span class="nav-text">CountDownLatch</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CyclicBarrier"><span class="nav-number">2.</span> <span class="nav-text">CyclicBarrier</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Semaphore"><span class="nav-number">3.</span> <span class="nav-text">Semaphore</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Mutex-v-s-Semaphore"><span class="nav-number">3.1.</span> <span class="nav-text">Mutex v.s. Semaphore</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Fork-Join-%E6%A1%86%E6%9E%B6"><span class="nav-number">4.</span> <span class="nav-text">Fork-Join 框架</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
