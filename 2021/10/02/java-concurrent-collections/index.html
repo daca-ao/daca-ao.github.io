@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2021/10/02/java-concurrent-collections/concurrenthashmap-structure.png">
 <meta property="og:image" content="http://example.com/2021/10/02/java-concurrent-collections/concurrenthashmap-new-structure.png">
 <meta property="article:published_time" content="2021-10-01T16:17:13.000Z">
-<meta property="article:modified_time" content="2021-12-13T15:53:19.879Z">
+<meta property="article:modified_time" content="2021-12-14T15:00:40.841Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="Collection">
@@ -226,6 +226,7 @@
 
 <h1 id="阻塞队列"><a href="#阻塞队列" class="headerlink" title="阻塞队列"></a>阻塞队列</h1><p>阻塞队列使用一个锁（入队和出队使用同一个锁）或两个锁（入队和出队分别使用不同的锁）实现数据的同步操作。</p>
 <p>阻塞插入：当队列满的时候，队列会阻塞插入元素的线程，直到队列有空缺为止；<br>阻塞移除：当队列为空的时候，获取元素的线程会等待至队列非空为止。</p>
+<p>生产者 / 消费者模型中用得比较多。</p>
 <table>
 <thead>
 <tr>
@@ -240,14 +241,14 @@
 <td>插入方法</td>
 <td>add(e)</td>
 <td><font color="red">o</font>ffer(e)</td>
-<td>offer(e, time, unit)</td>
+<td><font color="red">o</font>ffer(e, time, unit)</td>
 <td>pu<font color="blue">t</font>(e)</td>
 </tr>
 <tr>
 <td>移除方法</td>
 <td>remove()</td>
 <td>p<font color="red">o</font>ll()</td>
-<td>poll(time, unit)</td>
+<td>p<font color="red">o</font>ll(time, unit)</td>
 <td><font color="blue">t</font>ake()</td>
 </tr>
 <tr>
@@ -271,7 +272,7 @@
 <tbody><tr>
 <td>add</td>
 <td>添加元素（添加 null 值非法）</td>
-<td>队列满时抛出 <code>IllegalStateException</code></td>
+<td>队列满时抛出 <code>IllegalStateException(&quot;Queue full&quot;)</code></td>
 </tr>
 <tr>
 <td>offer</td>
