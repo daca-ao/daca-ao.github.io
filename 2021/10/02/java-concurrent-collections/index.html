@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2021/10/02/java-concurrent-collections/concurrenthashmap-structure.png">
 <meta property="og:image" content="http://example.com/2021/10/02/java-concurrent-collections/concurrenthashmap-new-structure.png">
 <meta property="article:published_time" content="2021-10-01T16:17:13.000Z">
-<meta property="article:modified_time" content="2021-12-14T15:00:40.841Z">
+<meta property="article:modified_time" content="2021-12-14T15:43:50.229Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="Collection">
@@ -310,6 +310,7 @@
 <td>队列空时返回 null</td>
 </tr>
 </tbody></table>
+<p>注意：使用无界队列时，put() 永远不会阻塞，offer() 永远返回 true。</p>
 <br>
 
 <p>在 JCF 中，阻塞队列对应着 <code>BlockingQueue</code>、<code>BlockingDeque</code> 和 <code>TransferQueue</code> 接口。</p>
