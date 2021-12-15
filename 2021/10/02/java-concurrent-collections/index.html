@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2021/10/02/java-concurrent-collections/concurrenthashmap-structure.png">
 <meta property="og:image" content="http://example.com/2021/10/02/java-concurrent-collections/concurrenthashmap-new-structure.png">
 <meta property="article:published_time" content="2021-10-01T16:17:13.000Z">
-<meta property="article:modified_time" content="2021-12-15T13:48:11.969Z">
+<meta property="article:modified_time" content="2021-12-15T14:38:42.236Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="Collection">
@@ -339,11 +339,19 @@
 
 <p>应用场景：</p>
 <ul>
-<li>缓存系统的设计：保存需要缓存的元素的有效期，使用线程循环地去查询队列；一旦获取到了元素，说明元素到期</li>
-<li>定时任务调度：保存需要执行的任务和执行时间点，一旦获取到了元素，说明当前时间点开始执行获取到的任务</li>
+<li>缓存系统的设计：保存需要缓存的元素的有效期，使用线程循环地去查询队列；一旦获取到了元素，说明元素到期；</li>
+<li>定时任务调度：保存需要执行的任务和执行时间点，一旦获取到了元素，说明当前时间点开始执行获取到的任务。</li>
 </ul>
 <p><code>LinkedTransferQueue</code>：由链表结构实现的 TransferQueue，⽆界阻塞队列</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LinkedTransferQueue</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tryTransfer</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> xfer(e, <span class="keyword">true</span>, NOW, <span class="number">0</span>) == <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">transfer</span><span class="params">(E e)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (xfer(e, <span class="keyword">true</span>, SYNC, <span class="number">0</span>) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            Thread.interrupted();</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InterruptedException();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
 <p><code>SynchronousQueue</code>：<strong>不存储元素</strong>的阻塞队列，简单实现了阻塞机制</p>
+<ul>
+<li>每一个 <code>put()</code> 操作都要等一个 <code>take()</code> 操作，否则便不能继续添加元素；</li>
+<li>生产者可通过其直接将资源传递给消费者，中间不做任何保存；</li>
+<li>非常适合传递性的场景</li>
+</ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SynchronousQueue</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">volatile</span> Transferer transferer;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SynchronousQueue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>(<span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SynchronousQueue</span><span class="params">(<span class="keyword">boolean</span> fair)</span> </span>&#123;</span><br><span class="line">        transferer = fair ? <span class="keyword">new</span> TransferQueue() : <span class="keyword">new</span> TransferStack();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
