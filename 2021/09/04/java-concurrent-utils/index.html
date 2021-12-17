@@ -28,8 +28,9 @@
 <meta property="og:description" content="本帖再介绍多几个 Java 多线程编程的工具类。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/09/04/java-concurrent-utils/fork-join.png">
+<meta property="og:image" content="http://example.com/2021/09/04/java-concurrent-utils/fork-join2.png">
 <meta property="article:published_time" content="2021-09-04T15:26:01.000Z">
-<meta property="article:modified_time" content="2021-12-09T14:38:43.741Z">
+<meta property="article:modified_time" content="2021-12-17T05:55:20.060Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -232,17 +233,21 @@
 </ol>
 <h1 id="Fork-Join-框架"><a href="#Fork-Join-框架" class="headerlink" title="Fork-Join 框架"></a>Fork-Join 框架</h1><p>满足应用对每个处理器内核分别使用一个线程，完成计算密集型任务的需求（分治）</p>
 <p><img src="/2021/09/04/java-concurrent-utils/fork-join.png"></p>
+<p><img src="/2021/09/04/java-concurrent-utils/fork-join2.png"></p>
 <p>伪代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (problemSize &lt; threshold)</span><br><span class="line">    <span class="comment">// solve problem directly</span></span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * break problem into subproblems</span></span><br><span class="line"><span class="comment">     * recursively solve each subproblem</span></span><br><span class="line"><span class="comment">     * combine the results</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>Java 中关于 Fork-Join 框架的类：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">java.util.concurrent</span><br><span class="line">ForkJoinTask&lt;V&gt; <span class="comment">// 抽象类</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util.concurrent;</span><br><span class="line"></span><br><span class="line">ForkJoinTask&lt;V&gt; <span class="comment">// 抽象类</span></span><br></pre></td></tr></table></figure>
 
-<p>当其实例被提交至 ForkJoinPool 中时：开始执行<br>子类：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">RecursiveAction // 无返回值</span><br><span class="line">RecursiveTask // 有返回值</span><br><span class="line"></span><br><span class="line">ForkJoinPool // 实现了 ExecutorService 接口</span><br></pre></td></tr></table></figure>
+<p>当其实例被提交至 ForkJoinPool 中时：开始执行</p>
+<p>子类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">RecursiveAction <span class="comment">// 无返回值</span></span><br><span class="line">RecursiveTask <span class="comment">// 有返回值</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ForkJoinPool <span class="comment">// 实现了 ExecutorService 接口</span></span><br></pre></td></tr></table></figure>
 
 <p>实例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> ForkJoinPool mainPool = <span class="keyword">new</span> ForkJoinPool();</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sort</span><span class="params">(<span class="keyword">long</span>[] array)</span> </span>&#123;</span><br><span class="line">   mainPool.invoke(<span class="keyword">new</span> SortTask(array, <span class="number">0</span>, array.length));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> ForkJoinPool mainPool = <span class="keyword">new</span> ForkJoinPool();</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sort</span><span class="params">(<span class="keyword">long</span>[] array)</span> </span>&#123;</span><br><span class="line">    mainPool.invoke(<span class="keyword">new</span> SortTask(array, <span class="number">0</span>, array.length));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>（待补充）</p>
 
