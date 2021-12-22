@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2021/09/04/java-concurrent-utils/fork-join2.png">
 <meta property="og:image" content="http://example.com/2021/09/04/java-concurrent-utils/task-steal.png">
 <meta property="article:published_time" content="2021-09-04T15:26:01.000Z">
-<meta property="article:modified_time" content="2021-12-22T11:25:33.953Z">
+<meta property="article:modified_time" content="2021-12-22T15:59:33.031Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -232,17 +232,23 @@
 <br>
 
 <h1 id="Semaphore"><a href="#Semaphore" class="headerlink" title="Semaphore"></a>Semaphore</h1><p>通常译作“信号量”。</p>
-<p>保持在 0 和指定最大值之间的一个计数值，用于控制同时访问特定资源的线程数量。</p>
+<p>保持在 0 和指定最大值之间的一个计数值，用于控制同时访问特定资源的线程数量，通过协调各个线程来保证合理地使用公共资源。</p>
 <ul>
 <li>当线程完成一次对该信号量对象的等待（wait）时，计数值减一</li>
 <li>当线程完成一次对该信号量对象的释放（release）时，计数值加一</li>
-<li>当计数值为 0：线程等待该信号量对象不再能成功，直至该对象变成 signaled 状态</li>
+<li>当计数值为 0：等待该对象的线程数达到最大值，别的线程等待该信号量对象就不再能成功了，直至该对象变成 signaled 状态</li>
+</ul>
+<p>信号量对象状态：</p>
+<ul>
 <li>对象计数值大于 0：signaled</li>
 <li>计数值等于 0：nonsignaled</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.Semaphore;</span><br><span class="line"></span><br><span class="line">acquire();  <span class="comment">// 获取访问许可，获取时并不会加持任何锁</span></span><br><span class="line">release();  <span class="comment">// 释放访问许可</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.Semaphore;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">acquire</span><span class="params">()</span>  <span class="comment">// 获取访问许可，获取时并不会加持任何锁</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">release</span><span class="params">()</span>  <span class="comment">// 释放访问许可</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">availablePermits</span><span class="params">()</span>  <span class="comment">// 返回当前可用的许可数</span></span></span><br><span class="line"><span class="function"><span class="title">getQueueLength</span><span class="params">()</span>  <span class="comment">// 正在等待获取许可的线程数</span></span></span><br><span class="line"><span class="function"><span class="title">hasQueuedThreads</span><span class="params">()</span>  <span class="comment">// 是否有线程正在等待获得许可</span></span></span><br></pre></td></tr></table></figure>
 
+<p>应用举例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Semaphore s = <span class="keyword">new</span> Semaphore(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">        s.acquire();</span><br><span class="line"></span><br><span class="line">        ...</span><br><span class="line">        s.release();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>可应用于流量控制。</p>
 <h2 id="Semaphore-v-s-Mutex"><a href="#Semaphore-v-s-Mutex" class="headerlink" title="Semaphore v.s. Mutex"></a>Semaphore v.s. Mutex</h2><p>信号量适用于控制一个仅支持有限个用户的共享资源；而互斥锁（<strong>Mut</strong>ual <strong>Ex</strong>clusion, mutex）则是防止两个以上线程同时对一个公共资源进行读写的机制。</p>
 <p>互斥与信号量的区别：</p>
 <ol>
