@@ -486,6 +486,6 @@ AtomicLongFieldUpdater<T>
 AtomicReferenceFieldUpdater<T>
 ```
 
-原子类以乐观锁中的 CAS（Compare And Swap）无锁算法实现，使用方法简单，性能更高效，线程安全。
+原子类基于 CAS 算法实现，使用方法简单，性能更高效，线程安全。
 
 什么时候使用悲观锁效率更高，什么使用使用乐观锁效率更高，要根据实际情况来判断选择。

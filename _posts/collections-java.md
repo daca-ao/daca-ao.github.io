@@ -77,7 +77,7 @@ expressLane.add(new Customer("Harry"));
 * 针对集合接口的通用实现：实现了接口的基本功能：`ArrayList`，`HashMap`，`LinkedList`，...
 * 针对集合接口的包装类（Wrapper）实现，比如让接口只读
 * 针对集合接口的高性能且方便的功能性实现，如数组转换成 List
-* 为早期的集合类添加集合接口的实现，如 `Vector`，`HashTable` 等
+* 为早期的集合类添加集合接口的实现，如 `Vector`，`Hashtable` 等
 * 针对集合接口的某些特殊实现，如特殊的 List
 * 针对集合接口的同步实现：通常以 `Concurrent-` 开头，为线程安全类
 * 提供了针对集合的算法，如 `Collections` 类提供的 List 排序算法
@@ -279,7 +279,7 @@ Java 集合类库中的迭代器不同于其他类库的迭代器
     * `Vector`
     * `HashMap`
     * `TreeMap`
-    * `HashTable`
+    * `Hashtable`
 
 <big>另：说说 Collection 的父接口：</big>
 

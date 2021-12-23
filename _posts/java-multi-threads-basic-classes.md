@@ -83,6 +83,10 @@ void run()    // 调用关联 Runnable 的 run 方法
 static Thread currentThread()    // 返回代表当前执行线程的 Thread 对象
 ```
 
+Thread 初始化的时候，会将 daemon 和 priority 设置为父线程的对应属性，再将父线程的 inheritableThreadLocal 复制过来。
+
+<br/>
+
 如果直接调用 run 方法只会执行**同一个线程**的任务。
 
 Thread 调用到最后一行，或者调用过程中出现了不可捕获的异常，线程会终止。
