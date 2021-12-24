@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/09/02/java-executors/threadpoolexecutor-execution.png">
 <meta property="article:published_time" content="2021-09-01T16:11:08.000Z">
-<meta property="article:modified_time" content="2021-12-24T06:20:07.126Z">
+<meta property="article:modified_time" content="2021-12-24T06:37:27.709Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -260,7 +260,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util.concurrent;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 返回带缓存（线程可重用）线程池，线程数不限</span></span><br><span class="line"><span class="comment"> * 必要时创建线程，在线程空闲 60 秒后终止线程</span></span><br><span class="line"><span class="comment"> * 相当于：new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue&lt;Runnable&gt;())</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">(ThreadFactory factory)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">/**</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 返回一个线程池，池中的线程数由参数指定</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 如某一时刻提交的服务数多于空闲的线程数，那将暂时未能获取服务的任务放置到等待池中，其他任务完成后再执行它们</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 相当于：new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue&lt;Runnable&gt;())</span></span></span><br><span class="line"><span class="comment"><span class="function"> */</span></span></span><br><span class="line"><span class="function">ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> threads)</span></span></span><br><span class="line"><span class="function">ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> threads, ThreadFactory factory)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">/**</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 返回一个执行器，在单个线程中依次执行各个提交进来的任务</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 相当于：new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue&lt;Runnable&gt;())</span></span></span><br><span class="line"><span class="comment"><span class="function"> */</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">()</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">(ThreadFactory factory)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">// 以上构造函数调用的均为 ThreadPoolExecutor 的构造方法</span></span></span><br><span class="line"><span class="function"><span class="comment">// 返回的是实现了 ExecutorService 接口的 ThreadPoolExecutor 类对象</span></span></span><br></pre></td></tr></table></figure>
 
 
-<h3 id="实现类概况：ThreadPoolExecutor"><a href="#实现类概况：ThreadPoolExecutor" class="headerlink" title="实现类概况：ThreadPoolExecutor"></a>实现类概况：<code>ThreadPoolExecutor</code></h3><p><code>ThreadPoolExecutor</code> 是 Java 并发编程中最常用的线程池执行器。</p>
+<h3 id="实现类概况：ThreadPoolExecutor"><a href="#实现类概况：ThreadPoolExecutor" class="headerlink" title="实现类概况：ThreadPoolExecutor"></a>实现类概况：<code>ThreadPoolExecutor</code></h3><p><code>ThreadPoolExecutor</code> 是 Java 并发编程中最常用的线程池执行器，是了解 Java 并发编程的重点。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util.concurrent;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// AbstractExecutorService 实现了 ExecutorService 接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutor</span> <span class="keyword">extends</span> <span class="title">AbstractExecutorService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    ThreadPoolExecutor(<span class="keyword">int</span> corePoolSize, <span class="keyword">int</span> maximumPoolSize, <span class="keyword">long</span> keepAliveTime, TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    ThreadPoolExecutor(<span class="keyword">int</span> corePoolSize, <span class="keyword">int</span> maximumPoolSize, <span class="keyword">long</span> keepAliveTime, TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue, RejectedExecutionHandler handler) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    ThreadPoolExecutor(<span class="keyword">int</span> corePoolSize, <span class="keyword">int</span> maximumPoolSize, <span class="keyword">long</span> keepAliveTime, TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue, ThreadFactory threadFactory) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    ThreadPoolExecutor(<span class="keyword">int</span> corePoolSize, <span class="keyword">int</span> maximumPoolSize, <span class="keyword">long</span> keepAliveTime, TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">allowCoreThreadTimeOut</span><span class="params">(<span class="keyword">boolean</span> value)</span> </span>&#123;&#125;</span><br><span class="line">    <span class="comment">// 设置 core 线程是否超时</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getActiveCount</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">    <span class="comment">// 返回当前活跃的线程数</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getLargestPoolSize</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">    <span class="comment">// 返回线程池当前最大的线程数</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><strong>构造参数</strong>：</p>
@@ -283,28 +283,32 @@
 <li>一般应用至超过 corePoolSize 数目的线程，但 allowCoreThreadTimeOut() 会采用此值</li>
 <li>当 keepAliveTime 设置为 0 时，该存活时间不会被采用</li>
 </ul>
-<p><strong>4</strong>. <code>workQueue</code>：存放等待执行的 task 的<a href="/2021/10/02/java-concurrent-collections/#%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97">阻塞队列</a>，提交的任务会放到这里，只保存 runnable 对象</p>
+<p><strong>4</strong>. <code>workQueue</code>：存放等待执行的 task 的<a href="/2021/10/02/java-concurrent-collections/#%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97">阻塞队列</a>；只保存 runnable 对象</p>
 <ul>
-<li>若核心线程数少于 corePoolSize：直接增加一个线程</li>
-<li>若多于或等于：进入队列；若不能进入队列，则在最大范围内新建方式：</li>
+<li>如果线程池中的核心线程数少于 corePoolSize：线程池会直接增加一个线程</li>
+<li>若多于或等于：进入队列；若不能进入队列，则在 maximumPoolSize 规定的最大范围内新建</li>
 </ul>
+<p>队列分发的方式：</p>
 <ol>
 <li>直接分发：使用 SynchronousQueue 将 task 立即分发给线程池中的线程</li>
 <li>无界队列：线程池最多只有 corePoolSize 个线程工作，最大值无效</li>
-<li>有界队列<br>详见 Java 线程安全集合中的阻塞队列</li>
+<li>有界队列</li>
 </ol>
-<p><strong>5</strong>. <code>handler</code>：因线程池或者队列空间满载导致阻塞时，所要采用的拒绝（reject） handler 对象</p>
+<p><strong>5</strong>. <code>handler</code>：线程池或者队列空间满载导致阻塞的时候，线程池所要采用的拒绝（reject）handler 对象</p>
 <ul>
-<li>默认 ThreadPoolExecutor.AbortPolicy：丢弃任务，并抛出 RejectedExecutionException 异常</li>
-<li>ThreadPoolExecutor.CallerRunsPolicy：如线程池未关闭，则直接在调用者线程完成这个任务</li>
-<li>ThreadPoolExecutor.DiscardPolicy：不处理新的任务，即丢弃</li>
-<li>ThreadPoolExecutor.DiscardOldestPolicy：取消队列头（最老）的 task，放入新任务再执行</li>
-<li>可自定义</li>
+<li>默认值是 <code>ThreadPoolExecutor.AbortPolicy</code>：丢弃任务，并抛出 <code>RejectedExecutionException</code> 异常</li>
 </ul>
-<p><strong>6</strong>. <code>threadFactory</code>：用来创建新线程的工厂对象</p>
+<p>其他可以设置的 handler：</p>
+<ul>
+<li><code>ThreadPoolExecutor.CallerRunsPolicy</code>：如线程池未关闭，则直接在调用者线程完成这个任务</li>
+<li><code>ThreadPoolExecutor.DiscardOldestPolicy</code>：取消队列头（最老）的 task，放入新任务再执行</li>
+<li><code>ThreadPoolExecutor.DiscardPolicy</code>：不处理新的任务，直接丢弃</li>
+<li>可自定义其他的 handler</li>
+</ul>
+<p><strong>6</strong>. <code>threadFactory</code>：用来设置创建新线程的工厂对象</p>
 <ul>
 <li>通过传入指定工厂对象来设置线程的名称、线程组、优先级等</li>
-<li>null 则采用默认的 Executors.defaultThreadFactory()</li>
+<li>如果传入的是 null，则采用默认的 <code>Executors.defaultThreadFactory()</code></li>
 </ul>
 <p><strong>工作流程</strong>：</p>
 <ul>
