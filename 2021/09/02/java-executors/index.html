@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2021/09/02/java-executors/threadpoolexecutor-p2.png">
 <meta property="og:image" content="http://example.com/2021/09/02/java-executors/scheduledexecutorservice.png">
 <meta property="article:published_time" content="2021-09-01T16:11:08.000Z">
-<meta property="article:modified_time" content="2022-01-05T14:05:00.462Z">
+<meta property="article:modified_time" content="2022-01-05T14:19:35.434Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -236,11 +236,11 @@
 </thead>
 <tbody><tr>
 <td><code>newCachedThreadPool()</code></td>
-<td>必要时创建新线程：空闲线程保留60秒<br>如线程池大小超过处理任务所需要线程：回收部分空闲线程</td>
+<td>必要时创建新线程：空闲线程会保留 60 秒<br>如线程池大小超过处理任务所需要线程：回收部分空闲线程</td>
 </tr>
 <tr>
 <td><code>newFixedThreadPool()</code></td>
-<td>该池包含固定数量的线程：空闲线程一直保留<br>如某线程因执行异常而结束：线程池补充一个新线程</td>
+<td>该池包含固定数量的线程：空闲线程会一直保留<br>如某线程因执行异常而结束：线程池补充一个新线程</td>
 </tr>
 <tr>
 <td><code>newSingleThreadExecutor()</code></td>
@@ -253,6 +253,10 @@
 <tr>
 <td><code>newSingleThreadScheduledThreadExecutor()</code></td>
 <td>用于定时或周期性执行而构建的单线程执行器（“池”）</td>
+</tr>
+<tr>
+<td><code>newWorkStealingPool()</code></td>
+<td>创建一个 ForkJoin 线程池</td>
 </tr>
 </tbody></table>
 <p>从上述方法命名可以看出：只有一个线程的“池”，叫 <code>-Executor</code>；否则都叫 <code>-Pool</code>。</p>
