@@ -41,7 +41,7 @@
 <meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/decoupling.png">
 <meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/flow-cut.png">
 <meta property="article:published_time" content="2021-07-21T05:43:29.000Z">
-<meta property="article:modified_time" content="2021-09-01T14:04:27.877Z">
+<meta property="article:modified_time" content="2022-02-26T04:47:12.376Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -237,11 +237,8 @@
 <p><strong>5</strong>. 多协议（Multi-protocol）：支持原生 AMQP，还支持 STOMP、MQTT 等多种消息中间件协议</p>
 <p><strong>6</strong>. 多语言客户端：对于所有主流编程语言（Java, Python, Ruby, Go, PHP, C#, JavaScript 等）均有与代理接口通讯的客户端库</p>
 <p><strong>7</strong>. 管理界面（Management UI）：易用，可监控和管理消息以及 Broker 集群节点</p>
-<p><strong>8</strong>. 跟踪机制（Tracing）：如果消息异常，使用者可以找出发生了什么。</p>
-<p><strong>9</strong>. 插件机制（Plugin System）</p>
-<ul>
-<li>可从多方面进行扩展，如网页控制台消息管理插件、消息延迟插件等。</li>
-</ul>
+<p><strong>8</strong>. 跟踪机制（Tracing）：如果消息异常，使用者可以找出发生了什么</p>
+<p><strong>9</strong>. 插件机制（Plugin System）：可从多方面进行扩展，如网页控制台消息管理插件、消息延迟插件等</p>
 <p><strong>10</strong>. 社区活跃度高，解决问题成本低。</p>
 <br>
 
@@ -294,15 +291,15 @@
 <li>每个 RabbitMQ 服务器均可创建 vhost，默认为 “/“。</li>
 </ul>
 <p><strong>Broker</strong>：表示消息队列服务器实体。</p>
-<p>注：消费者和生产者都可以创建队列。如创建了一个已经存在的队列：不会有任何的影响。</p>
+<p>注：消费者和生产者都可以创建队列。如果提交了一个已经存在的队列的创建请求，系统不会返回错误，不会有任何的影响。</p>
 <br>
 
 <h1 id="运行机制"><a href="#运行机制" class="headerlink" title="运行机制"></a>运行机制</h1><p>基本上分为两种：交换（Exchange）机制和分发机制。</p>
 <h2 id="Exchange"><a href="#Exchange" class="headerlink" title="Exchange"></a>Exchange</h2><p><strong>1. Direct Exchange</strong></p>
 <ul>
 <li>RabbitMQ 默认的交换方式，采用轮询方式</li>
-<li>发送至 routing key = binding key 的订阅者（Queue），类似于点对点</li>
-<li>其他不相等的 routing key 的消息会被丢弃</li>
+<li>发送至 RoutingKey = BindingKey 的订阅者（Queue），类似于点对点</li>
+<li>其他不相等的 RoutingKey 的消息会被丢弃</li>
 </ul>
 <p><img src="/2021/07/21/rabbitmq/direct-exchange.png"></p>
 <p><strong>2. Fanout Exchange</strong></p>
@@ -314,24 +311,24 @@
 <p><strong>3. Topic Exchange</strong></p>
 <ul>
 <li>采用匹配模式</li>
-<li>发送至 routing key 与 binding key <strong>模糊匹配</strong>的订阅者（Queue）</li>
+<li>发送至 RoutingKey 与 BindingKey <strong>模糊匹配</strong>的订阅者（Queue）</li>
 <li>约定：<ul>
-<li>routing key 为用点号分隔的字符串，binding key 与其模式相同 </li>
-<li>binding key 可使用 *（匹配一个单词）和 #（匹配多个或 0 个单词）用于模糊匹配</li>
+<li>RoutingKey 为用点号分隔的字符串，BindingKey 与其模式相同 </li>
+<li>BindingKey 可使用 <code>*</code>（匹配一个单词）和 <code>#</code>（匹配多个或 0 个单词）用于模糊匹配</li>
 </ul>
 </li>
 </ul>
 <p><img src="/2021/07/21/rabbitmq/topic-exchange.png"></p>
-<p>根据上图的模糊匹配，比如有下面不同的 routing key：</p>
+<p>根据上图的模糊匹配，比如有下面不同的 RoutingKey：</p>
 <ul>
-<li>routing key = F.C.E：路由到 Queue1</li>
-<li>routing key = A.C.E：路由到 Queue1 和 Queue2</li>
-<li>routing key = A.F.B：路由到 Queue2</li>
+<li>RoutingKey = F.C.E：路由到 Queue1</li>
+<li>RoutingKey = A.C.E：路由到 Queue1 和 Queue2</li>
+<li>RoutingKey = A.F.B：路由到 Queue2</li>
 </ul>
 <p><strong>4. Headers Exchange</strong></p>
 <ul>
 <li>采用轮询方式</li>
-<li>通过消息头订阅，不依赖于 routing key 和 binding key 的匹配规则<ul>
+<li>通过消息头订阅，不依赖于 RoutingKey 和 BindingKey 的匹配规则<ul>
 <li>消息发布前为消息定义一个或多个键值对的消息头</li>
 <li>消费者在接收消息的同时，需要定义类似的键值对请求头</li>
 <li>请求头与消息头匹配才可接收消息</li>
@@ -361,9 +358,9 @@
 <li>生产者先连接到 Broker，建立连接（connection），再开启一个或多个信道（channel）</li>
 <li>生产者声明一个 Exchange 并设置好相关属性</li>
 <li>生产者声明一个 Queue 并设置好相关属性</li>
-<li>生产者通过 routing key 建立与 Exchange 的路由，通过 binding key 将 Exchange 和 Queue 绑定</li>
-<li>生产者发送消息到 Broker，消息包含 routing key、Exchange 等信息</li>
-<li>相应的 Exchange 根据接收到的 routing key 查找匹配的 Queue<ol>
+<li>生产者通过 RoutingKey 建立与 Exchange 的路由，通过 BindingKey 将 Exchange 和 Queue 绑定</li>
+<li>生产者发送消息到 Broker，消息包含 RoutingKey、Exchange 等信息</li>
+<li>相应的 Exchange 根据接收到的 RoutingKey 查找匹配的 Queue<ol>
 <li>如匹配：将消息存入对应的队列</li>
 <li>如不匹配：根据生产者先前的配置，丢弃消息（mandatory=false）或退回至生产者（mandatory=true）</li>
 </ol>
@@ -403,8 +400,8 @@
 </ol>
 <p>消息持久化的条件：</p>
 <ul>
-<li>投递消息时 <code>durable</code> 设置为 true  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channel.queueDeclare(x, durable=<span class="keyword">true</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">null</span>)</span><br></pre></td></tr></table></figure></li>
-<li>设置投递模式 <code>deliveryMode</code> 为 2：持久化  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">channel.basicPublish(x, x, MessageProperties.PERSISTENTTEXTPLAIN, x)</span><br><span class="line"><span class="comment">// deliveryMode 为 3：存储纯文本到磁盘</span></span><br></pre></td></tr></table></figure></li>
+<li>投递消息时 <code>durable</code> 设置为 true  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">channel.queueDeclare(x, durable=<span class="keyword">true</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">null</span>);</span><br></pre></td></tr></table></figure></li>
+<li>设置投递模式 <code>deliveryMode</code> 为 2：持久化  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">channel.basicPublish(x, x, MessageProperties.PERSISTENTTEXTPLAIN, x);</span><br><span class="line"><span class="comment">// deliveryMode 为 3：存储纯文本到磁盘</span></span><br></pre></td></tr></table></figure></li>
 <li>消息已经到达持久化 Exchange 上</li>
 <li>消息已经到达持久化的队列中</li>
 </ul>
@@ -433,7 +430,7 @@
 </ul>
 <p><strong>2. AMQP 事务机制</strong>：主要是对信道 channel 的设置</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 与事务机制相关的方法：</span></span><br><span class="line">channel.txSelect()  <span class="comment">// 用于将当前的信道设置成事务模式</span></span><br><span class="line">channel.txCommit()  <span class="comment">// 用于提交事务</span></span><br><span class="line">channel.txRoolback()  <span class="comment">// 用于事务回滚</span></span><br></pre></td></tr></table></figure>
-<p>如事务提交执行前 RabbitMQ 异常崩溃或其他原因抛出异常：通过 txRollback() 回滚<br>当 autoAck=true 时，事务无效</p>
+<p>如事务提交执行前 RabbitMQ 异常崩溃或其他原因抛出异常：通过 txRollback() 回滚，当 <code>autoAck=true</code> 时，事务无效</p>
 <ul>
 <li>此时消息时自动消费确认，RabbitMQ 直接将消息从队列中擦除，即使后面事务回滚也不能起到任何作用</li>
 </ul>
@@ -467,7 +464,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> prefetchCount = <span class="number">1</span>;</span><br><span class="line">channel.basicQos(prefetchCount);</span><br></pre></td></tr></table></figure>
 
 <p>比如：设置消费者不消费消息</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">channel.basicNack()</span><br><span class="line">channel.basicReject(messageId, <span class="keyword">true</span>)  <span class="comment">// 消息被分配到其他订阅者</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">channel.basicNack();</span><br><span class="line">channel.basicReject(messageId, <span class="keyword">true</span>);  <span class="comment">// 消息被分配到其他订阅者</span></span><br></pre></td></tr></table></figure>
 
 <p><strong>延迟队列</strong>：存储对应的延迟消息</p>
 <ul>
