@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="函数式编程（Functional Programming）是自 JDK 1.8 以来引入的一个非常重要的特性，也是 Java 编程未来的发展方向。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 中的函数式编程">
+<meta property="og:url" content="http://example.com/2022/02/07/fp/index.html">
+<meta property="og:site_name" content="Raymond&#39;s Cabin">
+<meta property="og:description" content="函数式编程（Functional Programming）是自 JDK 1.8 以来引入的一个非常重要的特性，也是 Java 编程未来的发展方向。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
+<meta property="article:modified_time" content="2022-02-21T14:40:24.000Z">
+<meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2022/02/07/fp/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Java 中的函数式编程 | Raymond's Cabin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Raymond's Cabin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">for sharing thoughts</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/02/07/fp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
+      <meta itemprop="description" content="Storing blogs">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Raymond's Cabin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java 中的函数式编程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-02-07 18:59:57" itemprop="dateCreated datePublished" datetime="2022-02-07T18:59:57+08:00">2022-02-07</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>函数式编程（<strong>F</strong>unctional <strong>P</strong>rogramming）是自 JDK 1.8 以来引入的一个非常重要的特性，也是 Java 编程未来的发展方向。</p>
+<span id="more"></span>
+
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>作为一种<strong>编程范式</strong>来说，函数式编程面世的时间已经很早了，而且其对使用者的建模和抽象的要求是特别高的。<br>换句话来说，函数式编程具有自己的一套世界观和哲学观：</p>
+<p>函数式编程以<strong>函数</strong>作为第一对象（函数作为一个变量，从而可以作为参数或返回值），注重<strong>描述</strong>（描述性的高级语言）而非具体的执行步骤，更关心代数结构之间的关系。</p>
+<p>市面上常见的函数式编程语言有 JavaScript, Scala, Erlang, LISP, Clojure, Haskell 等。</p>
+<h1 id="函数式编程的编程特性"><a href="#函数式编程的编程特性" class="headerlink" title="函数式编程的编程特性"></a>函数式编程的编程特性</h1><p><strong>不可变</strong><br>将对象的变化拆解开，无需考虑并发问题，大大减少发生 bug 的可能性。</p>
+<p><strong>惰性求值</strong><br>需要结果的时候才进行求值。</p>
+<p><strong>闭包</strong><br>FP 必须有的特性。</p>
+<p><strong>高阶函数</strong><br>函数在经过一系列的转换之后生成新的函数，新函数的<strong>阶</strong>比原函数的更高。如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 伪代码：</span></span><br><span class="line">Function&lt;?&gt; callTwice(fn) &#123;</span><br><span class="line">    <span class="keyword">return</span> () -&gt; &#123;</span><br><span class="line">        fn();</span><br><span class="line">        fn();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>柯里化（Currying）</strong><br>由数学家 Haskell Curry 提出，指的是将一个多参数函数转化为单参数函数的方法，如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">plus</span>(<span class="params">x, y</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x + y</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">plus(<span class="number">1</span>, <span class="number">2</span>)  <span class="comment">// 输出 3</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 柯里化：</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">plus</span>(<span class="params">y</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params">x</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> x + y</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">plus(<span class="number">1</span>)(<span class="number">2</span>)  <span class="comment">// 输出 3</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>部分应用</strong><br>Partial Application，将多个参数的函数进行拆分，拆成多个只有一个参数或部分参数的函数，与柯里化较为相似。</p>
+<p><strong>结合律</strong><br>指函数功能的组合。</p>
+<p>千万不要认为函数式编程（FP）和 OOP 是两个水火不相容的东西，因为现在的发展趋势是混合式的范式编程，即：你中有我，我中有你。</p>
+<p>然而要注意的一点是：以上提到的特性中的大部分，包括柯里化、部分应用等，在 JDK 1.8 都是用不了的，这也是 JVM 为了向前兼容的结果。<br>所以 JDK 1.8 所提供的所谓的“函数式”距离真正的函数式还很远，能应用到的只是<strong>阉割版</strong>的函数式编程。</p>
+<h1 id="基础应用"><a href="#基础应用" class="headerlink" title="基础应用"></a>基础应用</h1><p>在 Java 8 之前的版本中，我们有很多适用函数式编程的场景：</p>
+<ul>
+<li>创建一个新的线程（Runnable）</li>
+<li>UI 编程</li>
+<li>异步回调</li>
+<li>策略模式，如 Comparator</li>
+<li>……</li>
+</ul>
+<p>只是基于当时版本的语言特性，需要用比较“蛋疼”的<strong>匿名内部类</strong>来实现。</p>
+<p>JDK 1.8 引入函数式编程之后，我们可以使用其支持的 <strong>Lambda 表达式</strong>来简化以上场景的实现。</p>
+<h2 id="Lambda-表达式"><a href="#Lambda-表达式" class="headerlink" title="Lambda 表达式"></a>Lambda 表达式</h2><p>一个 Lambda 表达式要表达的是一个方法（函数），经 Lambda 表达式转换过后的方法能够作为一个变量去被引用。</p>
+<p>相比于普通方法，Lambda 表达式在保留<strong>方法签名</strong>（<strong>入参</strong>）、<strong>返回值</strong>和<strong>函数体</strong>这几个函数必需的部分之后，使用运算符 <strong><code>-&gt;</code></strong> 将方法签名和函数体连接起来：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 假设我们有这个方法：</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">fn</span><span class="params">(T param1, R param2)</span> </span>&#123;</span><br><span class="line">    ...  <span class="comment">// 函数体</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 转为用 Lambda 表达式表示：</span></span><br><span class="line">XXFunction fn = (T param1, R param2) -&gt; &#123;</span><br><span class="line">    ...  <span class="comment">// 函数体</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 三要素：参数、函数体和箭头（-&gt;）</span></span><br></pre></td></tr></table></figure>
+
+<p>以上：Lambda 表达式是一个表达式，它是没有名字的；我们定义了一个 Function 变量 <code>fn</code> 保存了这个 Lambda 表达式的引用。</p>
+<p>Lambda 表达式包含了很多语法糖。除了忽略访问权限和返回类型之外，还包括：</p>
+<ul>
+<li>编译器可对参数类型进行推导</li>
+<li>单行函数体可省略大括号</li>
+<li>单入参可省略小括号</li>
+</ul>
+<p>给大家看一个普通的 Java 方法 Lambda 转化前后的过程：</p>
+<h3 id="转写-Lambda-表达式步骤"><a href="#转写-Lambda-表达式步骤" class="headerlink" title="转写 Lambda 表达式步骤"></a>转写 Lambda 表达式步骤</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">XXFunction aBlockOfCode = <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomeShit</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">    System.out.println(s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先，<code>public</code> 是多余的，可以省略：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">XXFunction aBlockOfCode = <span class="function"><span class="keyword">void</span> <span class="title">doSomeShit</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">    System.out.println(s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>函数的名字也是多余的，因为 Lambda 表达式没有名字，且方法引用已经赋值给了 aBlockOfCode：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">XXFunction aBlockOfCode = <span class="keyword">void</span> (String s) &#123;</span><br><span class="line">    System.out.println(s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，编译器可以自行判断函数返回类型和入参的参数类型，因此这俩可以省略：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">XXFunction aBlockOfCode = (s) &#123;</span><br><span class="line">    System.out.println(s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再使用运算符 <strong><code>-&gt;</code></strong> 将方法签名和函数体连接起来：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">XXFunction aBlockOfCode = (s) -&gt; &#123;</span><br><span class="line">    System.out.println(s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>单行函数体可省略大括号，单入参可省略小括号，最终可得：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XXFunction aBlockOfCode = s -&gt; System.out.println(s);  <span class="comment">// ELEGANT!</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：没有入参的话，需要一个空括号 <code>()</code> 代替方法签名。</p>
+<h3 id="表示高阶函数"><a href="#表示高阶函数" class="headerlink" title="表示高阶函数"></a>表示高阶函数</h3><p>明白了 Java 的 Lambda 表达式连接规则之后，我们就能很容易写出来属于 Java Lambda 的高阶函数了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">a -&gt; b -&gt; c -&gt; d;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 其实就是：</span></span><br><span class="line">(a) -&gt; &#123;(b) -&gt; &#123;(c) -&gt; d;&#125;&#125;</span><br><span class="line"><span class="comment">// 即：</span></span><br><span class="line">methodA(a) &#123;</span><br><span class="line">    methodB(b) &#123;</span><br><span class="line">        methodC(c) &#123;</span><br><span class="line">            d;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 从纯函数式层面，我们可以理解为 (a, b, c) -&gt; d</span></span><br><span class="line"><span class="comment">// 但是 Java 不具备柯里化，所以还只能按照 a -&gt; b -&gt; c -&gt; d 理解</span></span><br></pre></td></tr></table></figure>
+
+<p>从柯里化的角度来说，等于：</p>
+<ul>
+<li>fn = a -&gt; b -&gt; c -&gt; d</li>
+<li>fn1 = fn(a)</li>
+<li>fn2 = fn1(b)</li>
+<li>fn3 = fn2(c) = d</li>
+</ul>
+<p>说完这么多，有人就问了，Lambda 既然能够表示一个函数，那它在 Java 语言里面的类型是什么？</p>
+<p>回到上面我们提到的 Java 函数式编程适用场景。<br>Java 为了能够向前兼容，使用了接口（Interface）作为 Lambda 的类型；因为 Lambda 表达式表示的是函数，那么这种表示函数的接口，我们称之为“<strong>函数式接口</strong>”。</p>
+<h2 id="函数式接口-SAM"><a href="#函数式接口-SAM" class="headerlink" title="函数式接口 SAM"></a>函数式接口 SAM</h2><p>能够描述某个函数的接口，其接口里面相对应的方法签名应该<strong>只有一个</strong>。<br>因此函数式接口中的 Single Abstract Method，由名字我们可以看出：给一个函数定义一个接口，接口内只能有<strong>单个非默认/静态实现方法</strong>。</p>
+<p>所有 Lambda 类型都是一个接口，Lambda 表达式本身是这个接口的实现。<br>所以，即使 Lambda 表达式没有名字，但是一对应上 SAM，大家都会懂它描述的是哪个方法。</p>
+<p>在接口定义中可使用 <code>@FunctionalInterface</code> 注解进行修饰，但不是必须的。</p>
+<p>反过来：如果某个接口类只有一个非默认/静态方法，我们可以认为它是一个函数式接口，Lambda 表达式可以赋值给该接口类的实现中。</p>
+<p>书接上回的 Lambda 表达式。定义好接口之后，可以得到：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span>  <span class="comment">// 如果加上了注释，编译器会进行校验</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">MyLambdaInterface</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomeShit</span><span class="params">(String s)</span></span>;  <span class="comment">// 只能有单个非默认/静态实现方法</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">MyLambdaInterface aBlockOfCode = s -&gt; System.out.println(s);  <span class="comment">// aBlockOfCode 的类型为 MyLambdaInterface</span></span><br></pre></td></tr></table></figure>
+
+<p>在不同版本的 Java 中，对接口的实现和使用是不一样的。</p>
+<p>我们先有这么一个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">enact</span><span class="params">(MyLambdaInterface myLambda, String s)</span> </span>&#123;</span><br><span class="line">    myLambda.doSomeShit(s);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 Java 7 及更早版本，我们先要有一个 MyLambdaInterface 的实现类，再将实现类传入 enact() 中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyLambdaInterfaceImpl</span> <span class="keyword">implements</span> <span class="title">MyLambdaInterface</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomeShit</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        System.out.println(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用</span></span><br><span class="line">MyLambdaInterface interfaceImpl = <span class="keyword">new</span> MyLambdaInterfaceImpl();</span><br><span class="line">enact(interfaceImpl, <span class="string">&quot;hello&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>从 Java 8 开始，定义好了函数式接口之后，可以直接将 Lambda 表达式传入 enact()：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">enact(s -&gt; System.out.println(s), <span class="string">&quot;hello&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>使用比旧版本的方便得多了。</p>
+<p>以下为 JDK 8 常用的内置函数式接口：</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Function&lt;T,R&gt;</code></td>
+<td>T</td>
+<td>R</td>
+</tr>
+<tr>
+<td><code>Supplier&lt;T&gt;</code></td>
+<td><code>void</code></td>
+<td>T</td>
+</tr>
+<tr>
+<td><code>Consumer&lt;T&gt;</code></td>
+<td>T</td>
+<td><code>void</code></td>
+</tr>
+<tr>
+<td><code>Runnable</code></td>
+<td><code>void</code></td>
+<td><code>void</code></td>
+</tr>
+<tr>
+<td><code>Predicate&lt;T&gt;</code></td>
+<td>T</td>
+<td><code>Boolean</code></td>
+</tr>
+<tr>
+<td><code>UnaryOperator&lt;T&gt;</code></td>
+<td>T</td>
+<td>T</td>
+</tr>
+</tbody></table>
+<p>两个 input 用 <code>BiFunction</code>，三个 input 的没有，要自定义。</p>
+<p>上述的 a -&gt; b -&gt; c -&gt; d 可以理解为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Function&lt;?,Consumer&lt;?&gt;&gt; fn = a -&gt; &#123;b -&gt; c -&gt; d&#125;;</span><br><span class="line">Function&lt;?,Consumer&lt;?&gt;&gt; fn1 = b -&gt; &#123;c -&gt; d&#125;;</span><br><span class="line">Function&lt;?,?&gt; fn2 = c -&gt; &#123;d&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>区分了这么多类型的接口，是因为 Java 属于强类型的编程语言，需要对输入产出进行明确的类型划分。<br>在此背景下，任意两个接口之间因为互相没有实现或扩展关系，所以互相不能强制转换；比如：<code>Predicate&lt;?&gt;</code> 不能赋值给 <code>Function&lt;?,Boolean&gt;</code>。<br>虽然看上去像多态，但是不要将多态往函数式编程上靠。</p>
+<h2 id="方法引用"><a href="#方法引用" class="headerlink" title="方法引用"></a>方法引用</h2><p>函数式接口不仅可以直接使用 Lambda 表达式赋值；对于已有的方法（函数）来说，要想在函数式编程中更优雅地使用，还可以通过<strong>方法引用</strong>去使用它们。</p>
+<p>所谓“更优雅地使用”，指的是虽然我们可以通过给现有方法包装一层 Lambda 表达式去赋值给函数式接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Runnable r = () -&gt; Integer.parseInt(<span class="string">&quot;9527&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>但是从 Java 8 开始，可以使用方法引用去引用一个已经定义好的 Java 方法。</p>
+<p>方法引用使用 <code>::</code> 操作符来确定需要引用的方法的<strong>唯一名称</strong>：</p>
+<p><strong>1</strong>. 静态方法：类名<code>::</code>静态方法名</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Integer::parseInt;  <span class="comment">// 告知属于哪个类</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>2</strong>. 构造函数引用：类名<code>::new</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Person::<span class="keyword">new</span>;  <span class="comment">// 告知属于哪个类</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 无参构造函数的引用类型是 Supplier&lt;Clazz&gt;</span></span><br><span class="line"><span class="comment">// 有参构造函数的引用类型是 Function&lt;T,Clazz&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>3</strong>. 指定实例的方法引用：实例对象<code>::</code>实例方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str::subString;  <span class="comment">// 告知属于哪个实例</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>4</strong>. <strong>指定类型</strong>中任意一个实例方法的引用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设有类 T：</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">T</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    method1(arg2..argN);  <span class="comment">// 参数个数为 N - 1</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 现有以下函数式接口：</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Fn</span> </span>&#123;</span><br><span class="line">    apply(T arg1, arg2..argN)  <span class="comment">// 参数个数为 N</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那当某个方法对接口进行方法引用的时候：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">otherMethod(Fn fn);</span><br></pre></td></tr></table></figure>
+
+<p>我们可以引用指定 T 的一个形参数量比 SAM 少一个的方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">otherMethod(T::method1);  <span class="comment">// 以此完成对指定类型中任意一个实例方法的引用</span></span><br></pre></td></tr></table></figure>
+
+<p>如此，当调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Fn.apply(TInstance arg1, arg2..argN);</span><br></pre></td></tr></table></figure>
+
+<p>的时候，<code>arg2..argN</code> 等参数会传入</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TInstance.method1(arg2..argN)</span><br></pre></td></tr></table></figure>
+
+<p>里面；<code>method1()</code> 会被调用，同时 <code>arg1</code> 会被作为调用 <code>method1()</code> 方法的实例。可以理解为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fn(arg1, arg2..argN) == arg1.method1(arg2..argN)</span><br></pre></td></tr></table></figure>
+
+<h3 id="函数式接口转换"><a href="#函数式接口转换" class="headerlink" title="函数式接口转换"></a>函数式接口转换</h3><p>由于 Java 是强类型语言，Java 8 的函数式接口有的时候比较难用；然而在某些我们并不要求函数签名完全一致的场合中（也是其他函数式编程语言的特性），希望可以就不同的函数式接口进行转换。<br>比如说：</p>
+<ul>
+<li>某个方法引用要求传入 <code>Function</code>，但实际应用的时候不关心输入，希望传入 <code>Supplier</code>；</li>
+<li>某个方法引用要求传入 <code>Consumer</code>，但目前手头上的是 <code>Function</code>；</li>
+<li>某个方法引用仅要求 <code>Runnable</code>，但目前手头上的是 <code>Supplier</code></li>
+</ul>
+<p>以上的情况，手头上有的都不能直接传入对方法的引用中，需要另外编写 util 方法去转换，或者：</p>
+<p>就编程经验来说，我们可以采取一个特殊的 <strong>void-compatibility</strong> 规则：<br>如果 Lambda 是一个语句表达式，那么即使该 Lambda 表达式有返回值，也可以赋值给返回值签名为 void 的函数。</p>
+<p>这样子的话，单句的 Lambda 表达式可以赋值给 <code>Consumer</code> 和 <code>Runnable</code>。</p>
+<h1 id="进阶应用"><a href="#进阶应用" class="headerlink" title="进阶应用"></a>进阶应用</h1><h2 id="Stream"><a href="#Stream" class="headerlink" title="Stream"></a>Stream</h2><p>不仅是在 Java 8，<code>Stream</code> 在整个函数式编程中都占有着举足轻重的地位。</p>
+<p>首先，Stream 是一个<strong>哲学</strong>上的概念；相对于 List 来说，Stream：</p>
+<ul>
+<li>可以是无限的：《SICP》认为在函数式编程中，所有的东西都是不可变的；而在实际处理一些会变化的场景时，将场景看作是一个与时间有关的函数，函数本身（即场景变化的历史）不可变。</li>
+<li>可以并行处理</li>
+<li>可能延迟处理：在无限的流中执行操作，得到的中间结果不可能实时显示出来。</li>
+</ul>
+<p>相对于 List 的 foreach 将每个点分开来处理，Stream 引用一些函数将其自身<strong>变形</strong>至其他的 Stream 来做另外的处理，但是不需要拆分至每一个元素。</p>
+<p>创建 Stream 的方法：</p>
+<ul>
+<li>静态数据构建有限流：<code>Stream.of(T)</code></li>
+<li>容器：<code>[collection|map].stream()</code></li>
+<li>动态生成有限/无限流：<code>Stream.iterate(T, UnaryOperator)</code> <code>Stream.generate(Supplier)</code></li>
+<li>其他 API：<code>Files.lines()</code> …</li>
+</ul>
+<p>一个很有名的 Stream 响应式编程应用就是点击事件的处理，根据 Stream 中规定时间段内的点击次数来判断单击/双击事件。</p>
+<h3 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h3><p>Java 8 中的 Stream 有很多 API，主要分两种类别：</p>
+<p><strong>Intermediate</strong>：中间状态操作，应用在 Stream 的变化之中的 API；结果不能实时显示。</p>
+<ul>
+<li>filter</li>
+<li>distinct</li>
+<li>skip</li>
+<li>limit</li>
+<li>map / flatMap</li>
+<li>sorted</li>
+<li>…</li>
+</ul>
+<p><strong>Terminal</strong>：这些 API 一旦被调用，Stream 就在操作调用前变为有限的流；随后 Stream 被终结，在往后的计算中不能再被使用。</p>
+<ul>
+<li>count / sum</li>
+<li>collect / reduce</li>
+<li>foreach</li>
+<li>anyMatch / allMatch / noneMatch</li>
+<li>…</li>
+</ul>
+<p>其中被誉为函数式编程“三板斧”的三个高阶函数：</p>
+<ul>
+<li><code>filter(Predicate predicate)</code>：根据传入的条件过滤期望结果</li>
+<li><code>map(Function mapper)</code>：根据传入的函数做映射</li>
+<li><code>reduce(BinaryOperator acc)</code> / <code>reduce(T identity, BinaryOperator acc)</code> / <code>reduce(U Identity, BiFunction acc, BinaryOperator combiner)</code>：根据传入的函数将流折叠（计算 Stream 的值得到最终的累积结果）</li>
+</ul>
+<p>注：reduce 与递归不同；递归是在循环里面调用自己，而 reduce 没有调用传入的函数本身。</p>
+<p><em>Hadoop</em> 正是借鉴了函数式编程中 <code>map</code> 和 <code>reduce</code> 的概念，创建了属于自己的 MapReduce。</p>
+<h3 id="reduce-可以用来实现什么"><a href="#reduce-可以用来实现什么" class="headerlink" title="reduce 可以用来实现什么"></a>reduce 可以用来实现什么</h3><p>求和：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(Collection&lt;Integer&gt; list)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> list.stream().reduce(<span class="number">0</span>, (acc, curr) -&gt; acc + curr);</span><br><span class="line">    <span class="comment">// 或：return list.stream().reduce(0, Integer::sum);</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>求最大值：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Integer <span class="title">max</span><span class="params">(Collection&lt;Integer&gt; list)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> list.stream().reduce(Math::max).orElse(<span class="keyword">null</span>);  <span class="comment">// reduce(BinaryOperator acc) 要求累计值和当前值类型相同</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>拼接字符串：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">String <span class="title">join</span><span class="params">(Collection&lt;Integer&gt; list, String delimiter)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> list.stream().map(String::valueOf)</span><br><span class="line">        .reduce((acc, curr) -&gt; String.join(delimiter, acc, curr)).orElse(<span class="string">&quot;&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>存放进 Collection：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;T&gt; <span class="function">List&lt;T&gt; <span class="title">toList</span><span class="params">(Stream&lt;T&gt; stream)</span> </span>&#123;</span><br><span class="line">    List&lt;T&gt; ret = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">return</span> stream.reduce(ret,</span><br><span class="line">                         (acc, curr) -&gt; &#123;  <span class="comment">// BiFunction 规避了累计值和当前值类型必须相同的问题</span></span><br><span class="line">                             acc.add(curr);</span><br><span class="line">                             <span class="keyword">return</span> acc;</span><br><span class="line">                         &#125;,</span><br><span class="line">                         (list1, list2) -&gt; &#123;  <span class="comment">// 并行执行 stream 的时候所要引用的表达式</span></span><br><span class="line">                             list1.addAll(list2);</span><br><span class="line">                             <span class="keyword">return</span> list1;</span><br><span class="line">                         &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 正常来说用 collect()</span></span><br></pre></td></tr></table></figure>
+
+<p>实现 map：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;T,R&gt; <span class="function">List&lt;R&gt; <span class="title">map</span><span class="params">(List&lt;T&gt; list, Function&lt;T,R&gt; mapFn)</span> </span>&#123;</span><br><span class="line">    List&lt;R&gt; ret = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">return</span> list.stream().reduce(ret,</span><br><span class="line">                                (acc, curr) -&gt; &#123;</span><br><span class="line">                                    acc.add(mapFn.apply(curr));  <span class="comment">// 转换</span></span><br><span class="line">                                    <span class="keyword">return</span> acc;</span><br><span class="line">                                &#125;,</span><br><span class="line">                                (list1, list2) -&gt; &#123;</span><br><span class="line">                                    list1.addAll(list2);</span><br><span class="line">                                    <span class="keyword">return</span> list1;</span><br><span class="line">                                &#125;);</span><br><span class="line">    <span class="comment">// for 循环也能实现，但是不能应用到无限的 stream 中去</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现 filter：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;T&gt; <span class="function">List&lt;T&gt; <span class="title">filter</span><span class="params">(List&lt;T&gt; list, Predicate&lt;T&gt; p)</span> </span>&#123;</span><br><span class="line">    List&lt;R&gt; ret = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">return</span> list.stream().reduce(ret,</span><br><span class="line">                                (acc, curr) -&gt; &#123;</span><br><span class="line">                                    <span class="keyword">if</span> (p.test(curr)) &#123;</span><br><span class="line">                                        acc.add(curr);  <span class="comment">// 过滤</span></span><br><span class="line">                                    &#125;</span><br><span class="line">                                    <span class="keyword">return</span> acc;</span><br><span class="line">                                &#125;,</span><br><span class="line">                                (list1, list2) -&gt; &#123;</span><br><span class="line">                                    list1.addAll(list2);</span><br><span class="line">                                    <span class="keyword">return</span> list1;</span><br><span class="line">                                &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Transducer：多个 reduce 自由组合的一种模式，从而自定义 Stream。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 取上面例子的 BiFunction 做结合：</span></span><br><span class="line">.reduce(</span><br><span class="line">    (acc, curr) -&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (p.test(curr)) &#123;  <span class="comment">// 最外层的 reduceFunction</span></span><br><span class="line">            R newValue = mapFn.apply(curr);  <span class="comment">// 里一层的 reduceFunction</span></span><br><span class="line">            acc.add(newValue);  <span class="comment">// 最里层的 reduceFunction</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> acc;</span><br><span class="line">    &#125;</span><br><span class="line">)</span><br><span class="line"><span class="comment">// 这样的组合为一个 transducer</span></span><br></pre></td></tr></table></figure>
+
+<p>每一个 reduceFunction 由 <code>Function</code> 和 <code>BiFunction</code> 组成，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> (acc,curr) -&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> biFunction.apply(acc, function.apply(curr));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>最后通过函数组合 <code>Function.compose(function)</code> 完成组合：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f1 * f2 == f3(x), 相当于 f1(f2(x)).</span><br></pre></td></tr></table></figure>
+
+<p>组合过程中没有对任意一个函数做过任何一次调用。</p>
+<h2 id="Optional"><a href="#Optional" class="headerlink" title="Optional"></a>Optional</h2><p>Optional 最大的意义在于能简化 null check：</p>
+<p>举个例子，假设有下面的 <code>Person</code> 对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Person person = getSomeOne();</span><br></pre></td></tr></table></figure>
+
+<p>在 Java 7 及之前的版本中，如果要对 person 对象进行空值判断，我们需要一个甚至多个 <code>if-else</code> 代码块。</p>
+<p>从 Java 8 开始，只需要声明一个 <code>Optional</code> 对象，如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Optional&lt;Person&gt; personOpt = Optional.ofNullable(person);</span><br></pre></td></tr></table></figure>
+
+<p>存在就开干</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 7</span></span><br><span class="line">If (person != <span class="keyword">null</span>) &#123;</span><br><span class="line">    System.out.println(person);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Java 8</span></span><br><span class="line">personOpt.ifPresent(System.out::println);</span><br></pre></td></tr></table></figure>
+
+<p>存在即返回</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 7</span></span><br><span class="line"><span class="keyword">return</span> person == <span class="keyword">null</span> ? UNKNOWN_PERSON : person;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Java 8</span></span><br><span class="line"><span class="keyword">return</span> personOpt.orElse(UNKNOWN_PERSON);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 7</span></span><br><span class="line"><span class="keyword">return</span> person == <span class="keyword">null</span> ? getPersonFromDb() : person;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Java 8</span></span><br><span class="line"><span class="keyword">return</span> personOpt.orElseGet(() -&gt; getPersonFromDb());</span><br></pre></td></tr></table></figure>
+
+<p>多层嵌套 null 检查</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 7</span></span><br><span class="line"><span class="keyword">if</span> (person != <span class="keyword">null</span>) &#123;</span><br><span class="line">    String name = person.getLastName();</span><br><span class="line">    <span class="keyword">return</span> name == <span class="keyword">null</span> ? <span class="keyword">null</span> : name.toUpperCase();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Java 8</span></span><br><span class="line"><span class="keyword">return</span> personOpt.map(p -&gt; p.getLastName())</span><br><span class="line">                .map(name -&gt; name.toUpperCase())</span><br><span class="line">                .orElse(<span class="keyword">null</span>);</span><br></pre></td></tr></table></figure>
+
+<p>大大地减少了代码数量。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/01/01/spring-bean/" rel="prev" title="Spring Bean">
+      <i class="fa fa-chevron-left"></i> Spring Bean
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/02/09/es/" rel="next" title="Elasticsearch 概述">
+      Elasticsearch 概述 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E7%9A%84%E7%BC%96%E7%A8%8B%E7%89%B9%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">函数式编程的编程特性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%BA%94%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">基础应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lambda-%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">Lambda 表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E5%86%99-Lambda-%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.1.1.</span> <span class="nav-text">转写 Lambda 表达式步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E7%A4%BA%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.2.</span> <span class="nav-text">表示高阶函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3-SAM"><span class="nav-number">3.2.</span> <span class="nav-text">函数式接口 SAM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8"><span class="nav-number">3.3.</span> <span class="nav-text">方法引用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3%E8%BD%AC%E6%8D%A2"><span class="nav-number">3.3.1.</span> <span class="nav-text">函数式接口转换</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E9%98%B6%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">进阶应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Stream"><span class="nav-number">4.1.</span> <span class="nav-text">Stream</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">4.1.1.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reduce-%E5%8F%AF%E4%BB%A5%E7%94%A8%E6%9D%A5%E5%AE%9E%E7%8E%B0%E4%BB%80%E4%B9%88"><span class="nav-number">4.1.2.</span> <span class="nav-text">reduce 可以用来实现什么</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Optional"><span class="nav-number">4.2.</span> <span class="nav-text">Optional</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">敖惠竣｜Ao Huijun, Raymond</p>
+  <div class="site-description" itemprop="description">Storing blogs</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/daca-ao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;daca-ao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/daca.aohuijun" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;daca.aohuijun" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/kaijesugardaddy" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;kaijesugardaddy" rel="noopener" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">敖惠竣｜Ao Huijun, Raymond</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

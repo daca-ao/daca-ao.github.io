@@ -158,6 +158,163 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/02/09/es/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
+      <meta itemprop="description" content="Storing blogs">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Raymond's Cabin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/02/09/es/" class="post-title-link" itemprop="url">Elasticsearch 概述</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-02-09 22:51:01" itemprop="dateCreated datePublished" datetime="2022-02-09T22:51:01+08:00">2022-02-09</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <span id="more"></span>
+
+<p>基于 Lucene 库的搜索引擎</p>
+<ul>
+<li>对 Lucene 接口进行封装，使用 Java 开发</li>
+<li>提供了 REST API 的接口，开箱即用</li>
+<li>全文搜索引擎的首选</li>
+</ul>
+<p>应用：Wikipedia, Stack Overflow, Github</p>
+<p>Elastic 本质：分布式数据库</p>
+<ul>
+<li>允许多台服务器协同工作</li>
+<li>每台服务器可运行多个 Elastic 实例</li>
+</ul>
+<p>基本概念：<br>Node：节点，单个 Elastic 实例<br>Cluster：集群，一组 Elastic 实例<br>Index</p>
+<ul>
+<li>索引，Elastic 数据管理的顶层单位</li>
+<li>单个数据库的同义词</li>
+<li>Elastic 会索引所有字段，处理后写入一个反向索引（inverted index）</li>
+<li>查找数据的时候直接查找该索引</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前节点所有 index：</span></span><br><span class="line">http://localhost:9200/_cat/indices?v</span><br><span class="line"></span><br><span class="line">health status index         uuid                   pri rep docs.count docs.deleted store.size pri.store.size</span><br><span class="line">green  open   series_titles l5gnXXJlQUCsWwcrmcy9tg   1   0          0            0       261b           261b</span><br><span class="line">green  open   site_titles   HVUGVU5qROCIy3jHK3bVyA   6   0          0            0      1.5kb          1.5kb</span><br><span class="line">green  open   wfs           nxLo35j9Trqh3CzvotgLyw   5   0          0            0      1.2kb          1.2kb</span><br><span class="line">green  open   seasons       YsgvnPK2Qh2diMn8s00vtQ   1   0          0            0       261b           261b</span><br><span class="line">green  open   master_titles zMi-WlSMQ_Krqlvdnjp5pQ   3   0          0            0       779b           779b</span><br></pre></td></tr></table></figure>
+
+<p>Document</p>
+<ul>
+<li>index 里面的单条记录，使用 JSON 格式</li>
+<li>许多条 document 构成一个 index</li>
+<li>同一 index 里的 document 最好保持相同的结构（scheme）</li>
+</ul>
+<p>Type（7+ 版本后被移除）</p>
+<ul>
+<li>document 的虚拟逻辑分组，用于过滤 document</li>
+<li>如 whether 这个 index 可按照城市分组，也可按照气候分组</li>
+</ul>
+<p>analyzer：Elastic 的分词器</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/02/07/fp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
+      <meta itemprop="description" content="Storing blogs">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Raymond's Cabin">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/02/07/fp/" class="post-title-link" itemprop="url">Java 中的函数式编程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-02-07 18:59:57" itemprop="dateCreated datePublished" datetime="2022-02-07T18:59:57+08:00">2022-02-07</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>函数式编程（<strong>F</strong>unctional <strong>P</strong>rogramming）是自 JDK 1.8 以来引入的一个非常重要的特性，也是 Java 编程未来的发展方向。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/02/07/fp/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/01/spring-bean/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -674,136 +831,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/22/java-lock/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
-      <meta itemprop="description" content="Storing blogs">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Raymond's Cabin">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/22/java-lock/" class="post-title-link" itemprop="url">Java 中的锁实现</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-08-22 23:29:25" itemprop="dateCreated datePublished" datetime="2021-08-22T23:29:25+08:00">2021-08-22</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>锁是控制多个线程访问共享资源的方式，是实现多线程同步的重要思想。在 <code>java.util.concurrent</code> 包中有很多相关的 API 和组件。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/22/java-lock/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/03/threads/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
-      <meta itemprop="description" content="Storing blogs">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Raymond's Cabin">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/03/threads/" class="post-title-link" itemprop="url">操作系统线程管理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2021-08-03 22:24:37" itemprop="dateCreated datePublished" datetime="2021-08-03T22:24:37+08:00">2021-08-03</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>今天在学习整理系统并发的知识点的时候，发现自己对操作系统调度的某些概念有些模糊了，特别是线程这一块。今天就另开一个帖子记一下。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/03/threads/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -873,7 +900,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
