@@ -41,7 +41,7 @@
 <meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/decoupling.png">
 <meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/flow-cut.png">
 <meta property="article:published_time" content="2021-07-21T05:43:29.000Z">
-<meta property="article:modified_time" content="2022-02-26T04:47:12.376Z">
+<meta property="article:modified_time" content="2022-02-27T13:56:01.428Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -217,7 +217,7 @@
 <span id="more"></span>
 
 <p>RabbitMQ 最初起源于金融系统，用于在分布式系统中存储转发消息，在易用性、扩展性、高可用性等方面表现不俗。具体特点包括：</p>
-<p><strong>1</strong>. 可靠性（Reliability）：RabbitMQ 使用一些机制实现持久化、传输确认及发布确认等。</p>
+<p><strong>1</strong>. 可靠性（Reliability）：RabbitMQ 使用一些机制实现持久化、传输确认及发布确认等</p>
 <p><strong>2</strong>. 灵活的路由（Flexible Routing）</p>
 <ul>
 <li>在 AMQP 协议中，消息进入路由之前，是通过交换器（Exchange）来路由信息的</li>
@@ -251,7 +251,7 @@
 <p>至于细化到内部，基本上也是 AMQP 的相关概念：</p>
 <p><img src="/2021/07/21/rabbitmq/rabbitmq.png"></p>
 <p>如上图所示，具体包括：</p>
-<p><strong>Message</strong>：包括消息体和 Routing Key、properties（消息优先级、延迟等特性）等消息头信息。</p>
+<p><strong>Message</strong>：包括消息体和 RoutingKey、properties（消息优先级、延迟等特性）等消息头信息。</p>
 <p><strong>Publisher</strong>：消息生产者。在 RabbitMQ 中是一个向 Exchange 发布消息的客户端应用程序 Client。</p>
 <p><strong>Exchange</strong>：交换器。用于接收生产者发送的消息，并且分发消息给队列 Queue。</p>
 <p><img src="/2021/07/21/rabbitmq/exchange.png"></p>
@@ -259,7 +259,7 @@
 <p><strong>Binding</strong>：绑定。基于 Binding Key 将 Exchange 和 Queue 之间连接起来，组成一个路由规则。Exchange 可以被理解为是由多个 Binding 组成的路由表。</p>
 <p><strong>BindingKey</strong>：绑定键。指定了 Exchange 和相应 Queue 之间的 binding key 之后，Exchange 根据对应的关系，将消息推送到相应的 Queue 中。</p>
 <ul>
-<li>多个 Binding 允许使用相同的 binding key 将多个 Queue 与同一个 Exchange 绑定。</li>
+<li>多个 Queue 可以和同一个 Exchange 绑定，此时多个 Binding 允许使用相同的 BindingKey。</li>
 </ul>
 <p><strong>Queue</strong>：队列。存储消息，先进先出。</p>
 <p><img src="/2021/07/21/rabbitmq/queue.png"></p>
@@ -292,13 +292,10 @@
 </ul>
 <p><strong>Broker</strong>：表示消息队列服务器实体。</p>
 <p>注：消费者和生产者都可以创建队列。如果提交了一个已经存在的队列的创建请求，系统不会返回错误，不会有任何的影响。</p>
-<br>
-
-<h1 id="运行机制"><a href="#运行机制" class="headerlink" title="运行机制"></a>运行机制</h1><p>基本上分为两种：交换（Exchange）机制和分发机制。</p>
-<h2 id="Exchange"><a href="#Exchange" class="headerlink" title="Exchange"></a>Exchange</h2><p><strong>1. Direct Exchange</strong></p>
+<h2 id="Exchange-的类型"><a href="#Exchange-的类型" class="headerlink" title="Exchange 的类型"></a>Exchange 的类型</h2><p><strong>1. Direct Exchange</strong></p>
 <ul>
-<li>RabbitMQ 默认的交换方式，采用轮询方式</li>
-<li>发送至 RoutingKey = BindingKey 的订阅者（Queue），类似于点对点</li>
+<li>RabbitMQ 默认的交换方式</li>
+<li>采用轮询方式发送至 <code>RoutingKey = BindingKey</code> 的订阅者（Queue），类似于点对点</li>
 <li>其他不相等的 RoutingKey 的消息会被丢弃</li>
 </ul>
 <p><img src="/2021/07/21/rabbitmq/direct-exchange.png"></p>
@@ -321,14 +318,14 @@
 <p><img src="/2021/07/21/rabbitmq/topic-exchange.png"></p>
 <p>根据上图的模糊匹配，比如有下面不同的 RoutingKey：</p>
 <ul>
-<li>RoutingKey = F.C.E：路由到 Queue1</li>
-<li>RoutingKey = A.C.E：路由到 Queue1 和 Queue2</li>
-<li>RoutingKey = A.F.B：路由到 Queue2</li>
+<li><code>RoutingKey = F.C.E</code>：路由到 Queue1</li>
+<li><code>RoutingKey = A.C.E</code>：路由到 Queue1 和 Queue2</li>
+<li><code>RoutingKey = A.F.B</code>：路由到 Queue2</li>
 </ul>
 <p><strong>4. Headers Exchange</strong></p>
 <ul>
 <li>采用轮询方式</li>
-<li>通过消息头订阅，不依赖于 RoutingKey 和 BindingKey 的匹配规则<ul>
+<li>通过<strong>消息头</strong>订阅，不依赖于 RoutingKey 和 BindingKey 的匹配规则<ul>
 <li>消息发布前为消息定义一个或多个键值对的消息头</li>
 <li>消费者在接收消息的同时，需要定义类似的键值对请求头</li>
 <li>请求头与消息头匹配才可接收消息</li>
@@ -336,9 +333,12 @@
 </li>
 <li>和 Direct 方式完全一致，但性能差很多，基本用不到</li>
 </ul>
-<h2 id="任务分发机制"><a href="#任务分发机制" class="headerlink" title="任务分发机制"></a>任务分发机制</h2><p><strong>1. Round-robin Dispatching</strong>：循环分发，轮询</p>
+<br>
+
+<h1 id="任务分发机制"><a href="#任务分发机制" class="headerlink" title="任务分发机制"></a>任务分发机制</h1><p>当消费者端需要进行大量的计算时，RabbitMQ 服务器需要一定的分发机制来平衡每个消费者的 workload。在 RabbitMQ 中定义了两种任务的分发机制：</p>
+<p><strong>1. Round-robin Dispatching</strong>：循环分发，轮询</p>
 <p>在默认情况下，RabbitMQ 并不会考虑到消费者处理消息的能力，即便是其中有的消费者闲置过久，有的却高负荷工作。<br>这就会造成资源分配不均的问题：有的消费者持续工作，其他的持续空闲</p>
-<p>因此，循环分发的场景是：多个消费者订阅同一个 Queue：Queue 消息平分给其他消费者</p>
+<p>因此，循环分发的场景是：多个消费者订阅同一个 Queue：Queue 中的消息<strong>平分</strong>给其他消费者</p>
 <ul>
 <li>此时 RabbitMQ 会逐个发送消息到在序列中的<strong>下一个</strong>消费者<ul>
 <li>不考虑每个任务的时长等因素，而且是提前一次性分配，并非一个个分配</li>
@@ -349,10 +349,10 @@
 <p><strong>2. Fair Dispatch</strong>：公平分发，根据消费者的消费能力进行分发处理</p>
 <ul>
 <li>使用 <code>prefetchCount</code> 限制每次发送给消费者消息的个数</li>
-<li>使每个消费者在同一时间点最多处理规定的数量级个数的 message</li>
-<li>在接收该消费者的 ack 前，队列不会将新的 message 分发给该消费者</li>
+<li>可以让每个消费者在同一时间点最多去处理规定数量级个数的 message</li>
+<li>在接收该消费者的 ack 前，队列不会将新的 message 分发给该消费者。</li>
 </ul>
-<p>注：使用公平分发必须关闭自动应答，改为手动应答</p>
+<p>注：使用公平分发必须关闭自动应答，改为手动应答。</p>
 <p><img src="/2021/07/21/rabbitmq/fair-dispatch.png"></p>
 <h2 id="生产者消息运转"><a href="#生产者消息运转" class="headerlink" title="生产者消息运转"></a>生产者消息运转</h2><ol>
 <li>生产者先连接到 Broker，建立连接（connection），再开启一个或多个信道（channel）</li>
@@ -621,7 +621,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">运行机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Exchange"><span class="nav-number">2.1.</span> <span class="nav-text">Exchange</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6"><span class="nav-number">2.2.</span> <span class="nav-text">任务分发机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E8%BF%90%E8%BD%AC"><span class="nav-number">2.3.</span> <span class="nav-text">生产者消息运转</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E6%8E%A5%E6%94%B6%E6%B6%88%E6%81%AF%E6%B5%81%E7%A8%8B"><span class="nav-number">2.4.</span> <span class="nav-text">消费者接收消息流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E5%9F%BA%E4%BA%8E-TCP"><span class="nav-number">2.5.</span> <span class="nav-text">为啥不直接基于 TCP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">消息稳定性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">消息持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">3.2.</span> <span class="nav-text">消息确认机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">集群化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97"><span class="nav-number">4.</span> <span class="nav-text">死信队列</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.1.</span> <span class="nav-text">应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86"><span class="nav-number">5.1.1.</span> <span class="nav-text">异步处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E8%A7%A3%E8%80%A6"><span class="nav-number">5.1.2.</span> <span class="nav-text">应用解耦</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E5%89%8A%E5%B3%B0"><span class="nav-number">5.1.3.</span> <span class="nav-text">流量削峰</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Exchange-%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">Exchange 的类型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E5%88%86%E5%8F%91%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">任务分发机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E8%BF%90%E8%BD%AC"><span class="nav-number">2.1.</span> <span class="nav-text">生产者消息运转</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E6%8E%A5%E6%94%B6%E6%B6%88%E6%81%AF%E6%B5%81%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">消费者接收消息流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E5%9F%BA%E4%BA%8E-TCP"><span class="nav-number">2.3.</span> <span class="nav-text">为啥不直接基于 TCP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">消息稳定性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">消息持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">3.2.</span> <span class="nav-text">消息确认机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">集群化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97"><span class="nav-number">4.</span> <span class="nav-text">死信队列</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.1.</span> <span class="nav-text">应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86"><span class="nav-number">5.1.1.</span> <span class="nav-text">异步处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E8%A7%A3%E8%80%A6"><span class="nav-number">5.1.2.</span> <span class="nav-text">应用解耦</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E5%89%8A%E5%B3%B0"><span class="nav-number">5.1.3.</span> <span class="nav-text">流量削峰</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
