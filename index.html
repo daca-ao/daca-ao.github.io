@@ -196,42 +196,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <span id="more"></span>
-
-<p>基于 Lucene 库的搜索引擎</p>
-<ul>
-<li>对 Lucene 接口进行封装，使用 Java 开发</li>
-<li>提供了 REST API 的接口，开箱即用</li>
-<li>全文搜索引擎的首选</li>
-</ul>
-<p>应用：Wikipedia, Stack Overflow, Github</p>
-<p>Elastic 本质：分布式数据库</p>
-<ul>
-<li>允许多台服务器协同工作</li>
-<li>每台服务器可运行多个 Elastic 实例</li>
-</ul>
-<p>基本概念：<br>Node：节点，单个 Elastic 实例<br>Cluster：集群，一组 Elastic 实例<br>Index</p>
-<ul>
-<li>索引，Elastic 数据管理的顶层单位</li>
-<li>单个数据库的同义词</li>
-<li>Elastic 会索引所有字段，处理后写入一个反向索引（inverted index）</li>
-<li>查找数据的时候直接查找该索引</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前节点所有 index：</span></span><br><span class="line">http://localhost:9200/_cat/indices?v</span><br><span class="line"></span><br><span class="line">health status index         uuid                   pri rep docs.count docs.deleted store.size pri.store.size</span><br><span class="line">green  open   series_titles l5gnXXJlQUCsWwcrmcy9tg   1   0          0            0       261b           261b</span><br><span class="line">green  open   site_titles   HVUGVU5qROCIy3jHK3bVyA   6   0          0            0      1.5kb          1.5kb</span><br><span class="line">green  open   wfs           nxLo35j9Trqh3CzvotgLyw   5   0          0            0      1.2kb          1.2kb</span><br><span class="line">green  open   seasons       YsgvnPK2Qh2diMn8s00vtQ   1   0          0            0       261b           261b</span><br><span class="line">green  open   master_titles zMi-WlSMQ_Krqlvdnjp5pQ   3   0          0            0       779b           779b</span><br></pre></td></tr></table></figure>
-
-<p>Document</p>
-<ul>
-<li>index 里面的单条记录，使用 JSON 格式</li>
-<li>许多条 document 构成一个 index</li>
-<li>同一 index 里的 document 最好保持相同的结构（scheme）</li>
-</ul>
-<p>Type（7+ 版本后被移除）</p>
-<ul>
-<li>document 的虚拟逻辑分组，用于过滤 document</li>
-<li>如 whether 这个 index 可按照城市分组，也可按照气候分组</li>
-</ul>
-<p>analyzer：Elastic 的分词器</p>
-
+          <p>Elasticsearch（ES）是用 Java 开发的，并在 Apache 许可条款下开放源码发布，是一款非常流行的分布式、多用户能力的企业级搜索引擎。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/02/09/es/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
