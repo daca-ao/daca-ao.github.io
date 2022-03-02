@@ -28,7 +28,7 @@
 <meta property="og:description" content="Elasticsearch（ES）是用 Java 开发的，并在 Apache 许可条款下开放源码发布，是一款非常流行的分布式、多用户能力的全文搜索引擎。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-02-09T14:51:01.000Z">
-<meta property="article:modified_time" content="2022-03-01T14:39:30.150Z">
+<meta property="article:modified_time" content="2022-03-02T14:01:11.034Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 
@@ -216,12 +216,24 @@
 <ul>
 <li>Elasticsearch 是分布式搜索引擎，天生带有易扩展、高可用的特性，且不需要其它组件</li>
 <li>Elasticsearch 的分发是实时的，被叫做“Push replication”；且完全支持 Lucene 的接近实时的搜索，新增到 ES 中的数据在 1 秒之后就可以被搜索到</li>
-<li>Elasticsearch 采用 Gateway 的概念</li>
+<li>Elasticsearch 采用 Gateway 的概念，使备份更加简单</li>
+<li>各节点组成的网络结构是对等的，某些节点出现故障的时候，会自动分配其它节点代替其进行工作。</li>
 </ul>
 <p>ES 的缺点：</p>
 <ul>
 <li>非实时性搜索的速度比不上 Solr</li>
 <li>仅支持 JSON 文件格式</li>
+<li>版本更新太频繁，如 6.x 和 7.x 在使用上有不少的区别</li>
+</ul>
+<p>Solr 的优点：</p>
+<ul>
+<li>成熟、稳定，有一个更大、更成熟的用户、开发和贡献者社区</li>
+<li>Solr 支持添加多种格式的索引，如 HTML、PDF、Office 文件（<code>.xls</code>, <code>.docx</code>, <code>.pptx</code> 等）以及 JSON、XML、<code>.csv</code> 等纯文本格式</li>
+<li>在不考虑建索引的同时进行搜索，速度更快</li>
+</ul>
+<p>Solr 的缺点：</p>
+<ul>
+<li>建立索引之后，搜索的效率会下降，实时索引的搜索效率不高</li>
 </ul>
 <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><p>Node：节点，单个 Elastic 实例</p>
 <p>Cluster：集群，一组 Elastic 实例</p>
