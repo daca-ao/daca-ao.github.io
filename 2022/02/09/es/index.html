@@ -28,7 +28,7 @@
 <meta property="og:description" content="Elasticsearch（ES）是用 Java 开发的，并在 Apache 许可条款下开放源码发布，是一款非常流行的分布式、多用户能力的全文搜索引擎。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-02-09T14:51:01.000Z">
-<meta property="article:modified_time" content="2022-03-02T14:01:11.034Z">
+<meta property="article:modified_time" content="2022-03-02T14:22:08.797Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 
@@ -214,26 +214,33 @@
 <h1 id="Elasticsearch-v-s-Solr"><a href="#Elasticsearch-v-s-Solr" class="headerlink" title="Elasticsearch v.s. Solr"></a>Elasticsearch v.s. Solr</h1><p>两者都是基于 Lucene 这个 Java 库开发的，各自的面向点有差异。</p>
 <p>ES 的优点：</p>
 <ul>
-<li>Elasticsearch 是分布式搜索引擎，天生带有易扩展、高可用的特性，且不需要其它组件</li>
-<li>Elasticsearch 的分发是实时的，被叫做“Push replication”；且完全支持 Lucene 的接近实时的搜索，新增到 ES 中的数据在 1 秒之后就可以被搜索到</li>
+<li>Elasticsearch 是<strong>分布式</strong>搜索引擎，天生带有易扩展、高可用的特性，且不需要其它组件</li>
+<li>Elasticsearch 的分发是实时的，被叫做“Push replication”；且完全支持 Lucene 的<strong>接近实时</strong>的搜索，新增到 ES 中的数据在 1 秒之后就可以被搜索到</li>
 <li>Elasticsearch 采用 Gateway 的概念，使备份更加简单</li>
 <li>各节点组成的网络结构是对等的，某些节点出现故障的时候，会自动分配其它节点代替其进行工作。</li>
 </ul>
 <p>ES 的缺点：</p>
 <ul>
 <li>非实时性搜索的速度比不上 Solr</li>
-<li>仅支持 JSON 文件格式</li>
-<li>版本更新太频繁，如 6.x 和 7.x 在使用上有不少的区别</li>
+<li><strong>仅支持 JSON</strong> 文件格式</li>
+<li>版本更新太频繁，如 6.x 和 7.x 在使用上有不少的区别：好事说明它活跃，坏事说明它版本差别大，会产生一定的学习成本。</li>
 </ul>
 <p>Solr 的优点：</p>
 <ul>
-<li>成熟、稳定，有一个更大、更成熟的用户、开发和贡献者社区</li>
+<li>面世比 ES 早了 4 年，成熟、稳定，有一个更大、更成熟的用户、开发和贡献者社区</li>
 <li>Solr 支持添加多种格式的索引，如 HTML、PDF、Office 文件（<code>.xls</code>, <code>.docx</code>, <code>.pptx</code> 等）以及 JSON、XML、<code>.csv</code> 等纯文本格式</li>
-<li>在不考虑建索引的同时进行搜索，速度更快</li>
+<li>在不考虑建索引的同时进行搜索，速度更快。</li>
 </ul>
 <p>Solr 的缺点：</p>
 <ul>
-<li>建立索引之后，搜索的效率会下降，实时索引的搜索效率不高</li>
+<li>建立索引之后，搜索的效率会下降，实时索引的搜索效率不高。</li>
+</ul>
+<p>性能对比：</p>
+<ul>
+<li>单纯对已有数据进行搜索时，Solr 比 ES 快了大约 60%</li>
+<li>随着数据量的增加，Solr 的搜索效率会变得很低，跟 ES 的差别会达到 400% 以上；而 ES 却没有明显变化</li>
+<li>建立了实时索引时，Solr 会产生 IO 阻塞，查询性能较差；ES 此时会快大约 80%，具有明显优势</li>
+<li>在实际生产环境的测试中，搜索引擎从 Solr 转到 ES 之后的平均 RT 大概会有 50 倍的提升</li>
 </ul>
 <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><p>Node：节点，单个 Elastic 实例</p>
 <p>Cluster：集群，一组 Elastic 实例</p>
@@ -258,7 +265,7 @@
 <li>如 whether 这个 index 可按照城市分组，也可按照气候分组</li>
 </ul>
 <p>analyzer：Elastic 的分词器</p>
-
+<h1 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a><a target="_blank" rel="noopener" href="https://www.elastic.co/what-is/elk-stack">ELK</a></h1>
     </div>
 
     
@@ -335,7 +342,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch-v-s-Solr"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch v.s. Solr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch-v-s-Solr"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch v.s. Solr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELK"><span class="nav-number">3.</span> <span class="nav-text">ELK</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
