@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2022/02/09/es/elk-stack-elkb-diagram.svg">
 <meta property="og:image" content="http://example.com/2022/02/09/es/elastic-solutions.jpg">
 <meta property="article:published_time" content="2022-02-09T14:51:01.000Z">
-<meta property="article:modified_time" content="2022-03-05T04:28:33.022Z">
+<meta property="article:modified_time" content="2022-03-05T04:30:50.114Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2022/02/09/es/elk-stack-elkb-diagram.svg">
@@ -250,7 +250,7 @@
 <p><strong>Index</strong>：Elastic 数据管理的顶层单位</p>
 <ul>
 <li>索引是<strong>映射类型</strong>（mappings）的<strong>容器</strong>，是一个非常大的文档（Document）集合，相当于单个数据库</li>
-<li>索引存储了所有映射类型的字段和其它设置，Elastic 会索引所有字段，处理后写入一个反向索引（inverted index），存储到各个分片上</li>
+<li>索引存储了所有映射类型的字段（field）和其它设置，Elastic 会索引所有字段，处理后写入一个反向索引（inverted index），存储到各个分片上</li>
 <li>查找数据的时候直接查找该索引</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前节点所有 index：</span></span><br><span class="line">http://localhost:9200/_cat/indices?v</span><br><span class="line"></span><br><span class="line">health status index         uuid                   pri rep docs.count docs.deleted store.size pri.store.size</span><br><span class="line">green  open   series_titles l5gnXXJlQUCsWwcrmcy9tg   1   0          0            0       261b           261b</span><br><span class="line">green  open   site_titles   HVUGVU5qROCIy3jHK3bVyA   6   0          0            0      1.5kb          1.5kb</span><br><span class="line">green  open   wfs           nxLo35j9Trqh3CzvotgLyw   5   0          0            0      1.2kb          1.2kb</span><br><span class="line">green  open   seasons       YsgvnPK2Qh2diMn8s00vtQ   1   0          0            0       261b           261b</span><br><span class="line">green  open   master_titles zMi-WlSMQ_Krqlvdnjp5pQ   3   0          0            0       779b           779b</span><br></pre></td></tr></table></figure>
@@ -266,7 +266,7 @@
 <ul>
 <li>document 的虚拟逻辑分组，用于过滤 document</li>
 <li>（就像关系型数据库一样，表格是行的容器）</li>
-<li>如 weather 这个 index 可按照城市分组，也可按照气候分组</li>
+<li>type 对于字段的定义称之为映射（mapping），如：name 映射为字符串类型</li>
 </ul>
 <p>可以按照以下方式理解，但不完全一一吻合：</p>
 <table>
