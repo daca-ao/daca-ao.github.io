@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2022/02/09/es/elk-stack-elkb-diagram.svg">
 <meta property="og:image" content="http://example.com/2022/02/09/es/elastic-solutions.jpg">
 <meta property="article:published_time" content="2022-02-09T14:51:01.000Z">
-<meta property="article:modified_time" content="2022-03-05T13:08:21.966Z">
+<meta property="article:modified_time" content="2022-03-05T13:26:31.202Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2022/02/09/es/es-distribution.png">
@@ -304,19 +304,30 @@
 <td>文档可以有很多字段，可以指定字段的数据格式</td>
 </tr>
 </tbody></table>
-<h1 id="分片和副本"><a href="#分片和副本" class="headerlink" title="分片和副本"></a>分片和副本</h1><p>当文档量非常庞大，而服务器物理内存有限的情况下，ES 基于自身<strong>分布式</strong>的特点，会采取“分而治之”的策略：</p>
-<p>将数据副本分为主分片（primary shard）和副分片（replica shard），主分片的数据作为权威数据。</p>
-<p>写数据的时候，先写主分片，写入成功后再写副分片；<br>恢复数据的时候，以主分片上的数据为准。</p>
+<h1 id="分片和副本"><a href="#分片和副本" class="headerlink" title="分片和副本"></a>分片和副本</h1><p>分片和副本是大数据中非常重要的概念。</p>
+<p>当文档量非常庞大，而服务器物理内存有限的情况下，ES 基于自身<strong>分布式</strong>的特点，会采取“分而治之”的策略：</p>
+<ul>
+<li>将数据副本分为主分片（primary shard）和副分片（replica shard）；</li>
+<li>主分片的数据作为权威数据；</li>
+<li>写数据的时候，先写主分片（真正的业务写入），写入成功后再写副分片（数据同步）；</li>
+<li>恢复数据的时候，以主分片上的数据为准</li>
+</ul>
 <p><img src="/2022/02/09/es/es-distribution.png"></p>
 <p>如上图，数据被分成了 3 个副本，3 个分片中分别有一个副本。</p>
 <ul>
 <li>Master 存储数据和分片的 mapping，到 Slave 才存储具体的数据</li>
 <li>请求数据的时候，请求发送至 Master，再根据 mapping 去对应的分片中查询数据</li>
-<li>万一其中一台 Slave 宕机，其它的 Slave 也会有一样的副本数据，不会导致数据丢失或查询请求失败。</li>
+<li>万一其中一台 Slave 宕机，其它的 Slave 也会有一样的副本数据，不会导致数据丢失或查询请求失败</li>
+<li>数据副本会根据一定的策略存储到分片中，<strong>并不是每一个分片都要存储所有的副本</strong>；分布式系统中，只要保证数据副本有多于一份就好</li>
+<li>写数据的时候，先往机器 B 写，随后同步其它的 Slave 机器</li>
 </ul>
 <p>在 ES 创建一个索引的时候，默认是 5 个分片，每个分片一个副本。</p>
 <p>觉得 Elasticsearch 命令行不够直观的话，可以使用 <a target="_blank" rel="noopener" href="https://github.com/mobz/elasticsearch-head">elasticsearch-head</a> 客户端进行管理。</p>
-<h1 id="analyzer：Elastic-的分词器"><a href="#analyzer：Elastic-的分词器" class="headerlink" title="analyzer：Elastic 的分词器"></a>analyzer：Elastic 的分词器</h1><br>
+<h1 id="Analyzer：Elastic-的分词器"><a href="#Analyzer：Elastic-的分词器" class="headerlink" title="Analyzer：Elastic 的分词器"></a>Analyzer：Elastic 的分词器</h1><p>Standard Analyzer</p>
+<p>Simple Analyzer</p>
+<p>Whitespace Analyzer</p>
+<p>ik</p>
+<br>
 
 <h1 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a><a target="_blank" rel="noopener" href="https://www.elastic.co/what-is/elk-stack">ELK</a></h1><p>ELK 是 <strong>E</strong>lasticsearch、<strong>L</strong>ogstash 和 <strong>K</strong>ibana 三个开源项目的首字母缩写，三者合称 ELK stack，提供“托管型”的 Elasticsearch Service。</p>
 <p>我们已经知道 Elasticsearch 是干嘛的了，接下来看看另外两个：</p>
@@ -403,7 +414,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch-v-s-Solr"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch v.s. Solr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E7%89%87%E5%92%8C%E5%89%AF%E6%9C%AC"><span class="nav-number">3.</span> <span class="nav-text">分片和副本</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#analyzer%EF%BC%9AElastic-%E7%9A%84%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">analyzer：Elastic 的分词器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELK"><span class="nav-number">5.</span> <span class="nav-text">ELK</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch-v-s-Solr"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch v.s. Solr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E7%89%87%E5%92%8C%E5%89%AF%E6%9C%AC"><span class="nav-number">3.</span> <span class="nav-text">分片和副本</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Analyzer%EF%BC%9AElastic-%E7%9A%84%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">Analyzer：Elastic 的分词器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELK"><span class="nav-number">5.</span> <span class="nav-text">ELK</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
