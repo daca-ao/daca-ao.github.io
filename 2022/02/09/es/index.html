@@ -27,13 +27,14 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="Elasticsearch（ES）是用 Java 开发的，并在 Apache 许可条款下开放源码发布，是一款非常流行的分布式、多用户能力的全文搜索引擎。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/02/09/es/es-distribution.png">
 <meta property="og:image" content="http://example.com/2022/02/09/es/elk-stack-elkb-diagram.svg">
 <meta property="og:image" content="http://example.com/2022/02/09/es/elastic-solutions.jpg">
 <meta property="article:published_time" content="2022-02-09T14:51:01.000Z">
-<meta property="article:modified_time" content="2022-03-05T05:22:28.084Z">
+<meta property="article:modified_time" content="2022-03-05T13:08:21.966Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2022/02/09/es/elk-stack-elkb-diagram.svg">
+<meta name="twitter:image" content="http://example.com/2022/02/09/es/es-distribution.png">
 
 <link rel="canonical" href="http://example.com/2022/02/09/es/">
 
@@ -260,11 +261,11 @@
 <ul>
 <li>index 里面的单条记录，使用 JSON 格式</li>
 <li>一条 document 同时包含字段和对应的值（映射类型，key:value），许多条 document 构成一个 index</li>
-<li>同一 index 里的 document 最好保持相同的结构（scheme）</li>
+<li>同一 index 里的 document 最好保持相同的结构（schema）</li>
 </ul>
-<p>ES 是面向文档的，意味着索引和搜索数据的最小单位就是文档：</p>
+<p>ES 是<strong>面向文档</strong>的，意味着索引和搜索数据的最小单位就是文档：</p>
 <ul>
-<li>文档的结构很灵活，不依赖预先定义的模式；</li>
+<li>文档的结构很灵活，不依赖预先定义的模式，避免需要修改 schema 时造成的性能损耗；</li>
 <li>文档对于字段是非常灵活的，有时候可以忽略字段或者动态添加一个新字段。</li>
 </ul>
 <p><strong>Type</strong>（7.x 被标记过时，后续版本会被移除）</p>
@@ -303,8 +304,21 @@
 <td>文档可以有很多字段，可以指定字段的数据格式</td>
 </tr>
 </tbody></table>
+<h1 id="分片和副本"><a href="#分片和副本" class="headerlink" title="分片和副本"></a>分片和副本</h1><p>当文档量非常庞大，而服务器物理内存有限的情况下，ES 基于自身<strong>分布式</strong>的特点，会采取“分而治之”的策略：</p>
+<p>将数据副本分为主分片（primary shard）和副分片（replica shard），主分片的数据作为权威数据。</p>
+<p>写数据的时候，先写主分片，写入成功后再写副分片；<br>恢复数据的时候，以主分片上的数据为准。</p>
+<p><img src="/2022/02/09/es/es-distribution.png"></p>
+<p>如上图，数据被分成了 3 个副本，3 个分片中分别有一个副本。</p>
+<ul>
+<li>Master 存储数据和分片的 mapping，到 Slave 才存储具体的数据</li>
+<li>请求数据的时候，请求发送至 Master，再根据 mapping 去对应的分片中查询数据</li>
+<li>万一其中一台 Slave 宕机，其它的 Slave 也会有一样的副本数据，不会导致数据丢失或查询请求失败。</li>
+</ul>
+<p>在 ES 创建一个索引的时候，默认是 5 个分片，每个分片一个副本。</p>
 <p>觉得 Elasticsearch 命令行不够直观的话，可以使用 <a target="_blank" rel="noopener" href="https://github.com/mobz/elasticsearch-head">elasticsearch-head</a> 客户端进行管理。</p>
-<h1 id="analyzer：Elastic-的分词器"><a href="#analyzer：Elastic-的分词器" class="headerlink" title="analyzer：Elastic 的分词器"></a>analyzer：Elastic 的分词器</h1><h1 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a><a target="_blank" rel="noopener" href="https://www.elastic.co/what-is/elk-stack">ELK</a></h1><p>ELK 是 <strong>E</strong>lasticsearch、<strong>L</strong>ogstash 和 <strong>K</strong>ibana 三个开源项目的首字母缩写，三者合称 ELK stack，提供“托管型”的 Elasticsearch Service。</p>
+<h1 id="analyzer：Elastic-的分词器"><a href="#analyzer：Elastic-的分词器" class="headerlink" title="analyzer：Elastic 的分词器"></a>analyzer：Elastic 的分词器</h1><br>
+
+<h1 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a><a target="_blank" rel="noopener" href="https://www.elastic.co/what-is/elk-stack">ELK</a></h1><p>ELK 是 <strong>E</strong>lasticsearch、<strong>L</strong>ogstash 和 <strong>K</strong>ibana 三个开源项目的首字母缩写，三者合称 ELK stack，提供“托管型”的 Elasticsearch Service。</p>
 <p>我们已经知道 Elasticsearch 是干嘛的了，接下来看看另外两个：</p>
 <p>Logstash 是服务器端数据（主要是日志）的处理管道，能够同时从多个来源采集数据，转换数据，随后将数据发送到 Elasticsearch 等进行存储；<br>Kibana 提供了对 Elasticsearch 数据进行图形图表的可视化功能。<br>（上述文字结合官网介绍而得。）</p>
 <p>目前 ELK 加入了 Beats：一系列轻量型单一功能的数据采集器，并改称 <strong>Elastic Stack</strong>。</p>
@@ -389,7 +403,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch-v-s-Solr"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch v.s. Solr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#analyzer%EF%BC%9AElastic-%E7%9A%84%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">analyzer：Elastic 的分词器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELK"><span class="nav-number">4.</span> <span class="nav-text">ELK</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch-v-s-Solr"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch v.s. Solr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E7%89%87%E5%92%8C%E5%89%AF%E6%9C%AC"><span class="nav-number">3.</span> <span class="nav-text">分片和副本</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#analyzer%EF%BC%9AElastic-%E7%9A%84%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">analyzer：Elastic 的分词器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELK"><span class="nav-number">5.</span> <span class="nav-text">ELK</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
