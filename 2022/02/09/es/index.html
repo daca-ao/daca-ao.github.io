@@ -28,10 +28,11 @@
 <meta property="og:description" content="Elasticsearch（ES）是用 Java 开发的，并在 Apache 许可条款下开放源码发布，是一款非常流行的分布式、多用户能力的全文搜索引擎。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/02/09/es/es-distribution.png">
+<meta property="og:image" content="http://example.com/2022/02/09/es/es-cluster.png">
 <meta property="og:image" content="http://example.com/2022/02/09/es/elk-stack-elkb-diagram.svg">
 <meta property="og:image" content="http://example.com/2022/02/09/es/elastic-solutions.jpg">
 <meta property="article:published_time" content="2022-02-09T14:51:01.000Z">
-<meta property="article:modified_time" content="2022-03-05T13:26:31.202Z">
+<meta property="article:modified_time" content="2022-03-06T13:44:06.871Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2022/02/09/es/es-distribution.png">
@@ -257,6 +258,7 @@
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前节点所有 index：</span></span><br><span class="line">http://localhost:9200/_cat/indices?v</span><br><span class="line"></span><br><span class="line">health status index         uuid                   pri rep docs.count docs.deleted store.size pri.store.size</span><br><span class="line">green  open   series_titles l5gnXXJlQUCsWwcrmcy9tg   1   0          0            0       261b           261b</span><br><span class="line">green  open   site_titles   HVUGVU5qROCIy3jHK3bVyA   6   0          0            0      1.5kb          1.5kb</span><br><span class="line">green  open   wfs           nxLo35j9Trqh3CzvotgLyw   5   0          0            0      1.2kb          1.2kb</span><br><span class="line">green  open   seasons       YsgvnPK2Qh2diMn8s00vtQ   1   0          0            0       261b           261b</span><br><span class="line">green  open   master_titles zMi-WlSMQ_Krqlvdnjp5pQ   3   0          0            0       779b           779b</span><br></pre></td></tr></table></figure>
 
+<p><small>注：觉得 Elasticsearch 命令行不够直观的话，可以使用 <a target="_blank" rel="noopener" href="https://github.com/mobz/elasticsearch-head">elasticsearch-head</a> 客户端进行管理。</small></p>
 <p><strong>Document</strong>：文档</p>
 <ul>
 <li>index 里面的单条记录，使用 JSON 格式</li>
@@ -304,6 +306,108 @@
 <td>文档可以有很多字段，可以指定字段的数据格式</td>
 </tr>
 </tbody></table>
+<h2 id="Elasticsearch-支持的-field-类型"><a href="#Elasticsearch-支持的-field-类型" class="headerlink" title="Elasticsearch 支持的 field 类型"></a>Elasticsearch 支持的 field 类型</h2><p>在创建索引的时候，我们可以不去指定字段 field 的类型（mappings），由 Elasticsearch 自行决定字段类型；<br>我们也可以通过 mappings 的方式，指定索引中字段的类型。</p>
+<table>
+    <tr>
+        <th>一级分类</th>  
+        <th>二级分类</th>  
+        <th>具体类型</th>  
+    </tr>
+    <tr>
+        <th rowspan="7">核心类型</th>
+        <td><b>字符串类型</b></td>
+        <td>string, text, keyword</td>
+    </tr>
+    <tr>
+        <td>整数类型</td>
+        <td>integer, long, short, byte</td>
+    </tr>
+    <tr>
+        <td>浮点类型</td>
+        <td>double, float, half_float, scaled_float</td>
+    </tr>
+    <tr>
+        <td>逻辑类型</td>
+        <td>boolean</td>
+    </tr>
+    <tr>
+        <td>日期类型</td>
+        <td>date</td>
+    </tr>
+    <tr>
+        <td>范围类型</td>
+        <td>range</td>
+    </tr>
+    <tr>
+        <td>二进制类型</td>
+        <td>binary</td>
+    </tr>
+    <tr>
+        <th rowspan="3">复合类型</th>
+        <td>数组类型</td>
+        <td>array</td>
+    </tr>
+    <tr>
+        <td>对象类型</td>
+        <td>object</td>
+    </tr>
+    <tr>
+        <td>嵌套类型</td>
+        <td>nested</td>
+    </tr>
+    <tr>
+        <th rowspan="2">地理类型</th>
+        <td>地理坐标类型</td>
+        <td>geo point</td>
+    </tr>
+    <tr>
+        <td>地理地图</td>
+        <td>geo shape</td>
+    </tr>
+    <tr>
+        <th rowspan="5">特殊类型</th>
+        <td>IP 类型</td>
+        <td>ip</td>
+    </tr>
+    <tr>
+        <td>范围类型</td>
+        <td>completion</td>
+    </tr>
+    <tr>
+        <td>令牌计数类型</td>
+        <td>token count</td>
+    </tr>
+    <tr>
+        <td>附件类型</td>
+        <td>attachment</td>
+    </tr>
+    <tr>
+        <td>抽取类型</td>
+        <td>percolator</td>
+    </tr>
+</table>
+
+<p>text 和 keyword 有啥区别？</p>
+<ul>
+<li>text 可以分词，可利用分词后结果进行索引，用于全文搜索；</li>
+<li>keyword 不可分词，其用来直接索引，用于关键词搜索。</li>
+</ul>
+<p>比如存在字段 foo1 的 type 为 text，分别有“大佬”“大佬的朋友”两个文档：当搜索“大佬”的时候，两个文档都会被搜索出来；<br>字段 foo2 的 type 为 keyword，分别有“大佬”“大佬的朋友”两个文档：当搜索“大佬”的时候，只有前一个文档会被搜索出来。</p>
+<p><small>注：string 在老版本的 Elasticsearch 使用较多；从 Elasticsearch 5.x 开始不再支持 string，由 text 和 keyword 类型替代。</small></p>
+<br>
+
+<h1 id="正序索引和倒序索引"><a href="#正序索引和倒序索引" class="headerlink" title="正序索引和倒序索引"></a>正序索引和倒序索引</h1><p>比如说我们有三个文档：</p>
+<p>ID1: 今天我们一起学习 Elasticsearch<br>ID2: Elasticsearch 学习起来真有趣<br>ID3: 今天下班大家一起打火锅怎么样</p>
+<p>按照正序索引，我们将文档 ID 设置为 key，将文档设置为 value，包括关键词 N，出现次数，出现位置等：</p>
+<p>ID1: 【今天】【我们】【一起】【学习】【Elasticsearch】<br>ID2: 【Elasticsearch】【学习】【起来】【真】【有趣】<br>ID3: 【今天】【下班】【大家】【一起】【打】【火锅】【怎么样】</p>
+<p>按照倒序索引，我们将文档等设置为 key，文档 N 的 ID 设置为 value：</p>
+<p>【今天】: ID1-位置1, ID3-位置1<br>【我们】: 1D1-位置2<br>【一起】: ID1-位置3, ID3-位置4<br>【学习】: ID1-位置4, ID2位置2<br>【Elasticsearch】: ID1-位置5, ID2-位置1<br>【起来】: ID2-位置3<br>【有趣】: ID2-位置5<br>……</p>
+<p>有啥用？</p>
+<p>比方说我们如果想要搜索关键词“一起”，根据正序索引，需要遍历文档 ID，再遍历所有文档去找“一起”出现的位置；<br>而使用倒序索引的话，我们通过遍历拆分过后的文档，便能迅速知道该关键词在文档 1 和文档 3 中存在。</p>
+<p>如果搜索关键词“我们一起”，涉及到全文搜索，根据倒序索引的话很快就能找到文档 1 包含所有关键词，而文档 3 只包含“一起”，由此我们可以判定对于这个关键词，文档 1 的 <strong>score</strong> 值会比文档 3 要高。</p>
+<p>score 越高的文档，在对应的搜索结果中就会排得越靠前。</p>
+<br>
+
 <h1 id="分片和副本"><a href="#分片和副本" class="headerlink" title="分片和副本"></a>分片和副本</h1><p>分片和副本是大数据中非常重要的概念。</p>
 <p>当文档量非常庞大，而服务器物理内存有限的情况下，ES 基于自身<strong>分布式</strong>的特点，会采取“分而治之”的策略：</p>
 <ul>
@@ -322,7 +426,19 @@
 <li>写数据的时候，先往机器 B 写，随后同步其它的 Slave 机器</li>
 </ul>
 <p>在 ES 创建一个索引的时候，默认是 5 个分片，每个分片一个副本。</p>
-<p>觉得 Elasticsearch 命令行不够直观的话，可以使用 <a target="_blank" rel="noopener" href="https://github.com/mobz/elasticsearch-head">elasticsearch-head</a> 客户端进行管理。</p>
+<h2 id="集群状态"><a href="#集群状态" class="headerlink" title="集群状态"></a>集群状态</h2><p>例图：</p>
+<p><img src="/2022/02/09/es/es-cluster.png"></p>
+<p>上图说明有 5 个分片没有分配到副本。</p>
+<ul>
+<li><font color="green">绿色</font>：最健康的状态，代表所有的主分片和副本分片都可用</li>
+<li><font color="#FFD700">黄色</font>：所有主分片可用，但部分副本分片不可用</li>
+<li><font color="red">红色</font>：部分主分片不可用；此时执行查询部分数据仍然可以查到，但是遇到这种情况还是尽快解决</li>
+</ul>
+<p>一些检查集群状态的 API：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<br>
+
 <h1 id="Analyzer：Elastic-的分词器"><a href="#Analyzer：Elastic-的分词器" class="headerlink" title="Analyzer：Elastic 的分词器"></a>Analyzer：Elastic 的分词器</h1><p>Standard Analyzer</p>
 <p>Simple Analyzer</p>
 <p>Whitespace Analyzer</p>
@@ -414,7 +530,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch-v-s-Solr"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch v.s. Solr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E7%89%87%E5%92%8C%E5%89%AF%E6%9C%AC"><span class="nav-number">3.</span> <span class="nav-text">分片和副本</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Analyzer%EF%BC%9AElastic-%E7%9A%84%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">Analyzer：Elastic 的分词器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELK"><span class="nav-number">5.</span> <span class="nav-text">ELK</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch-v-s-Solr"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch v.s. Solr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Elasticsearch-%E6%94%AF%E6%8C%81%E7%9A%84-field-%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">Elasticsearch 支持的 field 类型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%A3%E5%BA%8F%E7%B4%A2%E5%BC%95%E5%92%8C%E5%80%92%E5%BA%8F%E7%B4%A2%E5%BC%95"><span class="nav-number">3.</span> <span class="nav-text">正序索引和倒序索引</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E7%89%87%E5%92%8C%E5%89%AF%E6%9C%AC"><span class="nav-number">4.</span> <span class="nav-text">分片和副本</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E7%8A%B6%E6%80%81"><span class="nav-number">4.1.</span> <span class="nav-text">集群状态</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Analyzer%EF%BC%9AElastic-%E7%9A%84%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">Analyzer：Elastic 的分词器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELK"><span class="nav-number">6.</span> <span class="nav-text">ELK</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
