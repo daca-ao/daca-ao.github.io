@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2022/02/09/es/elk-stack-elkb-diagram.svg">
 <meta property="og:image" content="http://example.com/2022/02/09/es/elastic-solutions.jpg">
 <meta property="article:published_time" content="2022-02-09T14:51:01.000Z">
-<meta property="article:modified_time" content="2022-03-06T13:46:23.519Z">
+<meta property="article:modified_time" content="2022-03-07T15:41:53.897Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2022/02/09/es/es-distribution.png">
@@ -435,7 +435,7 @@
 <li><font color="red">红色</font>：部分主分片不可用；此时执行查询部分数据仍然可以查到，但是遇到这种情况还是尽快解决</li>
 </ul>
 <p>一些检查集群状态的 API：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看集群状态</span></span><br><span class="line">GET /_cluster/health</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看集群状态</span></span><br><span class="line">GET /_cluster/health</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看集群中不同节点索引的状态</span></span><br><span class="line">GET _cat/shards?h=index,shard,prirep,state,unassigned.reason</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看分片状态</span></span><br><span class="line">GET _cat/shards?v</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看unsigned的原因</span></span><br><span class="line">GET /_cluster/allocation/explain</span><br></pre></td></tr></table></figure>
 
 <br>
 
