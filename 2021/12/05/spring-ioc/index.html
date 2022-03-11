@@ -29,8 +29,9 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-implementation.png">
 <meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-layer.png">
+<meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-steps.png">
 <meta property="article:published_time" content="2021-12-05T05:08:48.000Z">
-<meta property="article:modified_time" content="2022-03-10T14:45:40.506Z">
+<meta property="article:modified_time" content="2022-03-11T13:03:48.388Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -262,7 +263,8 @@
 <p>如此一来，再调用 TextEditor 的时候就可以：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IocSpellChecker sc = <span class="keyword">new</span> SpellChecker();  <span class="comment">// dependency</span></span><br><span class="line">TextEditor textEditor = <span class="keyword">new</span> TextEditor(sc);  <span class="comment">// get the dependency (inject the dependency)</span></span><br></pre></td></tr></table></figure>
 
-
+<p>依上述，我们可以大概总结出基于 DI 的 IoC 实现：</p>
+<p><img src="/2021/12/05/spring-ioc/ioc-steps.png"></p>
 <h3 id="依赖查找-DL"><a href="#依赖查找-DL" class="headerlink" title="依赖查找 DL"></a>依赖查找 DL</h3><p>Dependency Lookup，依赖查找</p>
 <ul>
 <li>比依赖注入更加主动</li>
