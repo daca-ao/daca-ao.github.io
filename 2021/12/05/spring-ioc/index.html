@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-implementation.png">
 <meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-steps.png">
 <meta property="article:published_time" content="2021-12-05T05:08:48.000Z">
-<meta property="article:modified_time" content="2022-03-12T08:05:31.287Z">
+<meta property="article:modified_time" content="2022-03-12T12:29:44.504Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -228,9 +228,9 @@
 <li>对实例的控制由程序转移到了控制器/容器/框架，随后便可以注入到引用中；</li>
 <li>为模块化提供支撑，实现“热插拔”。</li>
 </ul>
-<h2 id="IoC-的实现"><a href="#IoC-的实现" class="headerlink" title="IoC 的实现"></a>IoC 的实现</h2><p>IoC 仅为一种设计原则，通常还结合着 DIP（Dependency Inversion Principle）使用。</p>
-<p>IoC 各种概念的层次如下：</p>
+<h2 id="IoC-的实现"><a href="#IoC-的实现" class="headerlink" title="IoC 的实现"></a>IoC 的实现</h2><p>IoC 各种概念的层次如下：</p>
 <p><img src="/2021/12/05/spring-ioc/ioc-layer.png"></p>
+<p>因此 IoC 仅为一种设计原则，需要具体的实现，通常还结合着 DIP（Dependency Inversion Principle）使用。</p>
 <p>市面上较为知名的 Java IoC 容器如下：</p>
 <ul>
 <li>轻量级：Pico Container，Avalon，<strong>Spring</strong>，HiveMind</li>
@@ -328,10 +328,10 @@
 <p>Spring 的 DI 容器主要完成三个任务：</p>
 <ol>
 <li>根据配置文件或注解，解析出 Bean 之间完整的依赖图，拿到 Bean 的全路径名；</li>
-<li>利用 Java <a href="/2021/05/25/reflection-java/">反射</a>，用适当的方式创建出 Bean，保存到一个容器内；</li>
+<li>利用 Java <a href="/2021/05/25/reflection-java">反射</a>，用适当的方式创建出 Bean，保存到一个容器内；</li>
 <li>再次利用反射，在适当时机取得将被依赖的 Bean，将其作为成员变量（构造函数、setter 或其他方法）注入到依赖这个 Bean 的另一个 Bean 中。</li>
 </ol>
-<p>对于通过<a href>配置文件</a>或<a href>注解</a>定义 Bean，随后会有专门的篇幅加以介绍。</p>
+<p>对于通过<a href="/2021/12/24/spring-di">配置文件</a>或<a href>注解</a>定义 Bean，随后会有专门的篇幅加以介绍。</p>
 
     </div>
 
