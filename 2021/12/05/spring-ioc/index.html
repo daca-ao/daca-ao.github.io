@@ -27,16 +27,16 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="首先我们要明确的是，IoC 并不是最近才兴起的说法，更不是只有 Spring 才能应用的逻辑，而是自 OOP 面世以来就有的概念。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-implementation.png">
 <meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-layer.png">
+<meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-implementation.png">
 <meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-steps.png">
 <meta property="article:published_time" content="2021-12-05T05:08:48.000Z">
-<meta property="article:modified_time" content="2022-03-12T05:18:11.930Z">
+<meta property="article:modified_time" content="2022-03-12T07:44:38.961Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2021/12/05/spring-ioc/ioc-implementation.png">
+<meta name="twitter:image" content="http://example.com/2021/12/05/spring-ioc/ioc-layer.png">
 
 <link rel="canonical" href="http://example.com/2021/12/05/spring-ioc/">
 
@@ -213,7 +213,7 @@
 
 <h2 id="问题与解决"><a href="#问题与解决" class="headerlink" title="问题与解决"></a>问题与解决</h2><p>针对“控制反转”这个概念，我们先提出三个问题：</p>
 <p><strong>Q1</strong>：什么的控制？<br><strong>Q2</strong>：为何反转？<br><strong>Q3</strong>：如何反转？</p>
-<p>首先，我们来看一下传统 Java 代码中的 HAS-A 结构：</p>
+<p>接着我们来看一下传统 Java 代码中的 HAS-A 结构：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> A a;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">B</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.a = <span class="keyword">new</span> A();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这种耦合度较强的代码，至少有一处需要：</p>
@@ -224,15 +224,12 @@
 <p>对于每一次的 HAS-A，都需要这样的程序代码进行上述控制（<strong>Q1</strong>），当复杂度升高时，便难以掌控了（<strong>Q2</strong>）。<br>针对 HAS-A 的这个典型问题，为了解耦这样的代码，且便于掌控代码引用，我们需要使用一个<strong>统一的对象依赖控制器</strong>。</p>
 <p>IoC 能够代替程序代码包办这层控制，从而降低耦合度。<br>程序代码只需向 IoC 控制器“索要”依赖的对象，而不是自己“造”。<br>也就是说，<strong>依赖对象的获得被反转了</strong>（<strong>Q3</strong>），所反转的“控制”是对象间的依赖。</p>
 <h2 id="特点（Q2）"><a href="#特点（Q2）" class="headerlink" title="特点（Q2）"></a>特点（<strong>Q2</strong>）</h2><ul>
-<li>体现软件工程原则之一：解耦</li>
-<li>对实例的控制由程序转移到了控制器/容器/框架，随后便可以注入到引用中</li>
-<li>为模块化提供支撑，实现“热插拔”</li>
+<li>体现软件工程原则之一：解耦；</li>
+<li>对实例的控制由程序转移到了控制器/容器/框架，随后便可以注入到引用中；</li>
+<li>为模块化提供支撑，实现“热插拔”。</li>
 </ul>
-<h2 id="IoC-的实现"><a href="#IoC-的实现" class="headerlink" title="IoC 的实现"></a>IoC 的实现</h2><p>IoC 仅为一种设计原则，通常还结合 DIP（Dependency Inversion Principle）使用。</p>
-<p>IoC 利用<a href="/2021/05/25/reflection-java/"><strong>反射</strong></a>编程实现了控制的反转。</p>
-<p>IoC 的实现并不是非 Spring 不可，其可以结合多种设计模式实现，如策略模式 + 工厂模式、模板方法模式、依赖注入（DI）或依赖查找（DL）实现。</p>
-<p><img src="/2021/12/05/spring-ioc/ioc-implementation.png"></p>
-<p>各种概念的层次如下：</p>
+<h2 id="IoC-的实现"><a href="#IoC-的实现" class="headerlink" title="IoC 的实现"></a>IoC 的实现</h2><p>IoC 仅为一种设计原则，通常还结合着 DIP（Dependency Inversion Principle）使用。</p>
+<p>IoC 各种概念的层次如下：</p>
 <p><img src="/2021/12/05/spring-ioc/ioc-layer.png"></p>
 <p>市面上较为知名的 Java IoC 容器如下：</p>
 <ul>
@@ -246,6 +243,11 @@
 <li>setter 注入</li>
 <li>成员变量注入</li>
 </ol>
+<p>IoC 的实现有多种方式：</p>
+<p><img src="/2021/12/05/spring-ioc/ioc-implementation.png"></p>
+<p>当然用得最多的要数依赖注入（DI）了。</p>
+<br>
+
 <h3 id="依赖注入-DI"><a href="#依赖注入-DI" class="headerlink" title="依赖注入 DI"></a>依赖注入 DI</h3><p><strong>Dependency Injection</strong>，依赖注入，属于设计模式的一种，是 IoC 的一种具体实现。</p>
 <p>此时，被注入的对象依赖于 IoC 容器去配置依赖对象。由此便改变了以往由程序代码主动为对象的依赖赋值的操作，改为由 DI 控制器统一处理。</p>
 <p>依赖注入的实现方式可以基于多个方面：</p>
@@ -275,9 +277,8 @@
 
 <h1 id="Spring-IoC"><a href="#Spring-IoC" class="headerlink" title="Spring IoC"></a>Spring IoC</h1><p>很明显，Spring IoC 将原本在程序中手动创建对象的控制权，交给了 Spring 框架来管理。</p>
 <p>Spring 的 IoC 定义了以下概念：</p>
-<p><strong>Bean</strong>：等待被注入的依赖对象。不一定非得要 JavaBean，POJO 类也可以。</p>
-<p><strong>容器</strong>：控制反转的控制器，负责创建、管理、装配、配置 bean。<br>另外，容器还管理所有 bean 的生命周期以及它们之间的依赖链。</p>
-<p>容器支持加载服务时的饿汉式初始化和懒加载。</p>
+<p><strong>Bean</strong>：等待被注入的依赖对象。对象不一定非得要 JavaBean，也可以是 POJO 类。</p>
+<p><strong>容器</strong>：控制反转的控制器，负责创建、管理、装配、配置 bean。<br>容器管理着所有 bean 的生命周期以及它们之间的依赖链，并支持加载服务时的饿汉式初始化和懒加载。</p>
 <h2 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h2><p>好处就显而易见了，都是 IoC 本身带来的红利：</p>
 <ul>
 <li>使应用代码量降到最低，容易测试，UT 不再需要单例和 JNDI 查找机制</li>
@@ -291,7 +292,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.beans.factory.xml;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">XmlBeanFactory</span> <span class="keyword">extends</span> <span class="title">DefaultListableBeanFactory</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 从 XML 文件读取配置元数据</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用：</span></span><br><span class="line">XmlBeanFactory factory = <span class="keyword">new</span> XmlBeanFactory(<span class="keyword">new</span> ClassPathResource(<span class="string">&quot;Beans.xml&quot;</span>));</span><br><span class="line">HelloWorld obj = (HelloWorld) factory.getBean(<span class="string">&quot;helloWorld&quot;</span>);</span><br></pre></td></tr></table></figure>
 
 <p><strong>ApplicationContext</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.context;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ApplicationContext</span> <span class="keyword">extends</span> <span class="title">EnvironmentCapable</span>, <span class="title">ListableBeanFactory</span>, <span class="title">HierarchicalBeanFactory</span>, <span class="title">MessageSource</span>, <span class="title">ApplicationEventPublisher</span>, <span class="title">ResourcePatternResolver</span> </span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Spring 的核心，负责管理所有 bean 完整生命周期</span></span><br><span class="line"><span class="comment">     * BeanFactory 的子接口，在 BeanFactory 基础上提供额外功能</span></span><br><span class="line"><span class="comment">     *   (ListableBeanFactory extends BeanFactory)</span></span><br><span class="line"><span class="comment">     * 添加更多企业特定功能</span></span><br><span class="line"><span class="comment">     *   从属性文本中解析文本</span></span><br><span class="line"><span class="comment">     *   将事件传递给所指定的监听器</span></span><br><span class="line"><span class="comment">     * 包含 BeanFactory 容器所有功能</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.context;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ApplicationContext</span> <span class="keyword">extends</span> <span class="title">EnvironmentCapable</span>, <span class="title">ListableBeanFactory</span>, <span class="title">HierarchicalBeanFactory</span>, <span class="title">MessageSource</span>, <span class="title">ApplicationEventPublisher</span>, <span class="title">ResourcePatternResolver</span> </span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Spring 的核心，负责管理所有 bean 完整生命周期</span></span><br><span class="line"><span class="comment">     * BeanFactory 的子接口，在 BeanFactory 基础上提供额外功能</span></span><br><span class="line"><span class="comment">     *   (ListableBeanFactory extends BeanFactory)</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 在抽象类的基础上添加了更多企业特定功能，比如：</span></span><br><span class="line"><span class="comment">     *   - 从属性文本中解析文本</span></span><br><span class="line"><span class="comment">     *   - 将事件传递给所指定的监听器</span></span><br><span class="line"><span class="comment">     * 包含 BeanFactory 容器所有功能</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>实现类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.context.support;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FileSystemXmlApplicationContext</span> <span class="keyword">extends</span> <span class="title">AbstractXmlApplicationContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 提供配置文件 XML 的完整路径</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassPathXmlApplicationContext</span> <span class="keyword">extends</span> <span class="title">AbstractXmlApplicationContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 提供正确配置的 CLASSPATH 环境变量，容器便会从 CLASSPATH 搜索 bean 配置文件</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用：</span></span><br><span class="line">ApplicationContext context = <span class="keyword">new</span> FileSystemXmlApplicationContext(<span class="string">&quot;/src/Beans.xml&quot;</span>);</span><br><span class="line">HelloWorld obj = (HelloWorld) context.getBean(<span class="string">&quot;helloWorld&quot;</span>);</span><br></pre></td></tr></table></figure>
@@ -323,26 +324,13 @@
 <td>支持基于依赖的注解</td>
 </tr>
 </tbody></table>
-<h2 id="Spring-实现概述"><a href="#Spring-实现概述" class="headerlink" title="Spring 实现概述"></a>Spring 实现概述</h2><p>在 Spring 中，容器主要通过 DI 进行管理。</p>
-<p>Spring 容器根据配置文件或注解获取 metadata，进行 Bean 依赖的管理</p>
-<p>主要完成三个任务：</p>
+<h2 id="Spring-实现概述"><a href="#Spring-实现概述" class="headerlink" title="Spring 实现概述"></a>Spring 实现概述</h2><p>Spring 容器主要通过 DI 进行管理，它根据配置文件或注解获取 metadata，进行 Bean 依赖的管理。</p>
+<p>Spring IoC 容器主要完成三个任务：</p>
 <ol>
-<li>根据配置文件或注解，解析出 Bean 之间完整的依赖图，取得其类名</li>
-<li>利用 Java 反射，用适当的方式创建出 Bean，保存到一个容器内</li>
-<li>再次利用反射，在适当时机取得将被依赖的 Bean，将其作为成员变量注入到依赖其的 Bean 中<ol>
-<li>可通过构造函数、setter 或其他方法注入</li>
+<li>根据配置文件或注解，解析出 Bean 之间完整的依赖图，拿到 Bean 的全路径名；</li>
+<li>利用 Java <a href="/2021/05/25/reflection-java/"><strong>反射</strong></a>，用适当的方式创建出 Bean，保存到一个容器内</li>
+<li>再次利用反射，在适当时机取得将被依赖的 Bean，将其作为成员变量（构造函数、setter 或其他方法）注入到依赖这个 Bean 的另一个 Bean 中。</li>
 </ol>
-</li>
-</ol>
-<p>通过配置文件完成管理的例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> pojo;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Source</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String fruit;  <span class="comment">// 类型</span></span><br><span class="line">    <span class="keyword">private</span> String sugar;  <span class="comment">// 糖分描述</span></span><br><span class="line">    <span class="keyword">private</span> String size;  <span class="comment">// 大小杯</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* setter and getter */</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>配置文件管理：src/applicationContext.xml（位置和名称任意，此处为例子）</p>
-<ul>
-<li>Spring Framework 利用该文件创建所有已定义的 Bean，按照标签定义分配唯一的 ID<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">name</span>=<span class="string">&quot;source&quot;</span> <span class="attr">class</span>=<span class="string">&quot;pojo.Source&quot;</span>&gt;</span>  <span class="comment">&lt;!-- name 用于之后从 Spring 容器获得实例时使用；class 中配置全限定名称 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;fruit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;橙子&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;sugar&quot;</span> <span class="attr">value</span>=<span class="string">&quot;多糖&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;size&quot;</span> <span class="attr">value</span>=<span class="string">&quot;超大杯&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<p>调用：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建 Spring 应用上下文</span></span><br><span class="line">ApplicationContext ctx = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">&quot;applicationContext.xml&quot;</span>);</span><br><span class="line">Source source = (Source) ctx.getBean(<span class="string">&quot;source&quot;</span>);  <span class="comment">// 直接从 Spring 获取一个对象</span></span><br><span class="line"></span><br><span class="line">System.out.println(source.getFruit() + <span class="string">&quot; &quot;</span> + source.getSugar() + <span class="string">&quot; &quot;</span> + source.getSize());</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 输出结果：</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * 橙子 多糖 超大杯</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
 
     </div>
 
