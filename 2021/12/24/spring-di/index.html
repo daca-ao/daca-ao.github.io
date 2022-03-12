@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在 Spring IoC 概览中我们提到过，Spring IoC 容器主要是通过 DI 实现并管理的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring 依赖注入">
+<meta property="og:url" content="http://example.com/2021/12/24/spring-di/index.html">
+<meta property="og:site_name" content="Raymond&#39;s Cabin">
+<meta property="og:description" content="在 Spring IoC 概览中我们提到过，Spring IoC 容器主要是通过 DI 实现并管理的。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-12-23T23:15:25.000Z">
+<meta property="article:modified_time" content="2022-03-12T05:17:27.965Z">
+<meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
+<meta property="article:tag" content="Spring">
+<meta property="article:tag" content="IoC">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/12/24/spring-di/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Spring 依赖注入 | Raymond's Cabin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Raymond's Cabin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">for sharing thoughts</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/24/spring-di/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
+      <meta itemprop="description" content="Storing blogs">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Raymond's Cabin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring 依赖注入
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-12-24 07:15:25" itemprop="dateCreated datePublished" datetime="2021-12-24T07:15:25+08:00">2021-12-24</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在 <a href="/2021/12/05/spring-ioc/">Spring IoC 概览</a>中我们提到过，Spring IoC 容器主要是通过 DI 实现并管理的。</p>
+<span id="more"></span>
+
+<ol>
+<li>基于 setter 的依赖注入（用于无参构造函数或无参 static 工厂方法实例化）</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TextEditor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> SpellChecker spellChecker;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// a setter method to inject the dependency.</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSpellChecker</span><span class="params">(SpellChecker spellChecker)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Inside setSpellChecker.&quot;</span> );</span><br><span class="line">        <span class="keyword">this</span>.spellChecker = spellChecker;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// a getter method to return spellChecker</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> SpellChecker <span class="title">getSpellChecker</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> spellChecker;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">spellCheck</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        spellChecker.checkSpelling();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpellChecker</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SpellChecker</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Inside SpellChecker constructor.&quot;</span> );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">checkSpelling</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Inside checkSpelling.&quot;</span> );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置 --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- encoding... --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">...</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- Definition for textEditor bean --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;textEditor&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.tutorialspoint.TextEditor&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;spellChecker&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;spellChecker&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- Definition for spellChecker bean --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;spellChecker&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.tutorialspoint.SpellChecker&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 调用</span></span><br><span class="line">TextEditor te = (TextEditor) context.getBean(<span class="string">&quot;textEditor&quot;</span>);</span><br><span class="line">te.spellCheck();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出</span></span><br><span class="line">Inside SpellChecker constructor.</span><br><span class="line">Inside TextEditor constructor.</span><br><span class="line">Inside checkSpelling.</span><br></pre></td></tr></table></figure>
+
+<p>另：使用 p-namespace：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 上述配置可修改为： --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- encoding... --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">...</span></span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:p</span>=<span class="string">&quot;http://www.springframework.org/schema/p&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- Definition for textEditor bean --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;textEditor&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.tutorialspoint.TextEditor&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">p:spellChecker-ref</span>=<span class="string">&quot;spellChecker&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注：-ref 表明这不是一个直接的值，而是对另一个 bean 的引用</p>
+<p>或：配置文件改为注入内部 bean（内部类）</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置 --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- encoding... --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">...</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- Definition for textEditor bean using inner bean --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;textEditor&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.tutorialspoint.TextEditor&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;spellChecker&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;spellChecker&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.tutorialspoint.SpellChecker&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>基于构造函数的依赖注入：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TextEditor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> SpellChecker spellChecker;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">TextEditor</span><span class="params">(SpellChecker spellChecker)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Inside TextEditor constructor.&quot;</span> );</span><br><span class="line">        <span class="keyword">this</span>.spellChecker = spellChecker;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">spellCheck</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        spellChecker.checkSpelling();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpellChecker</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SpellChecker</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Inside SpellChecker constructor.&quot;</span> );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">checkSpelling</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Inside checkSpelling.&quot;</span> );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置 --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- encoding... --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">...</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- Definition for textEditor bean —-&gt;</span></span><br><span class="line"><span class="comment">    &lt;bean id=&quot;textEditor&quot; class=&quot;com.tutorialspoint.TextEditor”&gt;</span></span><br><span class="line"><span class="comment">        &lt;constructor-arg ref=&quot;spellChecker”/&gt;</span></span><br><span class="line"><span class="comment">    &lt;/bean&gt;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    &lt;!-- Definition for spellChecker bean —&gt;</span></span><br><span class="line"><span class="comment">    &lt;bean id=&quot;spellChecker&quot; class=&quot;com.tutorialspoint.SpellChecker&quot;&gt;</span></span><br><span class="line"><span class="comment">    &lt;/bean&gt;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">&lt;/beans&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 调用</span></span><br><span class="line">TextEditor te = (TextEditor) context.getBean(<span class="string">&quot;textEditor&quot;</span>);</span><br><span class="line">te.spellCheck();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出</span></span><br><span class="line">Inside SpellChecker constructor.</span><br><span class="line">Inside TextEditor constructor.</span><br><span class="line">Inside checkSpelling.</span><br></pre></td></tr></table></figure>
+
+<p>参数解析：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 如不止一个参数：按照形参顺序提供参数 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;foo&quot;</span> <span class="attr">class</span>=<span class="string">&quot;x.y.Foo&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">ref</span>=<span class="string">&quot;bar&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">ref</span>=<span class="string">&quot;baz&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;bar&quot;</span> <span class="attr">class</span>=<span class="string">&quot;x.y.Bar&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;baz&quot;</span> <span class="attr">class</span>=<span class="string">&quot;x.y.Baz&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 也可使用 type 属性显式指定构造函数形参类型，用于基本数据类型和 String --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;exampleBean&quot;</span> <span class="attr">class</span>=<span class="string">&quot;examples.ExampleBean&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">type</span>=<span class="string">&quot;int&quot;</span> <span class="attr">value</span>=<span class="string">&quot;2001&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">type</span>=<span class="string">&quot;java.lang.String&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Zara&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 最好：使用 index 属性显式指定顺序 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;exampleBean&quot;</span> <span class="attr">class</span>=<span class="string">&quot;examples.ExampleBean&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">index</span>=<span class="string">&quot;0&quot;</span> <span class="attr">value</span>=<span class="string">&quot;2001&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">index</span>=<span class="string">&quot;1&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Zara&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>总之：使用 ref 进行引用传递，使用 value 进行值传递</p>
+<ol start="3">
+<li>注入集合</li>
+</ol>
+<ul>
+<li>本质：基于 setter 的依赖注入<br>元素<br>描述<list>
+线性表
+<set>
+不重复线性表
+<map>
+键值对，可为任何类型
+<props>
+键值对，须为字符串类型
+配置文件：</props></map></set></list></li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置 --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- encoding... --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- Definition for javaCollection —-&gt;</span></span><br><span class="line"><span class="comment">    &lt;bean id=&quot;javaCollection&quot; class=&quot;com.tutorialspoint.JavaCollection&quot;&gt;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">        &lt;!-- results in a setAddressList(java.util.List) call --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;addressList&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">list</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">value</span>&gt;</span>INDIA<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">value</span>&gt;</span>Pakistan<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">value</span>&gt;</span>USA<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">value</span>&gt;</span>USA<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">list</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!-- results in a setAddressSet(java.util.Set) call --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;addressSet&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">set</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">value</span>&gt;</span>INDIA<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">value</span>&gt;</span>Pakistan<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">value</span>&gt;</span>USA<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">value</span>&gt;</span>USA<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!-- results in a setAddressMap(java.util.Map) call --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;addressMap&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">map</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">&quot;1&quot;</span> <span class="attr">value</span>=<span class="string">&quot;INDIA&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">&quot;2&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Pakistan&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">&quot;3&quot;</span> <span class="attr">value</span>=<span class="string">&quot;USA&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">&quot;4&quot;</span> <span class="attr">value</span>=<span class="string">&quot;USA&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">map</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!-- results in a setAddressProp(java.util.Properties) call --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;addressProp&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">props</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;one&quot;</span>&gt;</span>INDIA<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;two&quot;</span>&gt;</span>Pakistan<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;three&quot;</span>&gt;</span>USA<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">&quot;four&quot;</span>&gt;</span>USA<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">props</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>定义与调用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义：</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JavaCollection</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    List addressList;</span><br><span class="line">    Set addressSet;</span><br><span class="line">    Map addressMap;</span><br><span class="line">    Properties addressProp;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// a setter method to set List</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAddressList</span><span class="params">(List addressList)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.addressList = addressList;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// prints and returns all the elements of the list.</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List <span class="title">getAddressList</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;List Elements :&quot;</span> + addressList);</span><br><span class="line">        <span class="keyword">return</span> addressList;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// a setter method to set Set</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAddressSet</span><span class="params">(Set addressSet)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.addressSet = addressSet;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// prints and returns all the elements of the Set.</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Set <span class="title">getAddressSet</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Set Elements :&quot;</span> + addressSet);</span><br><span class="line">        <span class="keyword">return</span> addressSet;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// a setter method to set Map</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAddressMap</span><span class="params">(Map addressMap)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.addressMap = addressMap;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// prints and returns all the elements of the Map.</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map <span class="title">getAddressMap</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Map Elements :&quot;</span> + addressMap);</span><br><span class="line">        <span class="keyword">return</span> addressMap;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// a setter method to set Property</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAddressProp</span><span class="params">(Properties addressProp)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.addressProp = addressProp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// prints and returns all the elements of the Property.</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Properties <span class="title">getAddressProp</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Property Elements :&quot;</span> + addressProp);</span><br><span class="line">        <span class="keyword">return</span> addressProp;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">ApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">&quot;Beans.xml&quot;</span>);</span><br><span class="line"></span><br><span class="line">JavaCollection jc = (JavaCollection) context.getBean(<span class="string">&quot;javaCollection”);</span></span><br><span class="line"><span class="string">jc.getAddressList();</span></span><br><span class="line"><span class="string">jc.getAddressSet();</span></span><br><span class="line"><span class="string">jc.getAddressMap();</span></span><br><span class="line"><span class="string">jc.getAddressProp();</span></span><br></pre></td></tr></table></figure>
+
+<p>注入 bean 引用：</p>
+<!-- 配置 -->
+<!-- encoding... -->
+<p>&lt;beans …&gt;</p>
+<pre><code>&lt;!-- Bean Definition to handle references and values —&gt;
+&lt;bean id=&quot;...&quot; class=&quot;…&quot;&gt;
+
+    &lt;!-- Passing bean reference for java.util.List --&gt;
+    &lt;property name=&quot;addressList&quot;&gt;
+        &lt;list&gt;
+            &lt;ref bean=&quot;address1”/&gt;
+            &lt;ref bean=&quot;address2”/&gt;
+            &lt;value&gt;Pakistan&lt;/value&gt;
+        &lt;/list&gt;
+    &lt;/property&gt;
+
+    &lt;!-- Passing bean reference for java.util.Set —&gt;
+    &lt;property name=&quot;addressSet”&gt;
+        &lt;set&gt;
+            &lt;ref bean=&quot;address1”/&gt;
+            &lt;ref bean=&quot;address2”/&gt;
+            &lt;value&gt;Pakistan&lt;/value&gt;
+        &lt;/set&gt;
+    &lt;/property&gt;
+
+    &lt;!-- Passing bean reference for java.util.Map —&gt;
+    &lt;property name=&quot;addressMap”&gt;
+        &lt;map&gt;
+            &lt;entry key=&quot;one&quot; value=&quot;INDIA”/&gt;
+            &lt;entry key =&quot;two&quot; value-ref=&quot;address1”/&gt;
+            &lt;entry key =&quot;three&quot; value-ref=&quot;address2”/&gt;
+        &lt;/map&gt;
+    &lt;/property&gt;
+
+&lt;/bean&gt;
+</code></pre>
+
+
+<p>注入空值或 null：<br>&lt;bean id=”…” class=”exampleBean”&gt;<br>    &lt;property name=”email” value=””/&gt;<br></p>
+<p>&lt;bean id=”…” class=”exampleBean”&gt;<br>    <property name="email"><null></null></property><br></p>
+<ol start="4">
+<li>Spring bean 的装配：bean 在 Spring 容器中组合在一起</li>
+</ol>
+<ul>
+<li>Spring 容器需要知道需要什么 bean，以及容器应该如何使用 DI 将 bean 绑定在一起，同时装配 bean</li>
+</ul>
+<ol start="5">
+<li>bean 自动装配</li>
+</ol>
+<ul>
+<li>使容器在不使用 <constructor-arg> 和 <property> 时自动装配（auto-wire）相互协作的 bean</property></constructor-arg></li>
+<li>减少 xml 配置数量<br>本质：基于 setter（byName、byType）和构造函数（constructor）的依赖注入<br>模式<br>描述<br>no<br>默认配置，即没有自动装配，需通过 ref 显式引用<br>byName<br>根据 bean 中某个 property 的名字（name，并不是 property 的类名）自动装配</li>
+<li>如：某个 bean 中有一个名为 master 的属性（对应 setMaster() 的 setter），则容器会查找名字为 master（name=“master”）的 bean 并装配<br>byType<br>根据 property 的数据类型（type），查找与其有 IS-A 关系的 bean，并自动装配</li>
+<li>若有多个匹配：抛出 fatal exception</li>
+<li>如无匹配：bean 的property 不会被装配<br>constructor<br>根据构造方法的参数的数据类型，进行 byType 模式的自动装配<br>autodetect<br>如发现默认的构造方法，则用 constructor 模式，否则使用 byType 模式</li>
+</ul>
+<p>示例：<br>public class TextEditor {</p>
+<pre><code>private SpellChecker spellChecker;
+private String name;
+
+public void setSpellChecker( SpellChecker spellChecker ) &#123;
+    this.spellChecker = spellChecker;
+&#125;
+
+...
+</code></pre>
+<p>}</p>
+<!-- 显式装配 -->
+<!-- Definition for textEditor bean -->
+<bean id="textEditor" class="com.tutorialspoint.TextEditor">
+    <property name="spellChecker" ref="spellChecker">
+    <property name="name" value="Generic Text Editor">
+</property></property></bean>
+
+
+<!-- 自动装配 -->
+<!-- Definition for textEditor bean -->
+<p>&lt;bean id=”textEditor” class=“com.tutorialspoint.TextEditor”<br>      autowire=”byName”&gt; <!-- 寻找名字为 SpellChecker 的 bean --><br>    <property name="name" value="Generic Text Editor"><br></property></p>
+<p>&lt;bean id=”textEditor” class=“com.tutorialspoint.TextEditor”<br>      autowire=”byType”&gt; <!-- 寻找类型为 SpellChecker 的 bean --><br>    &lt;!— 注：如配置文件中存在另一个 class 为 com.tutorialspoint.SpellChecker 或此类的子类，会报错 –&gt;<br>    <property name="name" value="Generic Text Editor"><br></property></p>
+<p>// constructor 模式：<br>public class TextEditor {</p>
+<pre><code>private SpellChecker spellChecker;
+private String name;
+
+public TextEditor( SpellChecker spellChecker, String name ) &#123;
+    this.spellChecker = spellChecker;
+    this.name = name;
+&#125;
+...
+</code></pre>
+<p>}</p>
+<!-- 自动装配 -->
+<!-- Definition for textEditor bean -->
+<p>&lt;bean id=”textEditor” class=“com.tutorialspoint.TextEditor”<br>      autowire=“constructor”&gt; &lt;!— 寻找类型为 SpellChecker 的 bean –&gt;<br>    <constructor-arg value="Generic Text Editor"><br></constructor-arg></p>
+<p>限制：</p>
+<ul>
+<li>自动装配不如显式装配精确</li>
+<li>自动装配随时会被 <constructor-arg> 或 <property> 覆写</property></constructor-arg></li>
+<li>基本数据类型、字符串、类等简单属性不能被自动装配</li>
+</ul>
+<p>比较好的选择：用构造器参数实现强制依赖，setter 方法实现可选依赖</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+              <a href="/tags/IoC/" rel="tag"># IoC</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/05/spring-ioc/" rel="prev" title="Spring IoC 概览">
+      <i class="fa fa-chevron-left"></i> Spring IoC 概览
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/01/01/spring-bean/" rel="next" title="Spring Bean">
+      Spring Bean <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">敖惠竣｜Ao Huijun, Raymond</p>
+  <div class="site-description" itemprop="description">Storing blogs</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/daca-ao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;daca-ao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/daca.aohuijun" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;daca.aohuijun" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/kaijesugardaddy" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;kaijesugardaddy" rel="noopener" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">敖惠竣｜Ao Huijun, Raymond</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
