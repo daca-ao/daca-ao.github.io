@@ -28,7 +28,7 @@
 <meta property="og:description" content="在 Spring IoC 概览中我们提到过，Spring IoC 容器主要是通过 DI 实现并管理的。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-12-23T23:15:25.000Z">
-<meta property="article:modified_time" content="2022-03-13T14:17:42.172Z">
+<meta property="article:modified_time" content="2022-03-13T14:22:44.769Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -300,11 +300,11 @@
 </tr>
 <tr>
 <td><code>byName</code></td>
-<td>根据 bean 中某个 property 的名字（name，并不是 property 的类名）自动装配。<br>如：某个 bean 中有一个名为 master 的属性（对应 setMaster() 的 setter），则容器会查找名字为 master（name=“master”）的 bean 并装配</td>
+<td>根据 <code>&lt;bean&gt;</code> 中某个 <code>&lt;property&gt;</code> 的 <code>name</code>（不是 property 的类名 class）自动装配。<br>如：某个 bean 中有一个名为 master 的属性（对应 setMaster() 的 setter），则容器会查找名字为 master（<code>name=&quot;master&quot;</code>）的 bean 并装配</td>
 </tr>
 <tr>
 <td><code>byType</code></td>
-<td>根据 property 的数据类型（type），查找与其有 IS-A 关系的 bean，并自动装配。<br>* 若有多个匹配：抛出 <code>fatal exception</code><br>* 如无匹配：bean 的property 不会被装配。</td>
+<td>根据 property 的数据类型（type），查找与其有 IS-A 关系的 bean，并自动装配。<br>* 多个匹配会抛出 <code>fatal exception</code>；<br>* 没有匹配的话，bean 的 property 不会被装配。</td>
 </tr>
 <tr>
 <td><code>constructor</code></td>
