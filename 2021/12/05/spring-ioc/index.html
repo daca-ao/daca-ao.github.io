@@ -30,8 +30,14 @@
 <meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-layer.png">
 <meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-implementation.png">
 <meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/ioc-steps.png">
+<meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/get-bean.png">
+<meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/xmlbeanfactory-class-diagram.png">
+<meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/filesystemxmlapplicationcontext-class-diagram.png">
+<meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/classpathxmlapplicationcontext-class-diagram.png">
+<meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/webapplicationcontext-class-diagram.jpg">
+<meta property="og:image" content="http://example.com/2021/12/05/spring-ioc/beans-management.png">
 <meta property="article:published_time" content="2021-12-05T05:08:48.000Z">
-<meta property="article:modified_time" content="2022-03-13T09:10:50.031Z">
+<meta property="article:modified_time" content="2022-03-14T14:24:07.631Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -276,6 +282,7 @@
 <br>
 
 <h1 id="Spring-IoC"><a href="#Spring-IoC" class="headerlink" title="Spring IoC"></a>Spring IoC</h1><p>很明显，Spring IoC 将原本在程序中手动创建对象的控制权，交给了 Spring 框架来管理。</p>
+<p><img src="/2021/12/05/spring-ioc/get-bean.png"></p>
 <p>Spring 的 IoC 定义了以下概念：</p>
 <p><strong>Bean</strong>：等待被注入的依赖对象。对象不一定非得要 JavaBean，也可以是 POJO 类。</p>
 <p><strong>容器</strong>：控制反转的控制器，负责创建、管理、装配、配置 bean。<br>容器管理着所有 bean 的生命周期以及它们之间的依赖链，并支持加载服务时的饿汉式初始化和懒加载。</p>
@@ -291,14 +298,18 @@
 <p>实现类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.beans.factory.xml;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">XmlBeanFactory</span> <span class="keyword">extends</span> <span class="title">DefaultListableBeanFactory</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 从 XML 文件读取配置元数据</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用：</span></span><br><span class="line">XmlBeanFactory factory = <span class="keyword">new</span> XmlBeanFactory(<span class="keyword">new</span> ClassPathResource(<span class="string">&quot;Beans.xml&quot;</span>));  <span class="comment">// 参数为配置文件全路径</span></span><br><span class="line">HelloWorld obj = (HelloWorld) factory.getBean(<span class="string">&quot;helloWorld&quot;</span>);</span><br></pre></td></tr></table></figure>
 
+<p><img src="/2021/12/05/spring-ioc/xmlbeanfactory-class-diagram.png"></p>
 <p><strong>ApplicationContext</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.context;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ApplicationContext</span> <span class="keyword">extends</span> <span class="title">EnvironmentCapable</span>, <span class="title">ListableBeanFactory</span>, <span class="title">HierarchicalBeanFactory</span>, <span class="title">MessageSource</span>, <span class="title">ApplicationEventPublisher</span>, <span class="title">ResourcePatternResolver</span> </span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Spring 的核心，负责管理所有 bean 完整生命周期</span></span><br><span class="line"><span class="comment">     * BeanFactory 的子接口，在 BeanFactory 基础上提供额外功能</span></span><br><span class="line"><span class="comment">     *   (ListableBeanFactory extends BeanFactory)</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * 在抽象类的基础上添加了更多企业特定功能，比如：</span></span><br><span class="line"><span class="comment">     *   - 从属性文本中解析文本</span></span><br><span class="line"><span class="comment">     *   - 将事件传递给所指定的监听器</span></span><br><span class="line"><span class="comment">     * 包含 BeanFactory 容器所有功能</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>实现类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.context.support;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FileSystemXmlApplicationContext</span> <span class="keyword">extends</span> <span class="title">AbstractXmlApplicationContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 提供配置文件 XML 的完整路径</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassPathXmlApplicationContext</span> <span class="keyword">extends</span> <span class="title">AbstractXmlApplicationContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 提供正确配置的 CLASSPATH 环境变量，容器便会从 CLASSPATH 搜索 bean 配置文件</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用：</span></span><br><span class="line">ApplicationContext context = <span class="keyword">new</span> FileSystemXmlApplicationContext(<span class="string">&quot;/src/Beans.xml&quot;</span>);</span><br><span class="line">HelloWorld obj = (HelloWorld) context.getBean(<span class="string">&quot;helloWorld&quot;</span>);</span><br></pre></td></tr></table></figure>
 
+<p><img src="/2021/12/05/spring-ioc/filesystemxmlapplicationcontext-class-diagram.png"></p>
+<p><img src="/2021/12/05/spring-ioc/classpathxmlapplicationcontext-class-diagram.png"></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.context;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">WebApplicationContext</span> <span class="keyword">extends</span> <span class="title">ApplicationContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 在 Web application 范围内加载在 XML 文件中已被定义的 bean</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p><img src="/2021/12/05/spring-ioc/webapplicationcontext-class-diagram.jpg"></p>
 <p>区别：</p>
 <table>
 <thead>
@@ -332,6 +343,7 @@
 <li>再次利用反射，在适当时机取得将被依赖的 Bean，将其作为成员变量（构造函数、setter 或其他方法）注入到依赖这个 Bean 的另一个 Bean 中。</li>
 </ol>
 <p>对于通过<a href="/2021/12/24/spring-di">配置文件</a>或<a href="/2022/01/01/spring-annotation">注解</a>定义 Bean，随后会有专门的篇幅加以介绍。</p>
+<p><img src="/2021/12/05/spring-ioc/beans-management.png"></p>
 
     </div>
 
