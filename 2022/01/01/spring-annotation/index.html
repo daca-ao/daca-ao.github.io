@@ -28,7 +28,7 @@
 <meta property="og:description" content="在 Spring IoC 概览中我们提到过，除了配置文件，Spring 还能通过注解进行 Bean 的依赖管理。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-01-01T15:47:28.000Z">
-<meta property="article:modified_time" content="2022-03-14T15:49:24.687Z">
+<meta property="article:modified_time" content="2022-03-14T15:56:04.253Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -203,6 +203,12 @@
         <p>在 <a href="/2021/12/05/spring-ioc/">Spring IoC 概览</a>中我们提到过，除了配置文件，Spring 还能通过注解进行 Bean 的依赖管理。</p>
 <span id="more"></span>
 
+<p>传统的 XML 注入 bean存在以下缺点：</p>
+<ol>
+<li>如果所有内容都配置在 XML 文件中，长久以往配置文件将会十分庞大；如果按照需求拆分配置文件，那么 XML 文件又会变得很多，可维护性会降低；</li>
+<li>开发中 Java 和 XML 之间不断切换，是一件麻烦的事。</li>
+</ol>
+<p>由此引入注解与 Bean 紧密结合，既大大减少了配置文件的体积，又增加了 Bean 的可读性和内聚性。</p>
 <p>关于注解的配置也是在 Bean 的定义 XML 文件上，使用 <code>&lt;context:annotation-config/&gt;</code> 标记：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">xmlns:context</span>=<span class="string">&quot;http://www.springframework.org/schema/context&quot;</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://www.springframework.org/schema/beans </span></span></span><br><span class="line"><span class="string"><span class="tag">            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd </span></span></span><br><span class="line"><span class="string"><span class="tag">            http://www.springframework.org/schema/context </span></span></span><br><span class="line"><span class="string"><span class="tag">            http://www.springframework.org/schema/context/spring-context-3.0.xsd&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">context:annotation-config</span>/&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- bean definitions go here --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
