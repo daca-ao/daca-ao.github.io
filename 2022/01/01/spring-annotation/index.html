@@ -28,7 +28,7 @@
 <meta property="og:description" content="在 Spring IoC 概览中我们提到过，除了配置文件，Spring 还能通过注解进行 Bean 的依赖管理。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-01-01T15:47:28.000Z">
-<meta property="article:modified_time" content="2022-03-15T14:34:44.004Z">
+<meta property="article:modified_time" content="2022-03-15T15:14:52.439Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -203,7 +203,7 @@
         <p>在 <a href="/2021/12/05/spring-ioc/">Spring IoC 概览</a>中我们提到过，除了配置文件，Spring 还能通过注解进行 Bean 的依赖管理。</p>
 <span id="more"></span>
 
-<p>传统的 XML 注入 bean存在以下缺点：</p>
+<p>传统的 XML 注入 bean 存在以下缺点：</p>
 <ol>
 <li>如果所有内容都配置在 XML 文件中，长久以往配置文件将会十分庞大；如果按照需求拆分配置文件，那么 XML 文件又会变得很多，可维护性会降低；</li>
 <li>开发中 Java 和 XML 之间不断切换，是一件麻烦的事。</li>
@@ -275,7 +275,8 @@
 <p>因此需要删除其中一个 bean 的定义，或者通过 @Qualifier 指明是哪一个 bean。</p>
 <br>
 
-<h1 id="Resource"><a href="#Resource" class="headerlink" title="@Resource"></a>@Resource</h1><p>和 @Autowired 非常相似，作用于 setter 上，使用 name 属性，默认遵循 byName 语义自动装配。</p>
+<h1 id="JSR-250-注释"><a href="#JSR-250-注释" class="headerlink" title="JSR-250 注释"></a>JSR-250 注释</h1><p>Java Specification Request，包括：</p>
+<h2 id="Resource"><a href="#Resource" class="headerlink" title="@Resource"></a>@Resource</h2><p>和 @Autowired 非常相似，作用于 setter 上，使用 name 属性，默认遵循 byName 语义自动装配。</p>
 <ul>
 <li>@Resource 没有指定任何内容，默认 byName 匹配，找不到再 byType；</li>
 <li>如果指定了 name 或者 type，则 byType 匹配；</li>
@@ -291,19 +292,18 @@
 <p>因此建议使用 @Resource 来减少与 Spring 之间的耦合。</p>
 <br>
 
-<h1 id="JSR-250-注释"><a href="#JSR-250-注释" class="headerlink" title="JSR-250 注释"></a>JSR-250 注释</h1><p>Java Specification Request，包括：<br>@PostConstruct：相当于 xml 配置中的 init-method<br>@PreDestroy：相当于 xml 配置中的 destroy-method</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorld</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String message;</span><br><span class="line"></span><br><span class="line">    ... <span class="comment">// getters &amp; setters</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Bean is going through init.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PreDestroy</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Bean will destroy now.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用时仍需给 context 注册一个 shutdown hook</span></span><br><span class="line">ctx.registerShutdownHook();</span><br></pre></td></tr></table></figure>
+<h2 id="PostConstruct-amp-PreDestroy"><a href="#PostConstruct-amp-PreDestroy" class="headerlink" title="@PostConstruct &amp; @PreDestroy"></a>@PostConstruct &amp; @PreDestroy</h2><p><code>@PostConstruct</code>：相当于 xml 配置中的 init-method<br><code>@PreDestroy</code>：相当于 xml 配置中的 destroy-method</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorld</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String message;</span><br><span class="line"></span><br><span class="line">    ... <span class="comment">// getters &amp; setters</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Bean is going through init.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PreDestroy</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Bean will destroy now.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用 HelloWorld bean 前仍需给 context 注册一个 shutdown hook</span></span><br><span class="line">ctx.registerShutdownHook();</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 配置 --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- encoding... --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">...</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">context:annotation-config</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;helloWorld&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.HelloWorld&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;message&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Hello World!&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- encoding... --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">...</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">context:annotation-config</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;helloWorld&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.HelloWorld&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;message&quot;</span> <span class="attr">value</span>=<span class="string">&quot;Hello World!&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>注：</p>
+<p>使用注解可以指定多个初始化 / 销毁方法，而配置文件只能分别指定一个。</p>
+<p>添加注解后，在配置文件中，该 bean 的 init-method 和 destroy-method 属性可无需配置。</p>
+<p>如配置文件添加了 init-method 和 destroy-method：</p>
 <ul>
-<li>在配置文件中，该 bean 的 init-method 和 destroy-method 属性可无需配置</li>
-<li>如配置文件添加了 init-method 和 destroy-method：<ul>
-<li>如配置的方法相同，则两者行为相同，两者互相覆盖</li>
-<li>如配置方法不同，则先执行注解的方法，再执行配置的方法</li>
-</ul>
-</li>
+<li>如配置的方法相同，则两者行为相同，两者互相覆盖；</li>
+<li>如配置方法不同，则<strong>先执行注解</strong>的方法，再执行配置的方法。</li>
 </ul>
 <br>
 
@@ -414,7 +414,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Required"><span class="nav-number">1.</span> <span class="nav-text">@Required</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Autowired"><span class="nav-number">2.</span> <span class="nav-text">@Autowired</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Qualifier"><span class="nav-number">3.</span> <span class="nav-text">@Qualifier</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Resource"><span class="nav-number">4.</span> <span class="nav-text">@Resource</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JSR-250-%E6%B3%A8%E9%87%8A"><span class="nav-number">5.</span> <span class="nav-text">JSR-250 注释</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E6%B3%A8%E8%A7%A3"><span class="nav-number">6.</span> <span class="nav-text">其它注解</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Required"><span class="nav-number">1.</span> <span class="nav-text">@Required</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Autowired"><span class="nav-number">2.</span> <span class="nav-text">@Autowired</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Qualifier"><span class="nav-number">3.</span> <span class="nav-text">@Qualifier</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JSR-250-%E6%B3%A8%E9%87%8A"><span class="nav-number">4.</span> <span class="nav-text">JSR-250 注释</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Resource"><span class="nav-number">4.1.</span> <span class="nav-text">@Resource</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PostConstruct-amp-PreDestroy"><span class="nav-number">4.2.</span> <span class="nav-text">@PostConstruct &amp; @PreDestroy</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E6%B3%A8%E8%A7%A3"><span class="nav-number">5.</span> <span class="nav-text">其它注解</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
