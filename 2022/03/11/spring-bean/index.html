@@ -28,7 +28,7 @@
 <meta property="og:description" content="跟 EJB 一样，Bean 也是 Spring 应用中的核心组成部分。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-03-11T14:35:46.000Z">
-<meta property="article:modified_time" content="2022-03-12T12:35:50.095Z">
+<meta property="article:modified_time" content="2022-03-16T14:35:51.837Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -202,7 +202,8 @@
         <p>跟 EJB 一样，Bean 也是 Spring 应用中的核心组成部分。</p>
 <span id="more"></span>
 
-<p>主要包括以下方面：</p>
+<p>有如下属性：</p>
+<h1 id="生命周期"><a href="#生命周期" class="headerlink" title="生命周期"></a>生命周期</h1><p>主要包括以下方面：</p>
 <ol>
 <li>构造实例化</li>
 </ol>
@@ -285,7 +286,32 @@
 </li>
 <li>如 bean 使用 destroy-method 配置声明销毁方法：调用</li>
 </ul>
+<p>接口 BeanPostProcessor：</p>
+<ul>
+<li>定义 callback，允许在调用初始化方法前后对 bean 进行额外处理</li>
+<li>可实现多个 BeanPostProcessor</li>
+<li>设置 BeanPostProcessor 实现的 Ordered 接口提供的 order 属性控制执行顺序</li>
+<li>ApplicationContext 会自动检测实现了 BeanPostProcessor 接口的 bean<ul>
+<li>注册这些 bean 为 post processor</li>
+<li>适当时候调用<br>import org.springframework.beans.factory.config.BeanPostProcessor;<br>import org.springframework.beans.BeansException;</li>
+</ul>
+</li>
+</ul>
+<p>public class InitHelloWorld implements BeanPostProcessor {</p>
+<pre><code>public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException &#123;
+    System.out.println(&quot;BeforeInitialization : &quot; + beanName);
+    return bean; // you can return any other object as well
+&#125;
 
+public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException &#123;
+    System.out.println(&quot;AfterInitialization : &quot; + beanName);
+    return bean; // you can return any other object as well
+&#125;
+</code></pre>
+<p>}</p>
+<!-- beans.xml -->
+<bean class="com.tutorialspoint.InitHelloWorld">
+</bean>
     </div>
 
     
@@ -365,6 +391,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.</span> <span class="nav-text">生命周期</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
