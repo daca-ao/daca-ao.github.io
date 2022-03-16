@@ -28,7 +28,7 @@
 <meta property="og:description" content="在 Spring IoC 概览中我们提到过，除了配置文件，Spring 还能通过注解进行 Bean 的依赖管理。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-01-01T15:47:28.000Z">
-<meta property="article:modified_time" content="2022-03-16T14:27:11.981Z">
+<meta property="article:modified_time" content="2022-03-16T14:33:15.559Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -328,30 +328,29 @@
 <p>@Bean 注解可指定任意初始化和销毁的回调，也可指定 bean 的作用域：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AppConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean(initMethod = &quot;init&quot;, destroyMethod = &quot;cleanup&quot;)</span></span><br><span class="line">    <span class="meta">@Scope(&quot;prototype&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Foo <span class="title">foo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Foo();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>其中 <code>@Scope</code> 用来配置 Spring bean 的作用域：<code>singleton</code> 为单例，<code>prototype</code> 为原型，每次都会 new 一个新的对象出来。</p>
-<p>@ComponentScan：扫描指定包下的所有 Spring 组件</p>
-<p>@Primary：手动创建 Spring Bean 时，指定当前为默认注入的 bean</p>
-<p>@Lazy：表示延迟注入 bean</p>
+<p>其中 <code>@Scope</code> 用来配置 Spring bean 的作用域：</p>
+<ul>
+<li><code>singleton</code> 为单例；</li>
+<li><code>prototype</code> 为原型，每次都会 new 一个新的对象出来。</li>
+</ul>
 <br>
 
 <h2 id="其它创建对象的注解"><a href="#其它创建对象的注解" class="headerlink" title="其它创建对象的注解"></a>其它创建对象的注解</h2><p>这些注解都是标记在类上的，用于表示 Spring 中的组件。</p>
-<p><strong>@Component</strong></p>
+<p><strong><code>@Component</code></strong></p>
 <p>将某个 Java 类标记为 bean，是所有受 Spring 管理组件的通用形式。</p>
 <p>Spring 组件扫描机制能将标记了 @Component 的类拉入应用程序中。</p>
-<p><strong>@Controller</strong></p>
+<p><strong><code>@Controller</code></strong></p>
 <p>将 Java 类标记为 Spring Web MVC 控制器（控制层 Controller 组件）。</p>
 <p>同样，被标记的 bean 会被自动导入到 IoC 容器中。</p>
-<p><strong>@Service</strong></p>
+<p><strong><code>@Service</code></strong></p>
 <p>是 @Component 注解的特化，用于标记业务层的组件。</p>
-<ul>
-<li>不会对 @Component 注解提供任何其他行为</li>
-<li>可在服务层类中使用 @Service 而不是 @Component</li>
-</ul>
-<p><strong>@Repository</strong></p>
-<ul>
-<li>@Component 注解的特化</li>
-<li>将 DAO 导入 IoC 容器，并使未经检查的异常有资格转换为 Spring DataAccessException</li>
-</ul>
+<p>可在服务层类中使用 @Service 而不是 @Component，它不会对 @Component 注解提供任何其他行为。</p>
+<p><strong><code>@Repository</code></strong></p>
+<p>也是 @Component 注解的特化，用于标记持久层的组件（DAO 类）。</p>
+<p>被标记之后，IoC 容器会将该 DAO 导入，并使未经检查的异常有资格转换为 Spring DataAccessException。</p>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>@ComponentScan：扫描指定包下的所有 Spring 组件。</p>
+<p>@Primary：手动创建 Spring Bean 时，指定当前为默认注入的 bean。</p>
+<p>@Lazy：表示延迟注入 bean。</p>
 
     </div>
 
@@ -436,7 +435,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9D%9E%E7%B1%BB%E7%BA%A7%E5%88%AB%E7%9A%84%E6%B3%A8%E8%A7%A3"><span class="nav-number">1.</span> <span class="nav-text">非类级别的注解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Required"><span class="nav-number">1.1.</span> <span class="nav-text">@Required</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Autowired"><span class="nav-number">1.2.</span> <span class="nav-text">@Autowired</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Qualifier"><span class="nav-number">1.3.</span> <span class="nav-text">@Qualifier</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Resource"><span class="nav-number">1.4.</span> <span class="nav-text">@Resource</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PostConstruct-amp-PreDestroy"><span class="nav-number">1.5.</span> <span class="nav-text">@PostConstruct &amp; @PreDestroy</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9E%84%E9%80%A0-IoC-%E5%AE%B9%E5%99%A8%E7%9A%84%E6%B3%A8%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">构造 IoC 容器的注解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Configuration"><span class="nav-number">2.1.</span> <span class="nav-text">@Configuration</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bean"><span class="nav-number">2.2.</span> <span class="nav-text">@Bean</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%B3%A8%E8%A7%A3"><span class="nav-number">2.3.</span> <span class="nav-text">其它创建对象的注解</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9D%9E%E7%B1%BB%E7%BA%A7%E5%88%AB%E7%9A%84%E6%B3%A8%E8%A7%A3"><span class="nav-number">1.</span> <span class="nav-text">非类级别的注解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Required"><span class="nav-number">1.1.</span> <span class="nav-text">@Required</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Autowired"><span class="nav-number">1.2.</span> <span class="nav-text">@Autowired</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Qualifier"><span class="nav-number">1.3.</span> <span class="nav-text">@Qualifier</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Resource"><span class="nav-number">1.4.</span> <span class="nav-text">@Resource</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PostConstruct-amp-PreDestroy"><span class="nav-number">1.5.</span> <span class="nav-text">@PostConstruct &amp; @PreDestroy</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9E%84%E9%80%A0-IoC-%E5%AE%B9%E5%99%A8%E7%9A%84%E6%B3%A8%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">构造 IoC 容器的注解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Configuration"><span class="nav-number">2.1.</span> <span class="nav-text">@Configuration</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bean"><span class="nav-number">2.2.</span> <span class="nav-text">@Bean</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%B3%A8%E8%A7%A3"><span class="nav-number">2.3.</span> <span class="nav-text">其它创建对象的注解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E5%AE%83"><span class="nav-number">2.4.</span> <span class="nav-text">其它</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
