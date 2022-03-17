@@ -28,7 +28,7 @@
 <meta property="og:description" content="跟 EJB 一样，Bean 也是 Spring 应用中的核心组成部分。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-03-11T14:35:46.000Z">
-<meta property="article:modified_time" content="2022-03-17T15:22:43.711Z">
+<meta property="article:modified_time" content="2022-03-17T23:42:32.937Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -211,23 +211,47 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>class</td>
+<td><code>class</code></td>
 <td>指定创建 bean 的类，使用全限定名</td>
 </tr>
 <tr>
-<td>id</td>
+<td><code>id</code></td>
 <td></td>
 </tr>
 <tr>
-<td>name</td>
+<td><code>name</code></td>
 <td></td>
 </tr>
 <tr>
-<td>scope</td>
+<td><code>scope</code></td>
 <td></td>
 </tr>
 <tr>
-<td>property</td>
+<td><code>constructor-arg</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>property</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>autowire</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>lazy-init</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>init-method</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>destroy-method</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>parent</code></td>
 <td></td>
 </tr>
 </tbody></table>
@@ -328,6 +352,7 @@
 </ul>
 </li>
 </ul>
+<p>示例实现代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.config.BeanPostProcessor;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.BeansException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">InitHelloWorld</span> <span class="keyword">implements</span> <span class="title">BeanPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;BeforeInitialization : &quot;</span> + beanName);</span><br><span class="line">        <span class="keyword">return</span> bean; <span class="comment">// you can return any other object as well</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">postProcessAfterInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;AfterInitialization : &quot;</span> + beanName);</span><br><span class="line">        <span class="keyword">return</span> bean; <span class="comment">// you can return any other object as well</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <!-- beans.xml -->
