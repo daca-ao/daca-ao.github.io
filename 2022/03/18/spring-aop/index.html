@@ -28,7 +28,7 @@
 <meta property="og:description" content="同样，AOP 不仅仅是针对 Spring 才能应用的逻辑。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-03-18T14:09:59.000Z">
-<meta property="article:modified_time" content="2022-03-18T14:14:12.622Z">
+<meta property="article:modified_time" content="2022-03-18T14:39:20.797Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="AOP">
@@ -203,7 +203,36 @@
         <p>同样，AOP 不仅仅是针对 Spring 才能应用的逻辑。</p>
 <span id="more"></span>
 
-<p><strong>A</strong>spect-<strong>O</strong>riented <strong>P</strong>rogramming，面向切面编程，是一种对 OOP 纵向结构丰富而横向结构缺失的补充。</p>
+<h1 id="AOP-概述"><a href="#AOP-概述" class="headerlink" title="AOP 概述"></a>AOP 概述</h1><p><strong>A</strong>spect-<strong>O</strong>riented <strong>P</strong>rogramming，面向切面编程，是一种对 OOP 纵向结构丰富而横向结构缺失的补充。</p>
+<p>Java OOP：可提供复杂而纵深的继承体系，但非继承关系的横向加强功能并不容易实现<br>例：</p>
+<ul>
+<li>当很多类的方法都调用某一个类的成员方法时</li>
+<li>需要这些类都持有该类的对象，且这些类的所有对象都需要显式地依赖该对象</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    TheOne theOne;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTheOne</span><span class="params">(TheOne theOne)</span> </span>&#123;<span class="keyword">this</span>.theOne = theOne;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">aDoSth</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        theOne.doSth();</span><br><span class="line">        ... <span class="comment">// business</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    TheOne theOne;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTheOne</span><span class="params">(TheOne theOne)</span> </span>&#123;<span class="keyword">this</span>.theOne = theOne;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">bDoSth</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        theOne.doSth();</span><br><span class="line">        ... <span class="comment">// business</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TheOne</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSth</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>A 和 B 两个类中部分代码几乎完全重复，且与其业务不相关联</li>
+</ul>
+<p>能否用某种方式实现同样功能，而不需要开发者写重复的代码逻辑？</p>
+<ol>
+<li>利用编译器将这些功能代码在编译阶段“织入”源代码<ol>
+<li>运行时将代码切入到类的指定方法、指定位置</li>
+<li>需要特殊的编译器</li>
+</ol>
+</li>
+<li>利用动态代理在运行时将这些功能代码切入</li>
+</ol>
+<h1 id="Spring-AOP"><a href="#Spring-AOP" class="headerlink" title="Spring AOP"></a>Spring AOP</h1><p>Spring AOP 使用纯 Java 实现，不需要专门的编译过程和类加载器</p>
+<ul>
+<li>运行时通过代理方式向目标类织入增强代码</li>
+<li>Spring 2.0+：引入对 AspectJ 的支持</li>
+</ul>
+<p>实现原理：代理机制</p>
+<ul>
+<li>接口 + 实现类：采用 JDK 动态代理 Proxy</li>
+<li>实现类：使用 CGLib 字节码增强</li>
+</ul>
 
     </div>
 
@@ -285,6 +314,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">AOP 概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-AOP"><span class="nav-number">2.</span> <span class="nav-text">Spring AOP</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
