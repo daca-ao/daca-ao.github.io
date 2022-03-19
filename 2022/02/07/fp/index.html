@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/filter-map-reduce.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/reduce-accumulation.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-19T10:36:45.782Z">
+<meta property="article:modified_time" content="2022-03-19T13:26:59.679Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -425,6 +425,7 @@
 <p><img src="/2022/02/07/fp/filter-map-reduce.jpg"></p>
 <p>reduce() 做累加的例子：</p>
 <p><img src="/2022/02/07/fp/reduce-accumulation.jpg"></p>
+<p>用到了 <code>reduce(T identity, BinaryOperator acc)</code>，也是<strong>用得最多</strong>的 reduce() 函数。</p>
 <p><em>Hadoop</em> 正是借鉴了函数式编程中 <code>map</code> 和 <code>reduce</code> 的概念，创建了属于自己的 MapReduce。</p>
 <h3 id="reduce-可以用来实现什么"><a href="#reduce-可以用来实现什么" class="headerlink" title="reduce 可以用来实现什么"></a>reduce 可以用来实现什么</h3><p><strong>求和</strong>：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(Collection&lt;Integer&gt; list)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> list.stream().reduce(<span class="number">0</span>, (acc, curr) -&gt; acc + curr);</span><br><span class="line">    <span class="comment">// 或：return list.stream().reduce(0, Integer::sum);</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -454,7 +455,8 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f1 * f2 == f3(x), 相当于 f1(f2(x)).</span><br></pre></td></tr></table></figure>
 
 <p>组合过程中没有对任意一个函数做过任何一次调用。</p>
-<h3 id="collect"><a href="#collect" class="headerlink" title="collect()"></a>collect()</h3><p>Stream.collect() 是增强版的 reduce()。</p>
+<h3 id="collect"><a href="#collect" class="headerlink" title="collect()"></a>collect()</h3><p>Stream.collect() 是增强版的 reduce()，所使用的频率高于 reduce。区别在于：</p>
+<p>reduce 操作的是不可变数据<br>collect 操作的是可变数据 </p>
 <h2 id="Optional"><a href="#Optional" class="headerlink" title="Optional"></a>Optional</h2><p>Optional 最大的意义在于能简化 null check：</p>
 <p>举个例子，假设有下面的 <code>Person</code> 对象：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Person person = getSomeOne();</span><br></pre></td></tr></table></figure>
