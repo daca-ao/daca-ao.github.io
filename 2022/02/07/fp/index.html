@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/filter-map-reduce.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/reduce-accumulation.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-20T09:09:30.149Z">
+<meta property="article:modified_time" content="2022-03-20T12:31:41.019Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -469,14 +469,15 @@
 
 <p>再多说一嘴 <code>Collector</code> 接口：</p>
 <p>鉴于每一次传递参数的时候，对应特定的 collect() 结果，都会传递对应的一套 supplier, accumulator 和 combiner 的组合；所以 JDK 的开发者们干脆就设计了 Collector 的接口，将一系列的函数放在了一起。</p>
-<p>因此它们各个参数就很明显了：</p>
+<p>因此 Collector 各个参数就很明显了：</p>
 <ul>
 <li><code>Supplier</code>：累计数据构造函数</li>
 <li><code>Accumulator</code>：累计函数，同 reduce() 参数</li>
 <li><code>Combiner</code>：合并函数，在并行场合下做处理使用，同 reduce() 参数</li>
 <li><code>Finisher</code>：对累计数据做最终转换</li>
-<li>*<code>Characteristics</code>：特征（并发 / 无序 / 无 Finisher）</li>
+<li>*<code>Characteristics</code>：特征（并发 CONCURRENT / 无序 UNORDERED / 无 Finisher IDENTITY_FINISH）</li>
 </ul>
+<p><small>注：IDENTITY 函数在函数式编程的意思是：输入一个值，将其自身输出。</small></p>
 <p>比如 <code>Collectors.toList()</code> 的实现是这样的：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; Collector&lt;T, ?, List&lt;T&gt;&gt; toList() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> CollectorImpl&lt;&gt;((Supplier&lt;List&lt;T&gt;&gt;) ArrayList::<span class="keyword">new</span>,  <span class="comment">// supplier</span></span><br><span class="line">                                List::add,  <span class="comment">// accumulator</span></span><br><span class="line">                                (left, right) -&gt; &#123; left.addAll(right); <span class="keyword">return</span> left; &#125;,  <span class="comment">// combiner</span></span><br><span class="line">                                CH_ID);  <span class="comment">// characteristics</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
@@ -487,6 +488,13 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">acc.accept(t1);</span><br><span class="line">acc.accept(t2);</span><br><span class="line">finisher.apply(acc);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等同于：</span></span><br><span class="line">acc1.accept(t1);</span><br><span class="line">acc2.accept(t2);</span><br><span class="line">finisher.apply(combiner.apply(t1, t2));</span><br></pre></td></tr></table></figure>
 
 <p>以上所有的条件，都是基于 Stream 能并发处理数据的特性，需要确保数据的一致性。</p>
+<p>JDK 的静态工具类 <code>Collectors</code> 已经给我们提供了很多即用的 API 了，包括：</p>
+<ul>
+<li>toList() / to(Concurrent)Map() / toSet() / toCollection()</li>
+<li>counting() / averagingXX() / joining() / summingXX()</li>
+<li>groupBy() / partitioningBy()</li>
+<li>mapping() / reducing()</li>
+</ul>
 <br>
 
 <h2 id="Optional"><a href="#Optional" class="headerlink" title="Optional"></a>Optional</h2><p>Optional 最大的意义在于能简化 null check：</p>
