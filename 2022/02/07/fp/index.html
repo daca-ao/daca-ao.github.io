@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/filter-map-reduce.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/reduce-accumulation.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-20T12:31:41.019Z">
+<meta property="article:modified_time" content="2022-03-20T12:55:00.464Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -379,7 +379,7 @@
 <p>以上的情况，手头上有的都不能直接传入对方法的引用中，需要另外编写 util 方法去转换，或者：</p>
 <p>就编程经验来说，我们可以采取一个特殊的 <strong>void-compatibility</strong> 规则：<br>如果 Lambda 是一个语句表达式，那么即使该 Lambda 表达式有返回值，也可以赋值给返回值签名为 void 的函数。</p>
 <p>这样子的话，单句的 Lambda 表达式可以赋值给 <code>Consumer</code> 和 <code>Runnable</code>。</p>
-<h1 id="进阶应用"><a href="#进阶应用" class="headerlink" title="进阶应用"></a>进阶应用</h1><h2 id="Stream"><a href="#Stream" class="headerlink" title="Stream"></a>Stream</h2><p>不仅是在 Java 8，<code>Stream</code> 在整个函数式编程中都占有着举足轻重的地位。</p>
+<h1 id="进阶应用：Stream"><a href="#进阶应用：Stream" class="headerlink" title="进阶应用：Stream"></a>进阶应用：Stream</h1><p>不仅是在 Java 8，<code>Stream</code> 在整个函数式编程中都占有着举足轻重的地位。</p>
 <p>首先，Stream 是一个<strong>哲学</strong>上的概念；相对于 List 来说，Stream：</p>
 <ul>
 <li>可以是无限的：《SICP》认为在函数式编程中，所有的东西都是不可变的；而在实际处理一些会变化的场景时，将场景看作是一个与时间有关的函数，函数本身（即场景变化的历史）不可变。</li>
@@ -395,7 +395,7 @@
 <li>其他 API：<code>Files.lines()</code> …</li>
 </ul>
 <p>一个很有名的 Stream 响应式编程应用就是点击事件的处理，根据 Stream 中规定时间段内的点击次数来判断单击/双击事件。</p>
-<h3 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h3><p>Java 8 中的 Stream 有很多 API，主要分两种类别：</p>
+<h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><p>Java 8 中的 Stream 有很多 API，主要分两种类别：</p>
 <p><strong>Intermediate</strong>：中间状态操作，应用在 Stream 的变化之中的 API；结果不能实时显示。</p>
 <ul>
 <li>filter</li>
@@ -427,7 +427,7 @@
 <p><img src="/2022/02/07/fp/reduce-accumulation.jpg"></p>
 <p>用到了 <code>reduce(T identity, BinaryOperator acc)</code>，也是<strong>用得最多</strong>的 reduce() 函数。</p>
 <p><em>Hadoop</em> 正是借鉴了函数式编程中 <code>map</code> 和 <code>reduce</code> 的概念，创建了属于自己的 MapReduce。</p>
-<h3 id="reduce-可以用来实现什么"><a href="#reduce-可以用来实现什么" class="headerlink" title="reduce 可以用来实现什么"></a>reduce 可以用来实现什么</h3><p><strong>求和</strong>：</p>
+<h2 id="reduce-可以用来实现什么"><a href="#reduce-可以用来实现什么" class="headerlink" title="reduce 可以用来实现什么"></a>reduce 可以用来实现什么</h2><p><strong>求和</strong>：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(Collection&lt;Integer&gt; list)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> list.stream().reduce(<span class="number">0</span>, (acc, curr) -&gt; acc + curr);</span><br><span class="line">    <span class="comment">// 或：return list.stream().reduce(0, Integer::sum);</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><strong>求最大值</strong>：</p>
@@ -455,7 +455,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f1 * f2 == f3(x), 相当于 f1(f2(x)).</span><br></pre></td></tr></table></figure>
 
 <p>组合过程中没有对任意一个函数做过任何一次调用。</p>
-<h3 id="collect"><a href="#collect" class="headerlink" title="collect()"></a><strong>collect()</strong></h3><p><code>Stream.collect()</code> 跟 reduce() 是兄弟函数，是增强版的 reduce()，所使用的频率高于 reduce()。</p>
+<h2 id="collect"><a href="#collect" class="headerlink" title="collect()"></a><strong>collect()</strong></h2><p><code>Stream.collect()</code> 跟 reduce() 是兄弟函数，是增强版的 reduce()，所使用的频率高于 reduce()。</p>
 <p>函数签名：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">collect(Supplier supplier, BiConsumer accumulator, BiConsumer combiner);  <span class="comment">// supplier 是承载状态改变的容器</span></span><br><span class="line">collect(Collector collector);  <span class="comment">// Collector 类封装了 .collect() 所需要的全部要素</span></span><br></pre></td></tr></table></figure>
 
@@ -488,16 +488,17 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">acc.accept(t1);</span><br><span class="line">acc.accept(t2);</span><br><span class="line">finisher.apply(acc);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 等同于：</span></span><br><span class="line">acc1.accept(t1);</span><br><span class="line">acc2.accept(t2);</span><br><span class="line">finisher.apply(combiner.apply(t1, t2));</span><br></pre></td></tr></table></figure>
 
 <p>以上所有的条件，都是基于 Stream 能并发处理数据的特性，需要确保数据的一致性。</p>
-<p>JDK 的静态工具类 <code>Collectors</code> 已经给我们提供了很多即用的 API 了，包括：</p>
+<h2 id="Collectors-工具类"><a href="#Collectors-工具类" class="headerlink" title="Collectors 工具类"></a>Collectors 工具类</h2><p>JDK 的静态工具类 <code>Collectors</code> 已经给我们提供了很多即用的 API 了，包括：</p>
 <ul>
-<li>toList() / to(Concurrent)Map() / toSet() / toCollection()</li>
+<li>流转容器：toList() / to(Concurrent)Map() / toSet() / toCollection()</li>
 <li>counting() / averagingXX() / joining() / summingXX()</li>
-<li>groupBy() / partitioningBy()</li>
+<li>分组：groupingBy() / partitioningBy()</li>
 <li>mapping() / reducing()</li>
+<li>…</li>
 </ul>
 <br>
 
-<h2 id="Optional"><a href="#Optional" class="headerlink" title="Optional"></a>Optional</h2><p>Optional 最大的意义在于能简化 null check：</p>
+<h1 id="Optional"><a href="#Optional" class="headerlink" title="Optional"></a>Optional</h1><p>Optional 最大的意义在于能简化 null check：</p>
 <p>举个例子，假设有下面的 <code>Person</code> 对象：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Person person = getSomeOne();</span><br></pre></td></tr></table></figure>
 
@@ -600,7 +601,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E7%9A%84%E7%BC%96%E7%A8%8B%E7%89%B9%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">函数式编程的编程特性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%BA%94%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">基础应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lambda-%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">Lambda 表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E5%86%99-Lambda-%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.1.1.</span> <span class="nav-text">转写 Lambda 表达式步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E7%A4%BA%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.2.</span> <span class="nav-text">表示高阶函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3-SAM"><span class="nav-number">3.2.</span> <span class="nav-text">函数式接口 SAM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8"><span class="nav-number">3.3.</span> <span class="nav-text">方法引用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3%E8%BD%AC%E6%8D%A2"><span class="nav-number">3.3.1.</span> <span class="nav-text">函数式接口转换</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E9%98%B6%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">进阶应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Stream"><span class="nav-number">4.1.</span> <span class="nav-text">Stream</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">4.1.1.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reduce-%E5%8F%AF%E4%BB%A5%E7%94%A8%E6%9D%A5%E5%AE%9E%E7%8E%B0%E4%BB%80%E4%B9%88"><span class="nav-number">4.1.2.</span> <span class="nav-text">reduce 可以用来实现什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#collect"><span class="nav-number">4.1.3.</span> <span class="nav-text">collect()</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Optional"><span class="nav-number">4.2.</span> <span class="nav-text">Optional</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E7%9A%84%E7%BC%96%E7%A8%8B%E7%89%B9%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">函数式编程的编程特性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%BA%94%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">基础应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lambda-%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">Lambda 表达式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E5%86%99-Lambda-%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.1.1.</span> <span class="nav-text">转写 Lambda 表达式步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E7%A4%BA%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.2.</span> <span class="nav-text">表示高阶函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3-SAM"><span class="nav-number">3.2.</span> <span class="nav-text">函数式接口 SAM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%BC%95%E7%94%A8"><span class="nav-number">3.3.</span> <span class="nav-text">方法引用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E5%BC%8F%E6%8E%A5%E5%8F%A3%E8%BD%AC%E6%8D%A2"><span class="nav-number">3.3.1.</span> <span class="nav-text">函数式接口转换</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E9%98%B6%E5%BA%94%E7%94%A8%EF%BC%9AStream"><span class="nav-number">4.</span> <span class="nav-text">进阶应用：Stream</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">4.1.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reduce-%E5%8F%AF%E4%BB%A5%E7%94%A8%E6%9D%A5%E5%AE%9E%E7%8E%B0%E4%BB%80%E4%B9%88"><span class="nav-number">4.2.</span> <span class="nav-text">reduce 可以用来实现什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#collect"><span class="nav-number">4.3.</span> <span class="nav-text">collect()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Collectors-%E5%B7%A5%E5%85%B7%E7%B1%BB"><span class="nav-number">4.4.</span> <span class="nav-text">Collectors 工具类</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Optional"><span class="nav-number">5.</span> <span class="nav-text">Optional</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
