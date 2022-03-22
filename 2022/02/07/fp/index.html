@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/reduce-accumulation.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/groupingby.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-22T14:14:47.009Z">
+<meta property="article:modified_time" content="2022-03-22T14:17:12.778Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -453,7 +453,7 @@
 <p>每一个 reduceFunction 由 <code>Function</code> 和 <code>BiFunction</code> 组成，比如：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> (acc,curr) -&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> biFunction.apply(acc, function.apply(curr));</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
-<p>最后通过函数组合 <code>function1.compose(function2)</code> 或 <code>function1.andThen(function2)</code> 完成组合：</p>
+<p>最后通过函数组合 <code>f1.compose(f2)</code> 或 <code>f2.andThen(f1)</code>（这个语义上更直观）完成组合：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f1 * f2 == f3(x), 相当于 f1(f2(x)).</span><br></pre></td></tr></table></figure>
 
 <p>组合过程中没有对任意一个函数做过任何一次调用。</p>
