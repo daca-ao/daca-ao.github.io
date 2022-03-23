@@ -31,8 +31,9 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/filter-map-reduce.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/reduce-accumulation.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/groupingby.jpg">
+<meta property="og:image" content="http://example.com/2022/02/07/fp/optional-schrdinger.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-22T14:17:12.778Z">
+<meta property="article:modified_time" content="2022-03-22T15:25:58.063Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -509,7 +510,13 @@
 <p>所以 <code>.groupingBy()</code> 能够很简单地解决多级分层的问题。</p>
 <br>
 
-<h1 id="进阶应用：Optional"><a href="#进阶应用：Optional" class="headerlink" title="进阶应用：Optional"></a>进阶应用：Optional</h1><p>Optional 最大的意义在于能够简化 null check：</p>
+<h1 id="进阶应用：Optional"><a href="#进阶应用：Optional" class="headerlink" title="进阶应用：Optional"></a>进阶应用：Optional</h1><p>Optional 在 JDK 8 中和 Stream 具有同等重要的地位，它最大的意义在于能够简化 null check，免除了编程时 NullPointerException 带来的痛苦：</p>
+<p>我们可以用一个类似于“薛定谔的猫”的容器图来描述 Optional 的功能：</p>
+<p><img src="/2022/02/07/fp/optional-schrdinger.jpg"></p>
+<p>Optional 本身不会为 null。</p>
+<p>Optional 的 API：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">orElse(T t);  <span class="comment">// return x != null ? x : t</span></span><br><span class="line">orElseGet(Function fn);  <span class="comment">// return x != null ? x : fn()</span></span><br><span class="line">ifPresent(Function fn);  <span class="comment">// if x != null execute fn()</span></span><br></pre></td></tr></table></figure>
+
 <p>举个例子，假设有下面的 <code>Person</code> 对象：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Person person = getSomeOne();</span><br></pre></td></tr></table></figure>
 
