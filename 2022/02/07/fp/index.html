@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/optional-schrdinger.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/optional-map.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-24T14:10:13.990Z">
+<meta property="article:modified_time" content="2022-03-24T14:11:49.258Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -523,7 +523,7 @@
 
 <p>在 Java 7 及之前的版本中，如果要对 person 对象进行空值判断，我们需要一个甚至多个 <code>if-else</code> 代码块。</p>
 <p>从 Java 8 开始，只需要声明一个 <code>Optional</code> 对象，如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Optional&lt;Person&gt; personOpt = Optional.ofNullable(person);</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Optional&lt;Person&gt; personOpt = Optional.ofNullable(person);  <span class="comment">// “薛定谔的箱子”</span></span><br></pre></td></tr></table></figure>
 
 <p>存在就开干</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 7</span></span><br><span class="line">If (person != <span class="keyword">null</span>) &#123;</span><br><span class="line">    System.out.println(person);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Java 8</span></span><br><span class="line">personOpt.ifPresent(System.out::println);</span><br></pre></td></tr></table></figure>
