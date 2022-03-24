@@ -32,8 +32,9 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/reduce-accumulation.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/groupingby.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/optional-schrdinger.jpg">
+<meta property="og:image" content="http://example.com/2022/02/07/fp/optional-map.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-23T15:02:15.759Z">
+<meta property="article:modified_time" content="2022-03-24T14:10:13.990Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -536,13 +537,14 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 7</span></span><br><span class="line"><span class="keyword">if</span> (person != <span class="keyword">null</span>) &#123;</span><br><span class="line">    String name = person.getLastName();</span><br><span class="line">    <span class="keyword">return</span> name == <span class="keyword">null</span> ? <span class="keyword">null</span> : name.toUpperCase();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Java 8</span></span><br><span class="line"><span class="keyword">return</span> personOpt.map(p -&gt; p.getLastName())</span><br><span class="line">                .map(name -&gt; name.toUpperCase())</span><br><span class="line">                .orElse(<span class="keyword">null</span>);</span><br></pre></td></tr></table></figure>
 
 <p>大大地减少了代码数量。</p>
-<p>其实以上代码只是 Optional 边边角角的应用。<br>Optional 对于空值的判断的判断其实还不如 if-else。Optional 自身最大的意义并不仅仅在于做非空判断，而是在于它在做完非空判断之后，还能接着<strong>执行</strong>其他的诸如 <code>.filter()</code> <code>.map()</code> <code>.flatMap()</code> 等<strong>方法</strong>。</p>
+<p>其实以上代码只是 Optional 边边角角的应用。<br>Optional 对于空值的判断的判断其实还不如 if-else。Optional 自身最大的意义并不仅仅在于做非空判断，而是在于它在做完非空判断之后，还能接着<strong>执行</strong>其他的诸如 <code>.filter()</code> <code>.map()</code> <code>.flatMap()</code> 等<strong>方法且不会出错</strong>。</p>
 <p>上面提到的三个方法，是 Optional 的价值所在，是 Optional 相对于 if-else 代码块的优势，否则要只是做非空判断的话，还真的不如 直接写 if-else。</p>
 <p>先说 Optional 最重要的 <code>.map()</code>：</p>
 <br>
 
 <h2 id="map"><a href="#map" class="headerlink" title="map()"></a>map()</h2><p>再来一个容器图：</p>
-<p>![]</p>
+<p><img src="/2022/02/07/fp/optional-map.jpg"></p>
+<p>可知如果存在值 x，随后可以通过 <code>.map(fn)</code> 计算 <code>fn(x)</code> 的值；倘若值为 null，fn 不会被调用，即使是调用了 <code>.map(fn)</code>，方法也不会抛出 NullPointerException，且可以<strong>接着往下级联处理</strong>，完全不用担心这条处理链当中的任何一个节点会出错（抛 NullPointerException 异常）。</p>
 
     </div>
 
