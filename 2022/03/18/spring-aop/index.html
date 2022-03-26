@@ -28,7 +28,7 @@
 <meta property="og:description" content="同样，AOP 不仅仅是针对 Spring 才能应用的逻辑。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-03-18T14:09:59.000Z">
-<meta property="article:modified_time" content="2022-03-19T09:18:05.329Z">
+<meta property="article:modified_time" content="2022-03-26T12:55:24.614Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="AOP">
@@ -203,19 +203,15 @@
         <p>同样，AOP 不仅仅是针对 Spring 才能应用的逻辑。</p>
 <span id="more"></span>
 
-<h1 id="AOP-概述"><a href="#AOP-概述" class="headerlink" title="AOP 概述"></a>AOP 概述</h1><p><strong>A</strong>spect-<strong>O</strong>riented <strong>P</strong>rogramming，面向切面编程，是一种对 OOP 纵向结构丰富而横向结构缺失的补充。</p>
-<p>Java OOP：可提供复杂而纵深的继承体系，但非继承关系的横向加强功能并不容易实现<br>例：</p>
-<ul>
-<li>当很多类的方法都调用某一个类的成员方法时</li>
-<li>需要这些类都持有该类的对象，且这些类的所有对象都需要显式地依赖该对象</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    TheOne theOne;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTheOne</span><span class="params">(TheOne theOne)</span> </span>&#123;<span class="keyword">this</span>.theOne = theOne;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">aDoSth</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        theOne.doSth();</span><br><span class="line">        ... <span class="comment">// business</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    TheOne theOne;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTheOne</span><span class="params">(TheOne theOne)</span> </span>&#123;<span class="keyword">this</span>.theOne = theOne;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">bDoSth</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        theOne.doSth();</span><br><span class="line">        ... <span class="comment">// business</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TheOne</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSth</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="AOP-概述"><a href="#AOP-概述" class="headerlink" title="AOP 概述"></a>AOP 概述</h1><p>我们知道，OOP 可以提供复杂而纵深的继承体系，但是对于一些非继承关系的横向加强功能并不容易实现。</p>
+<p>比如，当很多其它的类的方法都调用某一个类的成员方法时，需要这些类都持有该类的对象，且这些类的所有对象都需要显式地依赖该对象。</p>
+<p>举个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    TheOne theOne;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTheOne</span><span class="params">(TheOne theOne)</span> </span>&#123;<span class="keyword">this</span>.theOne = theOne;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">aDoSth</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        theOne.doSth();</span><br><span class="line">        ...  <span class="comment">// business</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    TheOne theOne;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTheOne</span><span class="params">(TheOne theOne)</span> </span>&#123;<span class="keyword">this</span>.theOne = theOne;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">bDoSth</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        theOne.doSth();</span><br><span class="line">        ...  <span class="comment">// business</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TheOne</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSth</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li>A 和 B 两个类中部分代码几乎完全重复，且与其业务不相关联</li>
-</ul>
+<p>A 和 B 两个类中的 doSth() 部分代码几乎是完全重复的，而且与其业务并不相关联。<br>有的时候虽然这种代码并不多，但是业务类膨胀了之后，万一都需要用到这一段逻辑，反复添加这种与业务不相关的代码也是一件比较烦的事。</p>
 <p>能否用某种方式实现同样功能，而不需要开发者写重复的代码逻辑？</p>
-<ol>
+<p>由此我们提出了 <strong>A</strong>spect-<strong>O</strong>riented <strong>P</strong>rogramming，面向切面编程，是一种对 OOP 纵向结构丰富而横向结构缺失的补充。</p>
+<h2 id="AOP-实现基础"><a href="#AOP-实现基础" class="headerlink" title="AOP 实现基础"></a>AOP 实现基础</h2><ol>
 <li>利用编译器将这些功能代码在编译阶段“织入”源代码<ol>
 <li>运行时将代码切入到类的指定方法、指定位置</li>
 <li>需要特殊的编译器</li>
@@ -242,8 +238,7 @@
 <li>也称为子类代理</li>
 <li>final 类无法使用 CGLib 作为动态代理</li>
 </ul>
-<p>AOP 引入的概念：</p>
-<ol>
+<h1 id="AOP-相关概念"><a href="#AOP-相关概念" class="headerlink" title="AOP 相关概念"></a>AOP 相关概念</h1><ol>
 <li>增强 Advice</li>
 </ol>
 <ul>
@@ -324,7 +319,7 @@
 <li>参数校验</li>
 <li>缓存、调试、性能检测</li>
 <li>一定程度的事务处理</li>
-<li>……</li>
+<li>…</li>
 </ul>
 <p>AOP 思想中，功能分为：</p>
 <ol>
@@ -488,7 +483,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">AOP 概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-AOP"><span class="nav-number">2.</span> <span class="nav-text">Spring AOP</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">AOP 概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AOP-%E5%AE%9E%E7%8E%B0%E5%9F%BA%E7%A1%80"><span class="nav-number">1.1.</span> <span class="nav-text">AOP 实现基础</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP-%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">AOP 相关概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-AOP"><span class="nav-number">3.</span> <span class="nav-text">Spring AOP</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
