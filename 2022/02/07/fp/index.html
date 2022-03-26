@@ -38,7 +38,7 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/functor-monad.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/completablefunction-example.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-26T07:10:04.961Z">
+<meta property="article:modified_time" content="2022-03-26T08:22:35.283Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -571,7 +571,14 @@
 <p>有这么一个例子：</p>
 <p><img src="/2022/02/07/fp/completablefunction-example.jpg"></p>
 <p>service4 依赖于 service2 和 service3 的结果，service2 依赖于 service1 的结果，service1 和 service3 之间无关联。</p>
-<p>倘若</p>
+<p>倘若使用 Future 实现，那么上面的一段话我们还要想一遍，用代码步骤去阐述依赖关系：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Future&lt;String&gt; task1 = pool.submit(FutureExample::service1);</span><br><span class="line">Future&lt;String&gt; task3 = pool.submit(FutureExample::service3);</span><br><span class="line"></span><br><span class="line">String ret1 = task1.get();</span><br><span class="line">Future&lt;String&gt; task2 = pool.submit(() -&gt; service2(ret1));</span><br><span class="line"></span><br><span class="line">String ret2 = task2.get();</span><br><span class="line">String ret3 = task3.get();</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> service4(ret2, ret3);</span><br></pre></td></tr></table></figure>
+
+<p>这种服务依赖关系一旦有所改变，修改代码的时候还要将这一大段逻辑从头到尾去看一遍；而且随着系统复杂度日渐提高，这段代码的维护成本会上涨得更快。</p>
+<p>用 CompletableFuture 的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture&lt;String&gt; cf2 = CompletableFuture.supplyAsync(FutureExample::service1, pool).thenApply(FutureExample::service2);</span><br><span class="line">CompletableFuture&lt;String&gt; cf3 = CompletableFuture.supplyAsync(FutureExample::service3, pool);  <span class="comment">// Executor 专用方法签名</span></span><br><span class="line">CompletableFuture&lt;String&gt; cf4 = cf2.thenCombine(cf3, FutureExample::service4);</span><br><span class="line"><span class="keyword">return</span> cf4.join();</span><br></pre></td></tr></table></figure>
+
+<p>描述性的语言让代码变得简洁、可维护。</p>
 
     </div>
 
