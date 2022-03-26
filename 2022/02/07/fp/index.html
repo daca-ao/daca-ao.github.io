@@ -36,8 +36,9 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/optional-flatmap1.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/optional-flatmap2.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/functor-monad.jpg">
+<meta property="og:image" content="http://example.com/2022/02/07/fp/completablefunction-example.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-26T06:51:02.201Z">
+<meta property="article:modified_time" content="2022-03-26T07:10:04.961Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -566,7 +567,11 @@
 <h2 id="Functor-amp-Monad"><a href="#Functor-amp-Monad" class="headerlink" title="Functor &amp; Monad"></a>Functor &amp; Monad</h2><p>实现了 map() 在内部世界映射的称之为 Functor；实现了 flatMap() 通过跨范畴映射并 join 到对应容器的称之为 Monad。</p>
 <p>除了 Optional 和 Stream 之外，函数式编程还有非常多类似的概念：</p>
 <p><img src="/2022/02/07/fp/functor-monad.jpg"></p>
-<h2 id="CompletableFuture"><a href="#CompletableFuture" class="headerlink" title="CompletableFuture"></a>CompletableFuture</h2><p>Future 的增强版，部分实现了函数式编程中 Promise 的功能。</p>
+<h2 id="CompletableFuture"><a href="#CompletableFuture" class="headerlink" title="CompletableFuture"></a><code>CompletableFuture</code></h2><p>Future 的增强版，部分实现了函数式编程中 Promise 的功能。</p>
+<p>有这么一个例子：</p>
+<p><img src="/2022/02/07/fp/completablefunction-example.jpg"></p>
+<p>service4 依赖于 service2 和 service3 的结果，service2 依赖于 service1 的结果，service1 和 service3 之间无关联。</p>
+<p>倘若</p>
 
     </div>
 
