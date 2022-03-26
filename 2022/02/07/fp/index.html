@@ -34,8 +34,9 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/optional-schrdinger.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/optional-map.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/optional-flatmap1.jpg">
+<meta property="og:image" content="http://example.com/2022/02/07/fp/optional-flatmap2.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-26T02:20:43.124Z">
+<meta property="article:modified_time" content="2022-03-26T04:24:52.301Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -504,7 +505,7 @@
 <p>下面挑一两个来简单说一下。</p>
 <br>
 
-<h3 id="groupingBy"><a href="#groupingBy" class="headerlink" title=".groupingBy()"></a><code>.groupingBy()</code></h3><p>函数签名：</p>
+<h3 id="groupingBy"><a href="#groupingBy" class="headerlink" title=".groupingBy()"></a><strong>.groupingBy()</strong></h3><p>函数签名：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 根据 classifier 单纯将 stream 数据分到对应的 key 上，再存放成 Map&lt;key, List&gt;，默认使用 HashMap</span></span><br><span class="line">Collector&lt;T,?,Map&lt;K,List&lt;T&gt;&gt;&gt; groupingBy(Function classfier);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 分到 key 上之后，对每个 key 的元素进行后续的 collect() 操作</span></span><br><span class="line">Collector&lt;T,?,Map&lt;K,D&gt;&gt; groupingBy(Function classfier, Collector downstream);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 同上，允许自定义 Map 创建</span></span><br><span class="line">Collector&lt;T,?,M&gt; groupingBy(Function classfier, Supplier mapFactory, Collector downstream);  </span><br></pre></td></tr></table></figure>
 
 <p><img src="/2022/02/07/fp/groupingby.jpg"></p>
@@ -535,11 +536,11 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 7</span></span><br><span class="line"><span class="keyword">return</span> person == <span class="keyword">null</span> ? getPersonFromDb() : person;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Java 8</span></span><br><span class="line"><span class="keyword">return</span> personOpt.orElseGet(() -&gt; getPersonFromDb());</span><br></pre></td></tr></table></figure>
 
 <p>其实以上代码只是 Optional 边边角角的应用。<br>Optional 对于空值的判断的判断其实还不如 if-else。Optional 自身最大的意义并不仅仅在于做非空判断，而是在于它在做完非空判断之后，还能接着<strong>执行</strong>其他的诸如 <code>.filter()</code> <code>.map()</code> <code>.flatMap()</code> 等<strong>方法且不会出错</strong>。</p>
-<p>上面提到的三个方法，是 Optional 的价值所在，是 Optional 相对于 if-else 代码块的优势，否则要只是做非空判断的话，还真的不如 直接写 if-else。</p>
+<p>上面提到的三个方法，是 Optional 的价值所在，是 Optional 相对于 if-else 代码块的优势，否则要只是做非空判断的话，还真的不如直接写 if-else。</p>
 <p>先说 Optional 最重要的 <code>.map()</code>：</p>
 <br>
 
-<h2 id="map"><a href="#map" class="headerlink" title="map()"></a>map()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">map(Function&lt;? <span class="keyword">super</span> T,? extends U&gt; mapper)</span><br></pre></td></tr></table></figure>
+<h2 id="map"><a href="#map" class="headerlink" title="map()"></a><strong>map()</strong></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">map(Function&lt;? <span class="keyword">super</span> T,? extends U&gt; mapper)</span><br></pre></td></tr></table></figure>
 
 <p>map() 的返回值是 Optional 类型。</p>
 <p>再来一个容器图：</p>
@@ -550,12 +551,14 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java 7</span></span><br><span class="line"><span class="keyword">if</span> (person != <span class="keyword">null</span>) &#123;</span><br><span class="line">    String name = person.getLastName();</span><br><span class="line">    <span class="keyword">return</span> name == <span class="keyword">null</span> ? <span class="keyword">null</span> : name.toUpperCase();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Java 8</span></span><br><span class="line"><span class="keyword">return</span> personOpt.map(p -&gt; p.getLastName())</span><br><span class="line">                .map(name -&gt; name.toUpperCase())</span><br><span class="line">                .orElse(<span class="keyword">null</span>);</span><br></pre></td></tr></table></figure>
 
 <p>如上，在抛弃一大堆嵌套的 if-else 代码块之后，处理链代码会变得非常简单明了，维护性也会大大提高。</p>
-<h2 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap()"></a>flatMap()</h2><p>如果 <code>fn(x)</code> 的结果是一个 Optional，应该怎么处理？</p>
+<h2 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap()"></a><strong>flatMap()</strong></h2><p>如果 <code>fn(x)</code> 的结果是一个 Optional，应该怎么处理？</p>
 <p><img src="/2022/02/07/fp/optional-flatmap1.jpg"></p>
 <p>这个时候可以使用另一个方法 <code>flatMap()</code>。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flatMap(Function&lt;? <span class="keyword">super</span> T,Optional&lt;U&gt;&gt; mapper)</span><br></pre></td></tr></table></figure>
 
-<p>可见 flatMap() 可以处理传入的 Optional 对象，</p>
+<p>根据函数式编程的语义，flatMap() 接收返回值为 Optional 的函数，将传入的 Optional 对象“外包装去掉”取出值 value，再将 value join 进 map() 生成的 Optional 中：</p>
+<p><img src="/2022/02/07/fp/optional-flatmap2.jpg"></p>
+<p>Optional 中的 map() 和 flatMap()，和 Stream 中的 map() 和 flatMap() 语义差不多，都是属于函数式编程里面<strong>范畴</strong>的概念。<br>在这个概念里面，Optional 和 Stream 被称为 <strong>Functor</strong> <strong>函子</strong>，它们的 map() 以及 flatMap() 这些函数能够建立它们函子所在世界里面的映射关系。</p>
 <br>
 
 <p>Optional 不太好的地方在于它与 Stream 的结合不太好，<code>ofNullable()</code> 的形参是单个元素，倘若有集合（如 List）需要处理的话，最好还是使用 Stream 的 .filter()，跟 Optional 的关系就不大了。</p>
