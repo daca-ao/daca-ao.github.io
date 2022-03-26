@@ -38,7 +38,7 @@
 <meta property="og:image" content="http://example.com/2022/02/07/fp/functor-monad.jpg">
 <meta property="og:image" content="http://example.com/2022/02/07/fp/completablefunction-example.jpg">
 <meta property="article:published_time" content="2022-02-07T10:59:57.000Z">
-<meta property="article:modified_time" content="2022-03-26T08:22:35.283Z">
+<meta property="article:modified_time" content="2022-03-26T08:43:34.317Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
@@ -579,6 +579,16 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture&lt;String&gt; cf2 = CompletableFuture.supplyAsync(FutureExample::service1, pool).thenApply(FutureExample::service2);</span><br><span class="line">CompletableFuture&lt;String&gt; cf3 = CompletableFuture.supplyAsync(FutureExample::service3, pool);  <span class="comment">// Executor 专用方法签名</span></span><br><span class="line">CompletableFuture&lt;String&gt; cf4 = cf2.thenCombine(cf3, FutureExample::service4);</span><br><span class="line"><span class="keyword">return</span> cf4.join();</span><br></pre></td></tr></table></figure>
 
 <p>描述性的语言让代码变得简洁、可维护。</p>
+<p>CompletableFuture API 里面的关键字：</p>
+<ul>
+<li><code>accept-</code>：接收参数为 Consumer</li>
+<li><code>apply-</code>：接收参数为 Function</li>
+<li><code>handle-</code>：接收参数为 BiFunction</li>
+<li><code>runAfter-</code>：接收参数为 Runnable</li>
+<li><code>-Either/Both-</code>：等待任意任务完成还是全部完成</li>
+<li><code>-then-</code>：等待当前任务完成再执行另外一个</li>
+<li><code>-Async-</code>：后续任务是否异步执行</li>
+</ul>
 
     </div>
 
