@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/03/18/spring-aop/aop-tools.png">
 <meta property="article:published_time" content="2022-03-18T14:09:59.000Z">
-<meta property="article:modified_time" content="2022-03-27T04:57:14.345Z">
+<meta property="article:modified_time" content="2022-03-27T06:46:14.190Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="AOP">
@@ -242,12 +242,7 @@
 <p>切面由以下几个概念点组成：</p>
 <p><strong>1</strong>. <strong>增强 Advice</strong></p>
 <p>Advice 定义了切面当中的方法，以及声明了 Advice 方法在目标（Target）业务层的执行位置。<br>也就是说，Advice 定义好了 What（切入后进行的行为）和 When（切面切入时机）</p>
-<ul>
-<li>定义了 When 和 What，即 aspect 的切入时机，以及拦截后进行哪些行为<ul>
-<li>如上例中的 TheOne.doSth() </li>
-</ul>
-</li>
-</ul>
+<p>比如上例中的 <code>TheOne.doSth()</code> 就可以看作是一个可增强的点（Advice），它在类 A 和 B 里面执行的时机就是 “When”。 </p>
 <p>针对一个 Advice 方法（What），合理的切入时机（When）包括：</p>
 <ul>
 <li><code>@Before</code>: 前置通知，方法调用前</li>
@@ -256,30 +251,18 @@
 <li><code>@AfterThrowing</code>: 异常通知，方法抛出异常后</li>
 <li><code>@Around</code>: 环绕通知，方法前以及方法后</li>
 </ul>
-<p><strong>切入点 Pointcut</strong></p>
-<ul>
-<li><p>定义了 Where，即匹配那些切入的方法，确定在哪些类，哪些方法上切入</p>
+<p>上述的切入时机叫做<strong>连接点</strong> <strong>Join Point</strong>，属于程序（业务流）中的概念，说明对哪些方法进行拦截，拦截后怎么处理。</p>
+<p><strong>2</strong>. <strong>切入点 Pointcut</strong></p>
+<p>切入点定义了 Where，即匹配那些切入的方法，确定在哪些类，哪些方法上切入</p>
 <ul>
 <li>归纳定义相应的连接点 Join Point，确定具体拦截的某个业务点</li>
 <li>即：一组已经被增强的2. 连接点</li>
+<li>允许具体的方法名、类名、正则匹配等</li>
 </ul>
-</li>
-<li><p>允许具体的方法名、类名、正则匹配等</p>
-</li>
-<li><p>在 advice 与 pointcut 配合下，切面就成型了</p>
+<p>在 Advice 与 Pointcut 配合下，切面就成型了</p>
 <ul>
 <li>程序就知道切入的 When、Where 和 What</li>
 <li>什么时机，什么地方做什么增强</li>
-</ul>
-</li>
-</ul>
-<ol start="3">
-<li>连接点 Join Point</li>
-</ol>
-<ul>
-<li>程序（业务流）中的概念</li>
-<li>可理解为增强（Advice）定义的上述切入时机 When</li>
-<li>即对哪些方法进行拦截，拦截后怎么处理</li>
 </ul>
 <ol start="5">
 <li>引入 Introduction</li>
