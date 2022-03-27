@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/03/18/spring-aop/aop-tools.png">
 <meta property="article:published_time" content="2022-03-18T14:09:59.000Z">
-<meta property="article:modified_time" content="2022-03-27T06:46:14.190Z">
+<meta property="article:modified_time" content="2022-03-27T13:08:51.873Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="AOP">
@@ -215,6 +215,15 @@
 <br>
 
 <p>依此，我们提出了 <strong>A</strong>spect-<strong>O</strong>riented <strong>P</strong>rogramming，<strong>面向切面编程</strong>的概念，是一种对 OOP 纵向结构丰富而横向结构缺失的补充。</p>
+<p>AOP 思想中，功能分为：</p>
+<ol>
+<li>核心业务（核心关注点），如登陆、增加数据、删除数据</li>
+<li>周边功能（横切关注点），如性能统计、日志、事务管理等</li>
+</ol>
+<ul>
+<li>周边功能在 AOP 中被定义为切面</li>
+<li>核心业务功能与切面功能分别独立开发，然后“编织”到一起，就是 AOP</li>
+</ul>
 <h2 id="AOP-实现基础"><a href="#AOP-实现基础" class="headerlink" title="AOP 实现基础"></a>AOP 实现基础</h2><p>AOP 的实现主要有两个方向：</p>
 <ol>
 <li>使用特殊的编译器，将这些功能代码在编译阶段“织入”源代码，运行时代码会被切入到类的指定方法、指定位置。</li>
@@ -237,11 +246,11 @@
 </ul>
 <p>不同的 AOP 工具以及它们对应的织入时机如下：</p>
 <p><img src="/2022/03/18/spring-aop/aop-tools.png"></p>
-<h1 id="AOP-相关概念"><a href="#AOP-相关概念" class="headerlink" title="AOP 相关概念"></a>AOP 相关概念</h1><p>既然是“面向切面编程”，我们先来聊聊“切面”。</p>
+<h2 id="AOP-相关概念"><a href="#AOP-相关概念" class="headerlink" title="AOP 相关概念"></a>AOP 相关概念</h2><p>既然是“面向切面编程”，我们先来聊聊“切面”。</p>
 <p><big><strong>切面</strong></big>（<strong>Aspect</strong>）是一个总的概念，阐述的是在什么时候（When），什么地方（Where）执行什么样的代码（What）。</p>
 <p>切面由以下几个概念点组成：</p>
 <p><strong>1</strong>. <strong>增强 Advice</strong></p>
-<p>Advice 定义了切面当中的方法，以及声明了 Advice 方法在目标（Target）业务层的执行位置。<br>也就是说，Advice 定义好了 What（切入后进行的行为）和 When（切面切入时机）</p>
+<p>Advice 定义了切面当中的方法，以及声明了 Advice 方法在目标（Target）业务层的执行位置。<br>也就是说，Advice 定义好了 What（切入后进行的行为）和 When（切面切入时机）。</p>
 <p>比如上例中的 <code>TheOne.doSth()</code> 就可以看作是一个可增强的点（Advice），它在类 A 和 B 里面执行的时机就是 “When”。 </p>
 <p>针对一个 Advice 方法（What），合理的切入时机（When）包括：</p>
 <ul>
@@ -251,45 +260,32 @@
 <li><code>@AfterThrowing</code>: 异常通知，方法抛出异常后</li>
 <li><code>@Around</code>: 环绕通知，方法前以及方法后</li>
 </ul>
-<p>上述的切入时机叫做<strong>连接点</strong> <strong>Join Point</strong>，属于程序（业务流）中的概念，说明对哪些方法进行拦截，拦截后怎么处理。</p>
+<p>上述的切入时机叫做<strong>连接点</strong> <strong>Join Point</strong>，属于程序（业务流）中的概念，说明在业务流中<strong>可以</strong>对哪些方法进行拦截，拦截后怎么处理。</p>
 <p><strong>2</strong>. <strong>切入点 Pointcut</strong></p>
-<p>切入点定义了 Where，即匹配那些切入的方法，确定在哪些类，哪些方法上切入</p>
-<ul>
-<li>归纳定义相应的连接点 Join Point，确定具体拦截的某个业务点</li>
-<li>即：一组已经被增强的2. 连接点</li>
-<li>允许具体的方法名、类名、正则匹配等</li>
-</ul>
-<p>在 Advice 与 Pointcut 配合下，切面就成型了</p>
-<ul>
-<li>程序就知道切入的 When、Where 和 What</li>
-<li>什么时机，什么地方做什么增强</li>
-</ul>
-<ol start="5">
-<li>引入 Introduction</li>
-</ol>
+<p>切入点定义了 Where，即选择在某一个连接点 Join Point —— 确定在哪些类、哪些方法上进行切入。</p>
+<p>在确定切入点的时候，允许定义具体的方法名、类名，或者使用正则匹配等方法。</p>
+<p>因此连接点 Join Points 指的是程序执行流中<strong>所有</strong>可以被选择做增强的点；而切入点 Pointcut 指的是从所有可以的 Join Points 中确定的<strong>具体</strong>拦截的某个业务点。</p>
+<p>在 Advice 与 Pointcut 配合下，切面就成型了。程序就知道切入的 When、Where 和 What，即什么时机，什么地方做什么样的增强。</p>
+<p>![]</p>
+<p>除了切面的概念之外，其它概念包括：</p>
+<p>引入 Introduction</p>
 <ul>
 <li>上述切面（Aspect）只是针对指定方向的增强</li>
 <li>而引入可以针对类进行增强，为其动态添加新的方法或域</li>
 </ul>
-<p>图例：</p>
-<ol start="6">
-<li>织入 Weaving</li>
-</ol>
+<p>织入 Weaving</p>
 <ul>
 <li>参照 pointcut 的定义取得相应的 join points</li>
 <li>将相应的 advice 加入到 pointcut 指定的 join points，并创造出代理对象的过程</li>
 <li>由代理完成</li>
 </ul>
-<ol start="7">
-<li>目标对象 Target</li>
-</ol>
+<p>目标对象 Target</p>
 <ul>
 <li>被一个或多个切面增强的对象，因此也被称为 被增强对象</li>
 <li>即：上述箭头的终点</li>
 <li>永远是一个被代理对象</li>
 </ul>
-<p>常见应用：</p>
-<ul>
+<h2 id="常见应用"><a href="#常见应用" class="headerlink" title="常见应用"></a>常见应用</h2><ul>
 <li>权限控制（鉴权）</li>
 <li>日志</li>
 <li>参数校验</li>
@@ -297,15 +293,9 @@
 <li>一定程度的事务处理</li>
 <li>…</li>
 </ul>
-<p>AOP 思想中，功能分为：</p>
-<ol>
-<li>核心业务（核心关注点），如登陆、增加数据、删除数据</li>
-<li>周边功能（横切关注点），如性能统计、日志、事务管理等</li>
-</ol>
+<p>目的：</p>
 <ul>
-<li>周边功能在 AOP 中被定义为切面</li>
-<li>核心业务功能与切面功能分别独立开发，然后“编织”到一起，就是 AOP<br>目的：</li>
-<li>将与业务无关，却为业务所共同调用的逻辑或责任（事务处理、日志管理、鉴权、……）封装起来</li>
+<li>将与业务无关，却为业务所共同调用的逻辑或责任（事务处理、日志管理、鉴权、…）封装起来</li>
 <li>集中处理某一关注点/横切逻辑</li>
 <li>可以很方便地添加/删除关注点</li>
 <li>便于减少系统重复代码，降低模块间耦合度，利于可拓展性和可维护性</li>
@@ -459,7 +449,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">AOP 概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AOP-%E5%AE%9E%E7%8E%B0%E5%9F%BA%E7%A1%80"><span class="nav-number">1.1.</span> <span class="nav-text">AOP 实现基础</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP-%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">AOP 相关概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-AOP"><span class="nav-number">3.</span> <span class="nav-text">Spring AOP</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">AOP 概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AOP-%E5%AE%9E%E7%8E%B0%E5%9F%BA%E7%A1%80"><span class="nav-number">1.1.</span> <span class="nav-text">AOP 实现基础</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOP-%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">1.2.</span> <span class="nav-text">AOP 相关概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%BA%94%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">常见应用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-AOP"><span class="nav-number">2.</span> <span class="nav-text">Spring AOP</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
