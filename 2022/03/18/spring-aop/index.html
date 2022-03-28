@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/03/18/spring-aop/aop-tools.png">
 <meta property="article:published_time" content="2022-03-18T14:09:59.000Z">
-<meta property="article:modified_time" content="2022-03-27T13:12:48.590Z">
+<meta property="article:modified_time" content="2022-03-28T14:02:10.321Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="AOP">
@@ -249,7 +249,7 @@
 <h2 id="AOP-相关概念"><a href="#AOP-相关概念" class="headerlink" title="AOP 相关概念"></a>AOP 相关概念</h2><p>既然是“面向切面编程”，我们先来聊聊“切面”。</p>
 <p><big><strong>切面</strong></big>（<strong>Aspect</strong>）是一个总的概念，阐述的是在什么时候（When），什么地方（Where）执行什么样的代码（What）。</p>
 <p>切面由以下几个概念点组成：</p>
-<p><strong>1</strong>. <strong>增强 Advice</strong></p>
+<p><strong>1</strong>. <big><strong>增强 Advice</strong></big></p>
 <p>Advice 定义了切面当中的方法，以及声明了 Advice 方法在目标（Target）业务层的执行位置。<br>也就是说，Advice 定义好了 What（切入后进行的行为）和 When（切面切入时机）。</p>
 <p>比如上例中的 <code>TheOne.doSth()</code> 就可以看作是一个可增强的点（Advice），它在类 A 和 B 里面执行的时机就是 “When”。 </p>
 <p>针对一个 Advice 方法（What），合理的切入时机（When）包括：</p>
@@ -261,25 +261,22 @@
 <li><code>@Around</code>: 环绕通知，方法前以及方法后</li>
 </ul>
 <p>上述的切入时机叫做<strong>连接点</strong> <strong>Join Point</strong>，属于程序（业务流）中的概念，说明在业务流中<strong>可以</strong>对哪些方法进行拦截，拦截后怎么处理。</p>
-<p><strong>2</strong>. <strong>切入点 Pointcut</strong></p>
+<p><strong>2</strong>. <big><strong>切入点 Pointcut</strong></big></p>
 <p>切入点定义了 Where，即选择在某一个连接点 Join Point —— 确定在哪些类、哪些方法上进行切入。</p>
 <p>在确定切入点的时候，允许定义具体的方法名、类名，或者使用正则匹配等方法。</p>
 <p>因此连接点 Join Points 指的是程序执行流中<strong>所有</strong>可以被选择做增强的点；而切入点 Pointcut 指的是从所有可以的 Join Points 中确定的<strong>具体</strong>拦截的某个业务点。</p>
 <p>在 Advice 与 Pointcut 配合下，切面就成型了。程序就知道切入的 When、Where 和 What，即什么时机，什么地方做什么样的增强。</p>
 <p>![]</p>
 <p>除了切面的概念之外，其它概念包括：</p>
-<p>引入 Introduction</p>
-<ul>
-<li>上述切面（Aspect）只是针对指定方向的增强</li>
-<li>而引入可以针对类进行增强，为其动态添加新的方法或域</li>
-</ul>
-<p>织入 Weaving</p>
+<p><big><strong>引入 Introduction</strong></big></p>
+<p>相对于切面只是针对指定方向的增强，引入可以针对类进行增强，为其动态添加新的方法或域。</p>
+<p><big><strong>织入 Weaving</strong></big></p>
 <ul>
 <li>参照 pointcut 的定义取得相应的 join points</li>
 <li>将相应的 advice 加入到 pointcut 指定的 join points，并创造出代理对象的过程</li>
 <li>由代理完成</li>
 </ul>
-<p>目标对象 Target</p>
+<p><big><strong>目标对象 Target</strong></big></p>
 <ul>
 <li>被一个或多个切面增强的对象，因此也被称为 被增强对象</li>
 <li>即：上述箭头的终点</li>
