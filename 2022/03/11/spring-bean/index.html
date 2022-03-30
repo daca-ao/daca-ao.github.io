@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/03/11/spring-bean/beans-in-container.png">
 <meta property="article:published_time" content="2022-03-11T14:35:46.000Z">
-<meta property="article:modified_time" content="2022-03-20T03:25:50.571Z">
+<meta property="article:modified_time" content="2022-03-30T14:13:42.932Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -296,7 +296,7 @@
 <li>将最终生成的代理对象放入单例池（singletonObjects）中，下次 getBean 时直接从单例池取即可</li>
 </ol>
 <h2 id="属性赋值"><a href="#属性赋值" class="headerlink" title="属性赋值"></a>属性赋值</h2><p>通过 setter 方法设置对象属性。</p>
-<p>如 bean 实现了 BeanNameAware（实现 Aware 接口）：</p>
+<p>如 bean 实现了 <code>BeanNameAware</code>（实现 Aware 接口）：</p>
 <ul>
 <li>调用 Bean 的 setBeanName()</li>
 <li>bean 初始化时调用</li>
