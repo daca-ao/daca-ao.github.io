@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/03/11/spring-bean/beans-in-container.png">
 <meta property="article:published_time" content="2022-03-11T14:35:46.000Z">
-<meta property="article:modified_time" content="2022-04-01T14:54:05.387Z">
+<meta property="article:modified_time" content="2022-04-01T15:02:29.694Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -336,18 +336,12 @@
 
 <p>说完多个生命周期阶段的接口，我们来看看只调用一次的接口。主要是 -Aware 类型的接口。</p>
 <h2 id="Aware-接口的检查与调用"><a href="#Aware-接口的检查与调用" class="headerlink" title="-Aware 接口的检查与调用"></a>-Aware 接口的检查与调用</h2><p>Aware，意识到，觉察到的意思。因此从接口的名字就能看出来，-Aware 类型的接口的作用在于获取到 Spring 容器中的一些资源。</p>
-<p>如 bean 实现了 <code>BeanNameAware</code>（实现 Aware 接口）：</p>
-<ul>
-<li>调用 Bean 的 setBeanName()</li>
-<li>bean 初始化时调用</li>
-<li>传入从配置文件 xml 中得到的 ID（Bean ID）</li>
-<li>得到 BeanFactory 和 Bean 在 xml 中注册的 ID</li>
-</ul>
-<p>如 bean 实现了 BeanFactoryAware：</p>
-<ul>
-<li>则工厂调用 setBeanFactory(BeanFactory var1)</li>
-<li>将自身作为传入参数</li>
-</ul>
+<p>所有的 -Aware 接口实现都是在<strong>属性赋值之后，初始化之前</strong>调用的，按照执行顺序分以下两组：</p>
+<ol>
+<li>BeanNameAware：调用 <code>setBeanName()</code></li>
+<li>BeanClassLoaderAware</li>
+<li>BeanFactoryAware：调用 <code>setBeanFactory(BeanFactory fac)</code></li>
+</ol>
 <p>如 bean 实现了 ApplicationContextAware：</p>
 <ul>
 <li>调用 bean 的 setApplicationContext() </li>
