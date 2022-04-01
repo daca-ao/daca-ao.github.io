@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/03/11/spring-bean/beans-in-container.png">
 <meta property="article:published_time" content="2022-03-11T14:35:46.000Z">
-<meta property="article:modified_time" content="2022-04-01T14:46:21.996Z">
+<meta property="article:modified_time" content="2022-04-01T14:54:05.387Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -332,7 +332,10 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="function"><span class="keyword">default</span> Object <span class="title">postProcessBeforeInstantiation</span><span class="params">(Class&lt;?&gt; beanClass, String beanName)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">default</span> <span class="keyword">boolean</span> <span class="title">postProcessAfterInstantiation</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 
 <p>同样地，我们由方法名字可以看出，实现了 InstantiationAwareBeanPostProcessor 接口的 -Processor 们可以通过丰富接口方法，在 Bean <strong>实例化</strong>阶段的前后对 Bean 对象进行额外的处理。</p>
-<h2 id="Aware-接口的检查与调用"><a href="#Aware-接口的检查与调用" class="headerlink" title="-Aware 接口的检查与调用"></a>-Aware 接口的检查与调用</h2><p>首先是检查 Bean 是否实现了 Spring 的各种 -Aware 接口。</p>
+<br>
+
+<p>说完多个生命周期阶段的接口，我们来看看只调用一次的接口。主要是 -Aware 类型的接口。</p>
+<h2 id="Aware-接口的检查与调用"><a href="#Aware-接口的检查与调用" class="headerlink" title="-Aware 接口的检查与调用"></a>-Aware 接口的检查与调用</h2><p>Aware，意识到，觉察到的意思。因此从接口的名字就能看出来，-Aware 类型的接口的作用在于获取到 Spring 容器中的一些资源。</p>
 <p>如 bean 实现了 <code>BeanNameAware</code>（实现 Aware 接口）：</p>
 <ul>
 <li>调用 Bean 的 setBeanName()</li>
