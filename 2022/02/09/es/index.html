@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2022/02/09/es/elk-stack-elkb-diagram.svg">
 <meta property="og:image" content="http://example.com/2022/02/09/es/elastic-solutions.jpg">
 <meta property="article:published_time" content="2022-02-09T14:51:01.000Z">
-<meta property="article:modified_time" content="2022-03-08T12:08:05.259Z">
+<meta property="article:modified_time" content="2022-04-05T06:37:07.245Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2022/02/09/es/es-distribution.png">
@@ -441,11 +441,15 @@
 
 <br>
 
-<h1 id="Analyzer：Elastic-的分词器"><a href="#Analyzer：Elastic-的分词器" class="headerlink" title="Analyzer：Elastic 的分词器"></a>Analyzer：Elastic 的分词器</h1><p>Standard Analyzer</p>
-<p>Simple Analyzer</p>
-<p>Whitespace Analyzer</p>
-<p>ik</p>
-<br>
+<h1 id="Analyzer：Elastic-的分词器"><a href="#Analyzer：Elastic-的分词器" class="headerlink" title="Analyzer：Elastic 的分词器"></a>Analyzer：Elastic 的分词器</h1><h2 id="Standard-Analyzer"><a href="#Standard-Analyzer" class="headerlink" title="Standard Analyzer"></a>Standard Analyzer</h2><p>ES 的默认分词器，提供了基于语法的标记化（Unicode 文本分割算法），适用于大多数语言。</p>
+<p>Standard Analyzer 区分中英文分词。</p>
+<ul>
+<li>英文按照空格切分，同时大写字母会转为小写</li>
+<li>中文按照单个词分词</li>
+</ul>
+<h2 id="Simple-Analyzer"><a href="#Simple-Analyzer" class="headerlink" title="Simple Analyzer"></a>Simple Analyzer</h2><p>遇到只要不是字母的字符，就将文本解析成 term，而且所有的 term 都是小写的。<br>先按照空格分词，英文大写转小写，不是英文不分词。</p>
+<h2 id="Whitespace-Analyzer"><a href="#Whitespace-Analyzer" class="headerlink" title="Whitespace Analyzer"></a>Whitespace Analyzer</h2><p>顾名思义，严格按照空格分词；英文不区分大小写，中文不分词。</p>
+<h2 id="ik"><a href="#ik" class="headerlink" title="ik"></a>ik</h2><br>
 
 <h1 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a><a target="_blank" rel="noopener" href="https://www.elastic.co/what-is/elk-stack">ELK</a></h1><p>ELK 是 <strong>E</strong>lasticsearch、<strong>L</strong>ogstash 和 <strong>K</strong>ibana 三个开源项目的首字母缩写，三者合称 ELK stack，提供“托管型”的 Elasticsearch Service。</p>
 <p>我们已经知道 Elasticsearch 是干嘛的了，接下来看看另外两个：</p>
@@ -535,7 +539,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch-v-s-Solr"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch v.s. Solr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Elasticsearch-%E6%94%AF%E6%8C%81%E7%9A%84-field-%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">Elasticsearch 支持的 field 类型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%A3%E5%BA%8F%E7%B4%A2%E5%BC%95%E5%92%8C%E5%80%92%E5%BA%8F%E7%B4%A2%E5%BC%95"><span class="nav-number">3.</span> <span class="nav-text">正序索引和倒序索引</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E7%89%87%E5%92%8C%E5%89%AF%E6%9C%AC"><span class="nav-number">4.</span> <span class="nav-text">分片和副本</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E7%8A%B6%E6%80%81"><span class="nav-number">4.1.</span> <span class="nav-text">集群状态</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Analyzer%EF%BC%9AElastic-%E7%9A%84%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">Analyzer：Elastic 的分词器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELK"><span class="nav-number">6.</span> <span class="nav-text">ELK</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch-v-s-Solr"><span class="nav-number">1.</span> <span class="nav-text">Elasticsearch v.s. Solr</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Elasticsearch-%E6%94%AF%E6%8C%81%E7%9A%84-field-%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">Elasticsearch 支持的 field 类型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%A3%E5%BA%8F%E7%B4%A2%E5%BC%95%E5%92%8C%E5%80%92%E5%BA%8F%E7%B4%A2%E5%BC%95"><span class="nav-number">3.</span> <span class="nav-text">正序索引和倒序索引</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E7%89%87%E5%92%8C%E5%89%AF%E6%9C%AC"><span class="nav-number">4.</span> <span class="nav-text">分片和副本</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E7%8A%B6%E6%80%81"><span class="nav-number">4.1.</span> <span class="nav-text">集群状态</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Analyzer%EF%BC%9AElastic-%E7%9A%84%E5%88%86%E8%AF%8D%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">Analyzer：Elastic 的分词器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Standard-Analyzer"><span class="nav-number">5.1.</span> <span class="nav-text">Standard Analyzer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Simple-Analyzer"><span class="nav-number">5.2.</span> <span class="nav-text">Simple Analyzer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Whitespace-Analyzer"><span class="nav-number">5.3.</span> <span class="nav-text">Whitespace Analyzer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ik"><span class="nav-number">5.4.</span> <span class="nav-text">ik</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ELK"><span class="nav-number">6.</span> <span class="nav-text">ELK</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
