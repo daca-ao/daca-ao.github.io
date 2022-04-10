@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2022/02/09/es/elk-stack-elkb-diagram.svg">
 <meta property="og:image" content="http://example.com/2022/02/09/es/elastic-solutions.jpg">
 <meta property="article:published_time" content="2022-02-09T14:51:01.000Z">
-<meta property="article:modified_time" content="2022-04-10T13:11:23.640Z">
+<meta property="article:modified_time" content="2022-04-10T13:42:03.791Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2022/02/09/es/es-distribution.png">
@@ -826,6 +826,10 @@
 
 <p>修改 mappings 的 analyzer 为 ik_max_word 后，可以通过 <code>q=name:golf</code> 搜索到 golf001。</p>
 <p><strong>4</strong>. 复杂条件搜索</p>
+<p>上述的 <code>_search?q=name:golf</code> 等价于：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /car_no_mappings/type1/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;query&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;match&quot;</span>: &#123;</span><br><span class="line">      <span class="attr">&quot;name&quot;</span>: <span class="string">&quot;golf&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在进行复杂条件搜索的时候，建议使用这种带消息体的请求。</p>
 <br>
 
 <p>另外还可以通过 <code>_cat</code> 命令获取 ES 的相关信息。</p>
