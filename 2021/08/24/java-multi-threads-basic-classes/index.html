@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2021/08/24/java-multi-threads-basic-classes/future-get-cancel.png">
 <meta property="og:image" content="http://example.com/2021/08/24/java-multi-threads-basic-classes/futuretask-implm.png">
 <meta property="article:published_time" content="2021-08-24T15:13:55.000Z">
-<meta property="article:modified_time" content="2022-01-11T14:54:38.658Z">
+<meta property="article:modified_time" content="2022-04-19T12:52:17.743Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="多线程编程">
@@ -276,8 +276,9 @@
 <p>通过扩展 Thread 类实现多线程的方法已不再被推荐：</p>
 <ul>
 <li>首先，设计程序的时候应该从运行机制上去减少需要运行的任务数量</li>
-<li>再者如有很多任务，为每个任务创建独立的线程，会造成很大的开销；我们应该引入“池”的概念，即使用线程池（thread pool）去解决问题。</li>
+<li>再者如有很多任务，为每个任务创建独立的线程，会造成很大的开销</li>
 </ul>
+<p>我们应该引入“池”的概念，即使用线程池（thread pool）去解决问题。</p>
 <br>
 
 <h1 id="Callable-amp-Future"><a href="#Callable-amp-Future" class="headerlink" title="Callable &amp; Future"></a>Callable &amp; Future</h1><p>Callable 和 Future 都是接口类。</p>
