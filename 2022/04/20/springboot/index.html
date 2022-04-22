@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/04/20/springboot/what-is-springboot.png">
 <meta property="article:published_time" content="2022-04-20T13:46:10.000Z">
-<meta property="article:modified_time" content="2022-04-22T11:47:51.894Z">
+<meta property="article:modified_time" content="2022-04-22T13:25:27.192Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -249,16 +249,14 @@
 <li>提供常用的安全性、性能维度度量、运行状况检查、外部化配置等生产环境所需特征</li>
 <li>无需 XML 手工配置（<code>&lt;bean&gt;</code> 等）</li>
 </ol>
-<h1 id="版本迭代"><a href="#版本迭代" class="headerlink" title="版本迭代"></a>版本迭代</h1><p>要注意的是，并不是每一个版本的 Spring 都能与随便一个版本的 Spring Boot 相结合，必须<strong>结合 Spring Boot 的 System Requirements</strong> 来安装。<br>比如 Spring Boot 2.5.1 就需要 5.3.8 版本以上的 Spring。<br>同时，Spring Boot 对 <strong>Maven</strong>（<strong>3.5+<strong>）和 <strong>Gradle</strong>（</strong>6.8.x, 6.9.x, 7.x</strong>）的版本都有要求。</p>
+<h1 id="版本迭代"><a href="#版本迭代" class="headerlink" title="版本迭代"></a>版本迭代</h1><p>目前主要在用 Spring Boot 2.5+，Spring Boot 1 和 Spring Boot 2 之间的区别还是比较大的。</p>
+<p>要注意的是，并不是每一个版本的 Spring 都能与随便一个版本的 Spring Boot 相结合，必须<strong>结合 Spring Boot 的 System Requirements</strong> 来安装。<br>比如 Spring Boot 2.5.1 就需要 5.3.8 版本以上的 Spring。<br>同时，Spring Boot 对 <strong>Maven</strong>（<strong>3.5+<strong>）和 <strong>Gradle</strong>（</strong>6.8.x, 6.9.x, 7.x</strong>）的版本都有要求。</p>
 <p>Spring Boot 更新迭代速度非常快，一定程度上会带来一些问题：比如 <code>Bootstrapper</code> 在 Spring 2.4.5 已弃用，改为使用 <code>BootstrapRegistryInitializer</code>。</p>
 <p>虽说迭代快，但是基本的那一套不会做太大的改动。</p>
-<p>Spring Boot 1 和 Spring Boot 2 之间有着比较大的区别。</p>
-<p>Spring Boot 2.x 提供了两部分实现内容：</p>
+<p>Spring Boot 2.x 底层架构主要分两部分：</p>
 <ol>
-<li><p>Servlet Stack：搭建 Spring MVC 的基础，使用阻塞 I/O 架构实现请求模型<br>包括 Servlet 容器、API、JDBC 等</p>
-</li>
-<li><p>Reactive Stack：WebFlux 非阻塞 Web 框架的基础<br>包括 Netty、Mongo、Redis 等封装</p>
-</li>
+<li>Servlet Stack：搭建 Spring MVC 的基础，使用阻塞 I/O 架构实现请求模型，包括 Servlet 容器、API、MVC、JDBC/JPA 等部分；</li>
+<li>Reactive Stack：WebFlux 非阻塞 Web 框架的基础，处理高并发网络连接，包括 Webflux、Netty 等响应式编程框架和容器、Mongo、Redis 等部分的封装。</li>
 </ol>
 <h1 id="Spring-Boot-入门"><a href="#Spring-Boot-入门" class="headerlink" title="Spring Boot 入门"></a>Spring Boot 入门</h1><p>Spring Boot 项目创建完毕后，会自动生成以下文件：</p>
 <ol>
