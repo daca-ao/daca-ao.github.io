@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/04/30/java-collection/collection-diagram.png">
 <meta property="article:published_time" content="2022-04-30T09:21:52.000Z">
-<meta property="article:modified_time" content="2022-04-30T10:36:41.137Z">
+<meta property="article:modified_time" content="2022-04-30T12:52:16.126Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -253,51 +253,33 @@
 
 <p>生成的 Stream 只能单向遍历数据源一次，最终产生一个结果。</p>
 <h1 id="子类及接口"><a href="#子类及接口" class="headerlink" title="子类及接口"></a>子类及接口</h1><p><img src="/2022/04/30/java-collection/collection-diagram.png"></p>
-<h2 id="AbstractCollection"><a href="#AbstractCollection" class="headerlink" title="AbstractCollection"></a>AbstractCollection</h2><ul>
-<li>提供了 Collection 接口的部分骨干实现，为子类减少了实现 Collection 接口所需的工作</li>
-<li>直接子类：<ul>
-<li>AbstractList</li>
-<li>AbstractQueue</li>
-<li>AbstractSet</li>
-</ul>
-</li>
-</ul>
-<h3 id="应用：不可修改集合"><a href="#应用：不可修改集合" class="headerlink" title="应用：不可修改集合"></a>应用：不可修改集合</h3><p>继承 AbstractCollection：实现一个不可修改集合</p>
+<h2 id="AbstractCollection"><a href="#AbstractCollection" class="headerlink" title="AbstractCollection"></a>AbstractCollection</h2><p>实现了 Collection 接口的部分核心接口方法，其直接子类：<code>AbstractList</code>, <code>AbstractQueue</code>, <code>AbstractSet</code>。</p>
+<p>部分非线程安全集合的实现类：</p>
 <ul>
-<li>实现 iterator 及 size 方法</li>
-<li>iterator 方法返回的迭代器：iterator 接口的实现类，必须重写其 remove 方法</li>
-<li>（AbstractCollection只声明 iterator 方法）<br>public abstract Iterator<E> iterator();</E></li>
-<li>（且 iterator 方法被其他方法调用（如 contains 方法））</li>
-<li>（Iterator 类的默认 remove 方法：）<br>default void remove() {<br>  throw new UnsupportedOperationException(“remove”);<br>}</li>
-<li>即：若不重写则抛出 UnsupportedOperationException 异常</li>
+<li><code>ArrayList</code>：可动态增长和缩减的索引序列</li>
+<li><code>LinkedList</code>：可在任意位置高效增减的有序序列</li>
+<li><code>ArrayDeque</code>：用循环数组实现的双端序列</li>
+<li><code>HashSet</code>：没有重复元素的无序集合</li>
+<li><code>TreeSet</code>：有序集</li>
+<li><code>EnumSet</code>：包含枚举类型值的集</li>
+<li><code>LinkedHashSet</code>：可记住元素插入次序的集</li>
+<li><code>PriorityQueue</code>：允许高效删除最小/大元素的队列</li>
 </ul>
-<h3 id="应用：可修改集合"><a href="#应用：可修改集合" class="headerlink" title="应用：可修改集合"></a>应用：可修改集合</h3><p>实现一个可修改集合</p>
-<ul>
-<li>实现 iterator、size 方法以及 add 方法</li>
-<li>（AbstractCollection 默认的 add 方法）<br>public boolean add(E e) {<br>  throw new UnsupportedOperationException();<br>}</li>
-<li>即：若不重写则抛出 UnsupportedOperationException 异常</li>
-</ul>
-<p>具体的非线程安全集合（部分）：</p>
-<ul>
-<li>ArrayList：可动态增长和缩减的索引序列</li>
-<li>LinkedList：可在任意位置高效增减的有序序列</li>
-<li>ArrayDeque：用循环数组实现的双端序列</li>
-<li>HashSet：没有重复元素的无序集合</li>
-<li>TreeSet：有序集</li>
-<li>EnumSet：包含枚举类型值的集</li>
-<li>LinkedHashSet：可记住元素插入次序的集</li>
-<li>PriorityQueue：允许高效删除最小/大元素的队列</li>
-</ul>
-<h2 id="List-接口"><a href="#List-接口" class="headerlink" title="List 接口"></a>List 接口</h2><ul>
-<li>继承自 Collection 接口</li>
-<li>有序集合，允许重复</li>
-<li>以线性方式存储元素：具有 索引 的概念</li>
-<li>可使用整数索引随机访问，或者列表迭代器获取对象<ul>
-<li>默认构造产生 10 个元素大小的空 List</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ListIterator&lt;E&gt; listIterator()</span><br><span class="line">ListIterator&lt;E&gt; listIterator(int index)</span><br><span class="line">void add(int i, E element)</span><br><span class="line">void addAll(int i, Collection&lt;? extends E&gt; elements)</span><br><span class="line">E remove(int i)</span><br><span class="line">E get(int i)</span><br><span class="line">E set(int i, E element)</span><br><span class="line">int indexOf(Object element)</span><br><span class="line">void sort()</span><br></pre></td></tr></table></figure>
+<h3 id="应用：不可修改集合"><a href="#应用：不可修改集合" class="headerlink" title="应用：不可修改集合"></a>应用：不可修改集合</h3><p>通过继承 AbstractCollection 来实现一个不可修改集合：实现 <code>iterator()</code> 及 <code>size()</code>。</p>
+<p>Iterator() 接口默认不实现 remove()：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">remove</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException(<span class="string">&quot;remove&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="应用：可修改集合"><a href="#应用：可修改集合" class="headerlink" title="应用：可修改集合"></a>应用：可修改集合</h3><p>实现 iterator(), size(), add() 来满足条件。</p>
+<p>AbstractCollection 默认不实现 add()：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="List-接口"><a href="#List-接口" class="headerlink" title="List 接口"></a>List 接口</h2><p>List 描述的是有序集合，允许重复元素。</p>
+<p>List 以线性方式存储元素，因此具有“索引”的概念，可使用整数索引随机访问，或者通过 <code>listIterator()</code> 获取对象。</p>
+<p>List 的默认构造会产生 10 个元素大小的空 List。</p>
+<p>基本接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.function.UnaryOperator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">List</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Collection</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">(<span class="keyword">int</span> index)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> i, E element)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">void</span> <span class="title">addAll</span><span class="params">(<span class="keyword">int</span> i, Collection&lt;? extends E&gt; elements)</span></span></span><br><span class="line"><span class="function">    E <span class="title">remove</span><span class="params">(<span class="keyword">int</span> i)</span></span></span><br><span class="line"><span class="function">    E <span class="title">get</span><span class="params">(<span class="keyword">int</span> i)</span></span></span><br><span class="line"><span class="function">    E <span class="title">set</span><span class="params">(<span class="keyword">int</span> i, E element)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">int</span> <span class="title">indexOf</span><span class="params">(Object element)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">void</span> <span class="title">sort</span><span class="params">()</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"></span></span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>直接实现类：<ul>
@@ -357,8 +339,10 @@
 <p>针对排序声明的方法：<br>NavigableSet<E> descendingSet();    //返回由原 NavigableSet 反序排列的 NavigableSet<br>Iterator<E> descendingIterator();    //根据 descendingSet() 结果再调用 iterator 方法</E></E></p>
 <h2 id="Queue-接口"><a href="#Queue-接口" class="headerlink" title="Queue 接口"></a>Queue 接口</h2><ul>
 <li>继承自 Collection 接口</li>
-<li>尾部添加元素，头部删除元素（FILO/LIFO）<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//往队列尾添加元素, 成功返回true，否则抛出异常</span></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//往队列尾添加元素，成功返回true，否则返回false或抛出异常</span></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//移除队列头元素，并返回该元素，如果为空则抛出异常</span></span><br><span class="line"><span class="function">E <span class="title">remove</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//移除队列头元素，并返回该元素，如果为空则返回null</span></span><br><span class="line"><span class="function">E <span class="title">poll</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//返回队列头元素，如果为空则抛出异常</span></span><br><span class="line"><span class="function">E <span class="title">element</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//返回队列头元素，如果为空则返回null</span></span><br><span class="line"><span class="function">E <span class="title">peek</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure></li>
+<li>尾部添加元素，头部删除元素（FILO/LIFO）</li>
 </ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//往队列尾添加元素, 成功返回true，否则抛出异常</span></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//往队列尾添加元素，成功返回true，否则返回false或抛出异常</span></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//移除队列头元素，并返回该元素，如果为空则抛出异常</span></span><br><span class="line"><span class="function">E <span class="title">remove</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//移除队列头元素，并返回该元素，如果为空则返回null</span></span><br><span class="line"><span class="function">E <span class="title">poll</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//返回队列头元素，如果为空则抛出异常</span></span><br><span class="line"><span class="function">E <span class="title">element</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//返回队列头元素，如果为空则返回null</span></span><br><span class="line"><span class="function">E <span class="title">peek</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
 <p>Deque(<code>/‘dek/</code>, short for ‘double end queue’) 接口</p>
 <ul>
 <li>继承自 Queue 接口</li>
@@ -418,10 +402,12 @@
 </ul>
 </li>
 <li>局限性：仅能实现一次<ul>
-<li>因此可通过 Comparator 对象传递给 TreeSet 构造器，告诉 TreeSet 使用不同的比较方法<br>public interface Comparator<T> {<br>int compare(T a, T b); // 返回值与compareTo 一样<br>}<br>需要比较的时候，可新建一个 Comparator 接口的类，将该类对象传入 TreeSet 构造器中；或使用匿名内部类方法传递。</T></li>
+<li>因此可通过 Comparator 对象传递给 TreeSet 构造器，告诉 TreeSet 使用不同的比较方法</li>
 </ul>
 </li>
 </ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Comparator</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">compare</span><span class="params">(T a, T b)</span></span>;  <span class="comment">// 返回值与compareTo 一样</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>需要比较的时候，可新建一个 Comparator 接口的类，将该类对象传入 TreeSet 构造器中；或使用匿名内部类方法传递。</p>
 <p>注：如果要插入自定义的对象，就必须通过实现 Comparable 接口自定义排列顺序<br>Object 类中不提供任何 compareTo 接口的默认实现<br>注意数字比较时候的溢出：大正整数减去小负整数<br>覆盖 Comparator<T> 中的 equals()，会使 TreeSet 添加元素的效率更高</T></p>
 <ul>
 <li>其他的 Set 实现类，如 HashSet、LinkedHashSet 详见 Map 接口</li>
