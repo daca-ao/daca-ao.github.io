@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Collection 和 Map 接口并称 Java 集合类中的“二王”。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java Collection 接口">
+<meta property="og:url" content="http://example.com/2022/04/30/java-collection/index.html">
+<meta property="og:site_name" content="Raymond&#39;s Cabin">
+<meta property="og:description" content="Collection 和 Map 接口并称 Java 集合类中的“二王”。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-04-30T09:21:52.000Z">
+<meta property="article:modified_time" content="2022-04-30T10:29:19.458Z">
+<meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="集合类">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2022/04/30/java-collection/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Java Collection 接口 | Raymond's Cabin</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Raymond's Cabin</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">for sharing thoughts</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container"></div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="algolia-results">
+  <div id="algolia-stats"></div>
+  <div id="algolia-hits"></div>
+  <div id="algolia-pagination" class="algolia-pagination"></div>
+</div>
+
+      
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/30/java-collection/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
+      <meta itemprop="description" content="Storing blogs">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Raymond's Cabin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java Collection 接口
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-04-30 17:21:52" itemprop="dateCreated datePublished" datetime="2022-04-30T17:21:52+08:00">2022-04-30</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Collection 和 Map 接口并称 Java 集合类中的“二王”。</p>
+<span id="more"></span>
+
+<p>可将 Collection 理解为一个动态的对象数组；与数组不同的是，Collection 集合中的对象内容可以被任意扩充，方便于添加或删除。</p>
+<p>特点是性能高，且容易扩展和修改。</p>
+<p><small>* 注意 Collection 和 Collections 的区别。</small></p>
+<h1 id="接口方法"><a href="#接口方法" class="headerlink" title="接口方法"></a>接口方法</h1><p>基本集合操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util;</span><br><span class="line"></span><br><span class="line">...  <span class="comment">// imports</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Collection</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Iterable</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取集合元素的个数</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断集合是否为空</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断集合是否包含某元素</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">contains</span><span class="params">(Object o)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取迭代器，继承自Iterable接口</span></span><br><span class="line">    <span class="function">Iterator&lt;E&gt; <span class="title">iterator</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将集合转换成Object数组</span></span><br><span class="line">    Object[] toArray();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 与 toArray() 类似，如果参数 a 数组的长度小于集合的大小，则不填充, 等同于 toArray()</span></span><br><span class="line">    <span class="comment">// 否则填充 a 数组，此时返回的数组与 a 相同</span></span><br><span class="line">    &lt;T&gt; T[] toArray(T[] a);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加元素</span></span><br><span class="line">    <span class="comment">// 添加成功返回 true，无变化返回 false</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 删除元素</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断集合是否是指定集合的超集</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">containsAll</span><span class="params">(Collection&lt;?&gt; c)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将指定集合添加进本集合</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">addAll</span><span class="params">(Collection&lt;? extends E&gt; c)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将指定集合从本集合中移除</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">removeAll</span><span class="params">(Collection&lt;?&gt; c)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 保留指定集合的所有元素, 移除本集合中的其他所有元素</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">retainAll</span><span class="params">(Collection&lt;?&gt; c)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 清空集合</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<p>上述的大部分接口方法在抽象类 <code>AbstractCollection</code> 中实现，并将基础方法 <code>size()</code> 和 <code>iterator()</code> 抽象化。</p>
+<p>集合比较：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object o)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>在实现的时候需要注意 equals() 和 hashCode() 俩方法的区别，以及关注实现 equals() 的原则。</p>
+<p>由于从 Java 8 开始引入了函数式编程，因此 Collection 也实现了 <a href="/2022/02/07/fp/#%E8%BF%9B%E9%98%B6%E5%BA%94%E7%94%A8%EF%BC%9AStream">Stream</a>相关的新接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">default</span> <span class="keyword">boolean</span> <span class="title">removeIf</span><span class="params">(Predicate&lt;? <span class="keyword">super</span> E&gt; filter)</span> </span>&#123;</span><br><span class="line">    Objects.requireNonNull(filter);</span><br><span class="line">    <span class="keyword">boolean</span> removed = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">final</span> Iterator&lt;E&gt; each = iterator();</span><br><span class="line">    <span class="keyword">while</span> (each.hasNext()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (filter.test(each.next())) &#123;</span><br><span class="line">            each.remove();</span><br><span class="line">            removed = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> removed;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">default</span> Spliterator&lt;E&gt; <span class="title">spliterator</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> Spliterators.spliterator(<span class="keyword">this</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">default</span> Stream&lt;E&gt; <span class="title">stream</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> StreamSupport.stream(spliterator(), <span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 并行计算的 stream</span></span><br><span class="line"><span class="function"><span class="keyword">default</span> Stream&lt;E&gt; <span class="title">parallelStream</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> StreamSupport.stream(spliterator(), <span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>生成的 Stream 只能单向遍历数据源一次，最终产生一个结果。</p>
+<h1 id="子类及接口"><a href="#子类及接口" class="headerlink" title="子类及接口"></a>子类及接口</h1><p>AbstractCollection</p>
+<ul>
+<li>提供了 Collection 接口的部分骨干实现，为子类减少了实现 Collection 接口所需的工作</li>
+<li>直接子类：<ul>
+<li>AbstractList</li>
+<li>AbstractQueue</li>
+<li>AbstractSet</li>
+</ul>
+</li>
+</ul>
+<p>不可修改集合<br>继承 AbstractCollection：实现一个不可修改集合</p>
+<ul>
+<li>实现 iterator 及 size 方法</li>
+<li>iterator 方法返回的迭代器：iterator 接口的实现类，必须重写其 remove 方法</li>
+<li>（AbstractCollection只声明 iterator 方法）<br>public abstract Iterator<E> iterator();</E></li>
+<li>（且 iterator 方法被其他方法调用（如 contains 方法））</li>
+<li>（Iterator 类的默认 remove 方法：）<br>default void remove() {<br>  throw new UnsupportedOperationException(“remove”);<br>}</li>
+<li>即：若不重写则抛出 UnsupportedOperationException 异常</li>
+</ul>
+<p>可修改集合<br>实现一个可修改集合</p>
+<ul>
+<li>实现 iterator、size 方法以及 add 方法</li>
+<li>（AbstractCollection 默认的 add 方法）<br>public boolean add(E e) {<br>  throw new UnsupportedOperationException();<br>}</li>
+<li>即：若不重写则抛出 UnsupportedOperationException 异常</li>
+</ul>
+<p>具体的非线程安全集合（部分）：</p>
+<ul>
+<li>ArrayList：可动态增长和缩减的索引序列</li>
+<li>LinkedList：可在任意位置高效增减的有序序列</li>
+<li>ArrayDeque：用循环数组实现的双端序列</li>
+<li>HashSet：没有重复元素的无序集合</li>
+<li>TreeSet：有序集</li>
+<li>EnumSet：包含枚举类型值的集</li>
+<li>LinkedHashSet：可记住元素插入次序的集</li>
+<li>PriorityQueue：允许高效删除最小/大元素的队列</li>
+</ul>
+<p>List 接口</p>
+<ul>
+<li>继承自 Collection 接口</li>
+<li>有序集合，允许重复</li>
+<li>以线性方式存储元素：具有 索引 的概念</li>
+<li>可使用整数索引随机访问，或者列表迭代器获取对象<ul>
+<li>默认构造产生 10 个元素大小的空 List</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ListIterator&lt;E&gt; listIterator()</span><br><span class="line">ListIterator&lt;E&gt; listIterator(int index)</span><br><span class="line">void add(int i, E element)</span><br><span class="line">void addAll(int i, Collection&lt;? extends E&gt; elements)</span><br><span class="line">E remove(int i)</span><br><span class="line">E get(int i)</span><br><span class="line">E set(int i, E element)</span><br><span class="line">int indexOf(Object element)</span><br><span class="line">void sort()</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>直接实现类：<ul>
+<li>ArrayList</li>
+<li>LinkedList</li>
+<li>Vector</li>
+<li>Stack</li>
+</ul>
+</li>
+</ul>
+<p>Set 接口</p>
+<ul>
+<li>继承自 Collection 接口</li>
+<li>访问其元素时为直接访问其对象的引用：不能有重复元素</li>
+<li>最多有一个为 null 值的元素</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">add()</span><br><span class="line"><span class="comment">//拒绝添加重复的元素</span></span><br><span class="line"></span><br><span class="line">equals()</span><br><span class="line"><span class="comment">//两个集包含相同的元素，但顺序不必相同</span></span><br><span class="line"></span><br><span class="line">hashCode()</span><br><span class="line"><span class="comment">//保证具有相同元素的集将会得到相同的散列码</span></span><br></pre></td></tr></table></figure>
+
+<p>注：并没有声明 get()<br>具体如何访问 Set 中元素需要实现类定义</p>
+<ul>
+<li>子接口 SortedSet<ul>
+<li>子接口 NavigableSet<ul>
+<li>包含用于在有序集中查找和遍历的方法</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>抽象实现类 AbstractSet</li>
+<li>通用实现类<ul>
+<li>HashSet</li>
+<li>TreeSet</li>
+</ul>
+</li>
+</ul>
+<p>AbstractSet</p>
+<ul>
+<li>实现了 Set 接口，为 AbstractCollection 的子类</li>
+<li>添加了 hashCode() 和 equals() 的实现：用于对比两个集合的相等性<br>hashCode()</li>
+<li>遍历集合中所有元素，返回它们的 hashCode 之和</li>
+<li>因此包含相同元素集的集合 hashCode 值应该相等<br>equals()</li>
+<li>先比较两个集合的 size</li>
+<li>再调用 AbstractCollection 的 containsAll()，比较每个元素的相等性</li>
+</ul>
+<p>SortedSet</p>
+<ul>
+<li>继承自 Set 接口</li>
+<li>暴露了用于排序的 Comparator 对象</li>
+<li>要求实现类必须保证元素有序：自然顺序或 Comparator 实现的排序方法<ul>
+<li>且定义的 compare 方法可以获得集合的子集视图</li>
+</ul>
+</li>
+<li>只为单个元素提供头部或尾部的访问：<br>E first();<br>E last();<br>SortedSet<E> headSet(E toElement);    //获得子集视图，下同<br>SortedSet<E> tailSet(E fromElement);<br>SortedSet<E> subSet(E fromElement, E toElement);</E></E></E></li>
+</ul>
+<p>NavigableSet</p>
+<ul>
+<li>“可以导航的” set，SortedSet 的子接口<br>lower(E s);    //返回 set 中小于给定元素的最大元素<br>floor(E e);    //返回 set 中不大于给定元素的最大元素<br>ceiling(E e);    //返回 set 中不小于给定元素的最小元素<br>higher(E e);    //返回 set 中大于给定元素的最小元素<br>pollFirst();    //获取并删除 set 中第一个（最小）元素<br>pollLast();    //获取并删除 set 中最后一个（最大）元素</li>
+</ul>
+<p>针对排序声明的方法：<br>NavigableSet<E> descendingSet();    //返回由原 NavigableSet 反序排列的 NavigableSet<br>Iterator<E> descendingIterator();    //根据 descendingSet() 结果再调用 iterator 方法</E></E></p>
+<p>Queue 接口</p>
+<ul>
+<li>继承自 Collection 接口</li>
+<li>尾部添加元素，头部删除元素（FILO/LIFO）<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//往队列尾添加元素, 成功返回true，否则抛出异常</span></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//往队列尾添加元素，成功返回true，否则返回false或抛出异常</span></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//移除队列头元素，并返回该元素，如果为空则抛出异常</span></span><br><span class="line"><span class="function">E <span class="title">remove</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//移除队列头元素，并返回该元素，如果为空则返回null</span></span><br><span class="line"><span class="function">E <span class="title">poll</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//返回队列头元素，如果为空则抛出异常</span></span><br><span class="line"><span class="function">E <span class="title">element</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//返回队列头元素，如果为空则返回null</span></span><br><span class="line"><span class="function">E <span class="title">peek</span><span class="params">()</span></span>;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>Deque(<code>/‘dek/</code>, short for ‘double end queue’) 接口</p>
+<ul>
+<li>继承自 Queue 接口</li>
+<li>可在头部或尾部同时添加或删除元素，即允许在队列两边入队（offer）及出队（poll）<ul>
+<li>实现类是 FIFO 队列时，元素被插在 Deque 尾部，头部元素先被删除</li>
+</ul>
+</li>
+<li>不支持在队列中间添加元素</li>
+<li>实现类既可以是栈，也可以是队列</li>
+</ul>
+<p>Queue 接口中声明的方法在 Deque 作为队列时相应的方法：<br>QueueDeque<br>add(e)<br>addLast(e)<br>offer(e)<br>offerLast(e)<br>remove()<br>removeFirst()<br>poll()<br>pollFirst()<br>element()<br>getFirst()<br>peek()<br>peekFirst()</p>
+<p>Deque 的实现类也可作为 LIFO 的栈使用</p>
+<ul>
+<li>元素被插在 Deque 头部，头部元素最先被删除<br>StackDeque<br>push(e)<br>addFirst(e)<br>pop()<br>removeFirst()<br>peek()<br>peekFirst()</li>
+<li>无论 Deque 作为队列还是栈使用，peek() 都返回头部元素</li>
+<li>与 List 接口不同，Deque 不提供对元素的索引访问</li>
+<li>虽然 Deque 允许插入 null 元素，但其实现类不应允许<ul>
+<li>有时 null 是某些方法的特殊返回值</li>
+</ul>
+</li>
+<li>Deque 有两个通用实现类 LinkedList 及 ArrayDeque<ul>
+<li>其实现类同时暴露 Deque 的 FIFO 和 LIFO 方法</li>
+<li>想要实现一个纯粹的队列或栈，还需亲自动手封装</li>
+</ul>
+</li>
+</ul>
+<h1 id="具体实现类"><a href="#具体实现类" class="headerlink" title="具体实现类"></a>具体实现类</h1><p>ArrayList</p>
+<p>链表<br>Java 中所有链表均为双向链接：每个节点还存放着指向前驱节点的引用<br>链表与泛型集合的区别：</p>
+<ul>
+<li>链表为有序集合，每个对象的位置十分重要<ul>
+<li>将元素添加至链表中间时，需要依赖链表的位置；而迭代器负责描述集合中位置</li>
+<li>即：LinkedList.add() 由迭代器负责（只有对自然有序的集合使用迭代器添加元素才有实际意义）</li>
+</ul>
+</li>
+<li>集合类库提供子接口 ListIterator ，包含add方法</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">ListIterator</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Iterator</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">add</span><span class="params">(E element)</span></span>;    <span class="comment">// 与Collection.add不同：该方法不返回 boolean 值，其假定总能添加成功</span></span><br><span class="line">    <span class="comment">// 以下为反向遍历链表的方法</span></span><br><span class="line">    <span class="function">E <span class="title">previous</span><span class="params">()</span></span>;    <span class="comment">// 返回越过的对象</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">hasPrevious</span><span class="params">()</span></span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>应用：<br>LinkedList</p>
+<p>TreeSet</p>
+<ul>
+<li>有序集合，使用红黑树完成排序<ul>
+<li>AbstractSet 子类</li>
+<li>实现了 NavigableSet</li>
+<li>增加了几个便于定位元素以及反向遍历的方法</li>
+</ul>
+</li>
+<li>可以任意顺序将元素插入到集合中</li>
+<li>遍历时按照排序后的顺序输出<ul>
+<li>每次添加元素，新元素会被放在正确的排序位置上</li>
+<li>迭代器总以排好序的顺序访问元素</li>
+<li>因此添加速度比散列表慢，但比添加到数组或链表快</li>
+</ul>
+</li>
+<li>实现：Comparable 接口<ul>
+<li>如果 a 与 b 相等，调用 a.compareTo(b) 返回0；如 a 大于 b ，返回值大于0；否则返回值小于0</li>
+</ul>
+</li>
+<li>局限性：仅能实现一次<ul>
+<li>因此可通过 Comparator 对象传递给 TreeSet 构造器，告诉 TreeSet 使用不同的比较方法<br>public interface Comparator<T> {<br>int compare(T a, T b); // 返回值与compareTo 一样<br>}<br>需要比较的时候，可新建一个 Comparator 接口的类，将该类对象传入 TreeSet 构造器中；或使用匿名内部类方法传递。</T></li>
+</ul>
+</li>
+</ul>
+<p>注：如果要插入自定义的对象，就必须通过实现 Comparable 接口自定义排列顺序<br>Object 类中不提供任何 compareTo 接口的默认实现<br>注意数字比较时候的溢出：大正整数减去小负整数<br>覆盖 Comparator<T> 中的 equals()，会使 TreeSet 添加元素的效率更高</T></p>
+<ul>
+<li>其他的 Set 实现类，如 HashSet、LinkedHashSet 详见 Map 接口</li>
+</ul>
+<p>ArrayDeque</p>
+<ul>
+<li>继承自 AbstractCollection 类，实现了 Deque 接口</li>
+<li>内部实现是一个数组</li>
+</ul>
+<p>优先队列</p>
+<ul>
+<li>元素按照任意顺序插入，按照排好序的顺序检索</li>
+<li>无论何时调用 remove 方法，总会获得当前优先队列中的最小元素</li>
+<li>使用堆（heap）实现，将最小元素移动到根节点</li>
+<li>优先队列既可保存实现了 Comparable 接口的类对象，也可以保存在构造器中提供比较器的对象</li>
+<li>典型示例：任务调度——每启动一个新的任务，都将优先级最高的任务从队列中删除</li>
+</ul>
+<p>实现：Deque 队列与 Deque 栈</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyQueue</span> &lt;<span class="title">T</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Deque&lt;T&gt; elements;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyQueue</span><span class="params">()</span></span>&#123;</span><br><span class="line">        elements = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 添加至队尾</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> e</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">enqueue</span><span class="params">(T e)</span> </span>&#123;</span><br><span class="line">        elements.addLast(e);;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 队头元素先出队列</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">dequeue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> elements.removeFirst();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchElementException e) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">peek</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> elements.peekFirst();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyStack</span> &lt;<span class="title">T</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Deque&lt;T&gt; elements;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyStack</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        elements = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 添加至头部</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> e</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">push</span><span class="params">(T e)</span> </span>&#123;</span><br><span class="line">        elements.addFirst(e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 头部元素先出栈</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> elements.removeFirst();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchElementException e) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">peek</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        elements.peekFirst();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyQueue&lt;Integer&gt; myQueue = <span class="keyword">new</span> MyQueue&lt;&gt;();</span><br><span class="line">        myQueue.enqueue(<span class="number">1</span>);</span><br><span class="line">        myQueue.enqueue(<span class="number">2</span>);</span><br><span class="line">        myQueue.enqueue(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line">        Integer e;</span><br><span class="line">        <span class="keyword">while</span>((e = myQueue.dequeue()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            System.out.println(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//output 1 2 3</span></span><br><span class="line"></span><br><span class="line">        MyStack&lt;Integer&gt; myStack = <span class="keyword">new</span> MyStack&lt;&gt;();</span><br><span class="line">        myStack.push(<span class="number">1</span>);</span><br><span class="line">        myStack.push(<span class="number">2</span>);</span><br><span class="line">        myStack.push(<span class="number">3</span>);</span><br><span class="line">        <span class="keyword">while</span>((e = myStack.pop()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            System.out.println(e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//output 3 2 1</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/%E9%9B%86%E5%90%88%E7%B1%BB/" rel="tag"># 集合类</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/04/20/springboot/" rel="prev" title="Spring Boot 概述">
+      <i class="fa fa-chevron-left"></i> Spring Boot 概述
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">接口方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%90%E7%B1%BB%E5%8F%8A%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.</span> <span class="nav-text">子类及接口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">具体实现类</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">敖惠竣｜Ao Huijun, Raymond</p>
+  <div class="site-description" itemprop="description">Storing blogs</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/daca-ao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;daca-ao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/daca.aohuijun" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;daca.aohuijun" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/kaijesugardaddy" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;kaijesugardaddy" rel="noopener" target="_blank"><i class="fab fa-instagram fa-fw"></i>Instagram</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">敖惠竣｜Ao Huijun, Raymond</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a>
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="//cdn.jsdelivr.net/npm/algoliasearch@4/dist/algoliasearch-lite.umd.js"></script>
+<script src="//cdn.jsdelivr.net/npm/instantsearch.js@4/dist/instantsearch.production.min.js"></script>
+<script src="/js/algolia-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

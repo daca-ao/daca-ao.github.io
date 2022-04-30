@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2021/05/26/collections-java/jcf-1.png">
 <meta property="og:image" content="http://example.com/2021/05/26/collections-java/jcf-2.png">
 <meta property="article:published_time" content="2021-05-26T15:28:59.179Z">
-<meta property="article:modified_time" content="2021-11-27T03:37:07.819Z">
+<meta property="article:modified_time" content="2022-04-30T10:20:16.245Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -244,11 +244,7 @@
 <p>一个集合类的实例，如链表、队列、映射表等，都是若干个对象的集合，是数据结构类型的实例化结果。由于复杂的类结构，所有 Java 集合相关的接口以及类被统称为“集合框架”（JCF）。<br>其实理解为“<strong>体系</strong>”更为恰当。</p>
 <p>优势：</p>
 <ul>
-<li>降低代码量和复杂度<ul>
-<li>不需要由开发者再进行基础数据结构的设计</li>
-<li>提高代码复用性，降低编码难度，增强可操作性</li>
-</ul>
-</li>
+<li>降低代码量和复杂度：不需要由开发者再进行基础数据结构的设计，提高代码复用性，降低编码难度，增强可操作性</li>
 <li>提升代码性能<ul>
 <li>被 JDK 收录的集合类库是一系列数据结构类型的具体实现</li>
 <li>质量和性能较高，降低底层代码的性能风险和维护成本</li>
@@ -324,9 +320,9 @@
 <h1 id="基本接口"><a href="#基本接口" class="headerlink" title="基本接口"></a>基本接口</h1><p>接口类图如下：</p>
 <p><img src="/2021/05/26/collections-java/interface-diagram.png"></p>
 <p><big>包括：</big></p>
-<h2 id="Collection-java-util-Collection"><a href="#Collection-java-util-Collection" class="headerlink" title="Collection (java.util.Collection)"></a><small>Collection (<code>java.util.Collection</code>)</small></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">java.util.Set</span><br><span class="line">java.util.SortedSet</span><br><span class="line">java.util.NavigableSet</span><br><span class="line">java.util.Queue</span><br><span class="line">java.util.concurrent.BlockingQueue</span><br><span class="line">java.util.concurrent.TransferQueue</span><br><span class="line">java.util.Deque</span><br><span class="line">java.util.concurrent.BlockingQueue</span><br></pre></td></tr></table></figure>
+<h2 id="Collection-java-util-Collection"><a href="#Collection-java-util-Collection" class="headerlink" title="Collection (java.util.Collection)"></a><small><a href="/2022/04/30/java-collection">Collection</a> (<code>java.util.Collection</code>)</small></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 以下为子接口</span></span><br><span class="line">java.util.Set</span><br><span class="line">java.util.SortedSet</span><br><span class="line">java.util.NavigableSet</span><br><span class="line">java.util.Queue</span><br><span class="line">java.util.concurrent.BlockingQueue</span><br><span class="line">java.util.concurrent.TransferQueue</span><br><span class="line">java.util.Deque</span><br><span class="line">java.util.concurrent.BlockingQueue</span><br></pre></td></tr></table></figure>
 
-<h2 id="Map-java-util-Map"><a href="#Map-java-util-Map" class="headerlink" title="Map (java.util.Map)"></a><small>Map (<code>java.util.Map</code>)</small></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.util.SortedMap</span><br><span class="line">java.util.NavigableMap</span><br><span class="line">java.util.concurrent.ConcurrentMap</span><br><span class="line">java.util.concurrent.ConcurrentNavigableMap</span><br></pre></td></tr></table></figure>
+<h2 id="Map-java-util-Map"><a href="#Map-java-util-Map" class="headerlink" title="Map (java.util.Map)"></a><small>Map (<code>java.util.Map</code>)</small></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 以下为子接口</span></span><br><span class="line">java.util.SortedMap</span><br><span class="line">java.util.NavigableMap</span><br><span class="line">java.util.concurrent.ConcurrentMap</span><br><span class="line">java.util.concurrent.ConcurrentNavigableMap</span><br></pre></td></tr></table></figure>
 
 <p><big>和基础功能：</big></p>
 <h2 id="Iterators"><a href="#Iterators" class="headerlink" title="Iterators"></a>Iterators</h2><p>迭代器，与 Enumeration 接口类似，但更加强大</p>
@@ -385,22 +381,21 @@
 <li>下次调用 <code>read()</code> 将会消耗并返回输入的下一个字节</li>
 <li>同样方式，反复调用 <code>next()</code> 可读取集合中所有元素</li>
 </ul>
-<h2 id="Ordering"><a href="#Ordering" class="headerlink" title="Ordering"></a>Ordering</h2><ul>
-<li><p><code>Comparable</code></p>
+<h2 id="Ordering"><a href="#Ordering" class="headerlink" title="Ordering"></a>Ordering</h2><p><code>Comparable</code></p>
 <ul>
 <li>其实现类要求各个元素可以自然排序，从而可以对整个集合排序</li>
 <li>元素之间的顺序由 equals() 的返回值得到</li>
 </ul>
-</li>
-<li><p><code>Comparator</code></p>
+<p><code>Comparator</code></p>
 <ul>
 <li>如类本身不支持排序（没有实现 Comparable 接口）：手动创建一个类的 Comparator，重写排序方法</li>
 <li>如实现了 Comparable 接口：仍可利用 Comparator 重定义排序方法</li>
 </ul>
-  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Student</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Student s)</span> </span>&#123;</span><br><span class="line">        ... <span class="comment">// 提供对象的自然排序</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Student</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Student s)</span> </span>&#123;</span><br><span class="line">        ... <span class="comment">// 提供对象的自然排序</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyComparator</span> <span class="keyword">implements</span> <span class="title">Comparator</span>&lt;<span class="title">Student</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Student s1, Student s2)</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyComparator</span> <span class="keyword">implements</span> <span class="title">Comparator</span>&lt;<span class="title">Student</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Student s1, Student s2)</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
 <h2 id="Runtime-exceptions"><a href="#Runtime-exceptions" class="headerlink" title="Runtime exceptions"></a>Runtime exceptions</h2><ul>
 <li><code>UnsupportedOperationException</code><ul>
 <li>集合进行不被支持的操作时抛出</li>
@@ -547,10 +542,7 @@
 <li>表可保存到一个文件中，也可从文件中加载</li>
 <li>使用默认辅助表</li>
 </ul>
-<p>实现属性映射表的 Java 平台类称为 <code>Properties</code></p>
-<ul>
-<li>线程安全</li>
-</ul>
+<p>实现属性映射表的 Java 平台类称为 <code>Properties</code>，为线程安全类。</p>
 <p><code>Vector</code></p>
 <ul>
 <li>实现 <code>AbstractList</code> 接口</li>
@@ -564,7 +556,8 @@
 <p><code>BitSet</code>：位集，存放位序列</p>
 <br>
 
-<h1 id="JCF-类图汇总"><a href="#JCF-类图汇总" class="headerlink" title="JCF 类图汇总"></a>JCF 类图汇总</h1><p><img src="/2021/05/26/collections-java/jcf-1.png"><br><img src="/2021/05/26/collections-java/jcf-2.png"></p>
+<h1 id="JCF-类图"><a href="#JCF-类图" class="headerlink" title="JCF 类图"></a>JCF 类图</h1><p><img src="/2021/05/26/collections-java/jcf-1.png"></p>
+<p><img src="/2021/05/26/collections-java/jcf-2.png"></p>
 
     </div>
 
@@ -649,7 +642,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%9E%E7%94%9F%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">诞生背景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%B9%E8%BF%9B%E6%83%B3%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">改进想法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E6%96%B0%E6%A1%86%E6%9E%B6"><span class="nav-number">1.1.1.</span> <span class="nav-text">全新框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%B3%9B%E5%9E%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">使用泛型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%96%BD%EF%BC%9A%E6%8E%A5%E5%8F%A3%EF%BC%88interface%EF%BC%89%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%88implementation%EF%BC%89%E5%88%86%E7%A6%BB"><span class="nav-number">1.1.3.</span> <span class="nav-text">实施：接口（interface）与实现（implementation）分离</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E2%80%9C%E4%BD%93%E7%B3%BB%E2%80%9D%E4%B8%8B%E7%9A%84%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6%EF%BC%88Collections-Framework%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">“体系”下的集合框架（Collections Framework）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.</span> <span class="nav-text">基本接口</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Collection-java-util-Collection"><span class="nav-number">3.1.</span> <span class="nav-text">Collection (java.util.Collection)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Map-java-util-Map"><span class="nav-number">3.2.</span> <span class="nav-text">Map (java.util.Map)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iterators"><span class="nav-number">3.3.</span> <span class="nav-text">Iterators</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Iterator-fail-fast-%E5%B1%9E%E6%80%A7"><span class="nav-number">3.3.1.</span> <span class="nav-text">Iterator fail-fast 属性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ordering"><span class="nav-number">3.4.</span> <span class="nav-text">Ordering</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Runtime-exceptions"><span class="nav-number">3.5.</span> <span class="nav-text">Runtime exceptions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Performance"><span class="nav-number">3.6.</span> <span class="nav-text">Performance</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iterable"><span class="nav-number">3.7.</span> <span class="nav-text">Iterable</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">通用实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JCF-%E7%B1%BB%E5%9B%BE%E6%B1%87%E6%80%BB"><span class="nav-number">5.</span> <span class="nav-text">JCF 类图汇总</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%9E%E7%94%9F%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">诞生背景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%B9%E8%BF%9B%E6%83%B3%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">改进想法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E6%96%B0%E6%A1%86%E6%9E%B6"><span class="nav-number">1.1.1.</span> <span class="nav-text">全新框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%B3%9B%E5%9E%8B"><span class="nav-number">1.1.2.</span> <span class="nav-text">使用泛型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%96%BD%EF%BC%9A%E6%8E%A5%E5%8F%A3%EF%BC%88interface%EF%BC%89%E4%B8%8E%E5%AE%9E%E7%8E%B0%EF%BC%88implementation%EF%BC%89%E5%88%86%E7%A6%BB"><span class="nav-number">1.1.3.</span> <span class="nav-text">实施：接口（interface）与实现（implementation）分离</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E2%80%9C%E4%BD%93%E7%B3%BB%E2%80%9D%E4%B8%8B%E7%9A%84%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6%EF%BC%88Collections-Framework%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">“体系”下的集合框架（Collections Framework）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.</span> <span class="nav-text">基本接口</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Collection-java-util-Collection"><span class="nav-number">3.1.</span> <span class="nav-text">Collection (java.util.Collection)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Map-java-util-Map"><span class="nav-number">3.2.</span> <span class="nav-text">Map (java.util.Map)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iterators"><span class="nav-number">3.3.</span> <span class="nav-text">Iterators</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Iterator-fail-fast-%E5%B1%9E%E6%80%A7"><span class="nav-number">3.3.1.</span> <span class="nav-text">Iterator fail-fast 属性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ordering"><span class="nav-number">3.4.</span> <span class="nav-text">Ordering</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Runtime-exceptions"><span class="nav-number">3.5.</span> <span class="nav-text">Runtime exceptions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Performance"><span class="nav-number">3.6.</span> <span class="nav-text">Performance</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iterable"><span class="nav-number">3.7.</span> <span class="nav-text">Iterable</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">通用实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JCF-%E7%B1%BB%E5%9B%BE"><span class="nav-number">5.</span> <span class="nav-text">JCF 类图</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -663,7 +656,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
