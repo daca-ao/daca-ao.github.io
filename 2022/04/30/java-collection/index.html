@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/04/30/java-collection/collection-diagram.png">
 <meta property="article:published_time" content="2022-04-30T09:21:52.000Z">
-<meta property="article:modified_time" content="2022-04-30T12:52:16.126Z">
+<meta property="article:modified_time" content="2022-04-30T14:54:43.698Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -256,8 +256,6 @@
 <h2 id="AbstractCollection"><a href="#AbstractCollection" class="headerlink" title="AbstractCollection"></a>AbstractCollection</h2><p>实现了 Collection 接口的部分核心接口方法，其直接子类：<code>AbstractList</code>, <code>AbstractQueue</code>, <code>AbstractSet</code>。</p>
 <p>部分非线程安全集合的实现类：</p>
 <ul>
-<li><code>ArrayList</code>：可动态增长和缩减的索引序列</li>
-<li><code>LinkedList</code>：可在任意位置高效增减的有序序列</li>
 <li><code>ArrayDeque</code>：用循环数组实现的双端序列</li>
 <li><code>HashSet</code>：没有重复元素的无序集合</li>
 <li><code>TreeSet</code>：有序集</li>
@@ -279,52 +277,25 @@
 <p>List 以线性方式存储元素，因此具有“索引”的概念，可使用整数索引随机访问，或者通过 <code>listIterator()</code> 获取对象。</p>
 <p>List 的默认构造会产生 10 个元素大小的空 List。</p>
 <p>基本接口：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.function.UnaryOperator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">List</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Collection</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">(<span class="keyword">int</span> index)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> i, E element)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">void</span> <span class="title">addAll</span><span class="params">(<span class="keyword">int</span> i, Collection&lt;? extends E&gt; elements)</span></span></span><br><span class="line"><span class="function">    E <span class="title">remove</span><span class="params">(<span class="keyword">int</span> i)</span></span></span><br><span class="line"><span class="function">    E <span class="title">get</span><span class="params">(<span class="keyword">int</span> i)</span></span></span><br><span class="line"><span class="function">    E <span class="title">set</span><span class="params">(<span class="keyword">int</span> i, E element)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">int</span> <span class="title">indexOf</span><span class="params">(Object element)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">void</span> <span class="title">sort</span><span class="params">()</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.function.UnaryOperator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">List</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Collection</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function">ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">ListIterator&lt;E&gt; <span class="title">listIterator</span><span class="params">(<span class="keyword">int</span> index)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E element)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">addAll</span><span class="params">(<span class="keyword">int</span> index, Collection&lt;? extends E&gt; c)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">E <span class="title">remove</span><span class="params">(Object o)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">E <span class="title">get</span><span class="params">(<span class="keyword">int</span> index)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">E <span class="title">set</span><span class="params">(<span class="keyword">int</span> index, E element)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">indexOf</span><span class="params">(Object o)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">sort</span><span class="params">(Comparator&lt;? <span class="keyword">super</span> E&gt; c)</span> </span>&#123;</span><br><span class="line">        Object[] a = <span class="keyword">this</span>.toArray();</span><br><span class="line">        Arrays.sort(a, (Comparator) c);</span><br><span class="line">        ListIterator&lt;E&gt; i = <span class="keyword">this</span>.listIterator();</span><br><span class="line">        <span class="keyword">for</span> (Object e : a) &#123;</span><br><span class="line">            i.next();</span><br><span class="line">            i.set((E) e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>直接实现类：</p>
 <ul>
-<li>直接实现类：<ul>
-<li>ArrayList</li>
-<li>LinkedList</li>
-<li>Vector</li>
-<li>Stack</li>
+<li><a href="/2021/06/07/arraylist"><code>ArrayList</code></a>：可动态增长和缩减的索引序列</li>
+<li><a href="/2021/06/12/linkedlist"><code>LinkedList</code></a>：可在任意位置高效增减的有序序列</li>
+<li><code>Vector</code></li>
+<li><code>Stack</code></li>
 </ul>
-</li>
-</ul>
-<h2 id="Set-接口"><a href="#Set-接口" class="headerlink" title="Set 接口"></a>Set 接口</h2><ul>
-<li>继承自 Collection 接口</li>
-<li>访问其元素时为直接访问其对象的引用：不能有重复元素</li>
-<li>最多有一个为 null 值的元素</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">add()</span><br><span class="line"><span class="comment">//拒绝添加重复的元素</span></span><br><span class="line"></span><br><span class="line">equals()</span><br><span class="line"><span class="comment">//两个集包含相同的元素，但顺序不必相同</span></span><br><span class="line"></span><br><span class="line">hashCode()</span><br><span class="line"><span class="comment">//保证具有相同元素的集将会得到相同的散列码</span></span><br></pre></td></tr></table></figure>
+<h2 id="Set-接口"><a href="#Set-接口" class="headerlink" title="Set 接口"></a>Set 接口</h2><p>Set 不能有重复元素，最多有一个为 null 值的元素。</p>
+<p>基本接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Set</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Collection</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span></span>;  <span class="comment">// 拒绝添加重复的元素</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object o)</span></span>;  <span class="comment">// 两个 set 包含相同的元素，但顺序不必相同</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;  <span class="comment">// 保证具有相同元素的 set 将会得到相同的散列码</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>注：并没有声明 get()<br>具体如何访问 Set 中元素需要实现类定义</p>
-<ul>
-<li>子接口 SortedSet<ul>
-<li>子接口 NavigableSet<ul>
-<li>包含用于在有序集中查找和遍历的方法</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>抽象实现类 AbstractSet</li>
-<li>通用实现类<ul>
-<li>HashSet</li>
-<li>TreeSet</li>
-</ul>
-</li>
-</ul>
-<p>AbstractSet</p>
-<ul>
-<li>实现了 Set 接口，为 AbstractCollection 的子类</li>
-<li>添加了 hashCode() 和 equals() 的实现：用于对比两个集合的相等性<br>hashCode()</li>
-<li>遍历集合中所有元素，返回它们的 hashCode 之和</li>
-<li>因此包含相同元素集的集合 hashCode 值应该相等<br>equals()</li>
-<li>先比较两个集合的 size</li>
-<li>再调用 AbstractCollection 的 containsAll()，比较每个元素的相等性</li>
-</ul>
-<p>SortedSet</p>
-<ul>
-<li>继承自 Set 接口</li>
+<p>Set 并没有声明 get()，具体如何访问 Set 中的元素，需要实现类去自定义。</p>
+<h3 id="抽象实现类-AbstractSet"><a href="#抽象实现类-AbstractSet" class="headerlink" title="抽象实现类 AbstractSet"></a>抽象实现类 <code>AbstractSet</code></h3><p>为 AbstractCollection 的子类，其对 hashCode() 和 equals() 的实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;</span><br><span class="line"><span class="comment">// 遍历集合中所有元素，返回它们的 hashCode 之和</span></span><br><span class="line"><span class="comment">// 因此包含相同元素集的集合 hashCode 值应该相等</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">equals</span><span class="params">()</span></span>;</span><br><span class="line"><span class="comment">// 先比较两个集合的 size</span></span><br><span class="line"><span class="comment">// 再调用 AbstractCollection 的 containsAll()，比较每个元素的相等性</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="子接口-SortedSet"><a href="#子接口-SortedSet" class="headerlink" title="子接口 SortedSet"></a>子接口 <code>SortedSet</code></h3><ul>
 <li>暴露了用于排序的 Comparator 对象</li>
 <li>要求实现类必须保证元素有序：自然顺序或 Comparator 实现的排序方法<ul>
 <li>且定义的 compare 方法可以获得集合的子集视图</li>
@@ -332,11 +303,16 @@
 </li>
 <li>只为单个元素提供头部或尾部的访问：<br>E first();<br>E last();<br>SortedSet<E> headSet(E toElement);    //获得子集视图，下同<br>SortedSet<E> tailSet(E fromElement);<br>SortedSet<E> subSet(E fromElement, E toElement);</E></E></E></li>
 </ul>
-<p>NavigableSet</p>
+<p>子接口 NavigableSet：包含用于在有序集中查找和遍历的方法</p>
 <ul>
 <li>“可以导航的” set，SortedSet 的子接口<br>lower(E s);    //返回 set 中小于给定元素的最大元素<br>floor(E e);    //返回 set 中不大于给定元素的最大元素<br>ceiling(E e);    //返回 set 中不小于给定元素的最小元素<br>higher(E e);    //返回 set 中大于给定元素的最小元素<br>pollFirst();    //获取并删除 set 中第一个（最小）元素<br>pollLast();    //获取并删除 set 中最后一个（最大）元素</li>
 </ul>
 <p>针对排序声明的方法：<br>NavigableSet<E> descendingSet();    //返回由原 NavigableSet 反序排列的 NavigableSet<br>Iterator<E> descendingIterator();    //根据 descendingSet() 结果再调用 iterator 方法</E></E></p>
+<p>两大通用实现类：</p>
+<ul>
+<li>HashSet</li>
+<li>TreeSet</li>
+</ul>
 <h2 id="Queue-接口"><a href="#Queue-接口" class="headerlink" title="Queue 接口"></a>Queue 接口</h2><ul>
 <li>继承自 Collection 接口</li>
 <li>尾部添加元素，头部删除元素（FILO/LIFO）</li>
@@ -353,10 +329,64 @@
 <li>不支持在队列中间添加元素</li>
 <li>实现类既可以是栈，也可以是队列</li>
 </ul>
-<p>Queue 接口中声明的方法在 Deque 作为队列时相应的方法：<br>QueueDeque<br>add(e)<br>addLast(e)<br>offer(e)<br>offerLast(e)<br>remove()<br>removeFirst()<br>poll()<br>pollFirst()<br>element()<br>getFirst()<br>peek()<br>peekFirst()</p>
+<p>Queue 接口中声明的方法在 Deque 作为队列时相应的方法：</p>
+<table>
+<thead>
+<tr>
+<th>Queue</th>
+<th>Deque</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>add(e)</td>
+<td>addLast(e)</td>
+</tr>
+<tr>
+<td>offer(e)</td>
+<td>offerLast(e)</td>
+</tr>
+<tr>
+<td>remove()</td>
+<td>removeFirst()</td>
+</tr>
+<tr>
+<td>poll()</td>
+<td>pollFirst()</td>
+</tr>
+<tr>
+<td>element()</td>
+<td>getFirst()</td>
+</tr>
+<tr>
+<td>peek()</td>
+<td>peekFirst()</td>
+</tr>
+</tbody></table>
 <p>Deque 的实现类也可作为 LIFO 的栈使用</p>
 <ul>
-<li>元素被插在 Deque 头部，头部元素最先被删除<br>StackDeque<br>push(e)<br>addFirst(e)<br>pop()<br>removeFirst()<br>peek()<br>peekFirst()</li>
+<li>元素被插在 Deque 头部，头部元素最先被删除</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Stack</th>
+<th>Deque</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>push(e)</td>
+<td>addFirst(e)</td>
+</tr>
+<tr>
+<td>pop()</td>
+<td>removeFirst()</td>
+</tr>
+<tr>
+<td>peek()</td>
+<td>peekFirst()</td>
+</tr>
+</tbody></table>
+<ul>
 <li>无论 Deque 作为队列还是栈使用，peek() 都返回头部元素</li>
 <li>与 List 接口不同，Deque 不提供对元素的索引访问</li>
 <li>虽然 Deque 允许插入 null 元素，但其实现类不应允许<ul>
@@ -369,8 +399,7 @@
 </ul>
 </li>
 </ul>
-<h1 id="具体实现类"><a href="#具体实现类" class="headerlink" title="具体实现类"></a>具体实现类</h1><p><a href>ArrayList</a></p>
-<p>链表<br>Java 中所有链表均为双向链接：每个节点还存放着指向前驱节点的引用<br>链表与泛型集合的区别：</p>
+<h1 id="具体实现类"><a href="#具体实现类" class="headerlink" title="具体实现类"></a>具体实现类</h1><p>链表<br>Java 中所有链表均为双向链接：每个节点还存放着指向前驱节点的引用<br>链表与泛型集合的区别：</p>
 <ul>
 <li>链表为有序集合，每个对象的位置十分重要<ul>
 <li>将元素添加至链表中间时，需要依赖链表的位置；而迭代器负责描述集合中位置</li>
@@ -508,7 +537,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">接口方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%90%E7%B1%BB%E5%8F%8A%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.</span> <span class="nav-text">子类及接口</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AbstractCollection"><span class="nav-number">2.1.</span> <span class="nav-text">AbstractCollection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%AE%E6%94%B9%E9%9B%86%E5%90%88"><span class="nav-number">2.1.1.</span> <span class="nav-text">应用：不可修改集合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%EF%BC%9A%E5%8F%AF%E4%BF%AE%E6%94%B9%E9%9B%86%E5%90%88"><span class="nav-number">2.1.2.</span> <span class="nav-text">应用：可修改集合</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#List-%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.2.</span> <span class="nav-text">List 接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Set-%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.3.</span> <span class="nav-text">Set 接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Queue-%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.4.</span> <span class="nav-text">Queue 接口</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">具体实现类</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">接口方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%90%E7%B1%BB%E5%8F%8A%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.</span> <span class="nav-text">子类及接口</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AbstractCollection"><span class="nav-number">2.1.</span> <span class="nav-text">AbstractCollection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%EF%BC%9A%E4%B8%8D%E5%8F%AF%E4%BF%AE%E6%94%B9%E9%9B%86%E5%90%88"><span class="nav-number">2.1.1.</span> <span class="nav-text">应用：不可修改集合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%EF%BC%9A%E5%8F%AF%E4%BF%AE%E6%94%B9%E9%9B%86%E5%90%88"><span class="nav-number">2.1.2.</span> <span class="nav-text">应用：可修改集合</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#List-%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.2.</span> <span class="nav-text">List 接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Set-%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.3.</span> <span class="nav-text">Set 接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%BD%E8%B1%A1%E5%AE%9E%E7%8E%B0%E7%B1%BB-AbstractSet"><span class="nav-number">2.3.1.</span> <span class="nav-text">抽象实现类 AbstractSet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%90%E6%8E%A5%E5%8F%A3-SortedSet"><span class="nav-number">2.3.2.</span> <span class="nav-text">子接口 SortedSet</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Queue-%E6%8E%A5%E5%8F%A3"><span class="nav-number">2.4.</span> <span class="nav-text">Queue 接口</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">具体实现类</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
