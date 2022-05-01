@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/04/30/java-collection/collection-diagram.png">
 <meta property="article:published_time" content="2022-04-30T09:21:52.000Z">
-<meta property="article:modified_time" content="2022-04-30T22:51:13.967Z">
+<meta property="article:modified_time" content="2022-05-01T03:44:47.628Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -300,43 +300,29 @@
 <p>针对元素排序而声明的方法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">NavigableSet&lt;E&gt; <span class="title">descendingSet</span><span class="params">()</span></span>;    <span class="comment">// 返回由原 NavigableSet 倒序排列的 NavigableSet</span></span><br><span class="line"><span class="function">Iterator&lt;E&gt; <span class="title">descendingIterator</span><span class="params">()</span></span>;    <span class="comment">// 根据 descendingSet() 的结果调用 iterator()</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="通用实现类"><a href="#通用实现类" class="headerlink" title="通用实现类"></a>通用实现类</h3><p><code>TreeSet</code>：有序集合，使用<strong>红黑树</strong>完成排序，可将元素以任意顺序插入到集合中。</p>
+<h3 id="通用实现类"><a href="#通用实现类" class="headerlink" title="通用实现类"></a>通用实现类</h3><p><code>TreeSet</code>：有序集合，使用<strong>红黑树</strong>完成排序，可将元素以任意顺序插入到集合中。<br>顾名思义，TreeSet 建立了一棵树，每次添加元素，新元素会被放在正确的排序位置上；因此在遍历的时候，迭代器总以排好序的顺序访问元素，按照<strong>排序后</strong>的顺序输出。<br>因此 TreeSet 添加速度比散列表慢，但比添加到数组或链表快。</p>
 <p>TreeSet 实现了 NavigableSet，在其基础上增加了几个便于定位元素以及反向遍历的方法。</p>
-<ul>
-<li>遍历时按照排序后的顺序输出<ul>
-<li>每次添加元素，新元素会被放在正确的排序位置上</li>
-<li>迭代器总以排好序的顺序访问元素</li>
-<li>因此添加速度比散列表慢，但比添加到数组或链表快</li>
-</ul>
-</li>
-<li>实现：Comparable 接口<ul>
-<li>如果 a 与 b 相等，调用 a.compareTo(b) 返回0；如 a 大于 b ，返回值大于0；否则返回值小于0</li>
-</ul>
-</li>
-<li>局限性：仅能实现一次<ul>
-<li>因此可通过 Comparator 对象传递给 TreeSet 构造器，告诉 TreeSet 使用不同的比较方法</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Comparator</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">compare</span><span class="params">(T a, T b)</span></span>;  <span class="comment">// 返回值与compareTo 一样</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>TreeSet 的 Comparable 接口实现：如果 a 与 b 相等，调用 a.compareTo(b) 返回 0；如 a 大于 b ，返回值大于 0；否则返回值小于 0。<br>还可通过 Comparator 对象传递给 TreeSet 构造器，告诉 TreeSet 使用不同的比较方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Comparator</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">compare</span><span class="params">(T a, T b)</span></span>;  <span class="comment">// 返回值与 compareTo() 一样</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>需要比较的时候，可新建一个 Comparator 接口的类，将该类对象传入 TreeSet 构造器中；或使用匿名内部类方法传递。</p>
-<p>注：如果要插入自定义的对象，就必须通过实现 Comparable 接口自定义排列顺序<br>Object 类中不提供任何 compareTo 接口的默认实现<br>注意数字比较时候的溢出：大正整数减去小负整数<br>覆盖 Comparator<T> 中的 equals()，会使 TreeSet 添加元素的效率更高</T></p>
+<p>如果要插入自定义的对象，就必须通过实现 Comparable 接口自定义排列顺序，因为 Object 类中不提供任何 compareTo 接口的默认实现；<br>注意数字比较时候的溢出：大正整数减去小负整数；<br>覆盖 Comparator<T> 中的 equals()，会使 TreeSet 添加元素的效率更高。</T></p>
+<p>其他的 Set 实现类包括：</p>
 <ul>
 <li><code>HashSet</code>：没有重复元素的无序集合</li>
 <li><code>EnumSet</code>：包含枚举类型值的集</li>
 <li><code>LinkedHashSet</code>：可记住元素插入次序的集</li>
 </ul>
-<p>其他的 Set 实现类，如 HashSet、LinkedHashSet 详见 Map 接口</p>
+<p>HashSet、LinkedHashSet 详见 Map 接口</p>
 <h2 id="Queue-接口"><a href="#Queue-接口" class="headerlink" title="Queue 接口"></a>Queue 接口</h2><p>从尾部添加元素，从头部删除元素（FILO / LIFO）。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Queue</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Collection</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 往队列尾添加元素, 成功返回true，否则抛出异常</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 往队列尾添加元素，成功返回true，否则返回false或抛出异常</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//移除队列头元素，并返回该元素，如果为空则抛出异常</span></span><br><span class="line">    <span class="function">E <span class="title">remove</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//移除队列头元素，并返回该元素，如果为空则返回null</span></span><br><span class="line">    <span class="function">E <span class="title">poll</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//返回队列头元素，如果为空则抛出异常</span></span><br><span class="line">    <span class="function">E <span class="title">element</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//返回队列头元素，如果为空则返回null</span></span><br><span class="line">    <span class="function">E <span class="title">peek</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>实现类：<code>PriorityQueue</code>，优先队列，允许高效删除最小/大元素的队列。</p>
+<p>实现类：<code>PriorityQueue</code>，优先队列，允许高效删除最小/大元素。</p>
 <ul>
 <li>元素按照任意顺序插入，按照排好序的顺序检索</li>
 <li>无论何时调用 remove 方法，总会获得当前优先队列中的最小元素</li>
 <li>使用堆（heap）实现，将最小元素移动到根节点</li>
 <li>优先队列既可保存实现了 Comparable 接口的类对象，也可以保存在构造器中提供比较器的对象</li>
-<li>典型示例：任务调度——每启动一个新的任务，都将优先级最高的任务从队列中删除</li>
+<li>典型的使用示例是任务调度：每启动一个新的任务，都将优先级最高的任务从队列中删除</li>
 </ul>
 <h2 id="Deque-接口"><a href="#Deque-接口" class="headerlink" title="Deque 接口"></a>Deque 接口</h2><p>发音 <code>/‘dek/</code>, short for ‘double end queue’.</p>
 <p>继承自 Queue 接口</p>
