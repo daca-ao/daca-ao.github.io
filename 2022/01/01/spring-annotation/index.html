@@ -27,12 +27,14 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="在 Spring IoC 概览中我们提到过，除了配置文件，Spring 还能通过注解进行 Bean 的依赖管理。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/01/01/spring-annotation/conditional.png">
 <meta property="article:published_time" content="2022-01-01T15:47:28.000Z">
-<meta property="article:modified_time" content="2022-05-02T07:19:30.195Z">
+<meta property="article:modified_time" content="2022-05-02T11:31:25.965Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/01/01/spring-annotation/conditional.png">
 
 <link rel="canonical" href="http://example.com/2022/01/01/spring-annotation/">
 
@@ -375,7 +377,14 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import(A.class)</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfigA</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> A <span class="title">a</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> A();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>Import 进容器的是 com.xxx.A 全路径名，而 @Bean 引入容器的是 a；虽然它们是同一个类，但是是<strong>两个 bean</strong>。</p>
-<h2 id="ConditionalXX"><a href="#ConditionalXX" class="headerlink" title="@ConditionalXX"></a>@ConditionalXX</h2><br>
+<h2 id="ConditionalXX"><a href="#ConditionalXX" class="headerlink" title="@ConditionalXX"></a>@ConditionalXX</h2><p>顾名思义，条件注解。被标记了的类或方法要满足了一定的条件之后，相应的 bean 才会被注册进容器中。</p>
+<p>Spring 中定义了很多条件注解：</p>
+<p><img src="/2022/01/01/spring-annotation/conditional.png"></p>
+<p>在以下的实例代码中，调用 getBean() 获取 car 的时候会报错：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConditionalOnBean(name = &quot;engine&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Car <span class="title">car</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Car car = <span class="keyword">new</span> Car();</span><br><span class="line">    car.setBrand(<span class="string">&quot;Honda&quot;</span>);</span><br><span class="line">    car.setEngine(engine());</span><br><span class="line">    car.setModel(<span class="string">&quot;Civic&quot;</span>);</span><br><span class="line">    car.setIteration(<span class="number">11</span>);</span><br><span class="line">    <span class="keyword">return</span> car;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> Engine <span class="title">engine</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Engine engine = <span class="keyword">new</span> Engine();</span><br><span class="line">    engine.setModel(<span class="string">&quot;earth dream&quot;</span>);</span><br><span class="line">    engine.setModel(<span class="string">&quot;L15C8&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> engine;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为 car 不能被 Spring 注册进容器中，即使通过了 engine() 传入了所需变量，但是所依赖的 bean（<code>@ConditionalOnBean(name = &quot;engine&quot;)</code>）没被初始化，所以 car 初始化失败。</p>
+<br>
 
 <h2 id="其它创建对象的注解"><a href="#其它创建对象的注解" class="headerlink" title="其它创建对象的注解"></a>其它创建对象的注解</h2><p>这些注解都是标记在类上的，用于表示 Spring 中的组件。</p>
 <p><strong><code>@Component</code></strong></p>
