@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2022/04/20/springboot/spring-factories.png">
 <meta property="og:image" content="http://example.com/2022/04/20/springboot/application-properties.png">
 <meta property="article:published_time" content="2022-04-20T13:46:10.000Z">
-<meta property="article:modified_time" content="2022-05-03T05:45:39.096Z">
+<meta property="article:modified_time" content="2022-05-03T05:54:51.689Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -301,7 +301,7 @@
 <ol>
 <li>查找项目所有依赖的 jar 包，从每一个 jar 包中搜索文件 <code>META-INF/spring.factories</code>；</li>
 <li>从搜索到的 <code>spring.factories</code> 中获取所有信息，作为候选 bean 加载到容器中；</li>
-<li>AutoConfigurationImportSelector 根据 @EnableAutoConfiguration 指定的条件，对所有 <code>spring.factories</code> 的信息去重、过滤，得到所需要的 bean 作为自动配置类进行加载</li>
+<li>AutoConfigurationImportSelector 根据 @EnableAutoConfiguration 指定的条件（@ConditionalXX 等），对所有 <code>spring.factories</code> 的信息去重、过滤，得到所需要的 bean 作为自动配置类进行加载</li>
 </ol>
 <p>Auto config 包下的 spring.factories 长这样：</p>
 <p><img src="/2022/04/20/springboot/spring-factories.png"></p>
