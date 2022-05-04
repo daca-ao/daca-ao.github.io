@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2022/04/20/springboot/spring-factories.png">
 <meta property="og:image" content="http://example.com/2022/04/20/springboot/application-properties.png">
 <meta property="article:published_time" content="2022-04-20T13:46:10.000Z">
-<meta property="article:modified_time" content="2022-05-04T08:41:33.254Z">
+<meta property="article:modified_time" content="2022-05-04T08:58:31.865Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -333,10 +333,10 @@
 </li>
 <li>初始化应用上下文初始化器列表 ArrayList&lt;ApplicationContextInitializer&lt;?&gt;&gt;</li>
 <li>初始化应用监听器列表 ArrayList&lt;ApplicationListener&lt;?&gt;&gt;<ul>
-<li>其中的 getSpringFactoriesInstances()：解析传入的 class</li>
+<li>其中的 <mark><code>getSpringFactoriesInstances()</code></mark>：解析传入的 class</li>
 </ul>
 </li>
-<li>初始化主应用类：通过调用的 stack trace 里面找到调用了 main() 方法的栈层，从而找到<strong>启动类本身</strong></li>
+<li>初始化主应用类：通过调用的 stack trace 定义到调用了 main() 方法的栈层，从而找到<strong>启动类本身</strong></li>
 </ol>
 <p>其中 Bootstrap Registry 的初始化因为 bootstraper 在 Spring 2.4.5 的废弃而被移除。</p>
 <p>由此，ConfigurableApplicationContext 在初始化的时候就加载了关于 processor, factory, autoconfiguration 等等很多相关的 bean。</p>
