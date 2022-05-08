@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/05/06/java-map/map-diagram.png">
 <meta property="article:published_time" content="2022-05-06T15:13:26.000Z">
-<meta property="article:modified_time" content="2022-05-08T05:17:09.921Z">
+<meta property="article:modified_time" content="2022-05-08T07:04:13.755Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -238,14 +238,19 @@
         <p>Java 集合类“二王”中的另一个，就是 Map 接口。</p>
 <span id="more"></span>
 
-<p>Map，意为映射表，表的元素是一个又一个的 <code>Entry</code> 对象。</p>
-<p>每个 Entry 对象为一键值对（Key-Value pair），Key 与 Value 可以是任意的 Object。</p>
-<p>由于要根据 Key 来区分不同的 Entry：Key 不能重复，Value 可以重复（包括 <code>null</code>）。</p>
+<p>Map，意为映射表，表的元素是一个又一个的 <code>Entry</code> 对象。<br>每个 Entry 对象为一键值对（Key-Value pair），key 与 value 可以是任意的 Object，Map 提供接口方法通过 key 去查找 value。</p>
+<p>由于要根据 key 来区分不同的 Entry：key 不能重复，不能对同一个 key 存放两个值，而 value 可以重复（包括 <code>null</code>）。<br>如对同一个 key 两次调用 put()，第二次的值会取代第一个值，put() 将返回用这个键参数存储的上一个值。</p>
 <p>Map 不继承 Collection 接口：Map 不是集合，如继承自 Collection：键值对何去何从？作为一组对象存放于 collection？这样子会加大映射表的负担，增加操作的复杂度。</p>
 <h1 id="接口方法"><a href="#接口方法" class="headerlink" title="接口方法"></a>接口方法</h1><p>JDK 为映射表的 Key 和 Value 规定了两个范型：&lt;K, V&gt;。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util;</span><br><span class="line"></span><br><span class="line">...  <span class="comment">// imports</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取集合元素的个数</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断集合是否为空</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查是否包含指定的 Key</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">containsKey</span><span class="params">(Object key)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查是否包含指定的 Value</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">containsValue</span><span class="params">(Object value)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据 Key 获取 Value</span></span><br><span class="line">    <span class="function">V <span class="title">get</span><span class="params">(Object key)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加 Entry</span></span><br><span class="line">    <span class="function">V <span class="title">put</span><span class="params">(K key, V value)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据 Key 删除 Entry</span></span><br><span class="line">    <span class="function">V <span class="title">remove</span><span class="params">(Object key)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 与 Collection 接口的 addAll 类似，将指定的 Map 对象添加进此 Map</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">putAll</span><span class="params">(Map&lt;? extends K, ? extends V&gt; m)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 清空 Map 中的所有元素</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 以下为 Map 接口提供的的集合视图：</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将所有的 Key 作为一个 Set 读取</span></span><br><span class="line">    <span class="function">Set&lt;K&gt; <span class="title">keySet</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 如 map 被修改，keySet 会变为 undefined</span></span><br><span class="line">    <span class="comment">// 可通过 remove 等操作移除，对应地移除 map 的映射；不支持 add 类型操作</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将所有的 Value 作为一个集合读取</span></span><br><span class="line">    <span class="function">Collection&lt;V&gt; <span class="title">values</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 如 map 被修改，values 会变为 undefined</span></span><br><span class="line">    <span class="comment">// 可通过 remove 等操作移除，对应地移除 map 的映射；不支持 add 类型操作</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将所有的 Entry 作为一个 Set 读取</span></span><br><span class="line">    Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet();</span><br><span class="line">    <span class="comment">// 如 map 被修改，entrySet 会变为 undefined</span></span><br><span class="line">    <span class="comment">// 可通过 remove 等操作移除，对应地移除 map 的映射；不支持 add 类型操作</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 映射表比较接口，需要子类实现</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object o)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util;</span><br><span class="line"></span><br><span class="line">...  <span class="comment">// imports</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取集合元素的个数</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">size</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断集合是否为空</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查是否包含指定的 Key</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">containsKey</span><span class="params">(Object key)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查是否包含指定的 Value</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">containsValue</span><span class="params">(Object value)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据 Key 获取 Value</span></span><br><span class="line">    <span class="function">V <span class="title">get</span><span class="params">(Object key)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加 Entry</span></span><br><span class="line">    <span class="function">V <span class="title">put</span><span class="params">(K key, V value)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据 Key 删除 Entry</span></span><br><span class="line">    <span class="function">V <span class="title">remove</span><span class="params">(Object key)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 与 Collection 接口的 addAll 类似，将指定的 Map 对象添加进此 Map</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">putAll</span><span class="params">(Map&lt;? extends K, ? extends V&gt; m)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 清空 Map 中的所有元素</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>集合框架 JCF 并没有将映射表本身视为一个集合；而其他数据结构框架会将其视为对（pair）集合，或用键作为索引的值的集合。</p>
+<p>可以通过一些已经实现的方法获得映射表的视图，这些视图实现了 Collection 接口或者它的子接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 以下为 Map 接口提供的的集合视图：</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将所有的 Key 作为一个 Set 读取</span></span><br><span class="line">    <span class="function">Set&lt;K&gt; <span class="title">keySet</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 如 map 被修改，keySet 会变为 undefined</span></span><br><span class="line">    <span class="comment">// 可通过 remove 等操作移除，对应地移除 map 的映射；不支持 add 类型操作</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将所有的 Value 作为一个集合读取</span></span><br><span class="line">    <span class="function">Collection&lt;V&gt; <span class="title">values</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 如 map 被修改，values 会变为 undefined</span></span><br><span class="line">    <span class="comment">// 可通过 remove 等操作移除，对应地移除 map 的映射；不支持 add 类型操作</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将所有的 Entry 作为一个 Set 读取</span></span><br><span class="line">    Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet();</span><br><span class="line">    <span class="comment">// 如 map 被修改，entrySet 会变为 undefined</span></span><br><span class="line">    <span class="comment">// 可通过 remove 等操作移除，对应地移除 map 的映射；不支持 add 类型操作</span></span><br><span class="line">    <span class="comment">// 注：只添加键不添加值是无意义的。</span></span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>在这里，我们需要说一下 <code>hashCode()</code> 和 <code>equals()</code> 这两个重要的方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 映射表比较接口，需要子类实现</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object o)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <br>
 
 <h2 id="hashCode-amp-equals"><a href="#hashCode-amp-equals" class="headerlink" title="hashCode() &amp; equals()"></a>hashCode() &amp; equals()</h2><p>如果两个对象相等（equals() 返回 <code>true</code>），则散列值 hash code 一定相同；如两个对象 hash code 值相等，对象则不一定相等。</p>
@@ -269,6 +274,7 @@
 <li>自反性</li>
 <li>非空性</li>
 </ul>
+<p>注：散列或比较函数只能作用于键，与键关联的值不能进行散列或比较。<br>如不需要按照排序访问键，就最好选择散列。如果不能通过 get() 得到，返回的则是 null。</p>
 <h2 id="New-from-JDK-1-8"><a href="#New-from-JDK-1-8" class="headerlink" title="New from JDK 1.8"></a>New from JDK 1.8</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 与 get 方法类似, 但当获取不到对应的 Value 时, 返回指定的默认 Value</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> V <span class="title">getOrDefault</span><span class="params">(Object key, V defaultValue)</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 与 put 方法类似, 当不存在对应的 Entry 时 put 并返回 null, 若存在则返回 Value</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> V <span class="title">putIfAbsent</span><span class="params">(K key, V value)</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只有当 Map 中存在 Entry 包含指定的 Key-Value 时, 才删除该 Entry</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object key, Object value)</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只有当 Map 中存在 Entry 包含指定的 Key 以及 Value 时, 才用新的 Value 替换旧 Value</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">boolean</span> <span class="title">replace</span><span class="params">(K key, V oldValue, V newValue)</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 只有当 Map 中存在 Entry 包含指定的 Key 以及任意 Value 时, 才用新的 Value 替换旧 Value</span></span><br><span class="line">    <span class="comment">// 返回旧 Value 或 null（如果没替换或原 Key 映射的 Value 为 null）</span></span><br><span class="line">    <span class="function"><span class="keyword">default</span> V <span class="title">replace</span><span class="params">(K key, V value)</span> </span>&#123;...&#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>由于从 Java 8 开始引入了<a href="/2022/02/07/fp">函数式编程</a>，因此 Map 也实现了与此相关的新接口：</p>
@@ -276,13 +282,12 @@
 
 
 <h2 id="内部接口-Map-Entry"><a href="#内部接口-Map-Entry" class="headerlink" title="内部接口 Map.Entry"></a>内部接口 Map.Entry</h2><p>Entry 沿用了 Map 接口的范型 &lt;K, V&gt;，代表 Map 中每一个单独的元素。</p>
-<p>Map 中的 keySet，values，entrySet 与其息息相关</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util;</span><br><span class="line"></span><br><span class="line">...  <span class="comment">// imports</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">// 获取此 Entry 的 Key</span></span><br><span class="line">    <span class="function">K <span class="title">getKey</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取此 Entry 的 Value</span></span><br><span class="line">    <span class="function">V <span class="title">getValue</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置此 Entry 的 Value</span></span><br><span class="line">    <span class="function">V <span class="title">setValue</span><span class="params">(V value)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// equals() 及 hashCode() 用于判断两个 Entry 对象是否相等</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object o)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// since 1.8, 返回一个根据 Key 来比对的比较器, 可用于排序</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;K extends Comparable&lt;? <span class="keyword">super</span> K&gt;, V&gt; Comparator&lt;Map.Entry&lt;K,V&gt;&gt; comparingByKey() &#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// since 1.8, 返回一个根据 Value 来比对的比较器, 可用于排序</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;K, V extends Comparable&lt;? <span class="keyword">super</span> V&gt;&gt; Comparator&lt;Map.Entry&lt;K,V&gt;&gt; comparingByValue() &#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// since 1.8, 返回一个根据 Key 来比对的比较器, 但比对方式来源于入参比较器</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;K, V&gt; Comparator&lt;Map.Entry&lt;K, V&gt;&gt; comparingByKey(Comparator&lt;? <span class="keyword">super</span> K&gt; cmp) &#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// since 1.8, 返回一个根据 Value 来比对的比较器, 但比对方式来源于入参比较器</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;K, V&gt; Comparator&lt;Map.Entry&lt;K, V&gt;&gt; comparingByValue(Comparator&lt;? <span class="keyword">super</span> V&gt; cmp) &#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-
+<p>Map 中的 keySet，values，entrySet 与其息息相关。</p>
 <h1 id="子类及接口"><a href="#子类及接口" class="headerlink" title="子类及接口"></a>子类及接口</h1><p><img src="/2022/05/06/java-map/map-diagram.png"></p>
-<h2 id="AbstractMap"><a href="#AbstractMap" class="headerlink" title="AbstractMap"></a>AbstractMap</h2><p>映射表抽象类，为 Map 的实现类预先实现了许多 Map 接口声明的方法</p>
-<p>不过，AbstractMap 所实现的方法大多依赖于 entrySet 方法；而 AbstractMap 并未实现 entrySet 方法，它选择交给子类实现。</p>
+<h2 id="AbstractMap"><a href="#AbstractMap" class="headerlink" title="AbstractMap"></a>AbstractMap</h2><p>映射表抽象类，为 Map 的实现类预先实现了许多 Map 接口声明的方法。</p>
+<p>不过，AbstractMap 所实现的方法大多依赖于 entrySet()；而 AbstractMap 并未实现 entrySet()，它选择交给子类实现。</p>
 <p>AbstractMap 提供了两个实现了 Map.Entry 接口的静态内部类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleEntry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 声明 key 为 final：确保了 Entry 对象内 key 一旦被设置后就不可再修改</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> K key;</span><br><span class="line">    <span class="keyword">private</span> V value;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    ... <span class="comment">// 方法实现</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -300,49 +305,26 @@
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">descendingKeySet();    <span class="comment">// 返回一个与当前 key set 反序的 key set</span></span><br><span class="line">descendingMap();        <span class="comment">// 返回一个与当前 map 反序的 map</span></span><br><span class="line">headMap(K toKey);        <span class="comment">// 返回一个小于指定 key 的视图</span></span><br><span class="line">tailMap(K fromKey);        <span class="comment">// 返回一个大于指定 key 的视图</span></span><br><span class="line">subMap(K from, K to);    <span class="comment">// 返回指定 key 范围之间的视图</span></span><br><span class="line">ceilingKey(K key);        <span class="comment">// 返回不小于指定 key 的最小 key</span></span><br><span class="line">floorKey(K key);        <span class="comment">// 返回不大于指定 key 的最大 key</span></span><br><span class="line">higherKey(K key);        <span class="comment">// 返回大于指定 key 的最小 key</span></span><br><span class="line">lowerKey(K key);        <span class="comment">// 返回小于指定 key 的最大 key</span></span><br><span class="line">ceilingEntry(K key);    <span class="comment">// 返回不小于指定 key 的最小 entry</span></span><br><span class="line">floorEntry(K key);        <span class="comment">// 返回不大于指定 key 的最大 entry</span></span><br><span class="line">higherEntry(K key);        <span class="comment">// 返回大于指定 key 的最小 entry</span></span><br><span class="line">lowerEntry(K key);        <span class="comment">// 返回小于指定 key 的最大 entry</span></span><br><span class="line">pollFirstEntry();        <span class="comment">// 删除并返回第一个 entry</span></span><br><span class="line">pollLastEntry();        <span class="comment">// 删除并返回最后一个 entry</span></span><br></pre></td></tr></table></figure>
 
+
 <p>非线程安全组合：</p>
 <ul>
-<li>HashMap：存储 k-v 关联的数据结构</li>
-<li>TreeMap：键值有序排列的映射表</li>
-<li>EnumMap：键值属于枚举类型的映射表</li>
-<li>LinkedHashMap：可记住 k-v 项添加次序（有序）的映射表</li>
-<li>WeakHashMap：其值不需要后可被 gc 回收的映射表，一定程度避免内存溢出</li>
-<li>IdentityHashMap：使用 == 而不是 equals 比较键值的映射表</li>
-</ul>
-<p>映射表</p>
+<li><p>HashMap：存储 k-v 关联的数据结构</p>
+</li>
+<li><p>TreeMap：键值有序排列的映射表</p>
+</li>
+<li><p>EnumMap：键值属于枚举类型的映射表</p>
+</li>
+<li><p>LinkedHashMap：可记住 k-v 项添加次序（有序）的映射表</p>
+</li>
+<li><p>WeakHashMap：其值不需要后可被 gc 回收的映射表，一定程度避免内存溢出</p>
+</li>
+<li><p>IdentityHashMap：使用 == 而不是 equals 比较键值的映射表</p>
+</li>
+<li><p>Java 类库提供了两个通用的实现：HashMap 和 TreeMap——均实现了 Map 接口</p>
 <ul>
-<li>存放 k-v 对，可通过键查找到值</li>
-<li>Java 类库提供了两个通用的实现：HashMap 和 TreeMap——均实现了 Map 接口<ul>
 <li>散列映射表对键进行散列</li>
 <li>树映射表用键的整体顺序对元素排序，并将其组织成搜索树</li>
 </ul>
-</li>
-<li>散列或比较函数只能作用于键，与键关联的值不能进行散列或比较</li>
-<li>如不需要按照排序访问键，就最好选择散列<ul>
-<li>如果不能通过 get() 得到，返回的则是 null</li>
-</ul>
-</li>
-<li>键必须唯一<ul>
-<li>不能对同一个键存放两个值</li>
-<li>如对同一个键两次调用 put()，第二个值会取代第一个值（put 将返回用这个键参数存储的上一个值）</li>
-</ul>
-</li>
-</ul>
-<p>注：集合框架并没有将映射表本身视为一个集合</p>
-<ul>
-<li><p>其他数据结构框架将其视为对（pair）集合，或用键作为索引的值的集合<br>可以通过已经实现的方法获得映射表的视图——实现了 Collection 接口对象，或者它的子接口的视图</p>
-</li>
-<li><p>键集<br>Set<K> keySet()  // 实现Set接口某个其他类的对象</K></p>
-</li>
-<li><p>值集合（非集，因为会有重复）<br>Collection<K> values()</K></p>
-</li>
-<li><p>键/值对（k-v）集<br>Set&lt;Map.Entry&lt;K, V&gt;&gt; entrySet()</p>
-</li>
-<li><p>元素为静态内部 Map.Entry 对象</p>
-</li>
-<li><p>可通过枚举 entrySet 各个条目来查看键和值</p>
-</li>
-<li><p>键与键/值对形成一个集：在映射表中一个键只能有一个副本<br>注：只添加键不添加值是无意义的。</p>
 </li>
 </ul>
 <p>实现类：</p>
@@ -353,19 +335,6 @@
 <li>包含静态类 TreeMap.Entry</li>
 <li>数据结构为红黑树，保证元素的有序遍历</li>
 </ul>
-<p>HashSet</p>
-<ul>
-<li><p>继承自 AbstractSet，内部有一个 HashMap 成员变量<br>private transient HashMap&lt;E,Object&gt; map;<br>即：其底层实现其实是由 HashMap 实现</p>
-</li>
-<li><p>HashSet 核心为一只使用 HashMap 的 Key 及 KeySet 的子类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object PRESENT = <span class="keyword">new</span> Object();</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> map.put(e, PRESENT)==<span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>每次往 HashSet 添加元素时，都会将元素作为 Key 添加进来</p>
-</li>
-<li><p>同时新建 Object 对象用于填充内部 HashMap 的 Value</p>
-</li>
-<li><p>不允许重复的值</p>
-</li>
-</ul>
 <p>专用集：<br>弱散列映射表</p>
 <ul>
 <li>只要映射表是活动的，则其中的所有桶都是活动的</li>
@@ -374,12 +343,7 @@
 <li>WeakHashMap 使用弱引用保存键，并周期性检查队列，以便找出新添加的弱引用</li>
 <li>保证垃圾回收时 key 能被回收，导致 value 也能被回收，从而使对应的 entry 消失</li>
 </ul>
-<p>链接散列表和链接映射表<br>LinkedHashSet</p>
-<ul>
-<li>HashSet 的子类</li>
-<li>使用双向链表记录插入顺序，遍历时依照该插入顺序</li>
-<li>对于同一个元素，其插入顺序不会因多次插入而变化。只有当其被移除后再次插入时，顺序才会改变</li>
-</ul>
+<p>链接散列表和链接映射表</p>
 <p>LinkedHashMap<br>当条目插入到表中时，会被并入双向链表中</p>
 <ul>
 <li>LinkedHashMap 使用访问顺序对映射表条目进行迭代，而非插入顺序</li>
@@ -399,14 +363,7 @@
 <li>每当方法返回 true 时，添加一个新条目，从而删除 eldest 条目</li>
 <li>另还可对 eldest 进行评估，以此决定是否应该将它删除</li>
 </ul>
-<p>枚举集与映射表<br>EnumSet：枚举类型元素集的高效实现</p>
-<ul>
-<li>底层是位向量（bit vector）</li>
-<li>枚举类型序列有限：EnumSet 使用位序列实现；如对应值在 EnumSet 中，则相应的位被置为1</li>
-<li>使用静态工厂法构造该集</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">WeekDay</span> </span>&#123;NONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY&#125;</span><br><span class="line">EnumSet&lt;WeekDay&gt; workday = EnumSet.range(WeekDay.MONDAY, WeekDay.FRIDAY);</span><br><span class="line">EnumSet&lt;WeekDay&gt; never = EnumSet.noneOf(WeekDay.Class); </span><br></pre></td></tr></table></figure>
-
+<p>枚举集与映射表</p>
 <p>EnumMap：键类型为枚举类型的映射表</p>
 <ul>
 <li>底层是数组</li>
@@ -418,17 +375,6 @@
 <li>允许 key 重复</li>
 <li>在两个对象进行比较时，IdentityHashMap 使用 == ，不使用 equals()</li>
 <li>即：不同的键对象，即是内容相同，也被视为不同的对象</li>
-</ul>
-<p>TreeSet</p>
-<ul>
-<li>AbstractSet 的子类，同时实现 NavigableSet 接口</li>
-<li>TreeSet 与 TreeMap 的关系，如同 HashSet 与 HashMap 的关系</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> NavigableMap&lt;E,Object&gt; m;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">TreeSet</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(<span class="keyword">new</span> TreeMap&lt;E,Object&gt;());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object PRESENT = <span class="keyword">new</span> Object();</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> m.put(e, PRESENT)==<span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>TreeSet 的元素保证有序，按照自然顺序或指定 Comparator 排序规则排序</li>
-<li>TreeSet 的 descendingSet，headSet 等方法与 TreeMap（NavigableMap）中类似名称的方法起着类似作用</li>
 </ul>
 
     </div>
