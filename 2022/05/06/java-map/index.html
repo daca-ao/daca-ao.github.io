@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/05/06/java-map/map-diagram.png">
 <meta property="article:published_time" content="2022-05-06T15:13:26.000Z">
-<meta property="article:modified_time" content="2022-05-08T12:41:28.980Z">
+<meta property="article:modified_time" content="2022-05-08T12:50:07.155Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -304,19 +304,19 @@
 
 
 <h2 id="实现类"><a href="#实现类" class="headerlink" title="实现类"></a>实现类</h2><p>概括一下常用的非线程安全的 Map 实现类：</p>
-<p><a href="/2022/05/08/java-hashmap"><code>HashMap</code></a>：存储 k-v 关联的数据结构，对 key 进行散列</p>
+<p><a href="/2022/05/08/java-hashmap"><strong><code>HashMap</code></strong></a>：存储 k-v 关联的数据结构，对 key 进行散列</p>
+<p><strong><code>TreeMap</code></strong></p>
+<p>TreeMap 键值有序排列的映射表，元素整体以红黑树形式排序。<br>TreeMap 实现了 NavigableMap 接口，内部 Entry 为静态类 TreeMap.Entry。</p>
 <ul>
-<li><code>TreeMap</code>：键值有序排列的映射表，元素整体以搜索树形式排序</li>
-<li><code>EnumMap</code>：键值属于枚举类型的映射表</li>
-<li><code>LinkedHashMap</code>：可记住 k-v 项添加次序（有序）的映射表</li>
-<li><code>WeakHashMap</code>：其值不需要后可被 gc 回收的映射表，一定程度避免内存溢出</li>
-<li><code>IdentityHashMap</code>：使用 == 而不是 equals 比较键值的映射表</li>
+<li><p><code>EnumMap</code>：键值属于枚举类型的映射表</p>
+</li>
+<li><p><code>LinkedHashMap</code>：可记住 k-v 项添加次序（有序）的映射表</p>
+</li>
 </ul>
-<p>TreeMap</p>
+<p><code>WeakHashMap</code></p>
+<p>其值不需要后可被 gc 回收的映射表，一定程度避免内存溢出</p>
 <ul>
-<li>实现了 NavigableMap 接口</li>
-<li>包含静态类 TreeMap.Entry</li>
-<li>数据结构为红黑树，保证元素的有序遍历</li>
+<li><code>IdentityHashMap</code>：使用 == 而不是 equals 比较键值的映射表</li>
 </ul>
 <p>弱散列映射表</p>
 <ul>
