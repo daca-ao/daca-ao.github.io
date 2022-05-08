@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/05/06/java-map/map-diagram.png">
 <meta property="article:published_time" content="2022-05-06T15:13:26.000Z">
-<meta property="article:modified_time" content="2022-05-08T12:50:07.155Z">
+<meta property="article:modified_time" content="2022-05-08T13:42:25.188Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -307,56 +307,30 @@
 <p><a href="/2022/05/08/java-hashmap"><strong><code>HashMap</code></strong></a>：存储 k-v 关联的数据结构，对 key 进行散列</p>
 <p><strong><code>TreeMap</code></strong></p>
 <p>TreeMap 键值有序排列的映射表，元素整体以红黑树形式排序。<br>TreeMap 实现了 NavigableMap 接口，内部 Entry 为静态类 TreeMap.Entry。</p>
-<ul>
-<li><p><code>EnumMap</code>：键值属于枚举类型的映射表</p>
-</li>
-<li><p><code>LinkedHashMap</code>：可记住 k-v 项添加次序（有序）的映射表</p>
-</li>
-</ul>
-<p><code>WeakHashMap</code></p>
-<p>其值不需要后可被 gc 回收的映射表，一定程度避免内存溢出</p>
-<ul>
-<li><code>IdentityHashMap</code>：使用 == 而不是 equals 比较键值的映射表</li>
-</ul>
-<p>弱散列映射表</p>
-<ul>
-<li>只要映射表是活动的，则其中的所有桶都是活动的</li>
-<li>如某个对象只能被弱引用，则垃圾回收器可以将其回收，但要将引用这个对象的弱引用放入队列中</li>
-<li>弱引用进入队列意味着这个键不再被他人使用</li>
-<li>WeakHashMap 使用弱引用保存键，并周期性检查队列，以便找出新添加的弱引用</li>
-<li>保证垃圾回收时 key 能被回收，导致 value 也能被回收，从而使对应的 entry 消失</li>
-</ul>
-<p>LinkedHashMap<br>当条目插入到表中时，会被并入双向链表中</p>
-<ul>
-<li>LinkedHashMap 使用访问顺序对映射表条目进行迭代，而非插入顺序</li>
-<li>每次调用 get 或 put：受影响（被改动过的）条目将从当前位置删除，并放到条目链表尾部<ul>
-<li>只有条目在链表中的位置受影响，散列表中的桶的位置不受影响</li>
-<li>构造： </li>
-</ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LinkedHashMap&lt;K, V&gt;(initialCapacity,  <span class="comment">// 给定的初始容量</span></span><br><span class="line">                    loadFactor,       <span class="comment">// 填充因子</span></span><br><span class="line">                    <span class="keyword">true</span>)             <span class="comment">// 元素访问顺序</span></span><br></pre></td></tr></table></figure>
+<p>**<code>LinkedHashMap</code>**：可记住 k-v 项添加次序（有序）的映射表</p>
+<p>LinkedHashMap 使用<strong>访问顺序</strong>对映射表条目进行迭代，而非插入顺序。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LinkedHashMap&lt;K, V&gt;(initialCapacity,  <span class="comment">// 给定的初始容量</span></span><br><span class="line">                    loadFactor,       <span class="comment">// 填充因子</span></span><br><span class="line">                    <span class="keyword">true</span>)             <span class="comment">// 元素访问顺序，true 为按照访问顺序，false 为按照插入顺序</span></span><br></pre></td></tr></table></figure>
 
+<p>当 entry 插入到表中时，会被并入双向链表中。每次调用 get() 或 put() 的时候，受影响（被改动过的）的 entry 会从当前位置被删除，并放到 entry 链表尾部。</p>
+<p>只有 entry 在链表中的位置受影响，散列表中<strong>桶的位置不受影响</strong>。</p>
 <p>访问顺序对于实现高速缓存的“最近最少使用”（LRU）原则十分重要</p>
 <ul>
-<li>将访问频繁的元素置于内存，不频繁的放入数据库</li>
-<li>在表中找不到元素项且表已满时，可将迭代器加入表中，并将枚举的前几个元素（近期最少使用的元素）删除<br>自动化方法：</li>
-<li>覆盖 LinkedHashMap 的 protected boolean removeEldestEntry(Map.Entry&lt;K, V&gt; eldest)</li>
+<li>在实际应用中，访问频繁的元素会被置于内存，不频繁的被放入数据库</li>
+<li>在表中找不到元素项且表已满时，可将迭代器加入表中，并将枚举的前几个元素（近期最少使用的元素）删除</li>
+</ul>
+<p>根据 LinkedHashMap 的属性，可以实现 LRU：</p>
+<ul>
+<li>覆盖 LinkedHashMap 的 <code>protected boolean removeEldestEntry(Map.Entry&lt;K, V&gt; eldest)</code></li>
 <li>每当方法返回 true 时，添加一个新条目，从而删除 eldest 条目</li>
 <li>另还可对 eldest 进行评估，以此决定是否应该将它删除</li>
 </ul>
-<p>EnumMap：键类型为枚举类型的映射表</p>
-<ul>
-<li>底层是数组</li>
-<li>可直接且高效地用一个值数组实现</li>
-</ul>
-<p>标识散列映射表<br>IdentityHashMap：键的散列值使用 System.IdentityHashCode() 计算的</p>
-<ul>
-<li>根据对象的内存地址来计算散列码</li>
-<li>允许 key 重复</li>
-<li>在两个对象进行比较时，IdentityHashMap 使用 == ，不使用 equals()</li>
-<li>即：不同的键对象，即是内容相同，也被视为不同的对象</li>
-</ul>
+<p>**<code>EnumMap</code>**：键值属于枚举类型的映射表，底层是数组，直接且高效。</p>
+<p><strong><code>WeakHashMap</code></strong></p>
+<p>对于弱引用对象来说，垃圾回收器将其回收，要先将引用这个对象的弱引用放入队列中。<br>当弱引用进入队列，意味着该引用不再被他人使用。</p>
+<p>WeakHashMap 使用弱引用保存键，并周期性检查队列，以便找出新添加的弱引用，保证垃圾回收时 key 能被回收，随即回收 value，从而使对应的 entry 消失，一定程度避免内存溢出。</p>
+<p><strong><code>IdentityHashMap</code></strong></p>
+<p>IdentityHashMap 的键的散列值是使用 <code>System.IdentityHashCode()</code> 计算的，根据<strong>对象的内存地址</strong>来计算散列码。</p>
+<p>因此比较两个对象的时候，IdentityHashMap 使用 <code>==</code>，而不是 equals()。<br>也就是说，不同的 key 即使内容相同，也被视为不同的对象。<br>所以 IdentityHashMap 允许重复的 key。</p>
 
     </div>
 
