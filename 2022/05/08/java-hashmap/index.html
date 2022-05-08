@@ -20,17 +20,22 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Storing blogs">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Raymond&#39;s Cabin">
-<meta property="og:url" content="http://example.com/tags/GC/index.html">
+  <meta name="description" content="HashMap 在 Java 编程中的出镜率相当高。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HashMap">
+<meta property="og:url" content="http://example.com/2022/05/08/java-hashmap/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="Storing blogs">
+<meta property="og:description" content="HashMap 在 Java 编程中的出镜率相当高。">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-05-08T05:07:17.000Z">
+<meta property="article:modified_time" content="2022-05-08T05:16:28.750Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="集合类">
+<meta property="article:tag" content="Map">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/tags/GC/">
+<link rel="canonical" href="http://example.com/2022/05/08/java-hashmap/">
 
 
 <script id="page-configurations">
@@ -38,12 +43,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'en'
   };
 </script>
 
-  <title>Tag: GC | Raymond's Cabin</title>
+  <title>HashMap | Raymond's Cabin</title>
   
 
 
@@ -177,51 +182,165 @@
         <div class="content-wrap">
           
 
-          <div class="content tag">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h2 class="collection-header">GC
-          <small>Tag</small>
-        </h2>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/05/08/java-hashmap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
+      <meta itemprop="description" content="Storing blogs">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Raymond's Cabin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HashMap
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-05-08 13:07:17" itemprop="dateCreated datePublished" datetime="2022-05-08T13:07:17+08:00">2022-05-08</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2021</span>
+        <p>HashMap 在 Java 编程中的出镜率相当高。</p>
+<span id="more"></span>
+
+<p>这里涉及到一个基本的概念：</p>
+<h1 id="什么是-Hash？"><a href="#什么是-Hash？" class="headerlink" title="什么是 Hash？"></a>什么是 Hash？</h1><p>直译为“哈希”，意译为“散列”，是根据 Hash 算法对某个对象进行序列化</p>
+<p>散列集<br>散列表（hash table）：为每个对象计算一个整数，称为散列码（hash code）</p>
+<ul>
+<li>散列码由对象的实例域产生的一个整数，具有不同数据域的对象产生不同的散列码</li>
+<li>如果自定义类，需实现该类的 hashCode() 方法（该方法应与 equals 方法兼容）</li>
+</ul>
+<p>Java 散列表：使用链表数组实现</p>
+<ul>
+<li>每个列表被称为“桶”（bucket）</li>
+<li>要想查找表中对象的位置，须先计算散列码，与桶的总数取余，所得为保存该元素的桶的索引</li>
+<li>有的时候会遇到桶被占用的情况——散列冲突（hash collision）<ul>
+<li>需要将新对象与桶中的所有对象进行比较，查看该对象是否已经存在</li>
+<li>如有相同 Key 的元素：将其 value 更新</li>
+<li>否则：将该元素作为新的头元素加入桶中</li>
+<li>如散列码设计合理且随机分布，桶的数目足够大，比较次数也会少</li>
+</ul>
+</li>
+<li>如想更多控制散列表运行性能，则需要指定一个初始的桶数：用于收集具有相同散列值的桶的数目</li>
+<li>如大致知道最终会有多少个元素要插入到散列表中，便可设置桶数：通常为预计元素个数的75%-150%</li>
+<li>若散列表太满：需要再散列（rehashed）<ul>
+<li>创建一个桶更多的表，并将所有元素插入到新表中，再丢弃原来的表</li>
+<li>装填因子（load factor）决定何时对散列表进行再散列<ul>
+<li>如设为0.75（默认值），而表中超过75%位置已填入元素：用双倍的桶数自动进行再散列</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>实现：<br>最简单的 set 类型：没有重复元素的元素集合</p>
+<ul>
+<li>Java 集合类库提供 HashSet 类：实现基于散列表的集</li>
+<li>使用 add 添加元素</li>
+<li>contains （被重新定义）快速查看某元素是否已在集中（只在某个桶中查找元素，不必查看集合中的所有元素）</li>
+<li>散列集迭代器依次访问所有桶。因散列将元素分散在表的各个位置上：访问顺序随机</li>
+<li>在不关心集合中元素顺序时才应使用 HashSet</li>
+</ul>
+<h1 id="HashMap-ConcurrentHashMap-v-s-Hashtable"><a href="#HashMap-ConcurrentHashMap-v-s-Hashtable" class="headerlink" title="HashMap / ConcurrentHashMap v.s. Hashtable"></a>HashMap / ConcurrentHashMap v.s. Hashtable</h1><p>HashMap v.s. Hashtable<br>相近之处：</p>
+<ul>
+<li>HashMap 和 Hashtable 均实现了 Map 接口</li>
+<li>均无序<br>区别：</li>
+<li>Hashtable 继承自 Dictionary 类；HashMap 继承自 AbstractMap 类</li>
+<li>Hashtable 为 synchronized 的类，即线程安全类；HashMap 不是 synchronized 类<ul>
+<li>Hashtable 所有元素操作都是 synchronized 修饰的</li>
+<li>在单线程下 Hashtable 比 HashMap 慢</li>
+<li>ConcurrentHashMap 为 HashTable 的替代</li>
+</ul>
+</li>
+<li>Hashtable 不可接受键或值为 null 的项；HashMap 可以接受 null 的键值对（key 和 value 为 null）</li>
+<li>Hashtable 保留 HashMap 已经去除的 contains 方法</li>
+<li>Hashtable 除了 HashMap 也有的 Iterator 实现方式，还保留了 Enumeration 方式<ul>
+<li>HashMap 提供 keySet 的遍历：fail-fast<ul>
+<li>即：当其他线程改变了 HashMap 的结构，如增加删除元素，将抛出 ConcurrentModificationException</li>
+</ul>
+</li>
+<li>Hashtable 提供 key 的 Enumeration 遍历：不支持 fail-fast</li>
+</ul>
+</li>
+<li>求 hashCode 的方法不同</li>
+</ul>
+<p>// Hashtable 的 put：<br>public synchronized V put(K key, V value) {<br>    if (value == null) {<br>        throw …<br>    }</p>
+<pre><code>int hash = key.hashCode();
+...
+</code></pre>
+<p>}</p>
+<p>ConcurrentHashMap v.s. Hashtable<br>相同：线程安全<br>不同</p>
+<ul>
+<li>Hashtable 每次操作都会锁住整个表结构，导致每次只能有一个线程访问 Hashtable 对象</li>
+<li>ConcurrentHashMap 只锁住某个节点，只有在涉及到 size 的操作才会锁住整个表结构</li>
+</ul>
+<h1 id="HashMap-v-s-TreeMap"><a href="#HashMap-v-s-TreeMap" class="headerlink" title="HashMap v.s. TreeMap"></a>HashMap v.s. TreeMap</h1><p>HashMap v.s. TreeMap</p>
+<ul>
+<li>HashMap 在插入、删除和定位元素等操作占优</li>
+<li>TreeMap 在遍历有序 key 集合时占优</li>
+</ul>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-07-09T22:44:14+08:00"
-              content="2021-07-09">
-          07-09
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/%E9%9B%86%E5%90%88%E7%B1%BB/" rel="tag"># 集合类</a>
+              <a href="/tags/Map/" rel="tag"># Map</a>
+          </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/07/09/garbage-collection/" itemprop="url">
-            <span itemprop="name">JVM 垃圾回收机制</span>
-          </a>
-      </div>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/05/06/java-map/" rel="prev" title="Java Map 接口">
+      <i class="fa fa-chevron-left"></i> Java Map 接口
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
@@ -274,6 +393,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-Hash%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">什么是 Hash？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HashMap-ConcurrentHashMap-v-s-Hashtable"><span class="nav-number">2.</span> <span class="nav-text">HashMap &#x2F; ConcurrentHashMap v.s. Hashtable</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HashMap-v-s-TreeMap"><span class="nav-number">3.</span> <span class="nav-text">HashMap v.s. TreeMap</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
