@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/04/30/java-collection/collection-diagram.png">
 <meta property="article:published_time" content="2022-04-30T09:21:52.000Z">
-<meta property="article:modified_time" content="2022-05-08T07:05:22.816Z">
+<meta property="article:modified_time" content="2022-05-08T07:19:22.725Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -311,44 +311,38 @@
 <p>针对元素排序而声明的方法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">NavigableSet&lt;E&gt; <span class="title">descendingSet</span><span class="params">()</span></span>;    <span class="comment">// 返回由原 NavigableSet 倒序排列的 NavigableSet</span></span><br><span class="line"><span class="function">Iterator&lt;E&gt; <span class="title">descendingIterator</span><span class="params">()</span></span>;    <span class="comment">// 根据 descendingSet() 的结果调用 iterator()</span></span><br></pre></td></tr></table></figure>
 
+
 <h3 id="通用实现类-TreeSet"><a href="#通用实现类-TreeSet" class="headerlink" title="通用实现类 TreeSet"></a>通用实现类 TreeSet</h3><p><code>TreeSet</code> 属于有序集合，使用<strong>红黑树</strong>完成排序，可将元素以任意顺序插入到集合中。<br>顾名思义，TreeSet 建立了一棵树，每次添加元素，新元素会被放在正确的排序位置上；因此在遍历的时候，迭代器总以排好序的顺序访问元素，按照<strong>排序后</strong>的顺序输出。<br>因此 TreeSet 添加速度比散列表慢，但比添加到数组或链表快。</p>
-<p>TreeSet 实现了 NavigableSet，在其基础上增加了几个便于定位元素以及反向遍历的方法。<br>TreeSet 与 TreeMap 的关系，如同 HashSet 与 HashMap 的关系。</p>
+<p>TreeSet 实现了 NavigableSet，在其基础上增加了几个便于定位元素以及反向遍历的方法。  </p>
 <p>实现代码概要如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> NavigableMap&lt;E,Object&gt; m;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">TreeSet</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(<span class="keyword">new</span> TreeMap&lt;E,Object&gt;());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object PRESENT = <span class="keyword">new</span> Object();</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;  <span class="comment">// 以此来实现元素的唯一性</span></span><br><span class="line">    <span class="keyword">return</span> m.put(e, PRESENT)==<span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>可以看出，TreeSet 的底层其实是由 TreeMap 实现的；也就是说，TreeSet 的<strong>核心</strong>为使用了 TreeMap 的 Key 及 KeySet 的子类。</p>
 <p>TreeSet 的元素保证有序，按照自然顺序或指定 Comparator 排序规则排序。<br>TreeSet 的 Comparable 接口实现：如果 a 与 b 相等，调用 a.compareTo(b) 返回 0；如 a 大于 b ，返回值大于 0；否则返回值小于 0。<br>还可通过 Comparator 对象传递给 TreeSet 构造器，告诉 TreeSet 使用不同的比较方法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Comparator</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">compare</span><span class="params">(T a, T b)</span></span>;  <span class="comment">// 返回值与 compareTo() 一样</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>需要比较的时候，可新建一个 Comparator 接口的类，将该类对象传入 TreeSet 构造器中；或使用匿名内部类方法传递。</p>
 <p>如果要插入自定义的对象，就必须通过实现 Comparable 接口自定义排列顺序，因为 Object 类中不提供任何 compareTo 接口的默认实现；<br>注意数字比较时候的溢出：大正整数减去小负整数；<br>覆盖 Comparator<T> 中的 equals()，会使 TreeSet 添加元素的效率更高。</T></p>
 <p>TreeSet 的 descendingSet()，headSet() 等方法与 TreeMap（NavigableMap）中类似名称的方法起着类似作用。</p>
-<h2 id="其他通用实现类"><a href="#其他通用实现类" class="headerlink" title="其他通用实现类"></a>其他通用实现类</h2><p><code>HashSet</code>：没有重复元素的无序集合</p>
-<ul>
-<li>继承自 AbstractSet，内部有一个 HashMap 成员变量</li>
-</ul>
+<h2 id="其他通用实现类"><a href="#其他通用实现类" class="headerlink" title="其他通用实现类"></a>其他通用实现类</h2><p><code>HashSet</code>：没有重复元素的无序集合，继承自 AbstractSet，内部有一个 HashMap 成员变量：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> HashMap&lt;E,Object&gt; map;</span><br></pre></td></tr></table></figure>
 
-<p>即：其底层其实是由 HashMap 实现</p>
+<p>可以看出，HashSet 的底层其实是由 HashMap 实现的；也就是说，HashSet 的<strong>核心</strong>为使用了 HashMap 的 Key 及 KeySet 的子类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object PRESENT = <span class="keyword">new</span> Object();</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;  <span class="comment">// 以此来实现元素的唯一性（不允许重复值）</span></span><br><span class="line">    <span class="keyword">return</span> map.put(e, PRESENT)==<span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每次往 HashSet 添加元素时，都会将元素作为 key 添加进来，同时新建 Object 对象用于填充内部 HashMap 的 value</p>
+<p>HashSet 与 HashMap 的关系，如同 TreeSet 与 TreeMap 的关系。</p>
+<br>
+
+<p><code>LinkedHashSet</code>：HashSet 的子类，可记住元素插入次序的集</p>
 <ul>
-<li><p>HashSet 核心为一只使用 HashMap 的 Key 及 KeySet 的子类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object PRESENT = <span class="keyword">new</span> Object();</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> map.put(e, PRESENT)==<span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>每次往 HashSet 添加元素时，都会将元素作为 Key 添加进来</p>
-</li>
-<li><p>同时新建 Object 对象用于填充内部 HashMap 的 Value</p>
-</li>
-<li><p>不允许重复的值</p>
-</li>
-</ul>
-<p><code>LinkedHashSet</code>：可记住元素插入次序的集</p>
-<ul>
-<li>HashSet 的子类</li>
 <li>使用双向链表记录插入顺序，遍历时依照该插入顺序</li>
 <li>对于同一个元素，其插入顺序不会因多次插入而变化。只有当其被移除后再次插入时，顺序才会改变</li>
 </ul>
-<p><code>EnumSet</code>：包含枚举类型值的集<br>EnumSet：枚举类型元素集的高效实现</p>
+<p><code>EnumSet</code>：枚举类型元素集的高效实现</p>
 <ul>
 <li>底层是位向量（bit vector）</li>
-<li>枚举类型序列有限：EnumSet 使用位序列实现；如对应值在 EnumSet 中，则相应的位被置为1</li>
+<li>枚举类型序列有限：EnumSet 使用位序列实现；如对应值在 EnumSet 中，则相应的位被置为 1</li>
 <li>使用静态工厂法构造该集</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">WeekDay</span> </span>&#123;MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY&#125;</span><br><span class="line">EnumSet&lt;WeekDay&gt; workday = EnumSet.range(WeekDay.MONDAY, WeekDay.FRIDAY);</span><br><span class="line">EnumSet&lt;WeekDay&gt; never = EnumSet.noneOf(WeekDay.Class); </span><br></pre></td></tr></table></figure>
