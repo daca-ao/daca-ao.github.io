@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2022/05/08/java-hashmap/map-java7.jpg">
 <meta property="og:image" content="http://example.com/2022/05/08/java-hashmap/map-java8.jpg">
 <meta property="article:published_time" content="2022-05-08T05:07:17.000Z">
-<meta property="article:modified_time" content="2022-05-11T13:54:52.056Z">
+<meta property="article:modified_time" content="2022-05-11T13:59:21.888Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -244,7 +244,7 @@
 <p>不同数据域的对象对应会产生不同的散列码。</p>
 <p>给一个集合里面的所有对象计算散列码，我们称这个对象为散列表（hash table）。<br>散列表若要存放自定义类的时候，需实现该类的 <code>hashCode()</code> 方法（该方法应与 <code>equals()</code> 兼容）。</p>
 <h2 id="Java-中的实现"><a href="#Java-中的实现" class="headerlink" title="Java 中的实现"></a>Java 中的实现</h2><p>在 Java 中，散列表使用<strong>链表数组</strong>实现，数组中的每个链表被称为<strong>桶</strong>（bucket）。</p>
-<p>要想查找表中对象的位置，需要先计算键值的散列码，与桶的总数取余，得到保存该元素的桶的索引。根据索引就可以得到对应的值。</p>
+<p>要想查找表中对象的位置，需要先计算散列码，与桶的总数取余，得到保存该元素的桶的索引。根据索引就可以得到对应的值。</p>
 <p>有的时候会遇到桶被占用的情况，我们称之为<strong>散列冲突</strong>（hash collision）；此时需要将新对象与桶中的所有对象进行比较，查看是否已经存在了这个对象。<br>如果存在了相同的 key 的元素，就将其 value 更新；否则将该元素作为新的<strong>头元素</strong>加入桶中（头插法）。</p>
 <p>若散列表太满，散列表需要再散列（rehash）：创建一个桶更多的表，并将所有元素插入到新表中，再丢弃原来的表。<br>散列表的<strong>负载因子</strong>（<strong>load factor</strong>）决定何时对散列表进行再散列。比如将 load factor 设为 0.75（默认值），而表中超过 75% 位置已经填入了元素，那么在 rehash 的时候，会用双倍的桶数自动进行再散列。</p>
 <p>如果散列码设计合理且随机分布，桶的数目足够大，比较次数就会减少。<br>想更多地控制散列表的运行性能，则需要指定一个初始的桶数，用于收集具有相同散列值的桶的数目：</p>
