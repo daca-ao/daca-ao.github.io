@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2022/05/08/java-hashmap/map-java7.jpg">
 <meta property="og:image" content="http://example.com/2022/05/08/java-hashmap/map-java8.jpg">
 <meta property="article:published_time" content="2022-05-08T05:07:17.000Z">
-<meta property="article:modified_time" content="2022-05-11T14:08:26.614Z">
+<meta property="article:modified_time" content="2022-05-11T14:09:53.035Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -271,7 +271,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">indexFor</span><span class="params">(<span class="keyword">int</span> h, <span class="keyword">int</span> length)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> h &amp; (length-<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>相当于根据 key 的 hash 值对数组的长度取模，用于确定 Entry 分配到哪个索引下的桶。</p>
-<p><strong><code>resize()</code></strong></p>
+<p>扩容 <strong><code>resize()</code></strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">resize</span><span class="params">(<span class="keyword">int</span> newCapacity)</span> </span>&#123;</span><br><span class="line">     ...  <span class="comment">// 其它代码</span></span><br><span class="line">    threshold = (<span class="keyword">int</span>) Math.min(newCapacity * loadFactor, MAXIMUM_CAPACITY + <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>关键点：</p>
