@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Docker 属于虚拟容器技术，属于轻量级的虚拟化。">
+  <meta name="description" content="Docker 是利用 Go 开发的一种虚拟容器技术，属于轻量级的虚拟化。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Docker 概述">
 <meta property="og:url" content="http://example.com/2022/05/14/docker/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="Docker 属于虚拟容器技术，属于轻量级的虚拟化。">
+<meta property="og:description" content="Docker 是利用 Go 开发的一种虚拟容器技术，属于轻量级的虚拟化。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/05/14/docker/docker.png">
 <meta property="og:image" content="http://example.com/2022/05/14/docker/vm-container.png">
 <meta property="og:image" content="http://example.com/2022/05/14/docker/docker-lifecycle.png">
 <meta property="article:published_time" content="2022-05-14T08:01:44.000Z">
-<meta property="article:modified_time" content="2022-05-14T11:08:37.148Z">
+<meta property="article:modified_time" content="2022-05-14T13:29:37.653Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Docker">
 <meta property="article:tag" content="容器化">
@@ -236,12 +236,13 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Docker 属于虚拟容器技术，属于轻量级的虚拟化。</p>
+        <p>Docker 是利用 Go 开发的一种虚拟容器技术，属于轻量级的虚拟化。</p>
 <span id="more"></span>
 
-<p>Docker 本身不是容器，而是创建容器的工具，是应用容器引擎。</p>
+<p>Docker 本身不是容器，而是创建容器的工具，是应用容器的引擎。</p>
 <p><img src="/2022/05/14/docker/docker.png"></p>
-<p>这句 slogan <strong>“Build, ship and run.”</strong> 就很能说明 Docker 的思想：如同它的 logo 一样</p>
+<p>这句 slogan <strong>“Build, ship and run.”</strong> 就很能说明 Docker 的思想：如同它的 logo 一样，Docker 是一条大鲸鱼，承载的一个个的集装箱就是各个不同的容器，容器之间相互<strong>隔离</strong>。<br>跟虚拟机一样，Docker 的核心思想也是“隔离”。Docker 通过隔离机制，既可以保障每个集装箱里的东西互不相干，也能将服务器资源压榨到最大程度。</p>
+<p>由于 Docker 将包括运行环境在内的应用上下文一起打包，它的出现大大减少了开发过程中因为开发、测试环境和生产环境之间的切换导致的程序不兼容问题，简化与加快了产品发布流程。</p>
 <p>Docker 的核心概念包括：</p>
 <ul>
 <li>镜像 Image</li>
@@ -256,7 +257,7 @@
 <li>资源隔离（CPU、内存）</li>
 <li>文件系统隔离（联合文件系统 UnionFS）</li>
 </ol>
-<p>容器使用 Linux 系统中存在的结构（cgroups, namespaces, …），并在其之上构建一个抽象。<br>使用容器不仅可以分发应用程序的二进制代码，还可以以实用的方式交付运行应用程序所需的整个环境。</p>
+<p>容器使用 Linux 系统中存在的结构（cgroups, namespaces, …），并在其之上构建一个抽象。<br>使用容器不仅可以分发应用<strong>程序的二进制代码</strong>，还可以以实用的方式交付运行应用程序所需的<strong>整个环境</strong>。</p>
 <p>容器与虚拟机的区别：</p>
 <table>
 <thead>
@@ -269,7 +270,7 @@
 <tbody><tr>
 <td>隔离级别</td>
 <td>操作系统级</td>
-<td>进程级</td>
+<td>进程级（内核级）</td>
 </tr>
 <tr>
 <td>隔离策略</td>
@@ -304,7 +305,9 @@
 </tbody></table>
 <p>上图：</p>
 <p><img src="/2022/05/14/docker/vm-container.png"></p>
-<h1 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h1><p>镜像 Image 属于联合文件系统。</p>
+<p>可知 VM 虚拟出的是完整的操作系统（包括内核），而容器直接运行在宿主机内核上，没有自己的内核和虚拟硬件。<br>VM 提供的是不同操作系统之间数据和环境的隔离；而容器提供的是不同应用及其运行环境的隔离。<br>所以容器更加小巧轻便，更高效地利用物理机的资源，消耗资源更少，启动速度更快，能实现快速的运维部署、升级、扩/缩容。</p>
+<p>在 Docker 中，所有容器通过 <strong>Docker Engine</strong> 支撑服务。</p>
+<h1 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h1><p>镜像 Image 属于联合文件系统。</p>
 <ul>
 <li>分层、轻量级且高性能的文件系统</li>
 <li>支持对文件系统的修改作为一次提交来逐层叠加</li>
@@ -336,7 +339,7 @@
 <li>负责管理 Docker Image</li>
 <li>默认：官方的 Docker Hub，拥有大量的高质量的官方镜像</li>
 </ul>
-<p>DockerFile<br>Docker image 的构建文件</p>
+<h2 id="DockerFile"><a href="#DockerFile" class="headerlink" title="DockerFile"></a>DockerFile</h2><p>Docker image 的构建文件，格式及关键字如下：</p>
 <figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span>    <span class="comment"># 指明当前新镜像基于哪一个基础镜像</span></span><br><span class="line"><span class="keyword">MAINTAINER</span>    <span class="comment"># 镜像维护者信息</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash">    <span class="comment"># 容器构建时需要运行的命令</span></span></span><br><span class="line"><span class="keyword">EXPOSE</span>    <span class="comment"># 当前容器对外暴露的接口</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash">    <span class="comment"># 指定在创建容器后终端默认登陆进来的工作目录</span></span></span><br><span class="line"><span class="keyword">ARG</span>    <span class="comment"># 用于构建镜像过程中设置环境变量</span></span><br><span class="line"><span class="keyword">ENV</span>    <span class="comment"># 用于构建镜像过程中，及容器运行时设置环境变量</span></span><br><span class="line"><span class="keyword">ADD</span><span class="bash">    <span class="comment"># 将宿主机目录下的文件复制至镜像。该命令会自动处理 URL 和解压 tar 包</span></span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash">    <span class="comment"># 类似于 ADD，复制文件和路径到镜像中。从构建上下文目录中源路径的文件/目录复制到新的一层的镜像内的目标路径位置</span></span></span><br><span class="line"><span class="keyword">VOLUME</span><span class="bash">    <span class="comment"># 容器数据卷</span></span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash">    <span class="comment"># 指定一个容器启动时要执行的命令。可有多个 CMD 命令，但只有最后一个生效，且会被 docker run 之后的参数替换</span></span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash">    <span class="comment"># 和 CMD 一样，指定容器启动程序和参数</span></span></span><br><span class="line"><span class="keyword">ONBUILD</span>    <span class="comment"># 构建一个被继承的 DockerFile 时，运行该命令，父镜像在被子继承后父镜像的 ONBUILD 被触发</span></span><br></pre></td></tr></table></figure>
 
 <p><img src="/2022/05/14/docker/docker-lifecycle.png"></p>
@@ -422,7 +425,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">容器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Image"><span class="nav-number">2.</span> <span class="nav-text">Image</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">容器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%95%9C%E5%83%8F"><span class="nav-number">2.</span> <span class="nav-text">镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DockerFile"><span class="nav-number">2.1.</span> <span class="nav-text">DockerFile</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
