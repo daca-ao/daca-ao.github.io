@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2022/03/11/spring-bean/circular-dep-1.png">
 <meta property="og:image" content="http://example.com/2022/03/11/spring-bean/circular-dep-2.png">
 <meta property="article:published_time" content="2022-03-11T14:35:46.000Z">
-<meta property="article:modified_time" content="2022-05-14T07:32:01.049Z">
+<meta property="article:modified_time" content="2022-05-14T07:43:45.584Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -491,36 +491,36 @@
 </ul>
 </li>
 <li>过程：A 生成普通对象 -&gt; 属性注入 -&gt; 基于切面生成代理对象 -&gt; 将代理对象放入 singletonObjects 单例池</li>
-<li>总结（常出现的情况）：<ul>
-<li>经常出现某个 bean name 对应的最终对象和原始对象不是同一个对象的情况</li>
-</ul>
-</li>
+<li>总结（常出现的情况）：经常出现某个 bean name 对应的最终对象和原始对象<strong>不是同一个对象</strong>的情况。</li>
 </ul>
 <p>解决：利用第三级缓存 <code>singletonFactories</code></p>
 <ul>
-<li>在 bean 生命周期中，生成原始对象之后，就构建一个 ObjectFactory 存入 singletonFactories 中</li>
-<li>ObjectFactory 为函数式接口，支持 <code>() -&gt; getEarlyBeanReference(beanName, rootBeanDefinition, bean)</code><ul>
-<li>执行 SmartInstantiationAwareBeanPostProcessor（接口）中的 getEarlyBeanReference()</li>
-<li>AbstractAutoProxyCreator 对该接口的实现：</li>
+<li>在 bean 生命周期中，生成原始对象之后，就构建一个 ObjectFactory 存入 singletonFactories 中；</li>
+<li>ObjectFactory 为函数式接口，支持执行 SmartInstantiationAwareBeanPostProcessor（接口）中的 <code>() -&gt; getEarlyBeanReference(beanName, rootBeanDefinition, bean)</code></li>
 </ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AbstractAutoProxyCreator</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">getEarlyBeanReference</span><span class="params">(Object bean, String beanName)</span> </span>&#123;</span><br><span class="line">    Object cacheKey = getCacheKey(bean.getClass(), beanName);  <span class="comment">// 首先得到 cache key，也就是beanName</span></span><br><span class="line">    <span class="keyword">this</span>.earlyProxyReferences.put(cacheKey, bean);  <span class="comment">// 将 beanName 和 bean（原始对象）存入 earlyProxyReferences 中</span></span><br><span class="line">    <span class="keyword">return</span> wrapIfNecessary(bean, beanName, cacheKey);  <span class="comment">// 调用该方法进行 AOP，得到代理对象</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 只有这个类真正意义上实现了该方法，而这个类就是用来 AOP 的</span></span><br></pre></td></tr></table></figure>
+<p>AbstractAutoProxyCreator 对该接口的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AbstractAutoProxyCreator</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">getEarlyBeanReference</span><span class="params">(Object bean, String beanName)</span> </span>&#123;</span><br><span class="line">    Object cacheKey = getCacheKey(bean.getClass(), beanName);  <span class="comment">// 首先得到 cache key，也就是 beanName</span></span><br><span class="line">    <span class="keyword">this</span>.earlyProxyReferences.put(cacheKey, bean);  <span class="comment">// 将 beanName 和 bean（原始对象）存入 earlyProxyReferences 中</span></span><br><span class="line">    <span class="keyword">return</span> wrapIfNecessary(bean, beanName, cacheKey);  <span class="comment">// 调用该方法进行 AOP，得到代理对象</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 只有这个类真正意义上实现了该方法，而这个类就是用来 AOP 的</span></span><br></pre></td></tr></table></figure>
 
 <p>InstantiationAwareBeanPostProcessorAdapter 对该接口的实现：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// InstantiationAwareBeanPostProcessorAdapter</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">getEarlyBeanReference</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> bean;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p><img src="/2022/03/11/spring-bean/circular-dep-2.png"></p>
-<p>ObjectFactory 存入 singletonFactories 时不会执行 lambda 表达式：getEarlyBeanReference()</p>
+<p>ObjectFactory 存入 singletonFactories 时不会马上执行 lambda 表达式 getEarlyBeanReference()。</p>
 <p>需要从缓存中取对象时：</p>
 <ul>
-<li>从singletonFactories 根据 beanName 得到一个 ObjectFactory</li>
-<li>执行 ObjectFactory 的 getEarlyBeanReference()，得到 A 代理对象</li>
-<li>A 代理对象被放入 earlySingletonObjects 中<br>此时 A 代理对象并未被放入 singletonObjects 中</li>
-<li>该代理对象由 A 的原始对象得来，并不完整：因为还没进行属性填充</li>
-<li>其他依赖 A 的对象可从 earlySingletonObjects 得到 A 原始对象的代理对象<br>A 完成属性注入后，会按照它本身逻辑进行 AOP</li>
+<li>从 singletonFactories 根据 beanName 得到一个 ObjectFactory</li>
+<li>**执行 ObjectFactory 的 <code>getEarlyBeanReference()</code>**，得到 A 代理对象</li>
+<li>A 代理对象被放入 earlySingletonObjects 中</li>
+</ul>
+<p>此时 A 代理对象并未被放入 singletonObjects 中</p>
+<ul>
+<li>该代理对象由 A 的原始对象得来，还没进行属性填充，并不完整</li>
+<li>其他依赖 A 的对象可从 earlySingletonObjects 得到 A 原始对象的代理对象</li>
+</ul>
+<p>A 完成属性注入后，会按照它本身的逻辑进行 AOP</p>
+<ul>
 <li>若 A 原始对象已经经历过 AOP，则此时不会再做 AOP</li>
-<li>如何判断一个对象是否经历过 AOP？利用 AbstractAutoProxyCreator 实例的 earlyProxyReferences<ul>
+<li>如何判断一个对象是否经历过 AOP？利用 AbstractAutoProxyCreator 实例的 earlyProxyReferences：<ul>
 <li>AbstractAutoProxyCreator 的 postProcessAfterInitialization() 会判断当前 beanName 是否已在 earlyProxyReferences 中</li>
 <li>如果存在则说明已经进行过 AOP</li>
 </ul>
