@@ -3,7 +3,7 @@ title: Java 线程安全集合类
 date: 2021-10-02 00:17:13
 tags:
 - Java
-- Collection
+- 集合类
 - 多线程编程
 ---
 
@@ -153,7 +153,7 @@ boolean tryTransfer(E element, long time, TimeUnit unit)
 
 ## 实现类
 
-`ArrayBlockingQueue`：由数组结构组成的有界阻塞队列
+`ArrayBlockingQueue`：由数组结构组成的**有界**阻塞队列
 
 ```java
 package java.util.concurrent;
@@ -202,9 +202,9 @@ class ArrayBlockingQueue {
 ```
 
 
-`LinkedBlockingQueue`：由链表结构组成的有界阻塞队列
+`LinkedBlockingQueue`：由链表结构组成的**有界**阻塞队列
 
-`LinkedBlockingDeque`：由链表结构组成的双向阻塞队列
+`LinkedBlockingDeque`：由链表结构组成的**无界**双向阻塞队列
 
 ```java
 import java.util.concurrent.LinkedBlockingQueue;
@@ -230,7 +230,7 @@ LinkedBlockingDeque<E>(int capacity)
 ```
 
 
-`PriorityBlockingQueue`：⽀持优先级排序的⽆界阻塞队列
+`PriorityBlockingQueue`：⽀持优先级排序的**⽆界**阻塞队列
 
 ```java
 import java.util.concurrent.PriorityBlockingQueue;
@@ -250,7 +250,7 @@ PriorityBlockingQueue<E>(int initialCapacity, Comparator<? super E> comparator)
 ```
 
 
-`DelayQueue`：使⽤优先级队列实现的⽆界阻塞队列，支持延时获取元素
+`DelayQueue`：使⽤优先级队列实现的**⽆界**阻塞队列，支持延时获取元素
 
 ```java
 import java.util.concurrent.DelayQueue;
@@ -279,7 +279,7 @@ long getDelay(TimeUnit unit)
 * 定时任务调度：保存需要执行的任务和执行时间点，一旦获取到了元素，说明当前时间点开始执行获取到的任务。
 
 
-`LinkedTransferQueue`：由链表结构实现的 TransferQueue，⽆界阻塞队列
+`LinkedTransferQueue`：由链表结构实现的 TransferQueue，**⽆界**阻塞队列
 
 ```java
 package java.util.concurrent;

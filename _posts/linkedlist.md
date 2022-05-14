@@ -7,9 +7,11 @@ tags:
 ---
 
 LinkedList 是 Collection 接口下对 List 的双向链表实现。
+
 <!-- more -->
+
 概述：
-* 同时实现了 `List` 接口和 `Deque` 接口（双向链表）
+* 同时实现了 `List` 接口和 `Deque` 接口
 * 每次插入时可选择链表头或链表尾插入
 * 读取时需从链式结构逐个遍历，删除则为断链-重链过程
 * 非线程安全
@@ -36,6 +38,8 @@ public LinkedList(Collection<? extends E> c) {
 
 # 链表节点的数据结构
 
+Java 中所有链表实现均为双向链接：每个节点还存放着指向前驱节点的引用。
+
 ```java
 private static class Node<E> {
     E item; // 节点元素
@@ -47,6 +51,30 @@ private static class Node<E> {
         this.next = next;
         this.prev = prev;
     }
+}
+```
+
+链表与泛型集合的区别：
+
+链表为有序集合，每个对象的位置十分重要
+* 将元素添加至链表中间时，需要依赖链表的位置；而迭代器负责描述集合中位置
+* 即：LinkedList.add() 由迭代器负责（只有对自然有序的集合使用迭代器添加元素才有实际意义）
+
+集合类库提供子接口 ListIterator，包含 add()
+
+```java
+package java.util;
+
+public interface ListIterator<E> extends Iterator<E> {
+
+    void add(E e);    // 与 Collection.add 不同：该方法不返回 boolean 值，其假定总能添加成功
+
+    // 以下为反向遍历链表的方法
+    E previous();    // 返回越过的对象
+
+    boolean hasPrevious();
+
+    ...
 }
 ```
 
@@ -193,7 +221,9 @@ Node<E> node(int index) {
     }
 }
 ```
+
 由此可知 LinkedList 继承了链表获取元素方法的缺点：
+
 * 链表**不支持快速随机访问**，查询需要从头查起；
 * `get()` 可访问某个特定元素（如索引大于 n/2 从尾部开始搜索）:
     ```java
@@ -311,3 +341,27 @@ public void set(E e) {
 
 
 多线程访问链表时，需处理好非线程安全的操作；否则会抛出 `ConcurrentModificationException` 异常。
+
+
+# ArrayList v.s. LinkedList
+
+ArrayList 实现了基于**动态数组**的数据结构，由 Array 支持，提供对元素的随机访问，复杂度为 O(1)。
+
+LinkedList 使用**双向链表**实现存储（实现 List 和 Deque 接口），虽然有使用索引获取元素的方法，但按照序号索引数据的实现，需要进行前向或后向遍历，复杂度为 O(n)；  
+LinkedList 插入数据时只需要记录本项的前后项即可，所以插入速度较快。
+
+因为采用了双向链表，所以 LinkedList 会消耗更多的内存。
+
+
+## 操作对比
+
+查找操作 indexOf()，lastIndexOf()，contains() 的性能，两者差不多；  
+对于随机访问 get 和 set，ArrayList 优于 LinkedList，因为 LinkedList 操作时要移动指针；  
+而对于新增和删除操作 add 和 remove，LinkedList 比较占优势，因为 ArrayList 操作时要移动数据
+* 若只对单条数据插入或删除，ArrayList 的速度反而优于 LinkedList；
+* 若随机插入批量数据，LinkedList 的速度大大优于 ArrayList：因为ArrayList 每插入一条数据，要移动插入点及以后的所有数据。
+
+实际应用中怎么选？
+* 如链表仅含几个元素，完全没必要为 set() 和 get() 开销而烦恼，则完全可使用 ArrayList
+* 优先使用链表的情况，应该是尽可能减少在列表中间插入或删除元素的开销下使用
+* 注：动态数组中可能使用 Vector 类，但该类所有方法均为同步，开销大

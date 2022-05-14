@@ -12,9 +12,7 @@ JCF，Java Collections Framework 的简称。[官方文档](https://docs.oracle.
 其实理解为“**体系**”更为恰当。
 
 优势：
-* 降低代码量和复杂度
-    * 不需要由开发者再进行基础数据结构的设计
-    * 提高代码复用性，降低编码难度，增强可操作性
+* 降低代码量和复杂度：不需要由开发者再进行基础数据结构的设计，提高代码复用性，降低编码难度，增强可操作性
 * 提升代码性能
     * 被 JDK 收录的集合类库是一系列数据结构类型的具体实现
     * 质量和性能较高，降低底层代码的性能风险和维护成本
@@ -102,9 +100,10 @@ expressLane.add(new Customer("Harry"));
 
 <big>包括：</big>
 
-## <small>Collection (`java.util.Collection`)</small>
+## <small>[Collection](/2022/04/30/java-collection) (`java.util.Collection`)</small>
 
 ```java
+// 以下为子接口
 java.util.Set
 java.util.SortedSet
 java.util.NavigableSet
@@ -116,7 +115,9 @@ java.util.concurrent.BlockingQueue
 ```
 
 ## <small>Map (`java.util.Map`)</small>
+
 ```java
+// 以下为子接口
 java.util.SortedMap
 java.util.NavigableMap
 java.util.concurrent.ConcurrentMap
@@ -125,7 +126,9 @@ java.util.concurrent.ConcurrentNavigableMap
 
 <big>和基础功能：</big>
 
+
 ## Iterators
+
 迭代器，与 Enumeration 接口类似，但更加强大
 
 `Iterator`
@@ -154,6 +157,7 @@ java.util.concurrent.ConcurrentNavigableMap
     ```
 
 应用：以 Map 为例
+
 ```java
 public static void main(String[] args) {
     Map<Integer, Object> map = new HashMap<>();
@@ -207,7 +211,9 @@ public static void main(String[] args) {
 * 要想获取和删除给定位置的元素，只需调用 Iterator 接口中的 `next()` 和 `remove()` 方法即可
 * 针对 List 的迭代器，支持双向迭代，元素替换，元素插入以及索引获取。
 
+
 ### Iterator `fail-fast` 属性
+
 * 每次尝试获取下一个元素：该属性检查当前集合结构里的任何改动
 * 如发现改动：抛出 `ConcurrentModificationException` 
     * 多个线程对同一个集合内容操作就可能抛出此异常
@@ -233,32 +239,34 @@ Java 集合类库中的迭代器不同于其他类库的迭代器
 
 
 ## Ordering
-* `Comparable`
-    * 其实现类要求各个元素可以自然排序，从而可以对整个集合排序
-    * 元素之间的顺序由 equals() 的返回值得到
-* `Comparator`
-    * 如类本身不支持排序（没有实现 Comparable 接口）：手动创建一个类的 Comparator，重写排序方法
-    * 如实现了 Comparable 接口：仍可利用 Comparator 重定义排序方法
 
-    ```java
-    public class Student implements Comparable<Student> {
+`Comparable`
+* 其实现类要求各个元素可以自然排序，从而可以对整个集合排序
+* 元素之间的顺序由 equals() 的返回值得到
 
-        @Override
-        public int compareTo(Student s) {
-            ... // 提供对象的自然排序
-        }
+`Comparator`
+* 如类本身不支持排序（没有实现 Comparable 接口）：手动创建一个类的 Comparator，重写排序方法
+* 如实现了 Comparable 接口：仍可利用 Comparator 重定义排序方法
+
+```java
+public class Student implements Comparable<Student> {
+
+    @Override
+    public int compareTo(Student s) {
+        ... // 提供对象的自然排序
     }
-    ```
+}
+```
 
-    ```java
-    public class MyComparator implements Comparator<Student> {
+```java
+public class MyComparator implements Comparator<Student> {
 
-        @Override
-        public int compare(Student s1, Student s2) {
-            ...
-        }
+    @Override
+    public int compare(Student s1, Student s2) {
+        ...
     }
-    ```
+}
+```
 
 
 ## Runtime exceptions
@@ -403,8 +411,7 @@ java.util.Properties
 * 表可保存到一个文件中，也可从文件中加载
 * 使用默认辅助表
 
-实现属性映射表的 Java 平台类称为 `Properties`
-* 线程安全
+实现属性映射表的 Java 平台类称为 `Properties`，为线程安全类。
 
 `Vector`
 * 实现 `AbstractList` 接口
@@ -426,7 +433,10 @@ public Vector()  // 等同于 public Vector(10)
 
 <br/>
 
-# JCF 类图汇总
+# JCF 类图
 
 ![](collections-java/jcf-1.png)
+
 ![](collections-java/jcf-2.png)
+
+在使用时的最佳实践，应该是**根据业务的需要**去选择正确的集合类型。

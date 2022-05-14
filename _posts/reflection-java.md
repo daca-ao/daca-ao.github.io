@@ -102,16 +102,22 @@ java.lang.reflect.Method
 
 
 ### 获得 Class 对象的方式
+
 1. 类名.class
+
 ```java
 Class personClazz = Person.class;
 ```
+
 2. 类实例.getClass()
+
 ```java
 Person person = new Person();
 Class personClazz1 = person.getClass();
 ```
-3. Class.forName(“类的全路径”)
+
+3. Class.forName("类的全路径")
+
 ```java
 Class personClazz2 = Class.forName("com.example.Person");
 ```
@@ -122,9 +128,8 @@ Class personClazz2 = Class.forName("com.example.Person");
 // 静态方法
 Class.forName("com.example.Person")     // 根据全路径动态加载类
 
-/*
- 非静态方法
- */
+
+// 非静态方法
 newInstance()       // 根据对象的 class 新建一个对象
 
 getSuperclass()         // 获取继承的父类
@@ -148,7 +153,7 @@ getClassLoader()    // 获得类的类加载器
 ```
 
 `Class.forName()` 和 `ClassLoader.loadClass()` 的区别：
-* `Class.forName()` 是已经将类的 .class 文件加载到 JVM 中，并且将类初始化完成了的；
+* `Class.forName()` 是将类的 .class 文件加载到 JVM 中，并且已经将类初始化完成了的；
 * `ClassLoader.loadClass()` 只是将 .class 文件加载到 JVM 中，还没经过链接，更不用说初始化了。
 
 <br/>
@@ -172,15 +177,20 @@ Person p2 = (Person) c1.newInstance();
 ## Field 属性相关
 
 先获取到 Class 对象
+
 ```java
 Class personClazz = Person.class;
 ```
+
 通过 Class 对象获取 Field 对象
+
 ```java
 Field nameField = personClazz.getField("name");  // 获得类的属性
 // 或：Field nameField = personClazz.getDeclaredField("name");
 ```
+
 根据实际的对象，获取属性值
+
 ```java
 Constructor c = personClazz.getConstructor();
 Person person = (Person) c.newInstance();  // 创建实际对象
@@ -190,15 +200,19 @@ String name = (String) nameField.get(person);
 ```
 
 可通过反射调用私有变量
+
 ```java
 // 步骤同上，但在获得 Field 对象时的方法有些许不同
 Field nameField = personClazz.getDeclaredField("name");
 // 多个 Field：Class.getDeclaredFields()
 ```
+
 然后调用
+
 ```java
 nameField.setAccessible(true);
 ```
+
 随后便可通过 `.get()` 方法获取值。
 
 <br/>
@@ -206,11 +220,14 @@ nameField.setAccessible(true);
 ## Method 方法相关：与属性类似
 
 可通过反射调用私有方法
+
 ```java
 clazz.getDeclaredMethod(String name, Class[] parameterTypes)
 clazz.getDeclaredMethods()
 ```
+
 然后调用
+
 ```java
 method.setAccessible(true);
 ```
@@ -219,18 +236,17 @@ method.setAccessible(true);
 
 # 应用
 
-服务的水平分割
-
-如 MVC 框架：每一层都存在着能承载结果的实体类
+可以应用于服务的水平分割，如 MVC 框架：每一层都存在着能承载结果的实体类
 * 视图层：VO (V-view) / UO
 * 应用层：DTO / Entity
 * 领域层 Domain：Entity / VO (V-value)
 * 基础设施层：PO (Persistent)
 
-视图层依赖于应用层，应用层依赖于领域层，基础设施层依赖于领域层
+视图层依赖于应用层，应用层依赖于领域层，基础设施层依赖于领域层。
 
 例：持久对象 PersonPO 转为 值对象 PersonVO，如果属性繁多，一个一个转会很麻烦。  
 解决方法：利用反射实现工具类（如：`BeanUtils`）
+
 ```java
 // 调用：
 BeanUtils.convert(objectFrom, objectTo);

@@ -11,7 +11,7 @@ RabbitMQ 是由 Erlang 语言开发的 [AMQP](/2021/07/20/mq/#AMQP) 的开源实
 
 RabbitMQ 最初起源于金融系统，用于在分布式系统中存储转发消息，在易用性、扩展性、高可用性等方面表现不俗。具体特点包括：
 
-**1**. 可靠性（Reliability）：RabbitMQ 使用一些机制实现持久化、传输确认及发布确认等。
+**1**. 可靠性（Reliability）：RabbitMQ 使用一些机制实现持久化、传输确认及发布确认等
 
 **2**. 灵活的路由（Flexible Routing）
 * 在 AMQP 协议中，消息进入路由之前，是通过交换器（Exchange）来路由信息的
@@ -32,10 +32,9 @@ RabbitMQ 最初起源于金融系统，用于在分布式系统中存储转发�
 
 **7**. 管理界面（Management UI）：易用，可监控和管理消息以及 Broker 集群节点
 
-**8**. 跟踪机制（Tracing）：如果消息异常，使用者可以找出发生了什么。
+**8**. 跟踪机制（Tracing）：如果消息异常，使用者可以找出发生了什么
 
-**9**. 插件机制（Plugin System）
-* 可从多方面进行扩展，如网页控制台消息管理插件、消息延迟插件等。
+**9**. 插件机制（Plugin System）：可从多方面进行扩展，如网页控制台消息管理插件、消息延迟插件等
 
 **10**. 社区活跃度高，解决问题成本低。
 
@@ -48,13 +47,11 @@ RabbitMQ 相关的重要角色如下：
 * 消费者
 * 代理：RabbitMQ 本身，自身不产生消息
 
-至于细化到内部，基本上也是 AMQP 的相关概念：
+细化到内部与 AMQP 的相关概念相差不大：
 
 ![](rabbitmq/rabbitmq.png)
 
-如上图所示，具体包括：
-
-**Message**：包括消息体和 Routing Key、properties（消息优先级、延迟等特性）等消息头信息。
+**Message**：包括消息体和 RoutingKey、properties（消息优先级、延迟等特性）等消息头信息。
 
 **Publisher**：消息生产者。在 RabbitMQ 中是一个向 Exchange 发布消息的客户端应用程序 Client。
 
@@ -67,7 +64,7 @@ RabbitMQ 相关的重要角色如下：
 **Binding**：绑定。基于 Binding Key 将 Exchange 和 Queue 之间连接起来，组成一个路由规则。Exchange 可以被理解为是由多个 Binding 组成的路由表。
 
 **BindingKey**：绑定键。指定了 Exchange 和相应 Queue 之间的 binding key 之后，Exchange 根据对应的关系，将消息推送到相应的 Queue 中。
-* 多个 Binding 允许使用相同的 binding key 将多个 Queue 与同一个 Exchange 绑定。
+* 多个 Queue 可以和同一个 Exchange 绑定，此时多个 Binding 允许使用相同的 BindingKey。
 
 **Queue**：队列。存储消息，先进先出。
 
@@ -81,9 +78,9 @@ RabbitMQ 相关的重要角色如下：
 * 处理消息的确认（生产端的 confirm，消费端的 ack 等）
 
 `backing_queue`：消息存储的具体形式和引擎
-* 向 rabbit_amqqueue_process 提供相关接口以供调用
+* 向 `rabbit_amqqueue_process` 提供相关接口以供调用
 
-**Connection**：网络连接，比如一个 TCP 连接
+**Connection**：网络连接，比如一个 **TCP** 连接
 * 另：**ConnectionFactory**：连接管理器。应用程序与 RabbitMQ 之间建立连接的管理器，在程序代码中使用。
 
 **Channel**：信道。消息推送使用的通道，是多路复用连接中的一条独立的双向数据流通道。
@@ -95,24 +92,19 @@ RabbitMQ 相关的重要角色如下：
 **Virtual Host**（vhost）：虚拟主机，AMQP 概念的基础，必须在连接时指定。本质上就是一个 mini 版的 RabbitMQ 服务器。
 * 每一个 vhost 拥有自己的 Exchange、Queue、Binding 和权限机制
 * 同一个 vhost 里可以有多个 Exchange 和 Queue，但不能有同名的 Exchange 或 Queue
-* 每个 RabbitMQ 服务器均可创建 vhost，默认为 "/"。
+* 每个 RabbitMQ 服务器均可创建 vhost，默认为 "`/`"。
 
 **Broker**：表示消息队列服务器实体。
 
-注：消费者和生产者都可以创建队列。如创建了一个已经存在的队列：不会有任何的影响。
+注：消费者和生产者都可以创建队列。如果提交了一个已经存在的队列的创建请求，系统不会返回错误，不会有任何的影响。
 
-<br/>
 
-# 运行机制
-
-基本上分为两种：交换（Exchange）机制和分发机制。
-
-## Exchange
+## Exchange 的类型
 
 **1. Direct Exchange**
-* RabbitMQ 默认的交换方式，采用轮询方式
-* 发送至 routing key = binding key 的订阅者（Queue），类似于点对点
-* 其他不相等的 routing key 的消息会被丢弃
+* RabbitMQ 默认的交换方式
+* 采用轮询方式发送至 `RoutingKey = BindingKey` 的订阅者（Queue），类似于点对点
+* 其他不相等的 RoutingKey 的消息会被丢弃
 
 ![](rabbitmq/direct-exchange.png)
 
@@ -124,70 +116,126 @@ RabbitMQ 相关的重要角色如下：
 
 **3. Topic Exchange**
 * 采用匹配模式
-* 发送至 routing key 与 binding key **模糊匹配**的订阅者（Queue）
+* 发送至 RoutingKey 与 BindingKey **模糊匹配**的订阅者（Queue）
 * 约定：
-    * routing key 为用点号分隔的字符串，binding key 与其模式相同 
-    * binding key 可使用 *（匹配一个单词）和 #（匹配多个或 0 个单词）用于模糊匹配
+    * RoutingKey 为用点号分隔的字符串，BindingKey 与其模式相同 
+    * BindingKey 可使用 `*`（匹配一个单词）和 `#`（匹配多个或 0 个单词）用于模糊匹配
 
 ![](rabbitmq/topic-exchange.png)
 
-根据上图的模糊匹配，比如有下面不同的 routing key：
-* routing key = F.C.E：路由到 Queue1
-* routing key = A.C.E：路由到 Queue1 和 Queue2
-* routing key = A.F.B：路由到 Queue2
+根据上图的模糊匹配，比如有下面不同的 RoutingKey：
+* `RoutingKey = F.C.E`：路由到 Queue1
+* `RoutingKey = A.C.E`：路由到 Queue1 和 Queue2
+* `RoutingKey = A.F.B`：路由到 Queue2
 
 **4. Headers Exchange**
 * 采用轮询方式
-* 通过消息头订阅，不依赖于 routing key 和 binding key 的匹配规则
+* 通过**消息头**订阅，不依赖于 RoutingKey 和 BindingKey 的匹配规则
     * 消息发布前为消息定义一个或多个键值对的消息头
     * 消费者在接收消息的同时，需要定义类似的键值对请求头
     * 请求头与消息头匹配才可接收消息
 * 和 Direct 方式完全一致，但性能差很多，基本用不到
 
+<br/>
 
-## 任务分发机制
+# 运行机制
+
+当消费者端需要进行大量的计算时，RabbitMQ 服务器需要一定的分发机制来平衡每个消费者的 workload。在 RabbitMQ 中定义了两种任务的分发机制：
 
 **1. Round-robin Dispatching**：循环分发，轮询
 
-在默认情况下，RabbitMQ 并不会考虑到消费者处理消息的能力，即便是其中有的消费者闲置过久，有的却高负荷工作。  
-这就会造成资源分配不均的问题：有的消费者持续工作，其他的持续空闲
+循环分发的场景是：多个消费者订阅同一个 Queue，Queue 中的消息**平分**给其他消费者。
 
-因此，循环分发的场景是：多个消费者订阅同一个 Queue：Queue 消息平分给其他消费者
-* 此时 RabbitMQ 会逐个发送消息到在序列中的**下一个**消费者
-    * 不考虑每个任务的时长等因素，而且是提前一次性分配，并非一个个分配
-    * 平均每个消费者会获得相同数量的消息
+此时 RabbitMQ 会将消息**逐个发送**到消费者序列中的**下一个**消费者：
+* 不考虑每个任务的时长等因素，而且是提前一次性分配，并非一个个分配
+* 平均每个消费者会获得相同数量的消息
+
+在默认情况下，RabbitMQ 并不会考虑消费者处理消息的能力，即便是其中有的消费者闲置过久，有的却高负荷工作。  
+这就会造成资源分配不均的问题：有的消费者持续工作，其他的持续空闲。
 
 **2. Fair Dispatch**：公平分发，根据消费者的消费能力进行分发处理
 * 使用 `prefetchCount` 限制每次发送给消费者消息的个数
-* 使每个消费者在同一时间点最多处理规定的数量级个数的 message
-* 在接收该消费者的 ack 前，队列不会将新的 message 分发给该消费者
+* 可以让每个消费者在同一时间点最多去处理规定数量级个数的 message
+* 在接收该消费者的 ack 前，队列不会将新的 message 分发给该消费者。
 
-注：使用公平分发必须关闭自动应答，改为手动应答
+注：使用公平分发必须关闭自动应答，改为手动应答。
 
 ![](rabbitmq/fair-dispatch.png)
 
+可将队列中的消息数量视为无限制，因为限制只是取决于机器的内存。  
+但消息过多会导致处理效率的下降。
+
 
 ## 生产者消息运转
-1. 生产者先连接到 Broker，建立连接（connection），再开启一个或多个信道（channel）
+1. 生产者先连接到 Broker，建立连接（Connection），再开启一个或多个信道（Channel）
 2. 生产者声明一个 Exchange 并设置好相关属性
 3. 生产者声明一个 Queue 并设置好相关属性
-4. 生产者通过 routing key 建立与 Exchange 的路由，通过 binding key 将 Exchange 和 Queue 绑定
-5. 生产者发送消息到 Broker，消息包含 routing key、Exchange 等信息
-6. 相应的 Exchange 根据接收到的 routing key 查找匹配的 Queue
+4. 生产者通过 RoutingKey 建立与 Exchange 的路由；通过 BindingKey 将 Exchange 和 Queue 绑定
+5. 生产者发送消息到 Broker，消息包含 RoutingKey、Exchange 等信息
+6. 相应的 Exchange 根据接收到的 RoutingKey 查找匹配的 Queue
     1. 如匹配：将消息存入对应的队列
-    2. 如不匹配：根据生产者先前的配置，丢弃消息（mandatory=false）或退回至生产者（mandatory=true）
+    2. 如不匹配：根据生产者先前的配置，丢弃消息（`mandatory=false`）或退回至生产者（`mandatory=true`）
 7. 关闭信道
 8. 管理连接
 
 
 ## 消费者接收消息流程
-1. 生产者先连接到 Broker，确保连接已建立，随后开启信道
+1. 生产者先连接到 Broker，确保连接已建立，随后开启一个或多个信道
 2. 消费者向 Broker 请求，并消费响应了的 Queue 中的信息（可能会设置相应的回调函数）
 3. 等待 Broker 回应并投递相应 Queue 中的消息给消费者，消费者接收消息
 4. 消费者确认收到的信息，返回 ack
 5. RabbitMQ 从 Queue 中删除已经返回 ack 的消息
 6. 关闭信道
 7. 关闭连接
+
+举一个简单的代码示例：
+
+```java
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DeliverCallback;
+
+import java.nio.charset.StandardCharsets;
+
+
+class MqDemo {
+
+    private static final String QUEUE_NAME = "hello";
+    private static final String HOST = "localhost";
+
+    private ConnectionFactory factory = new ConnectionFactory();
+
+    void Send() {
+
+        factory.setHost(HOST);
+        try (Connection connection = factory.newConnection();
+            Channel channel = connection.createChannel()) {
+            channel.queueDeclare(QUEUE_NAME, false, false, false, null);  // 第二个参数：消息持久化为 false
+            String message = "Hello World!";
+            channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
+            System.out.println(" [x] Sent '" + message + "'");
+        }
+    }
+
+    void Recv() {
+
+        factory.setHost(HOST);
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {  // 消息的异步处理
+            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+            System.out.println(" [x] Received '" + message + "'");
+        };
+        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+    }
+}
+
+```
 
 <br/>
 
@@ -201,9 +249,6 @@ RabbitMQ 是基于信道 Channel 传输消息的。Channel 通过建立真实 TC
 <br/>
 
 # 消息稳定性
-
-注：可将队列中的消息数量视为无限制，因为限制只是取决于机器的内存。  
-但消息过多会导致处理效率的下降。
 
 要想提高消息的稳定性，避免消息丢失，通常有以下方法：
 * 消息持久化
@@ -221,19 +266,18 @@ RabbitMQ 消息有以下状态：
 4. `delta`：消息内容和索引都在磁盘中
 
 消息持久化的条件：
-* 投递消息时 `durable` 设置为 true
+* 投递消息时 `durable` 设置为 `true`
     ```java
-    channel.queueDeclare(x, durable=true, false, false, null)
+    channel.queueDeclare(x, durable=true, false, false, null);
     ```
-* 设置投递模式 `deliveryMode` 为 2：持久化
+* 设置投递模式 `deliveryMode` 为 `2`：持久化
     ```java
-    channel.basicPublish(x, x, MessageProperties.PERSISTENTTEXTPLAIN, x)
-    // deliveryMode 为 3：存储纯文本到磁盘
+    channel.basicPublish(x, x, MessageProperties.PERSISTENT_TEXT_PLAIN, x);  // 存储纯文本到磁盘
     ```
 * 消息已经到达持久化 Exchange 上
 * 消息已经到达持久化的队列中
 
-Exchange 和 Queue 在创建时，指定 durable=true 可完成持久化
+Exchange 和 Queue 在创建时，指定 `durable=true` 可完成持久化
 * 具有该标识的 Exchange 和 Queue 在重启之后会重新建立
     * 如 Exchange 和 Queue 都是持久化的，则它们之间的 binding 也是持久化的
     * 如两者中只有一个持久化，则不允许建立 binding
@@ -241,25 +285,22 @@ Exchange 和 Queue 在创建时，指定 durable=true 可完成持久化
 
 ## 消息确认机制
 
-**1. Confirm 模式**（生产者重试模式，发布/确认模式）
-* 根据实际业务，选择 `channel.basicAck()` 手动确认消息被消费
-* 生产者将 channel 设置为 confirm 确认模式
-    * 确认后，所有在该 channel 发布的消息都会被指定一个唯一 ID
+**1. Confirm 模式**（也叫生产者重试模式，发布/确认模式）
+* 根据实际业务，通过 `channel.basicAck()` 手动确认消息被消费
+* 生产者将 channel 设置为 confirm 确认模式；确认后，所有在该 channel 发布的消息都会被指定一个唯一的 ID 号
 * 如一个队列没有消费者：消息会被缓存，不会被丢弃
-* 消费者处理完数据后，需要向 MQ Server 发送确认信息（acknowledge, ack）：接收确认
-    * MQ 会发送 ack 给生产者（包含 ID）：发送确认
-* 如消息被某个消费者正确接收：消息会被从队列中移除
-* 如有数据没有被 ack，MQ Server 不会删除消息，而是将其发送给下一个消费者
+* 消费者处理完数据后，需要向 MQ Server 发送确认信息（acknowledge, ack），MQ 随后会将这个 ack 发送给生产者（包含 ID）
+    * 如消息被某个消费者正确接收：消息会被从队列中移除
+    * 如有数据没有被 ack，MQ Server 不会删除消息，而是将其发送给下一个消费者
 
 **2. AMQP 事务机制**：主要是对信道 channel 的设置
 ```java
 // 与事务机制相关的方法：
-channel.txSelect()  // 用于将当前的信道设置成事务模式
-channel.txCommit()  // 用于提交事务
-channel.txRoolback()  // 用于事务回滚
+channel.txSelect();  // 用于将当前的信道设置成事务模式
+channel.txCommit();  // 用于提交事务
+channel.txRoolback();  // 用于事务回滚
 ```
-如事务提交执行前 RabbitMQ 异常崩溃或其他原因抛出异常：通过 txRollback() 回滚
-当 autoAck=true 时，事务无效
+如事务提交执行前 RabbitMQ 异常崩溃或其他原因抛出异常：通过 `txRollback()` 回滚，当 `autoAck=true` 时，事务无效
 * 此时消息时自动消费确认，RabbitMQ 直接将消息从队列中擦除，即使后面事务回滚也不能起到任何作用
 
 
@@ -330,8 +371,8 @@ channel.basicQos(prefetchCount);
 
 比如：设置消费者不消费消息
 ```java
-channel.basicNack()
-channel.basicReject(messageId, true)  // 消息被分配到其他订阅者
+channel.basicNack();
+channel.basicReject(messageId, true);  // 消息被分配到其他订阅者
 ```
 
 **延迟队列**：存储对应的延迟消息
@@ -340,7 +381,7 @@ channel.basicReject(messageId, true)  // 消息被分配到其他订阅者
 
 实现：
 * 3.6.x -：采用死信队列 + TTL 过期时间实现延迟队列
-* 3.6.x +：官方提供延迟队列插件，下载放置 RabbitMQ 根目录的 plugin/ 下
+* 3.6.x +：官方提供延迟队列插件，下载放置 RabbitMQ 根目录的 `plugin/` 下
 
 **优先级队列**：优先级高的队列会先被消费
 * 可通过 `x-max-priority` 参数实现

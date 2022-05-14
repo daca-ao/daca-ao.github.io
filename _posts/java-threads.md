@@ -607,7 +607,7 @@ public static void main(String[] args) {
 
 使用 ThreadLocal 会导致内存泄漏吗？
 
-表象
+**表象**是这样的：
 * 使用 ThreadLocal 保存变量时，线程持有 ThreadLocalMap 实例
 * 线程由线程池管理时：线程存在复用，ThreadLocalMap 实例不会消失
     * ThreadLocalMap 中 Entry 的 key（ThreadLocal 实例）和 value 会被一直持有

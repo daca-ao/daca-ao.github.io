@@ -19,10 +19,12 @@ Spring 能做什么？
 * **微服务**（microservices）：程序员能够根据具体业务，快速搭建所需要的软件和应用架构
 * **响应式编程**（reactive）
 * **云**（cloud）：云端开发
-* **Web 应用**（web apps）开发：日常使用 Spring 的绝大部分场景
+* **Web 应用**（web apps）开发：覆盖了日常使用 Spring 的绝大部分场景
 * **无服务**（serverless）：提供对应的操作函数到云上，按需提供服务
 * **事件驱动**（event driven）：响应式的一种，通过事件对业务进行驱动形式的分发
 * **批量任务处理**（batch）
+
+![](spring-overview/what-spring-can-do.png)
 
 <br/>
 
@@ -71,12 +73,9 @@ Spring Framework 包括 20+ 组件/模块，分为：
 * 数据处理与集成
     * 提供与数据库交互的抽象，比如对 JDBC、ORM 等的封装
     * 提供事务管理和消息驱动
-* Web
-    * 提供基于 Servlet 的 Web 服务支撑
-* AOP
-    * 提供面向切面编程的支持
-* 测试
-    * 提供与 JUnit 等测试组件对接的支持
+* Web：提供基于 Servlet 的 Web 服务支撑
+* AOP：提供面向切面编程的支持
+* 测试：提供与 JUnit 等测试组件对接的支持
 
 ![](spring-overview/spring-framework-runtime.png)
 

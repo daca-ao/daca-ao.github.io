@@ -7,16 +7,18 @@ tags:
 ---
 
 ArrayList 是 List 接口最常用的通用实现。
+
 <!-- more -->
+
 概述：
 * 底层由一个 Object 数组维护
 * 构造时会设置一个初始的容量，元素增加时会自动扩容
-* 必要时：如元素为大对象，可手动缩容
+* 必要时如元素为大对象，可手动缩容
 * 线程不安全
 
 <br/>
 
-# 变量与构造方法
+# 常量与变量
 
 ```java
 ...
@@ -29,7 +31,7 @@ private static final int DEFAULT_CAPACITY = 10;
 private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
 
 // 底层数据结构
-transient Object[] elementData; // non-private to simplify nested class access
+transient Object[] elementData;  // non-private to simplify nested class access
 
 /**
  * 记录集合被修改的次数，每次 add 或者 remove 它的值都会加 1
@@ -38,7 +40,7 @@ transient Object[] elementData; // non-private to simplify nested class access
  * 主要在多线程环境下需要使用，防止一个线程正在迭代遍历，另一个线程修改了这个列表的结构。
  * 不一致时会抛出异常 ConcurrentModificationException
  */
-protected transient int modCount = 0;  // modified count
+protected transient int modCount = 0;   // modified count
 
 /**
  * The maximum size of array to allocate.
@@ -56,6 +58,8 @@ private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 ```
 
 
+# 构造方法
+
 ```java
 /*
  调用 Arrays.copyOf() 方法进行复制
@@ -65,7 +69,7 @@ public ArrayList(Collection<? extends E> c);
 
 /*
  JDK 1.7-: 直接调用 ArrayList(10)
- JDK 1.8: 直接将一个 DEFAULTCAPACITY_EMPTY_ELEMENTDATA 赋给数组，实际上是一个空的 Object 数组
+ JDK 1.8: 直接将 DEFAULTCAPACITY_EMPTY_ELEMENTDATA 赋给数组，实际上是一个空的 Object 数组
  */
 public ArrayList() {
    this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA; // Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
@@ -94,8 +98,7 @@ public ArrayList(int initialCapacity) {
 
 # 添加元素 & 动态扩容
 
-ArrayList 添加元素前会确保容量足够，如不足则会进行扩容
-* 初始容量 `DEFAULT_CAPACITY = 10`
+ArrayList 添加元素前会确保容量足够，如不足则会进行扩容，初始容量 `DEFAULT_CAPACITY = 10`。
 
 
 ## 添加元素
@@ -166,7 +169,6 @@ private void ensureExplicitCapacity(int minCapacity) {
 }
 ```
 
-
 ```java
 /**
  * Increases the capacity to ensure that it can hold at least the
@@ -215,8 +217,8 @@ private void grow(int minCapacity) {
 }
 ```
 
-### 其中：
-扩容关键语句是：
+其中，扩容关键语句是：
+
 ```java
 // JDK 1.7+
 int oldCapacity = elementData.length;
@@ -232,8 +234,7 @@ int newCapacity = (oldCapacity * 3)/2 + 1;
 ```
 * 新容量为旧的 1.5 倍加 1
 
-扩容方法：通过将整个数组拷贝的方式完成
-* 因此对于大对象数组需考虑性能问题，提前规划容量，降低扩容频率。
+扩容方法是通过将**整个数组拷贝**的方式完成的，因此对于大对象数组需考虑性能问题，提前规划容量，降低扩容频率。
 
 总结如下：
 
@@ -306,3 +307,22 @@ System.arraycopy(elementData, index + 1, elementData, index, numMoved);
 ```
 
 因此 ArrayList 的删除性能需要考虑进元素**移动**的时间复杂度。
+
+
+# 与其它集合的比较
+
+## ArrayList v.s. Array
+
+* Array 可容纳基本类型和对象；ArrayList 只能容纳对象
+* Array 指定大小，ArrayList 大小固定
+* Array 的接口较少，但使用多维数组更方便
+
+
+## ArrayList v.s. Vector
+
+* 两者均使用**数组**方式存储数据（基于索引），数组元素数大于实际存储的数据以便增加和插入元素
+* 两者均维护插入的顺序，都允许直接按照序号索引元素
+    * 但插入元素要涉及数组元素移动等内存操作：索引数据快，但插入数据慢
+* 迭代器实现都是 fail-fast 的
+* Vector 由于使用 synchronized 方法（同步，线程安全），通常性能上较 ArrayList 差
+    * 寻求迭代时对列表进行改变：使用 `CopyOnWriteArrayList`
