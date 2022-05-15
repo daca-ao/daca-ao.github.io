@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2022/05/14/docker/vm-container.png">
 <meta property="og:image" content="http://example.com/2022/05/14/docker/docker-lifecycle.png">
 <meta property="article:published_time" content="2022-05-14T08:01:44.000Z">
-<meta property="article:modified_time" content="2022-05-15T05:59:57.026Z">
+<meta property="article:modified_time" content="2022-05-15T11:27:08.044Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Docker">
 <meta property="article:tag" content="容器化">
@@ -346,7 +346,23 @@
 
 <p><img src="/2022/05/14/docker/docker-lifecycle.png"></p>
 <h1 id="基础指令"><a href="#基础指令" class="headerlink" title="基础指令"></a>基础指令</h1><p>最全的指令可到<a target="_blank" rel="noopener" href="https://docs.docker.com/reference/">官方学习文档</a>查询，这里简单提几个常用的指令。</p>
+<br>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker version  <span class="comment"># 查看 Docker client 和 server 版本</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker info  <span class="comment"># 显示 Docker client 和 server 信息</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker [<span class="built_in">command</span>] --<span class="built_in">help</span>  <span class="comment"># 帮助指令</span></span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker ps  <span class="comment"># 查看运行中的容器</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker top [container_id]  <span class="comment"># 查看容器 top 信息</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker inspect [container_id]  <span class="comment"># 查看容器元数据信息</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker attach [container_id]  <span class="comment"># 进入容器</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker stats  <span class="comment"># 查看所有容器状态</span></span></span><br></pre></td></tr></table></figure>
+
+<br>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker cp SRC_PATH [container_id]:DEST_PATH  <span class="comment"># 将主机文件复制到容器</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker cp [container_id]:SRC_PATH DEST_PATH  <span class="comment"># 将容器文件复制到主机</span></span></span><br></pre></td></tr></table></figure>
+
+<br>
+
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker images [OPTIONS] [REPOSITORY[:TAG]]  <span class="comment"># 列出本地 Docker 中所有可用镜像。</span></span></span><br></pre></td></tr></table></figure>
+
+<br>
 
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker image  <span class="comment"># 单个镜像父指令。</span></span></span><br></pre></td></tr></table></figure>
 
@@ -358,6 +374,8 @@
 <li><code>--cache-from</code>：指定构建镜像文件的 cache</li>
 <li><code>--no-cache</code>：构建镜像文件时禁止使用 cache</li>
 </ul>
+<br>
+
 
     </div>
 
