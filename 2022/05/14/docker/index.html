@@ -28,10 +28,10 @@
 <meta property="og:description" content="Docker 是利用 Go 开发的一种虚拟容器技术，属于轻量级的虚拟化。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/05/14/docker/docker.png">
-<meta property="og:image" content="http://example.com/2022/05/14/docker/vm-container.png">
 <meta property="og:image" content="http://example.com/2022/05/14/docker/docker-lifecycle.png">
+<meta property="og:image" content="http://example.com/2022/05/14/docker/vm-container.png">
 <meta property="article:published_time" content="2022-05-14T08:01:44.000Z">
-<meta property="article:modified_time" content="2022-05-16T14:20:32.880Z">
+<meta property="article:modified_time" content="2022-05-17T12:15:41.162Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Docker">
 <meta property="article:tag" content="容器化">
@@ -249,7 +249,49 @@
 <li>容器 Container</li>
 <li>仓库 Repository</li>
 </ul>
-<p>先说说什么是容器。</p>
+<p>先说说镜像。</p>
+<h1 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h1><p>镜像 Image 是一种<strong>轻量级</strong>、<strong>可执行</strong>的独立软件包，提供了容器运行时所需的程序、库、资源、配置等文件。</p>
+<ul>
+<li>包含一切为运行时准备的配置参数、环境变量等</li>
+<li>不包含任何动态数据，其内容在构建之后也不会被改变</li>
+<li>基于基础镜像（没有父镜像）可制作各种具体的应用镜像</li>
+</ul>
+<p>获得镜像的方式：</p>
+<ul>
+<li>通过 Dockerfile 制作</li>
+<li>通过传输拷贝方式获得</li>
+<li>从远程仓库下载</li>
+</ul>
+<p>Image 属于联合文件系统，是一种<strong>分层</strong>、<strong>轻量级</strong>且<strong>高性能</strong>的文件系统，是 Docker image 的基础。</p>
+<ul>
+<li>支持对文件系统的修改作为一次提交来逐层叠加</li>
+<li>可将不同目录挂载到同一个虚拟文件系统下</li>
+</ul>
+<p>从 Registry 拉取镜像的时候，是一层一层并行下载的。好处是能实现<strong>共享资源</strong>。</p>
+<ul>
+<li>比如有多个镜像都从相同 base 镜像构建而来</li>
+<li>宿主机只需在磁盘和内存各保存一份 base，就可以为所有容器服务</li>
+</ul>
+<p>镜像加载原理</p>
+<ul>
+<li>最底层是 <strong>bootfs</strong>(boot file system) 主要包含：<ul>
+<li>bootloader：引导加载 kernel</li>
+<li>kernel：最终拥有对内存的使用权</li>
+</ul>
+</li>
+<li>image 最底层是 kernel</li>
+</ul>
+<p>镜像加载成功之后，就会在容器里运行相应的程序。</p>
+<h2 id="远程仓库-Docker-Registry"><a href="#远程仓库-Docker-Registry" class="headerlink" title="远程仓库 Docker Registry"></a>远程仓库 Docker Registry</h2><p>Docker Registry，Docker 注册中心，是 docker 镜像的地址，负责管理 Docker Image。</p>
+<p>默认使用官方的 <a target="_blank" rel="noopener" href="https://hub.docker.com/">Docker Hub</a>，其拥有大量的高质量的官方镜像。<br>可通过配置 <code>/etc/docker/daemon.json</code> 设置 docker 的镜像地址，加快镜像的下载速度：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;https://xxx.com&quot;</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="DockerFile"><a href="#DockerFile" class="headerlink" title="DockerFile"></a>DockerFile</h2><p>Docker image 的构建文件，格式及关键字如下：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span>    <span class="comment"># 指明当前新镜像基于哪一个基础镜像</span></span><br><span class="line"><span class="keyword">MAINTAINER</span>    <span class="comment"># 镜像维护者信息</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash">    <span class="comment"># 容器构建时需要运行的命令</span></span></span><br><span class="line"><span class="keyword">EXPOSE</span>    <span class="comment"># 当前容器对外暴露的接口</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash">    <span class="comment"># 指定在创建容器后终端默认登陆进来的工作目录</span></span></span><br><span class="line"><span class="keyword">ARG</span>    <span class="comment"># 用于构建镜像过程中设置环境变量</span></span><br><span class="line"><span class="keyword">ENV</span>    <span class="comment"># 用于构建镜像过程中，及容器运行时设置环境变量</span></span><br><span class="line"><span class="keyword">ADD</span><span class="bash">    <span class="comment"># 将宿主机目录下的文件复制至镜像。该命令会自动处理 URL 和解压 tar 包</span></span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash">    <span class="comment"># 类似于 ADD，复制文件和路径到镜像中。从构建上下文目录中源路径的文件/目录复制到新的一层的镜像内的目标路径位置</span></span></span><br><span class="line"><span class="keyword">VOLUME</span><span class="bash">    <span class="comment"># 容器数据卷</span></span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash">    <span class="comment"># 指定一个容器启动时要执行的命令。可有多个 CMD 命令，但只有最后一个生效，且会被 docker run 之后的参数替换</span></span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash">    <span class="comment"># 和 CMD 一样，指定容器启动程序和参数</span></span></span><br><span class="line"><span class="keyword">ONBUILD</span>    <span class="comment"># 构建一个被继承的 DockerFile 时，运行该命令，父镜像在被子继承后父镜像的 ONBUILD 被触发</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/05/14/docker/docker-lifecycle.png"></p>
+<p>Dockerfile 的每<strong>一行</strong>对应的就是 image 的<strong>一层</strong>文件系统；从 Dockerfile 上往下，分别往 bootfs 层叠加成最终的 image。</p>
 <h1 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h1><p>容器存放了如应用程序代码、依赖库以及其依赖关系等内容。</p>
 <p>容器提供了三种隔离类型：</p>
 <ol>
@@ -308,48 +350,7 @@
 <p><img src="/2022/05/14/docker/vm-container.png"></p>
 <p>可知 VM 虚拟出的是完整的操作系统（包括内核），而容器直接运行在宿主机内核上，没有自己的内核和虚拟硬件。<br>VM 提供的是不同操作系统之间数据和环境的隔离；而容器提供的是不同应用及其运行环境的隔离。<br>所以容器更加小巧轻便，更高效地利用物理机的资源，消耗资源更少，启动速度更快，能实现快速的运维部署、升级、扩/缩容。</p>
 <p>在 Docker 中，所有容器通过 <strong>Docker Engine</strong> 支撑服务。</p>
-<h1 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h1><p>镜像 Image 是一种<strong>轻量级</strong>、<strong>可执行</strong>的独立软件包，提供了容器运行时所需的程序、库、资源、配置等文件。</p>
-<ul>
-<li>包含一切为运行时准备的配置参数、环境变量等</li>
-<li>不包含任何动态数据，其内容在构建之后也不会被改变</li>
-<li>基于基础镜像（没有父镜像）可制作各种具体的应用镜像</li>
-</ul>
-<p>获得镜像的方式：</p>
-<ul>
-<li>通过 Dockerfile 制作</li>
-<li>通过传输拷贝方式获得</li>
-<li>从远程仓库下载</li>
-</ul>
-<p>Image 属于联合文件系统，是一种<strong>分层</strong>、<strong>轻量级</strong>且<strong>高性能</strong>的文件系统，是 Docker image 的基础。</p>
-<ul>
-<li>支持对文件系统的修改作为一次提交来逐层叠加</li>
-<li>可将不同目录挂载到同一个虚拟文件系统下</li>
-</ul>
-<p>从 Registry 拉取镜像的时候，是一层一层并行下载的。好处是能实现<strong>共享资源</strong>。</p>
-<ul>
-<li>比如有多个镜像都从相同 base 镜像构建而来</li>
-<li>宿主机只需在磁盘和内存各保存一份 base，就可以为所有容器服务</li>
-</ul>
-<p>镜像加载原理</p>
-<ul>
-<li>最底层是 <strong>bootfs</strong>(boot file system) 主要包含：<ul>
-<li>bootloader：引导加载 kernel</li>
-<li>kernel：最终拥有对内存的使用权</li>
-</ul>
-</li>
-<li>image 最底层是 kernel</li>
-</ul>
-<p>镜像加载成功之后，就会在容器里运行相应的程序。</p>
-<h2 id="远程仓库-Docker-Registry"><a href="#远程仓库-Docker-Registry" class="headerlink" title="远程仓库 Docker Registry"></a>远程仓库 Docker Registry</h2><p>Docker Registry，Docker 注册中心，是 docker 镜像的地址，负责管理 Docker Image。</p>
-<p>默认使用官方的 <a target="_blank" rel="noopener" href="https://hub.docker.com/">Docker Hub</a>，其拥有大量的高质量的官方镜像。<br>可通过配置 <code>/etc/docker/daemon.json</code> 设置 docker 的镜像地址，加快镜像的下载速度：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;https://xxx.com&quot;</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="DockerFile"><a href="#DockerFile" class="headerlink" title="DockerFile"></a>DockerFile</h2><p>Docker image 的构建文件，格式及关键字如下：</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span>    <span class="comment"># 指明当前新镜像基于哪一个基础镜像</span></span><br><span class="line"><span class="keyword">MAINTAINER</span>    <span class="comment"># 镜像维护者信息</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash">    <span class="comment"># 容器构建时需要运行的命令</span></span></span><br><span class="line"><span class="keyword">EXPOSE</span>    <span class="comment"># 当前容器对外暴露的接口</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash">    <span class="comment"># 指定在创建容器后终端默认登陆进来的工作目录</span></span></span><br><span class="line"><span class="keyword">ARG</span>    <span class="comment"># 用于构建镜像过程中设置环境变量</span></span><br><span class="line"><span class="keyword">ENV</span>    <span class="comment"># 用于构建镜像过程中，及容器运行时设置环境变量</span></span><br><span class="line"><span class="keyword">ADD</span><span class="bash">    <span class="comment"># 将宿主机目录下的文件复制至镜像。该命令会自动处理 URL 和解压 tar 包</span></span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash">    <span class="comment"># 类似于 ADD，复制文件和路径到镜像中。从构建上下文目录中源路径的文件/目录复制到新的一层的镜像内的目标路径位置</span></span></span><br><span class="line"><span class="keyword">VOLUME</span><span class="bash">    <span class="comment"># 容器数据卷</span></span></span><br><span class="line"><span class="keyword">CMD</span><span class="bash">    <span class="comment"># 指定一个容器启动时要执行的命令。可有多个 CMD 命令，但只有最后一个生效，且会被 docker run 之后的参数替换</span></span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash">    <span class="comment"># 和 CMD 一样，指定容器启动程序和参数</span></span></span><br><span class="line"><span class="keyword">ONBUILD</span>    <span class="comment"># 构建一个被继承的 DockerFile 时，运行该命令，父镜像在被子继承后父镜像的 ONBUILD 被触发</span></span><br></pre></td></tr></table></figure>
-
-<p><img src="/2022/05/14/docker/docker-lifecycle.png"></p>
-<p>Dockerfile 的每<strong>一行</strong>对应的就是 image 的<strong>一层</strong>文件系统；从 Dockerfile 上往下，分别往 bootfs 层叠加成最终的 image。</p>
+<h2 id="容器数据卷-Volume"><a href="#容器数据卷-Volume" class="headerlink" title="容器数据卷 Volume"></a>容器数据卷 Volume</h2><p>上面提到，镜像包含的是资源、配置和运行时，并不包括任何动态数据。镜像内应用和环境如果需要完成<strong>数据持久化</strong>，需要通过 mount 数据卷的方式。</p>
 <h1 id="指令"><a href="#指令" class="headerlink" title="指令"></a>指令</h1><p>最全的指令可到<a target="_blank" rel="noopener" href="https://docs.docker.com/reference/">官方学习文档</a>查询，这里简单提几个常用的指令。</p>
 <h2 id="基础指令"><a href="#基础指令" class="headerlink" title="基础指令"></a>基础指令</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> docker version  <span class="comment"># 查看 Docker client 和 server 版本</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker info  <span class="comment"># 显示 Docker client 和 server 信息</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> docker COMMAND --<span class="built_in">help</span>  <span class="comment"># 帮助指令</span></span></span><br></pre></td></tr></table></figure>
 
@@ -457,7 +458,7 @@ CTRL+P+Q（退出容器交互模式，但容器还是 up 的状态）
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">容器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%95%9C%E5%83%8F"><span class="nav-number">2.</span> <span class="nav-text">镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93-Docker-Registry"><span class="nav-number">2.1.</span> <span class="nav-text">远程仓库 Docker Registry</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DockerFile"><span class="nav-number">2.2.</span> <span class="nav-text">DockerFile</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">指令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E6%8C%87%E4%BB%A4"><span class="nav-number">3.1.</span> <span class="nav-text">基础指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%95%9C%E5%83%8F%E6%8C%87%E4%BB%A4"><span class="nav-number">3.2.</span> <span class="nav-text">镜像指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E6%8C%87%E4%BB%A4"><span class="nav-number">3.3.</span> <span class="nav-text">容器指令</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%95%9C%E5%83%8F"><span class="nav-number">1.</span> <span class="nav-text">镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93-Docker-Registry"><span class="nav-number">1.1.</span> <span class="nav-text">远程仓库 Docker Registry</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DockerFile"><span class="nav-number">1.2.</span> <span class="nav-text">DockerFile</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">容器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%8D%B7-Volume"><span class="nav-number">2.1.</span> <span class="nav-text">容器数据卷 Volume</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%87%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">指令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E6%8C%87%E4%BB%A4"><span class="nav-number">3.1.</span> <span class="nav-text">基础指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%95%9C%E5%83%8F%E6%8C%87%E4%BB%A4"><span class="nav-number">3.2.</span> <span class="nav-text">镜像指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E6%8C%87%E4%BB%A4"><span class="nav-number">3.3.</span> <span class="nav-text">容器指令</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
