@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubernetes-structure.jpg">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubernetes-master.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-20T14:42:45.681Z">
+<meta property="article:modified_time" content="2022-05-21T02:25:37.887Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -261,50 +261,36 @@
 <p><strong>kube-scheduler 调度程序</strong></p>
 <p>调度程序通过执行一系列复杂的算法（比如轮询调度 RR），为每个 pod 匹配到一个最佳的目标 node，然后分发任务。</p>
 <p><strong>kube-controller-manager</strong></p>
-<p>守护进程，是 Master 节点的内部控制中心</p>
+<p>守护进程。顾名思义，是 Kubernetes 管理各个 service controller 的控制中心。</p>
+<p>每个 controller 本质上是一个控制循环，它通过 apiserver 监视集群的共享状态，对服务进行监控和恢复，尝试改变某个服务与期望不符的实际情况。</p>
+<p>Kubernetes 内部的 service controller 包括：</p>
 <ul>
-<li>完成 Kubernetes 各组件相互协作，同时对服务进行监控和恢复</li>
-<li>管理 Service Controller, Replication Controller 等进程<ul>
-<li>Node controller</li>
-<li>资源配额控制器（Resource Quota Controller）</li>
-<li>命名空间控制器（Namespace Controller）</li>
-<li>…</li>
-</ul>
-</li>
-<li>每个 Controller 都是一个控制循环<ul>
-<li> 通过 apiserver 监视集群的共享状态，尝试改变与期望不符的实际情况</li>
-</ul>
-</li>
-</ul>
-<p>包括：</p>
-<ul>
-<li>Cronjob Controller</li>
-<li>DaemonSet Controller<ul>
-<li>能让特定或所有节点运行同一个 pod</li>
+<li><code>Cronjob Controller</code></li>
+<li><code>DaemonSet Controller</code>：能让特定或所有节点运行同一个 pod<ul>
 <li>节点被加入 Kubernetes 集群后：pod 会被 DaemonSet 调度到该节点执行</li>
 <li>节点被移出 Kubernetes 集群后：被 DaemonSet 调度的 pod 会被移除</li>
 <li>删除 DaemonSet：所有与其相关的 pod 都会被移除</li>
 </ul>
 </li>
-<li>Deployment Controller（包括了 Replication Controller 的所有功能）</li>
-<li>Endpoint Controller</li>
-<li>HPA(Horizontal Pod Autoscaling) Controller</li>
-<li>Job Controller</li>
-<li>Namespace Controller</li>
-<li>NodeLifecycle Controller</li>
-<li>PV-binder Controller</li>
-<li>PV-expander Controller</li>
-<li>Replication Controller：通过 ReplicaSet 控制 Pod 的动态扩容和缩放<ul>
+<li><code>Deployment Controller</code>（包括了 Replication Controller 的所有功能）</li>
+<li><code>Endpoint Controller</code></li>
+<li><code>HPA</code>(Horizontal Pod Autoscaling) <code>Controller</code></li>
+<li><code>Job Controller</code></li>
+<li><code>Namespace Controller</code></li>
+<li><code>NodeLifecycle Controller</code></li>
+<li><code>PV-binder Controller</code></li>
+<li><code>PV-expander Controller</code></li>
+<li><code>Replication Controller</code>：通过 ReplicaSet 控制 Pod 的动态扩容和缩放<ul>
 <li>为每个 Pod 设置一个期望的副本数</li>
 <li>需要时复制多份 Pod，不需要后缩减 Pod 至指定份数</li>
 <li>期望值可手动更新，或自动扩容代理完成</li>
 </ul>
 </li>
-<li>ResourceQuota Controller</li>
-<li>ServiceAccount Controller</li>
-<li>Service Controller：管理 service——微服务</li>
-<li>StatefulSet Controller</li>
-<li>Token Controller（对 API server 访问进行认证）</li>
+<li><code>ResourceQuota Controller</code></li>
+<li><code>ServiceAccount Controller</code></li>
+<li><code>Service Controller</code>：管理 service——微服务</li>
+<li><code>StatefulSet Controller</code></li>
+<li><code>Token Controller</code>：对 API server 访问进行认证</li>
 </ul>
 <p>另：</p>
 <p>etcd 组件：维护各节点和 Pod 的信息</p>
