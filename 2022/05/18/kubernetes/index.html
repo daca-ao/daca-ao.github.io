@@ -36,7 +36,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubernetes-worker.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubeproxy.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-21T11:19:55.700Z">
+<meta property="article:modified_time" content="2022-05-21T11:24:14.066Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -355,7 +355,7 @@
 </ul>
 <p><img src="/2022/05/18/kubernetes/kubeproxy.png"></p>
 <p>kube-proxy 的实现模式主要有三种：</p>
-<p><code>userspace</code>：最早的负载均衡方案（default before Kubernetes v1.1）</p>
+<p><code>userspace</code>：最早的默认负载均衡方案（before Kubernetes v1.1）</p>
 <ol>
 <li>访问服务的请求到达 node 后，先进入内核的 iptables</li>
 <li>请求被转到给用户空间监听的 kube-proxy 端口</li>
@@ -367,7 +367,10 @@
 <ul>
 <li>当客户端发起请求时，直接请求本地内核的 service IP，根据 iptables 规则直接路由到各 pod 上</li>
 <li>kube-proxy 负责维护 node 上的防火墙规则和路由规则，根据 service / endpoints 对象改变实时刷新规则</li>
-<li>iptables 使用 NAT 完成转发，采用随机数实现负载均衡<br>与 userspace 模式最大区别：</li>
+<li>iptables 使用 NAT 完成转发，采用随机数实现负载均衡</li>
+</ul>
+<p>与 userspace 模式最大区别：</p>
+<ul>
 <li>iptables 使用 NAT 模块实现 service 入口地址到 pod 实际地址的转换，免去一次内核态到用户态的切换</li>
 <li>如 iptables 代理最初选择的那个 pod 没有响应：则不会自动重试其他 pod<br>性能问题：</li>
 <li>使用 NAT 转发，存在不可忽视的性能损耗</li>
