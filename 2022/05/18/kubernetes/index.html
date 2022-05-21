@@ -34,8 +34,9 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/watch-changes.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubernetes-node.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubernetes-worker.png">
+<meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubeproxy.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-21T09:52:29.287Z">
+<meta property="article:modified_time" content="2022-05-21T11:19:55.700Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -305,10 +306,10 @@
 <p>etcd 的增删改查也是统一通过 kube-apiserver 进行调用的。</p>
 <h1 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h1><p>可以理解为主从中的 slave / worker。Node 包含以下状态信息：</p>
 <ul>
-<li>地址：地址组合用法取决于云服务商或者 bare metal 配置</li>
-<li>状态：OutOfDisk, Ready, MemoryPressure, DiskPressure</li>
-<li>容量：node 上的可用资源：CPU、内存和可以调度到 node 上的 pods 的最大数量</li>
-<li>信息：通用信息——内核版本、Kubernetes 版本（kubelet, kube-proxy 版本），容器版本，操作系统名</li>
+<li>地址：地址组合用法取决于云服务商或者 bare metal 的配置</li>
+<li>状态：<code>OutOfDisk</code>, <code>Ready</code>, <code>MemoryPressure</code>, <code>DiskPressure</code></li>
+<li>容量：node 上的可用资源，包括 CPU、内存和可以调度到 node 上的 pods 的最大数量</li>
+<li>通用信息：包括内核版本、Kubernetes 版本（kubelet, kube-proxy 版本），容器版本，操作系统名等</li>
 </ul>
 <table>
 <thead>
@@ -338,23 +339,23 @@
 <p><img src="/2022/05/18/kubernetes/kubernetes-node.png"></p>
 <p>更动画化的示意图：</p>
 <p><img src="/2022/05/18/kubernetes/kubernetes-worker.png"></p>
-<p><strong>kubelet</strong> 组件</p>
+<p><strong>kubelet</strong> 组件：Node 的心脏</p>
 <ul>
-<li>Node 的心脏，每个 Node 节点运行一个 kubelet 进程</li>
-<li>与 apiserver 通信，并运行为其节点安排的容器</li>
+<li>每个 Node 节点会运行一个 kubelet 进程，与 apiserver 通信，并运行为该 Node 安排的容器</li>
 <li>管理容器生命周期（创建、修改、监控、删除等）</li>
 <li>结合 cAdvisor 负责向 Master 汇报自身节点运行情况：Node 节点注册、终止、定时上报健康状况等</li>
 <li>接收 Master 发出的命令，创建相应的 Pod</li>
 </ul>
-<p>kube-proxy</p>
+<p><strong>kube-proxy</strong></p>
 <ul>
 <li>使用 IP 表（iptables）/ IPVS 处理 Pod 的网络需求</li>
 <li>利用 service 负责服务地址到 Pod 地址的代理，负载均衡等</li>
 <li>监听 apiserver 中 service/endpoints 变化，为每个 service 建立服务代理对象（VIP），并刷新负载均衡</li>
 <li>实现了集群内部从 pod 到 service，以及集群外部从 nodePort 到 service 的访问</li>
 </ul>
-<p>kube-proxy 的实现模式：</p>
-<p>userspace：最早的负载均衡方案（default before Kubernetes v1.1）</p>
+<p><img src="/2022/05/18/kubernetes/kubeproxy.png"></p>
+<p>kube-proxy 的实现模式主要有三种：</p>
+<p><code>userspace</code>：最早的负载均衡方案（default before Kubernetes v1.1）</p>
 <ol>
 <li>访问服务的请求到达 node 后，先进入内核的 iptables</li>
 <li>请求被转到给用户空间监听的 kube-proxy 端口</li>
@@ -362,7 +363,7 @@
 <li>kube-proxy 再根据内核空间的 iptables 中的规则，将请求分发给后端的 service(backend) pod</li>
 </ol>
 <p>流量从用户空间进出内核带来的性能损耗是不可接受的</p>
-<p>iptables：目前的默认代理模式<br>基于 netfilter 实现</p>
+<p><code>iptables</code>：基于 netfilter 实现，是目前默认的代理模式</p>
 <ul>
 <li>当客户端发起请求时，直接请求本地内核的 service IP，根据 iptables 规则直接路由到各 pod 上</li>
 <li>kube-proxy 负责维护 node 上的防火墙规则和路由规则，根据 service / endpoints 对象改变实时刷新规则</li>
@@ -372,12 +373,16 @@
 <li>使用 NAT 转发，存在不可忽视的性能损耗</li>
 <li>如集群中存在上万的 service / endpoint，则 node 上的 iptables rules 将非常庞大</li>
 </ul>
-<p>ipvs：since Kubernetes v1.9-alpha, default since v1.11</p>
+<p><code>ipvs</code>：since Kubernetes v1.9-alpha, default since v1.11</p>
 <ul>
 <li>客户端请求到达内核空间时，根据 ipvs 规则直接分发到各 pod 上</li>
 <li>kube-proxy 监视 Kubernetes 的 service / endpoints 对象，调用 netlink 接口，相应地创建 ipvs 规则</li>
 <li>kube-proxy 定期与 Kubernetes 地 service /endpoints 对象同步 ipvs 规则，以确保 ipvs 状态与期望的一致</li>
-<li>访问服务时，流量将被重定向至其中一个后端 pod<br>ipvs（基于哈希表）的性能优于 iptables（基于链表）<br>ipvs 支持的轮询算法：</li>
+<li>访问服务时，流量将被重定向至其中一个后端 pod</li>
+</ul>
+<p>ipvs（基于哈希表）的性能优于 iptables（基于链表）</p>
+<p>ipvs 支持的轮询算法：</p>
+<ul>
 <li>DR: Direct Routing</li>
 <li>NAT</li>
 <li>Tunneling，也称 ipip 模式</li>
@@ -416,7 +421,7 @@
 <li>pod 有多种模式：<ul>
 <li>Sidebar</li>
 <li>Proxy</li>
-<li>……</li>
+<li>…</li>
 </ul>
 </li>
 <li>pod status：<ul>
