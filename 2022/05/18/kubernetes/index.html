@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubernetes-structure.jpg">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubernetes-master.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-21T02:25:37.887Z">
+<meta property="article:modified_time" content="2022-05-21T06:27:03.360Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -288,21 +288,17 @@
 </li>
 <li><code>ResourceQuota Controller</code></li>
 <li><code>ServiceAccount Controller</code></li>
-<li><code>Service Controller</code>：管理 service——微服务</li>
+<li><code>Service Controller</code>：管理 service</li>
 <li><code>StatefulSet Controller</code></li>
 <li><code>Token Controller</code>：对 API server 访问进行认证</li>
 </ul>
-<p>另：</p>
-<p>etcd 组件：维护各节点和 Pod 的信息</p>
+<p><strong>etcd</strong> 组件：作为高可用强一致性的存储仓库，存储集群上包括 Kubernetes 对象，node, pod, service, replicaset, namespace 等<strong>所有集群配置信息</strong>。</p>
+<p>etcd 组件可内置于 Kubernetes，也可于集群外部搭建供 Kubernetes 使用。</p>
+<p>etcd 的增删改查统一通过 kube-apiserver 进行调用的</p>
 <ul>
-<li>作为高可用强一致性的存储仓库，存储集群上所有配置信息（有关 Kubernetes 对象，pod, service, node, replicaset, namespace 等）</li>
-<li>增删改查统一通过 kube-apiserver 进行调用<ul>
 <li>提供 REST 支持，不仅对各个内部组件提供服务，还对集群外部用户暴露服务</li>
 <li>外部用户可通过 REST 接口或 kubectl 命令行工具进行集群管理</li>
 <li>kubectl 本质上也是与 kube-apiserver 进行通信</li>
-</ul>
-</li>
-<li>可内置于 Kubernetes，也可外部搭建供 Kubernetes 使用</li>
 </ul>
 <h1 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h1><p>node 包含以下状态信息：</p>
 <ul>
