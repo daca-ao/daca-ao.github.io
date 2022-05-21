@@ -32,8 +32,10 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/simple-interface.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kv-storage.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/watch-changes.png">
+<meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubernetes-node.png">
+<meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubernetes-worker.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-21T09:31:00.950Z">
+<meta property="article:modified_time" content="2022-05-21T09:52:29.287Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -298,14 +300,12 @@
 <li><code>Token Controller</code>：对 API server 访问进行认证</li>
 </ul>
 <p><strong>etcd</strong> 组件：作为高可用强一致性的存储仓库，存储集群上包括 Kubernetes 对象，node, pod, service, replicaset, namespace 等<strong>所有集群配置信息</strong>。</p>
-<p><img src="/2022/05/18/kubernetes/simple-interface.png" alt="交互简单"></p>
-<p><img src="/2022/05/18/kubernetes/kv-storage.png" alt="键值存储"></p>
-<p><img src="/2022/05/18/kubernetes/watch-changes.png" alt="监测变化"></p>
+<p><img src="/2022/05/18/kubernetes/simple-interface.png" alt="交互简单">  <img src="/2022/05/18/kubernetes/kv-storage.png" alt="键值存储">  <img src="/2022/05/18/kubernetes/watch-changes.png" alt="监测变化"></p>
 <p>etcd 组件可内置于 Kubernetes，也可于集群外部搭建供 Kubernetes 使用。</p>
 <p>etcd 的增删改查也是统一通过 kube-apiserver 进行调用的。</p>
-<h1 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h1><p>node 包含以下状态信息：</p>
+<h1 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h1><p>可以理解为主从中的 slave / worker。Node 包含以下状态信息：</p>
 <ul>
-<li>地址：地址组合用法取决于云服务商或者裸金属配置</li>
+<li>地址：地址组合用法取决于云服务商或者 bare metal 配置</li>
 <li>状态：OutOfDisk, Ready, MemoryPressure, DiskPressure</li>
 <li>容量：node 上的可用资源：CPU、内存和可以调度到 node 上的 pods 的最大数量</li>
 <li>信息：通用信息——内核版本、Kubernetes 版本（kubelet, kube-proxy 版本），容器版本，操作系统名</li>
@@ -334,7 +334,11 @@
 <td>True：node 不存在磁盘压力：磁盘用量低</td>
 </tr>
 </tbody></table>
-<p>kubelet 组件</p>
+<p>Node 各组件如图：</p>
+<p><img src="/2022/05/18/kubernetes/kubernetes-node.png"></p>
+<p>更动画化的示意图：</p>
+<p><img src="/2022/05/18/kubernetes/kubernetes-worker.png"></p>
+<p><strong>kubelet</strong> 组件</p>
 <ul>
 <li>Node 的心脏，每个 Node 节点运行一个 kubelet 进程</li>
 <li>与 apiserver 通信，并运行为其节点安排的容器</li>
@@ -342,9 +346,9 @@
 <li>结合 cAdvisor 负责向 Master 汇报自身节点运行情况：Node 节点注册、终止、定时上报健康状况等</li>
 <li>接收 Master 发出的命令，创建相应的 Pod</li>
 </ul>
-<p>kube-proxy：</p>
+<p>kube-proxy</p>
 <ul>
-<li>使用 IP 表（iptables）/IPVS 处理 Pod 的网络需求</li>
+<li>使用 IP 表（iptables）/ IPVS 处理 Pod 的网络需求</li>
 <li>利用 service 负责服务地址到 Pod 地址的代理，负载均衡等</li>
 <li>监听 apiserver 中 service/endpoints 变化，为每个 service 建立服务代理对象（VIP），并刷新负载均衡</li>
 <li>实现了集群内部从 pod 到 service，以及集群外部从 nodePort 到 service 的访问</li>
@@ -385,6 +389,84 @@
 <li>nq: never queue/从不排队</li>
 </ul>
 <p>Pod：最基本的操作单元</p>
+<p>Kubernetes 工作节点中最基本的操作单元</p>
+<ul>
+<li>集群中运行的一个进程</li>
+</ul>
+<p>引入 pod 的目的：可管理性，通用和资源共享</p>
+<ul>
+<li>一个 pod 可能包含一个或多个容器（可能是 docker 容器），每个 Pod 分配自己的 IP 地址<ul>
+<li>kube-proxy 将使用该 IP 地址来路由流量，此 IP 地址仅在群集中可见</li>
+<li>运行单一容器：one-container-per-Pod，最常见模型，Kubernetes 还是管理 pod</li>
+<li>运行多个容器：应用程序的不同方面分离并部署到单独的容器中，加载时将所有容器视为一个容器加载</li>
+</ul>
+</li>
+<li>pod 中所有内部容器共享网络资源：可通过 localhost 进行相互访问<ul>
+<li>每个 pod 启动时，内部会启动一个 pause 容器（Google 的一个镜像：gcr.io/google_containers/pause）</li>
+<li>pause 使用默认网络模式，其他容器的网络设置给它</li>
+<li>共享设置完成</li>
+<li>所有容器总是被同时调度</li>
+</ul>
+</li>
+<li>类似于一个 Servlet 容器部署 war 包、日志收集等的功能<ul>
+<li>容器之间共享资源、共享配置</li>
+<li>不同 container 之间通过 infra container 统一识别外部网络空间</li>
+</ul>
+</li>
+<li>pod 有多种模式：<ul>
+<li>Sidebar</li>
+<li>Proxy</li>
+<li>……</li>
+</ul>
+</li>
+<li>pod status：<ul>
+<li>Pending：创建 pod 请求被 Kubernetes 接受，但容器并没有启动成功<ul>
+<li>可能处在写数据到 etcd，调度，pull 镜像，启动容器四个状态中一个</li>
+<li>通常伴随 ADDED, Modified 两个事件</li>
+</ul>
+</li>
+<li>Running：pod 已经绑定到 node 节点，所有容器已经启动成功/至少一个容器在运行/在重启</li>
+<li>Succeed：pod 中所有容器已正常自行退出，且 Kubernetes 永远不会重启这些容器，一般会在部署 job 时候出现</li>
+<li>Failed：pod 中所有容器已终止，且至少一个容器已终止失败（非零退出或被系统停止）</li>
+<li>Unknown：某种原因无法获取 pod 状态，通常由于与 pod 的主机通信错误</li>
+</ul>
+</li>
+</ul>
+<p>Namespace</p>
+<ul>
+<li>命名空间</li>
+<li>将集群内的资源对象分配到不同的 namespace 中<ul>
+<li>实现多租户的资源隔离</li>
+</ul>
+</li>
+</ul>
+<p>一个 pod 中共享的资源：</p>
+<ul>
+<li>PID namespace（命名空间）：pod 中不同应用程序可看到其他应用程序的进程 ID</li>
+<li>网络 namespace：pod 中多个容器能访问同一个 IP 和端口范围</li>
+<li>IPC namespace：pod 中多个容器能使用 SystemV IPC 或 POSIX 消息队列进行通信（属于进程间通信）</li>
+<li>UTS namespace：pod 中多个容器共享一个主机名（localhost）</li>
+<li>Volumes：共享存储卷，pod 中各个容器可访问在 pod 级别定义的 Volumes</li>
+</ul>
+<h1 id="yaml-格式的-pod-定义文件完整内容："><a href="#yaml-格式的-pod-定义文件完整内容：" class="headerlink" title="yaml 格式的 pod 定义文件完整内容："></a>yaml 格式的 pod 定义文件完整内容：</h1><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span>        　　<span class="comment">#必选，版本号，例如v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span>       　　　　　　<span class="comment">#必选，Pod</span></span><br><span class="line"><span class="attr">metadata:</span>       　　　　　　<span class="comment">#必选，元数据</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">string</span>        　　<span class="comment">#必选，Pod名称</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">string</span>     　　<span class="comment">#必选，Pod所属的命名空间</span></span><br><span class="line">  <span class="attr">labels:</span>       　　　　　　<span class="comment">#自定义标签</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">value</span>      　<span class="comment">#自定义标签名字</span></span><br><span class="line">  <span class="attr">annotations:</span>        　　<span class="comment">#自定义注释列表</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span></span><br><span class="line"><span class="attr">spec:</span>         　　　　　　　<span class="comment">#必选，Pod中容器的详细定义（specification）</span></span><br><span class="line">  <span class="attr">containers:</span>       　　　　<span class="comment">#必选，Pod中容器列表</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span>      　　<span class="comment">#必选，容器名称</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">string</span>     　　<span class="comment">#必选，容器的镜像名称</span></span><br><span class="line">    <span class="attr">imagePullPolicy:</span> [<span class="string">Always</span> <span class="string">|</span> <span class="string">Never</span> <span class="string">|</span> <span class="string">IfNotPresent</span>]  <span class="comment">#获取镜像的策略 </span></span><br><span class="line">        <span class="comment">#Alawys表示下载镜像 IfnotPresent表示优先使用本地镜像，否则下载镜像，Never表示仅使用本地镜像</span></span><br><span class="line">    <span class="attr">command:</span> [<span class="string">string</span>]     　　<span class="comment">#容器的启动命令列表，如不指定，使用打包时使用的启动命令</span></span><br><span class="line">    <span class="attr">args:</span> [<span class="string">string</span>]      　　 <span class="comment">#容器的启动命令参数列表</span></span><br><span class="line">    <span class="attr">workingDir:</span> <span class="string">string</span>      <span class="comment">#容器的工作目录</span></span><br><span class="line">    <span class="attr">volumeMounts:</span>     　　　　<span class="comment">#挂载到容器内部的存储卷配置</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span>      　　　<span class="comment">#引用pod定义的共享存储卷的名称，需用volumes[]部分定义的的卷名</span></span><br><span class="line">      <span class="attr">mountPath:</span> <span class="string">string</span>     <span class="comment">#存储卷在容器内mount的绝对路径，应少于512字符</span></span><br><span class="line">      <span class="attr">readOnly:</span> <span class="string">boolean</span>     <span class="comment">#是否为只读模式</span></span><br><span class="line">    <span class="attr">ports:</span>        　　　　　　<span class="comment">#需要暴露的端口库号列表</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span>      　　　<span class="comment">#端口号名称</span></span><br><span class="line">      <span class="attr">containerPort:</span> <span class="string">int</span>    <span class="comment">#容器需要监听的端口号</span></span><br><span class="line">      <span class="attr">hostPort:</span> <span class="string">int</span>     　　 <span class="comment">#容器所在主机需要监听的端口号，默认与Container相同</span></span><br><span class="line">      <span class="attr">protocol:</span> <span class="string">string</span>      <span class="comment">#端口协议，支持TCP和UDP，默认TCP</span></span><br><span class="line">    <span class="attr">env:</span>        　　　　　　<span class="comment">#容器运行前需设置的环境变量列表</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span>      　　<span class="comment">#环境变量名称</span></span><br><span class="line">      <span class="attr">value:</span> <span class="string">string</span>     　　<span class="comment">#环境变量的值</span></span><br><span class="line">    <span class="attr">resources:</span>        　　<span class="comment">#资源限制和请求的设置</span></span><br><span class="line">      <span class="attr">limits:</span>       　　　　<span class="comment">#资源限制的设置</span></span><br><span class="line">        <span class="attr">cpu:</span> <span class="string">string</span>     　　<span class="comment">#Cpu的限制，单位为core数，将用于docker run --cpu-shares参数</span></span><br><span class="line">        <span class="attr">memory:</span> <span class="string">string</span>      <span class="comment">#内存限制，单位可以为Mib/Gib，将用于docker run --memory参数</span></span><br><span class="line">      <span class="attr">requests:</span>       　　<span class="comment">#资源请求的设置</span></span><br><span class="line">        <span class="attr">cpu:</span> <span class="string">string</span>     　　<span class="comment">#Cpu请求，容器启动的初始可用数量</span></span><br><span class="line">        <span class="attr">memory:</span> <span class="string">string</span>      <span class="comment">#内存清楚，容器启动的初始可用数量</span></span><br><span class="line">    <span class="attr">livenessProbe:</span>      　　<span class="comment">#对Pod内个容器健康检查的设置，当探测无响应几次后将自动重启该容器</span></span><br><span class="line">            <span class="comment">#检查方法有exec、httpGet和tcpSocket，对一个容器只需设置其中一种方法即可</span></span><br><span class="line">      <span class="attr">exec:</span>       　　　　　　<span class="comment">#对Pod容器内检查方式设置为exec方式</span></span><br><span class="line">        <span class="attr">command:</span> [<span class="string">string</span>]   <span class="comment">#exec方式需要指定的命令或脚本</span></span><br><span class="line">      <span class="attr">httpGet:</span>        　　　　<span class="comment">#对Pod内各容器健康检查方法设置为HttpGet，需要制定Path、port</span></span><br><span class="line">        <span class="attr">path:</span> <span class="string">string</span></span><br><span class="line">        <span class="attr">port:</span> <span class="string">number</span></span><br><span class="line">        <span class="attr">host:</span> <span class="string">string</span></span><br><span class="line">        <span class="attr">scheme:</span> <span class="string">string</span></span><br><span class="line">        <span class="attr">HttpHeaders:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">string</span></span><br><span class="line">      <span class="attr">tcpSocket:</span>      　　　　　　<span class="comment">#对Pod内各容器健康检查方式设置为tcpSocket方式</span></span><br><span class="line">         <span class="attr">port:</span> <span class="string">number</span></span><br><span class="line">       <span class="attr">initialDelaySeconds:</span> <span class="number">0</span>   <span class="comment">#容器启动完成后首次探测的时间，单位为秒</span></span><br><span class="line">       <span class="attr">timeoutSeconds:</span> <span class="number">0</span>    　　<span class="comment">#对容器健康检查探测等待响应的超时时间，单位秒，默认1秒</span></span><br><span class="line">       <span class="attr">periodSeconds:</span> <span class="number">0</span>     　　<span class="comment">#对容器监控检查的定期探测时间设置，单位秒，默认10秒一次</span></span><br><span class="line">       <span class="attr">successThreshold:</span> <span class="number">0</span></span><br><span class="line">       <span class="attr">failureThreshold:</span> <span class="number">0</span></span><br><span class="line">       <span class="attr">securityContext:</span></span><br><span class="line">         <span class="attr">privileged:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">restartPolicy:</span> [<span class="string">Always</span> <span class="string">|</span> <span class="string">Never</span> <span class="string">|</span> <span class="string">OnFailure</span>] <span class="comment">#Pod的重启策略，Always表示一旦不管以何种方式终止运行，kubelet都将重启，OnFailure表示只有Pod以非0退出码退出才重启，Never表示不再重启该Pod</span></span><br><span class="line">  <span class="attr">nodeSelector:</span> <span class="string">object</span>   　　<span class="comment">#设置NodeSelector表示将该Pod调度到包含这个label的node上，以key：value的格式指定</span></span><br><span class="line">  <span class="attr">imagePullSecrets:</span>     　　　　<span class="comment">#Pull镜像时使用的secret名称，以key：secretkey格式指定</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span></span><br><span class="line">  <span class="attr">hostNetwork:</span> <span class="literal">false</span>      　　<span class="comment">#是否使用主机网络模式，默认为false，如果设置为true，表示使用宿主机网络</span></span><br><span class="line">  <span class="attr">volumes:</span>        　　　　　　<span class="comment">#在该pod上定义共享存储卷列表</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span>     　　 　　<span class="comment">#共享存储卷名称 （volumes类型有很多种，以下为其各类型的描述：）</span></span><br><span class="line">    <span class="attr">emptyDir:</span> &#123;&#125;      　　　　<span class="comment">#类型为emptyDir的存储卷，与Pod同生命周期的一个临时目录。为空值</span></span><br><span class="line">    <span class="attr">hostPath:</span> <span class="string">string</span>      　　<span class="comment">#类型为hostPath的存储卷，表示挂载Pod所在宿主机的目录</span></span><br><span class="line">      <span class="attr">path:</span> <span class="string">string</span>      　　<span class="comment">#Pod所在宿主机的目录，将被用于同期中mount的目录</span></span><br><span class="line">    <span class="attr">secret:</span>       　　　　　　<span class="comment">#类型为secret的存储卷，挂载集群与定义的secret对象到容器内部</span></span><br><span class="line">      <span class="attr">secretname:</span> <span class="string">string</span>  </span><br><span class="line">      <span class="attr">items:</span> </span><br><span class="line">      <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">string</span></span><br><span class="line">        <span class="attr">path:</span> <span class="string">string</span></span><br><span class="line">    <span class="attr">configMap:</span>      　　　　<span class="comment">#类型为configMap的存储卷，挂载预定义的configMap对象到容器内部</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">string</span></span><br><span class="line">      <span class="attr">items:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">string</span></span><br><span class="line">        <span class="attr">path:</span> <span class="string">string</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>pod 生命周期</p>
+<ul>
+<li>主容器启动前可以完成初始化容器</li>
+<li>可设置多个：串行化执行，执行完后便会退出</li>
+<li>主程序刚启动时可指定一个 post start：主程序启动开始后执行一些操作</li>
+<li>主程序结束前可指定一个 pre stop：主程序结束前执行一些操作</li>
+<li>启动后可设置的探针（probe）：liveness probe 和 readness probe<ul>
+<li>liveness probe：检查 pod 是否为 running 状态</li>
+<li>readness probe：判断容器是否可以接收 service 的请求：容器的 ready 是否为 True</li>
+<li>每类探针支持三种探测方法：exec, httpGet, tcpSocket</li>
+<li>探针结果：success, failure, unknown</li>
+</ul>
+</li>
+</ul>
 <p>可根据标签区分 pod 要运行在哪台主机上</p>
 <p>Kubernetes 使用三种资源管理存储</p>
 <ul>
@@ -618,7 +700,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%9E%84%E6%88%90"><span class="nav-number">1.</span> <span class="nav-text">主要构成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Master"><span class="nav-number">1.1.</span> <span class="nav-text">Master</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Node"><span class="nav-number">2.</span> <span class="nav-text">Node</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92"><span class="nav-number">3.</span> <span class="nav-text">容器编排</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Pod"><span class="nav-number">3.1.</span> <span class="nav-text">Pod</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Service"><span class="nav-number">3.2.</span> <span class="nav-text">Service</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%EF%BC%9A"><span class="nav-number">4.</span> <span class="nav-text">例：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%8C%87%E4%BB%A4"><span class="nav-number">5.</span> <span class="nav-text">基本指令</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%9E%84%E6%88%90"><span class="nav-number">1.</span> <span class="nav-text">主要构成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Master"><span class="nav-number">1.1.</span> <span class="nav-text">Master</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Node"><span class="nav-number">2.</span> <span class="nav-text">Node</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#yaml-%E6%A0%BC%E5%BC%8F%E7%9A%84-pod-%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6%E5%AE%8C%E6%95%B4%E5%86%85%E5%AE%B9%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">yaml 格式的 pod 定义文件完整内容：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92"><span class="nav-number">4.</span> <span class="nav-text">容器编排</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Pod"><span class="nav-number">4.1.</span> <span class="nav-text">Pod</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Service"><span class="nav-number">4.2.</span> <span class="nav-text">Service</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%EF%BC%9A"><span class="nav-number">5.</span> <span class="nav-text">例：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%8C%87%E4%BB%A4"><span class="nav-number">6.</span> <span class="nav-text">基本指令</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
