@@ -39,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/node-iptables.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/node-ipvs.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-24T12:55:21.444Z">
+<meta property="article:modified_time" content="2022-05-24T13:01:22.559Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -396,8 +396,8 @@
 <li>nq: never queue / 从不排队</li>
 </ul>
 <p>Node 通过 <strong>Pod</strong> 来管理自己所承载的容器。至于 Pod 怎么管理容器，涉及到 Kubernetes 容器编排的概念。</p>
-<h1 id="容器编排"><a href="#容器编排" class="headerlink" title="容器编排"></a>容器编排</h1><h2 id="Pod"><a href="#Pod" class="headerlink" title="Pod"></a>Pod</h2><p>Pod：Kubernetes 工作节点中最基本的操作单元，是集群中运行的一个进程</p>
-<p>引入 pod 的目的：可管理性，通用和资源共享</p>
+<h1 id="容器编排"><a href="#容器编排" class="headerlink" title="容器编排"></a>容器编排</h1><h2 id="Pod"><a href="#Pod" class="headerlink" title="Pod"></a>Pod</h2><p>Pod 是 Kubernetes 工作节点中最基本的操作单元，是集群中运行的一个进程。</p>
+<p>引入 pod 的目的，是为了实现可管理性，通用和资源共享：</p>
 <ul>
 <li>一个 pod 可能包含一个或多个容器（可能是 docker 容器），每个 Pod 分配自己的 IP 地址<ul>
 <li>kube-proxy 将使用该 IP 地址来路由流量，此 IP 地址仅在群集中可见</li>
@@ -423,7 +423,9 @@
 <li>…</li>
 </ul>
 </li>
-<li>pod status：<ul>
+</ul>
+<p>pod status：</p>
+<ul>
 <li>Pending：创建 pod 请求被 Kubernetes 接受，但容器并没有启动成功<ul>
 <li>可能处在写数据到 etcd，调度，pull 镜像，启动容器四个状态中一个</li>
 <li>通常伴随 ADDED, Modified 两个事件</li>
@@ -433,8 +435,6 @@
 <li>Succeed：pod 中所有容器已正常自行退出，且 Kubernetes 永远不会重启这些容器，一般会在部署 job 时候出现</li>
 <li>Failed：pod 中所有容器已终止，且至少一个容器已终止失败（非零退出或被系统停止）</li>
 <li>Unknown：某种原因无法获取 pod 状态，通常由于与 pod 的主机通信错误</li>
-</ul>
-</li>
 </ul>
 <p>Namespace</p>
 <ul>
