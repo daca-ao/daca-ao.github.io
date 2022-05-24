@@ -39,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/node-iptables.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/node-ipvs.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-24T13:01:22.559Z">
+<meta property="article:modified_time" content="2022-05-24T13:48:02.683Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -396,28 +396,32 @@
 <li>nq: never queue / 从不排队</li>
 </ul>
 <p>Node 通过 <strong>Pod</strong> 来管理自己所承载的容器。至于 Pod 怎么管理容器，涉及到 Kubernetes 容器编排的概念。</p>
-<h1 id="容器编排"><a href="#容器编排" class="headerlink" title="容器编排"></a>容器编排</h1><h2 id="Pod"><a href="#Pod" class="headerlink" title="Pod"></a>Pod</h2><p>Pod 是 Kubernetes 工作节点中最基本的操作单元，是集群中运行的一个进程。</p>
-<p>引入 pod 的目的，是为了实现可管理性，通用和资源共享：</p>
+<h1 id="容器编排"><a href="#容器编排" class="headerlink" title="容器编排"></a>容器编排</h1><h2 id="Pod"><a href="#Pod" class="headerlink" title="Pod"></a>Pod</h2><p>Pod 是 Kubernetes 工作节点中最基本的操作单元，是集群中运行的一个进程，能够实现可管理性，通用和资源共享。</p>
+<p>一个 pod 可能包含一个或多个容器（可以是 docker 容器）：</p>
 <ul>
-<li>一个 pod 可能包含一个或多个容器（可能是 docker 容器），每个 Pod 分配自己的 IP 地址<ul>
+<li><p>运行单一容器（one-container-per-Pod）：最常见模型，Kubernetes 通过管理 pod 直接管理容器</p>
+</li>
+<li><p>运行多个容器：应用程序的不同方面分离并部署到单独的容器中，加载时将所有容器视为一个容器加载</p>
+<ul>
 <li>kube-proxy 将使用该 IP 地址来路由流量，此 IP 地址仅在群集中可见</li>
-<li>运行单一容器：one-container-per-Pod，最常见模型，Kubernetes 还是管理 pod</li>
-<li>运行多个容器：应用程序的不同方面分离并部署到单独的容器中，加载时将所有容器视为一个容器加载</li>
 </ul>
 </li>
-<li>pod 中所有内部容器共享网络资源：可通过 localhost 进行相互访问<ul>
+<li><p>，每个 Pod 分配自己的 IP 地址 pod 中所有内部容器共享网络资源：可通过 localhost 进行相互访问</p>
+<ul>
 <li>每个 pod 启动时，内部会启动一个 pause 容器（Google 的一个镜像：gcr.io/google_containers/pause）</li>
 <li>pause 使用默认网络模式，其他容器的网络设置给它</li>
 <li>共享设置完成</li>
 <li>所有容器总是被同时调度</li>
 </ul>
 </li>
-<li>类似于一个 Servlet 容器部署 war 包、日志收集等的功能<ul>
+<li><p>类似于一个 Servlet 容器部署 war 包、日志收集等的功能</p>
+<ul>
 <li>容器之间共享资源、共享配置</li>
 <li>不同 container 之间通过 infra container 统一识别外部网络空间</li>
 </ul>
 </li>
-<li>pod 有多种模式：<ul>
+<li><p>pod 有多种模式：</p>
+<ul>
 <li>Sidebar</li>
 <li>Proxy</li>
 <li>…</li>
