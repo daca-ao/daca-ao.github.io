@@ -41,7 +41,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/pod-network.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/pod-status.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-24T15:41:35.812Z">
+<meta property="article:modified_time" content="2022-05-25T13:33:35.356Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -474,15 +474,9 @@
 <li>其生命周期与使用它的 pod 相互独立</li>
 </ul>
 <p>应用场景：<br>用户提交 PVC，在 PVC 中指定存储类型（storageClassName），如果符合已经定义好的 StorageClass，则会为其自动创建 PV 并进行绑定。</p>
-<h2 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h2><p>service 解决的问题：</p>
-<ul>
-<li>每个 pod 都有一个 ip 地址：地址不稳定，随着 pod 销毁和创建发生变化<ul>
-<li>利用非固定 ip 进行网络调用不现实</li>
-</ul>
-</li>
-<li>服务调用需要对不同 pod 进行负载均衡</li>
-</ul>
-<p>Kubernetes 抽象一组 pod 的逻辑定义和访问它们的方法——service</p>
+<p>每个 pod 的 ip 地址是不稳定的，会随着 pod 销毁和创建发生变化；然而服务调用需要对不同 pod 进行负载均衡，利用非固定的 ip 进行网络调用并不现实。</p>
+<p>问题</p>
+<h2 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h2><p>Kubernetes 抽象一组 pod 的逻辑定义和访问它们的方法——service</p>
 <ul>
 <li>An abstract way to expose an application running on a set of Pods as a network service.</li>
 <li>充当代理进行负载均衡</li>
