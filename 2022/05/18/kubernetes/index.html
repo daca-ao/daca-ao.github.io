@@ -41,8 +41,9 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/pod-network.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/pod-status.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/service.gif">
+<meta property="og:image" content="http://example.com/2022/05/18/kubernetes/service.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-25T14:45:03.724Z">
+<meta property="article:modified_time" content="2022-05-26T13:24:56.023Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -391,12 +392,12 @@
 <li>DR: Direct Routing</li>
 <li>NAT</li>
 <li>Tunneling，也称 ipip 模式</li>
-<li>rr: round-robin / 轮询</li>
-<li>lc: least connection / 最少连接</li>
-<li>dh: destination hashing / 目标哈希</li>
-<li>sh: source hashing / 源哈希</li>
-<li>sed: shortest expected delay / 预计延迟时间最短</li>
-<li>nq: never queue / 从不排队</li>
+<li>RR: round-robin / 轮询</li>
+<li>LC: least connection / 最少连接</li>
+<li>DH: destination hashing / 目标哈希</li>
+<li>SH: source hashing / 源哈希</li>
+<li>SED: shortest expected delay / 预计延迟时间最短</li>
+<li>NQ: never queue / 从不排队</li>
 </ul>
 <p>Node 通过 <strong>Pod</strong> 来管理自己所承载的容器。至于 Pod 怎么管理容器，涉及到 Kubernetes 容器编排的概念。</p>
 <h1 id="容器编排"><a href="#容器编排" class="headerlink" title="容器编排"></a>容器编排</h1><h2 id="Pod"><a href="#Pod" class="headerlink" title="Pod"></a>Pod</h2><p>Pod 是 Kubernetes 工作节点中最基本的操作单元，是集群中运行的一个进程，能够实现可管理性，通用和资源共享。</p>
@@ -477,36 +478,31 @@
 <p>应用场景：<br>用户提交 PVC，在 PVC 中指定存储类型（storageClassName），如果符合已经定义好的 StorageClass，则会为其自动创建 PV 并进行绑定。</p>
 <p>每个 pod 的 ip 地址是不稳定的，会随着 pod 销毁和创建发生变化；然而服务调用需要对不同 pod 进行负载均衡，利用非固定的 ip 进行网络调用并不现实。</p>
 <p>Kubernetes 专门抽象了一组 pod 的逻辑定义来解决这个问题。</p>
-<h2 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h2><p>Service 的定义：An abstract way to expose an application running on a set of Pods as a network service.</p>
-<p>Service 的职责：与每个 node 的 kube-proxy 进程相结合，将“数据包”分发到相应节点时充当负载均衡<br>    * kube-proxy 负责实现 service 的 VIP<br>    * 某些类型的 service 必须要与 kube-proxy 相结合</p>
-<ul>
-<li>将服务信息通过 apiserver 存入 etcd 中</li>
-<li>充当代理进行负载均衡</li>
-</ul>
+<h2 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h2><p>Service 的定义：</p>
+<pre><code>An abstract way to expose an application running on a set of Pods as a network service.
+</code></pre>
+<p>Service 的职责：与每个 node 的 kube-proxy 进程相结合，在将数据包分发到相应节点时充当代理，进行负载均衡。</p>
 <p>工作原理：给 service 的每个 pod 设置标签 label</p>
 <ul>
 <li>比如某些 pod 被打上了 “app=xxx” 的标签</li>
-<li>Service controller 通过 serviceSelector 选择 label 同样为 “app=xxx” 的 pod</li>
+<li>Service controller 通过 <code>serviceSelector</code> 选择 label 同样为 “app=xxx” 的 pod</li>
 <li>列举所有被选中的 pod 的 IP，构建出一个负载均衡列表 endpoints<ul>
-<li>这些 endpoints 即可被包装成一个完整的 service，对外提供服务</li>
+<li>这些 endpoints 可被包装成一个完整的 service 对外提供服务</li>
+<li>endpoints 所有 IP 和 pod 的端口通过 service controller 和 endpoint controller 共同选择并配置完成</li>
+<li>如果某个 pod 出现故障，脱离服务集群，它的 IP 会自动在 endpoints 中被移除</li>
+<li>如 serviceSelector 匹配到新的 pod，则 pod 的 IP 会自动加入各自对应的 endpoints 对象中</li>
 </ul>
 </li>
-<li>endpoints 所有 ip 和 pod 的端口通过 service controller 和 endpoint controller 共同选择配置完成</li>
-<li>kube-proxy 通过 iptables / ipvs 为每一个 service 对象实现固定的 IP，称之为 VIP 或者 cluster IP</li>
+<li>kube-proxy 通过 iptables / ipvs 为每一个 service 对象实现固定的 IP，称之为 VIP 或者 <code>clusterIP</code></li>
+<li>Service 的信息会通过 apiserver 存入 etcd 中</li>
 </ul>
-<p>因此每一个 service 都有固定的 IP 和一些 endpoints</p>
-<ul>
-<li>endpoints 设置在 pod 上，确定标签选择器<ul>
-<li>如果 pod 出现故障：自动在 endpoints 被移除</li>
-<li>如 serviceSelector 匹配到新的 pod：自动加入各自对应的 endpoints 对象中</li>
-</ul>
-</li>
-</ul>
+<p>因此每一个 service 都有固定的 IP 和一些 endpoints。</p>
 <p><img src="/2022/05/18/kubernetes/service.gif"></p>
-<p>例：</p>
+<p><img src="/2022/05/18/kubernetes/service.png"></p>
+<p>Service 配置如下：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">my-service</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">MyApp</span>    <span class="comment"># 会自动生成对应的 endpoint 对象，如不配置则不会自动生成，需要手动指定</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">80</span>    <span class="comment"># service 暴露在 clusterIP 上的端口，供集群内部访问 Kubernetes 服务的入口</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">9376</span>    <span class="comment"># pod 上的端口：从 nodePort 和 port 上到来的数据最终经过 kube-proxy 流入到后端 pod 的 targetPort 上进入容器</span></span><br><span class="line">      <span class="attr">nodePort:</span> <span class="number">30036</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 一般来说，port 和 targetPort 配置相同的端口</span></span><br></pre></td></tr></table></figure>
 
-<p>端口解析：</p>
+<p>可以看到，service 的配置 yaml 文件中定义了很多种端口：</p>
 <p>port</p>
 <ul>
 <li>表示 service 暴露在 clusterIP 上的接口，clusterIP:Port 是提供给集群内部访问 Kubernetes 服务的入口</li>
@@ -543,7 +539,7 @@
 </li>
 <li>由 kube-proxy 使用 iptables 规则重定向到其本地端口，再均衡到后端的 pod</li>
 <li>当 kube-proxy 发现一个新的 service 后，会在本地节点打开一个任意端口，创建相对应的 iptables 规则</li>
-<li>重定向服务的 clusterIP 和 port 到该新建的端口，开始接受到达该服务的连接</li>
+<li>重定向服务的 clusterIP 和 port 到该新建的端口，开始接受到达该服务的连接<br>某些类型的 service 必须要与 kube-proxy 相结合</li>
 </ul>
 <p>Node IP</p>
 <ul>
