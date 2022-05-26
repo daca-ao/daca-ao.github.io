@@ -43,7 +43,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/service.gif">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/service.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-26T13:24:56.023Z">
+<meta property="article:modified_time" content="2022-05-26T13:55:35.085Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -327,19 +327,19 @@
 </thead>
 <tbody><tr>
 <td>OutOfDisk</td>
-<td>True：node 的空闲空间不足以添加新 pod</td>
+<td><code>True</code>：node 的空闲空间不足以添加新 pod</td>
 </tr>
 <tr>
 <td>Ready</td>
-<td>True：node 是健康的，并已经准备好接收 pod<br>False：node 不健康，且不能接收 pod<br>Unknown：node 控制器在最近 40 秒内没有接收到 node 的消息</td>
+<td><code>True</code>：node 是健康的，并已经准备好接收 pod<br><code>False</code>：node 不健康，且不能接收 pod<br><code>Unknown</code>：node 控制器在最近 40 秒内没有接收到 node 的消息</td>
 </tr>
 <tr>
 <td>MemoryPressure</td>
-<td>True：node 不存在内存压力：内存用量低</td>
+<td><code>True</code>：node 不存在内存压力：内存用量低</td>
 </tr>
 <tr>
 <td>DiskPressure</td>
-<td>True：node 不存在磁盘压力：磁盘用量低</td>
+<td><code>True</code>：node 不存在磁盘压力：磁盘用量低</td>
 </tr>
 </tbody></table>
 <p>Node 各组件如图：</p>
@@ -476,9 +476,10 @@
 <li>其生命周期与使用它的 pod 相互独立</li>
 </ul>
 <p>应用场景：<br>用户提交 PVC，在 PVC 中指定存储类型（storageClassName），如果符合已经定义好的 StorageClass，则会为其自动创建 PV 并进行绑定。</p>
-<p>每个 pod 的 ip 地址是不稳定的，会随着 pod 销毁和创建发生变化；然而服务调用需要对不同 pod 进行负载均衡，利用非固定的 ip 进行网络调用并不现实。</p>
-<p>Kubernetes 专门抽象了一组 pod 的逻辑定义来解决这个问题。</p>
-<h2 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h2><p>Service 的定义：</p>
+<p>每个 pod 的 IP 地址是不稳定的，会随着 pod 销毁和创建发生变化；然而服务调用需要对不同 pod 进行负载均衡，利用非固定的 IP 进行网络调用并不现实。</p>
+<p>Kubernetes 专门<strong>抽象</strong>了一组 pod 的<strong>逻辑定义</strong>来解决这个问题。</p>
+<h2 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h2><p>Pod 是不稳定的，但是服务可以保证稳定。</p>
+<p>Service 的定义：</p>
 <pre><code>An abstract way to expose an application running on a set of Pods as a network service.
 </code></pre>
 <p>Service 的职责：与每个 node 的 kube-proxy 进程相结合，在将数据包分发到相应节点时充当代理，进行负载均衡。</p>
