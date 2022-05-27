@@ -38,14 +38,16 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/node-userspace.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/node-iptables.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/node-ipvs.png">
+<meta property="og:image" content="http://example.com/2022/05/18/kubernetes/kubernetes-node-env.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/pod-network.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/pod-status.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/pod-machine.png">
+<meta property="og:image" content="http://example.com/2022/05/18/kubernetes/pod-lifecycle.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/service.gif">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/service.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/nodeport.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-27T13:59:05.774Z">
+<meta property="article:modified_time" content="2022-05-27T14:38:19.984Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -401,6 +403,8 @@
 <li>SED: shortest expected delay / 预计延迟时间最短</li>
 <li>NQ: never queue / 从不排队</li>
 </ul>
+<p>一个 Node 的生态如下：</p>
+<p><img src="/2022/05/18/kubernetes/kubernetes-node-env.png"></p>
 <p>Node 通过 <strong>Pod</strong> 来管理自己所承载的容器。至于 Pod 怎么管理容器，涉及到 Kubernetes 容器编排的概念。</p>
 <h1 id="容器编排"><a href="#容器编排" class="headerlink" title="容器编排"></a>容器编排</h1><h2 id="Pod"><a href="#Pod" class="headerlink" title="Pod"></a>Pod</h2><p>Pod 是 Kubernetes 工作节点中最基本的操作单元，是集群中运行的一个进程，能够实现可管理性，通用和资源共享。</p>
 <p>每个 Pod 会被分配到属于自己的 <strong>IP 地址</strong>，该 IP 仅在 cluster 中可见，kube-proxy 将使用该 IP 来路由流量。</p>
@@ -446,8 +450,8 @@
 </ul>
 </li>
 </ul>
-<p>![]</p>
-<h2 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h2><p>将集群内的资源对象分配到不同的命名空间 namespace 中，以实现多租户的资源隔离。</p>
+<p><img src="/2022/05/18/kubernetes/pod-lifecycle.png"></p>
+<h3 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h3><p>在 Kubernetes 集群内，可将资源对象（pod 等）分配到不同的命名空间 namespace 中，以实现多租户的资源隔离。</p>
 <p>一个 pod 中共享的资源：</p>
 <ul>
 <li>PID namespace（命名空间）：pod 中不同应用程序可看到其他应用程序的进程 ID</li>
@@ -456,29 +460,6 @@
 <li>UTS namespace：pod 中多个容器共享一个主机名（localhost）</li>
 <li>Volumes：共享存储卷，pod 中各个容器可访问在 pod 级别定义的 Volumes</li>
 </ul>
-<p>Kubernetes 使用三种资源管理存储</p>
-<ul>
-<li>PV</li>
-<li>Persistent Volume Claim（PVC）<ul>
-<li>namespace 里的资源，描述一个用户对 PV 的请求</li>
-<li>请求信息包含存储大小、访问模式等</li>
-</ul>
-</li>
-<li>StorageClass<ul>
-<li>为 PV 创建模板，为管理员提供一种描述存储“类型”的方法</li>
-<li>不同类型可映射到服务质量级别、备份策略、或群管理员确定的任意策略的 PV 上</li>
-<li>在其他存储系统上会被称为 profiles</li>
-</ul>
-</li>
-</ul>
-<p>Persistent Volume（持久化卷，PV）</p>
-<ul>
-<li>对底层共享存储的抽象</li>
-<li>由 admin（管理员）进行创建和配置</li>
-<li>通过插件机制完成与共享存储的对接</li>
-<li>其生命周期与使用它的 pod 相互独立</li>
-</ul>
-<p>应用场景：<br>用户提交 PVC，在 PVC 中指定存储类型（storageClassName），如果符合已经定义好的 StorageClass，则会为其自动创建 PV 并进行绑定。</p>
 <p>每个 pod 的 IP 地址是不稳定的，会随着 pod 销毁和创建发生变化；然而服务调用需要对不同 pod 进行负载均衡，利用非固定的 IP 进行网络调用并不现实。</p>
 <p>Kubernetes 专门<strong>抽象</strong>了一组 pod 的<strong>逻辑定义</strong>来解决这个问题。</p>
 <h2 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h2><p>Pod 是不稳定的，但是服务可以保证稳定。</p>
@@ -507,7 +488,7 @@
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">my-service</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">MyApp</span>    <span class="comment"># 会自动生成对应的 endpoint 对象，如不配置则不会自动生成，需要手动指定</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">80</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">9376</span></span><br><span class="line">      <span class="attr">nodePort:</span> <span class="number">30036</span></span><br></pre></td></tr></table></figure>
 
 <p>对应的 Endpoints 对象：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Endpoints</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">my-service</span></span><br><span class="line"><span class="attr">subsets:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">addresses:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">ip:</span> <span class="number">192.0</span><span class="number">.2</span><span class="number">.42</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">port:</span> <span class="number">9376</span>    <span class="comment"># 配置相对应的 port，使其能对上相应的 service</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Endpoints</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">my-service</span></span><br><span class="line"><span class="attr">subsets:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">addresses:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">ip:</span> <span class="number">192.0</span><span class="number">.2</span><span class="number">.42</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">port:</span> <span class="number">9376</span>    <span class="comment"># 配置相对应的 port，使其能对应上相应的 service</span></span><br></pre></td></tr></table></figure>
 
 <p>可以看到，service 的配置 yaml 文件中定义了很多种端口：</p>
 <p><strong>port</strong>：service 暴露在 clusterIP 上的接口</p>
@@ -516,8 +497,8 @@
 </ul>
 <p><strong>nodePort</strong></p>
 <ul>
-<li><code>nodeIP:nodePort</code> 是提供给<strong>集群外部</strong>访问 Kubernetes 服务的入口。</li>
-<li>一般来说从 30000-32767 中选择一个端口赋给 nodePort</li>
+<li><code>nodeIP:nodePort</code> 是提供给<strong>集群外部</strong>访问 Kubernetes 服务的入口</li>
+<li>一般来说从 30000-32767 中选择一个端口赋给 nodePort。</li>
 </ul>
 <p><strong>targetPort</strong>：与 containerPort 一样是 pod 上的端口</p>
 <ul>
@@ -525,37 +506,51 @@
 </ul>
 <p>也就是说，port 和 nodePort 都是 service 的端口，前者暴露给从集群内访问服务的方式，后者则暴露给集群外访问服务的方式；<br>这两个端口的流入数据均需经过反向代理 kube-proxy 流入后端具体 pod 的 targetPort，从而进入到 pod 上的 container 内。<br>一般来说，port 和 targetPort 配置相同的端口。</p>
 <p>再来说说不同 IP 的概念：</p>
-<p><strong>Pod IP</strong>：顾名思义，是 Pod 的 IP，其实就是 pause 容器的 IP。</p>
+<p><strong>Pod IP</strong>：顾名思义，是 Pod 的 IP，其实就是 pause 容器的 IP，通常是一个虚拟的二层网络。</p>
 <p><strong>Cluster IP</strong>：service 对象的 IP。</p>
 <p>不同于 Pod IP 地址实际存在于某个网卡（或虚拟设备）上，Cluster IP 并没有一个网络设备去承载它：它其实是一个虚拟地址。</p>
-<p><strong>Node IP</strong></p>
-<ul>
-<li>为集群外的客户提供业务，为该服务提供公共 IP</li>
-<li>指定 service 类型为 NodePort 后，系统会给它在集群的各个代理节点上分配一个节点级别的端口<ul>
-<li>能访问到代理节点的客户端都能访问该端口，从而访问到服务</li>
-</ul>
-</li>
-</ul>
+<p><strong>Node IP</strong>：节点的 IP，即物理网卡的 IP。</p>
+<p>结合直接指定的或者 Kubernetes 分配的 nodePort，外部可以通过 <code>nodeIP:nodePort</code> 直接访问该服务。</p>
 <h3 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h3><p>Kubernetes 的 service 主要有四种不同类型：</p>
 <p><strong>ClusterIP</strong></p>
 <p>默认的 Service 类型，只用于集群内部通信。service 之间只需通过访问 VIP 即可负载均衡地访问到对方 service 中的 pod。</p>
 <p>根据 service 是否生成 Cluster IP，又可细分为：</p>
 <ul>
 <li>普通 service：最常见的 service。通过 kube-proxy 实现的 Cluster IP 实现集群内的访问</li>
-<li>Headless Service</li>
+<li>Headless Service：为该 service 在集群内部的每个成员提供一个唯一的 <strong>DNS 域名</strong>作为每个成员的网络标识</li>
 </ul>
 <p>普通的 service 必须要与 kube-proxy 相结合。</p>
+<p>Headless Service 在集群内部各成员之间使用域名通信，其创建取决于 service 的 selector 配置。</p>
+<p>可应用于直接访问某个 pod 提供的服务，比如 StatefulSet。具有以下特征：</p>
+<ul>
+<li>Kubernetes 不会为其分配 Cluster IP（<code>.spec.clusterIP: None</code>）</li>
+<li>不通过 kube-proxy 做反向代理和负载均衡，而是通过 DNS 提供稳定的网络 ID 访问</li>
+<li>DNS 将 headless service 的后端直接解析为 pod IP 列表</li>
+</ul>
+<p>带 selector 的 service：</p>
+<ul>
+<li>endpoint controller 创建出 endpoints 记录，并修改 DNS 配置，返回指向该 pod 的记录（地址）</li>
+</ul>
+<p>不带 selector 的 service：</p>
+<ul>
+<li>没有 endpoints 记录</li>
+<li>通过以下方式配置 DNS：<ul>
+<li>ExternalName 类型的 service 提供的 CNAME</li>
+<li>其他 service 的共享 endpoints</li>
+<li>手动添加 endpoints</li>
+</ul>
+</li>
+</ul>
 <p><strong>NodePort</strong></p>
 <p>可由集群外部通过 <code>nodeIP:nodePort</code> 访问的服务。</p>
-<p>通过将 service 的 port 映射到集群内某几个节点（node）的相同一个端口实现。即通过 iptables / ipvs，使得调用 node 上的那个特定的 port 就能访问其对应的 service。</p>
-<p>Kubernetes 控制台默认会从 30000-32767 中分配一个端口来代理服务</p>
+<p>指定 service 类型为 NodePort 后，Kubernetes 控制台默认会从 30000-32767 中分配一个端口来代理服务</p>
 <ul>
 <li>或：在 yaml 配置文件的 <code>.spec.ports[*].nodePort</code> 配置指定的端口值</li>
 <li>从 Kubernetes v1.10 开始，亦可调整 kube-proxy 中的 <code>--nodeport-addresses</code> 来配置指定的代理 IP</li>
 </ul>
 <p><strong>LoadBalancer</strong></p>
-<p>与 NodePort 类似，实现起来需要结合公有云。</p>
-<p>除了使用一个 Cluster IP 和 NodePort 外，还通过所使用的公有云申请一个负载均衡器，实现从集群外通过 LoadBalancer 访问对应的服务。<br>负载均衡器后端映射到各节点的 NodePort，流量会直接到后端的 pod 中。</p>
+<p>与 NodePort 类似，不过实现起来需要结合外部公有云（GCP / Azure / …）。</p>
+<p>除了使用一个 Cluster IP 和 nodePort 外，还通过所使用的公有云申请一个负载均衡器，实现从集群外通过 LoadBalancer 访问对应的服务。<br>负载均衡器后端映射到各节点的 nodePort，流量会直接到后端的 pod 中。</p>
 <p><strong>ExternalName</strong></p>
 <p>Service 的特例，主要面向集群外部的服务。</p>
 <p>ExternalName 可将外部独立服务映射进 Kubernetes 集群，且具备 Kubernetes 内服务的一些特征（如 namespace 等），为集群提供服务。</p>
@@ -572,16 +567,35 @@
 <li>而 ExternalName 不通过 kube-proxy 重定向，也不指定 selector，因此没有 port 和 endpoints 的概念</li>
 </ul>
 <p>ExternalName 与 ClusterIP 的 Headless Service <strong>同属 Headless Service</strong>，Kubernetes 不给它们分配 service IP，且不通过 kube-proxy 给它们做反向代理和负载均衡。</p>
-<h3 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h3><p>DNS</p>
+<h3 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h3><p>DNS：默认形式</p>
 <ul>
-<li>默认形式</li>
-<li>可在集群中部署 CoreDNS 服务（旧版本 Kubernetes 使用的是 kubeDNS），达到集群内部的 pod 通过 DNS 方式进行集群内部各个服务之间的通信</li>
+<li>可在集群中部署 CoreDNS 服务（旧版本 Kubernetes 使用的是 kubeDNS），让集群内部的 pod 通过 DNS 方式实现集群内部各个服务之间的通信</li>
 </ul>
 <p>环境变量</p>
 <ul>
 <li>pod 创建完成后，kubelet 会在该 pod 中注册该集群已创建的所有 service 相关的环境变量</li>
 <li>注意：service 创建之前的所有 pod 并不会注册该环境变量</li>
 </ul>
+<h1 id="存储管理"><a href="#存储管理" class="headerlink" title="存储管理"></a>存储管理</h1><p>Kubernetes 一共使用三种资源管理存储：</p>
+<p>Persistent Volume（持久化卷，PV）</p>
+<ul>
+<li>对底层共享存储的抽象</li>
+<li>由 admin（管理员）进行创建和配置</li>
+<li>通过插件机制完成与共享存储的对接</li>
+<li>其生命周期与使用它的 pod 相互独立</li>
+</ul>
+<p>Persistent Volume Claim（PVC）</p>
+<ul>
+<li>namespace 里的资源，描述一个用户对 PV 的请求</li>
+<li>请求信息包含存储大小、访问模式等</li>
+</ul>
+<p>StorageClass</p>
+<ul>
+<li>为 PV 创建模板，为管理员提供一种描述存储“类型”的方法</li>
+<li>不同类型可映射到服务质量级别、备份策略、或群管理员确定的任意策略的 PV 上</li>
+<li>在其他存储系统上会被称为 profiles</li>
+</ul>
+<p>应用场景：<br>用户提交 PVC，在 PVC 中指定存储类型（storageClassName），如果符合已经定义好的 StorageClass，则会为其自动创建 PV 并进行绑定。</p>
 <h1 id="基本指令"><a href="#基本指令" class="headerlink" title="基本指令"></a>基本指令</h1><p>Kubernetes 对指令输入的要求比较松散。</p>
 
     </div>
@@ -664,7 +678,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%9E%84%E6%88%90"><span class="nav-number">1.</span> <span class="nav-text">主要构成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Master"><span class="nav-number">1.1.</span> <span class="nav-text">Master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node"><span class="nav-number">1.2.</span> <span class="nav-text">Node</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92"><span class="nav-number">2.</span> <span class="nav-text">容器编排</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Pod"><span class="nav-number">2.1.</span> <span class="nav-text">Pod</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pod-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">2.1.1.</span> <span class="nav-text">pod 生命周期</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Namespace"><span class="nav-number">2.2.</span> <span class="nav-text">Namespace</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Service"><span class="nav-number">2.3.</span> <span class="nav-text">Service</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E5%92%8C-IP"><span class="nav-number">2.3.1.</span> <span class="nav-text">端口和 IP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.3.2.</span> <span class="nav-text">类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="nav-number">2.3.3.</span> <span class="nav-text">服务发现</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%8C%87%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">基本指令</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%9E%84%E6%88%90"><span class="nav-number">1.</span> <span class="nav-text">主要构成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Master"><span class="nav-number">1.1.</span> <span class="nav-text">Master</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node"><span class="nav-number">1.2.</span> <span class="nav-text">Node</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E7%BC%96%E6%8E%92"><span class="nav-number">2.</span> <span class="nav-text">容器编排</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Pod"><span class="nav-number">2.1.</span> <span class="nav-text">Pod</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pod-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">2.1.1.</span> <span class="nav-text">pod 生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Namespace"><span class="nav-number">2.1.2.</span> <span class="nav-text">Namespace</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Service"><span class="nav-number">2.2.</span> <span class="nav-text">Service</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E5%92%8C-IP"><span class="nav-number">2.2.1.</span> <span class="nav-text">端口和 IP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.2.2.</span> <span class="nav-text">类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="nav-number">2.2.3.</span> <span class="nav-text">服务发现</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">存储管理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%8C%87%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">基本指令</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
