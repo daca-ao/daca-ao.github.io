@@ -43,8 +43,9 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/pod-machine.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/service.gif">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/service.png">
+<meta property="og:image" content="http://example.com/2022/05/18/kubernetes/nodeport.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-27T12:42:53.330Z">
+<meta property="article:modified_time" content="2022-05-27T13:59:05.774Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -511,11 +512,12 @@
 <p>可以看到，service 的配置 yaml 文件中定义了很多种端口：</p>
 <p><strong>port</strong>：service 暴露在 clusterIP 上的接口</p>
 <ul>
-<li>clusterIP:port 是提供给<strong>集群内部</strong>访问 Kubernetes 服务的入口。</li>
+<li><code>clusterIP:port</code> 是提供给<strong>集群内部</strong>访问 Kubernetes 服务的入口。</li>
 </ul>
 <p><strong>nodePort</strong></p>
 <ul>
-<li>nodeIP:nodePort 是提供给从<strong>集群外部</strong>访问 Kubernetes 服务的入口。</li>
+<li><code>nodeIP:nodePort</code> 是提供给<strong>集群外部</strong>访问 Kubernetes 服务的入口。</li>
+<li>一般来说从 30000-32767 中选择一个端口赋给 nodePort</li>
 </ul>
 <p><strong>targetPort</strong>：与 containerPort 一样是 pod 上的端口</p>
 <ul>
@@ -536,7 +538,7 @@
 </ul>
 <h3 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h3><p>Kubernetes 的 service 主要有四种不同类型：</p>
 <p><strong>ClusterIP</strong></p>
-<p>默认的 Service 类型。只用于集群内部通信，service 之间只需通过访问 VIP 即可负载均衡地访问到对方 service 中的 pod。</p>
+<p>默认的 Service 类型，只用于集群内部通信。service 之间只需通过访问 VIP 即可负载均衡地访问到对方 service 中的 pod。</p>
 <p>根据 service 是否生成 Cluster IP，又可细分为：</p>
 <ul>
 <li>普通 service：最常见的 service。通过 kube-proxy 实现的 Cluster IP 实现集群内的访问</li>
@@ -544,52 +546,41 @@
 </ul>
 <p>普通的 service 必须要与 kube-proxy 相结合。</p>
 <p><strong>NodePort</strong></p>
-<p>除了使用 Cluster IP 外，还能通过将 service 的 port 映射到集群内某几个节点（node）的相同一个端口，实现通过 nodeIP:nodePort 从集群外访问服务</p>
+<p>可由集群外部通过 <code>nodeIP:nodePort</code> 访问的服务。</p>
+<p>通过将 service 的 port 映射到集群内某几个节点（node）的相同一个端口实现。即通过 iptables / ipvs，使得调用 node 上的那个特定的 port 就能访问其对应的 service。</p>
+<p>Kubernetes 控制台默认会从 30000-32767 中分配一个端口来代理服务</p>
 <ul>
-<li>即：通过 iptables，使得调用 node 上的该特定 port 就能访问其背后的 service</li>
-<li>kubernetes 控制台从默认 30000-32767 中分配一个端口来代理服务</li>
-<li>或：在 .spec.ports[*].nodePort 配置指定的端口值</li>
-<li>亦可调整 kube-proxy 中的 –nodeport-addresses 来配置指定的代理 IP（since kubernetes v1.10）</li>
+<li>或：在 yaml 配置文件的 <code>.spec.ports[*].nodePort</code> 配置指定的端口值</li>
+<li>从 Kubernetes v1.10 开始，亦可调整 kube-proxy 中的 <code>--nodeport-addresses</code> 来配置指定的代理 IP</li>
 </ul>
 <p><strong>LoadBalancer</strong></p>
-<ul>
-<li>与 NodePort 类似</li>
-<li>除了使用一个 Cluster IP 和 NodePort 外，还通过所使用的公有云申请一个负载均衡器，实现从集群外通过 LoadBalancer 访问服务<ul>
-<li>负载均衡器后端映射到各节点的 NodePort</li>
-<li>流量直接到后端的 pod 中</li>
-</ul>
-</li>
-</ul>
+<p>与 NodePort 类似，实现起来需要结合公有云。</p>
+<p>除了使用一个 Cluster IP 和 NodePort 外，还通过所使用的公有云申请一个负载均衡器，实现从集群外通过 LoadBalancer 访问对应的服务。<br>负载均衡器后端映射到各节点的 NodePort，流量会直接到后端的 pod 中。</p>
 <p><strong>ExternalName</strong></p>
-<ul>
-<li>Service 的特例，主要面向集群外部的服务</li>
-<li>通过 ExternalName 可将外部服务映射进 Kubernetes 集群，且具备 Kubernetes 内服务的一些特征（如 namespace 等），为集群提供服务</li>
-<li>kube-dns version &gt;= 1.7</li>
-<li>该重定向依赖于 DNS，不像上述三种类型（通过 kube-proxy）</li>
-</ul>
+<p>Service 的特例，主要面向集群外部的服务。</p>
+<p>ExternalName 可将外部独立服务映射进 Kubernetes 集群，且具备 Kubernetes 内服务的一些特征（如 namespace 等），为集群提供服务。</p>
+<p>不像上述三种类型服务通过 kube-proxy 路由，该种映射依赖于 DNS 实现（kube-dns version &gt;= 1.7）</p>
+<p><img src="/2022/05/18/kubernetes/nodeport.png"></p>
 <p>小结：</p>
 <ul>
-<li>前三种类型通过 selector 指定服务对应的 pod，根据 pod 地址创建出 endpoints 对象作为服务后端<ul>
+<li>前三种类型的 service 通过 selector 指定服务对应的 pod，根据所有 pod 地址创建出 endpoints 对象作为服务后端<ul>
 <li>Endpoint Controller 监测 service 和 pod 的状态，维护对应 endpoints 信息</li>
-<li>kube-proxy 根据 service 和 endpoint 维护本地路由规则</li>
-<li>pod 发生变化 -&gt; service 发生变化 -&gt; endpoints 发生变化 -&gt; kube-proxy 在每个 node 上更新 iptables，实现一层负载均衡</li>
+<li>kube-proxy 根据 service 和 endpoints 维护本地路由规则</li>
+<li>pod 发生变化 <code>-&gt;</code> service 发生变化 <code>-&gt;</code> endpoints 发生变化 <code>-&gt;</code> kube-proxy 在每个 node 上更新 iptables / ipvs，实现一层负载均衡</li>
 </ul>
 </li>
-<li>ExternalName 不通过 kube-proxy 重定向：不指定 selector， 故没有 port 和 endpoint</li>
-<li>ExternalName 与 ClusterIP 的 Headless Service：同属 Headless Service<ul>
-<li>不分配 service IP，且不通过 kube-proxy 做反向代理和负载均衡</li>
+<li>而 ExternalName 不通过 kube-proxy 重定向，也不指定 selector，因此没有 port 和 endpoints 的概念</li>
 </ul>
-</li>
-</ul>
-<h3 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h3><p>环境变量</p>
-<ul>
-<li>pod 创建完成后，kubelet 会在该 pod 中注册该集群已创建的所有 service 相关的环境变量</li>
-<li>注意：service 创建之前的所有 pod 并不会注册该环境变量</li>
-</ul>
-<p>DNS</p>
+<p>ExternalName 与 ClusterIP 的 Headless Service <strong>同属 Headless Service</strong>，Kubernetes 不给它们分配 service IP，且不通过 kube-proxy 给它们做反向代理和负载均衡。</p>
+<h3 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h3><p>DNS</p>
 <ul>
 <li>默认形式</li>
 <li>可在集群中部署 CoreDNS 服务（旧版本 Kubernetes 使用的是 kubeDNS），达到集群内部的 pod 通过 DNS 方式进行集群内部各个服务之间的通信</li>
+</ul>
+<p>环境变量</p>
+<ul>
+<li>pod 创建完成后，kubelet 会在该 pod 中注册该集群已创建的所有 service 相关的环境变量</li>
+<li>注意：service 创建之前的所有 pod 并不会注册该环境变量</li>
 </ul>
 <h1 id="基本指令"><a href="#基本指令" class="headerlink" title="基本指令"></a>基本指令</h1><p>Kubernetes 对指令输入的要求比较松散。</p>
 
