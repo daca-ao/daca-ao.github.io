@@ -47,7 +47,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/service.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/nodeport.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-28T05:58:37.199Z">
+<meta property="article:modified_time" content="2022-05-28T07:20:59.086Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -414,7 +414,10 @@
 <p>一个 pod 可能包含一个或多个容器（可以是 docker 容器）：</p>
 <ul>
 <li>运行单一容器（one-container-per-Pod）：最常见模型，Kubernetes 通过管理 pod 直接管理容器</li>
-<li>运行多个容器：将应用程序的不同模块分离并分别部署到单独的容器中，加载时将所有容器视为一个容器加载，一起启动，一起停止；适合资源共享紧密的容器，但因为存在容器（服务）的职责粘连，并不多见</li>
+<li>运行多个容器：将应用程序的不同模块分离并分别部署到单独的容器中，加载时将所有容器视为一个容器加载，一起启动，一起停止；<ul>
+<li>适合资源共享紧密的容器，但因为存在容器（服务）的职责粘连，并不多见（如数据拉取+清理存储+生成报表）</li>
+</ul>
+</li>
 </ul>
 <p>类似于一个 Servlet 容器完成部署 war 包、日志收集等功能。</p>
 <p>每个 pod 启动时，内部会启动一个 <strong>infra container</strong>（由 Google 的一个镜像：<code>gcr.io/google_containers/pause</code> 启动而来，也叫 <strong>pause 容器</strong>）。<br>pause 容器使用默认网络模式；<br>pod 中的其它容器的网络模式为 container 模式，并会被指定为 pause 容器的 ID：<code>network_mode: &quot;container:&#123;pauseContainerID&#125;&quot;</code>。<br>由此，pod 内部所有容器可<strong>共享 pause 容器的网络</strong>，通过 pause 容器统一识别外部网络空间，跟集群内其它 pod 进行通信。</p>
