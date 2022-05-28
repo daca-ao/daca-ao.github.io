@@ -47,7 +47,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/service.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes/nodeport.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-28T07:44:25.351Z">
+<meta property="article:modified_time" content="2022-05-28T12:54:06.833Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -591,16 +591,37 @@
 <li>pod 创建完成后，kubelet 会在该 pod 中注册该集群已创建的所有 service 相关的环境变量</li>
 <li>注意：service 创建之前的所有 pod 并不会注册该环境变量</li>
 </ul>
-<h2 id="容器编排组件"><a href="#容器编排组件" class="headerlink" title="容器编排组件"></a>容器编排组件</h2><p>容器编排（部署，即顶层 pod 控制器）：</p>
+<h2 id="容器编排组件"><a href="#容器编排组件" class="headerlink" title="容器编排组件"></a>容器编排组件</h2><p>Kubernetes 针对不同的应用场景，定义了不同的容器编排方式。</p>
+<p>在上面介绍 kube-controller-manager 的时候提起过，针对于不同的方式，Kubernetes 有各种对应的 service controller 完成编排。</p>
 <ul>
-<li>deployment：编排无状态应用</li>
-<li>statefulset：编排有状态应用</li>
-<li>daemonset：编排守护进程</li>
-<li>job/cronjob：编排离线业务</li>
+<li><p>deployment：编排无状态应用</p>
+</li>
+<li><p>statefulset：编排有状态应用</p>
+</li>
+<li><p>daemonset：编排守护进程</p>
+</li>
+<li><p>job/cronjob：编排离线业务</p>
+</li>
+<li><p><code>DaemonSet Controller</code>：能让特定或所有节点运行同一个 pod</p>
+<ul>
+<li>节点被加入 Kubernetes 集群后：pod 会被 DaemonSet 调度到该节点执行</li>
+<li>节点被移出 Kubernetes 集群后：被 DaemonSet 调度的 pod 会被移除</li>
+<li>删除 DaemonSet：所有与其相关的 pod 都会被移除</li>
+</ul>
+</li>
+<li><p><code>Deployment Controller</code>（包括了 Replication Controller 的所有功能）</p>
+</li>
+<li><p><code>Replication Controller</code>：通过 ReplicaSet 控制 Pod 的动态扩容和缩放</p>
+<ul>
+<li>为每个 Pod 设置一个期望的副本数</li>
+<li>需要时复制多份 Pod，不需要后缩减 Pod 至指定份数</li>
+<li>期望值可手动更新，或自动扩容代理完成</li>
+</ul>
+</li>
 </ul>
 <p>ReplicaSet</p>
 <ul>
-<li>也是 pod 控制器的一种，创建给定 Pod 的副本</li>
+<li>创建给定 Pod 的副本</li>
 <li>如 Pod 因某种原因死亡，则通知该 controller 并立即跳入操作，以重新创建新的 Pod</li>
 </ul>
 <p>Deployment</p>
@@ -675,7 +696,10 @@
     <a href="/2022/05/14/docker/" rel="prev" title="Docker 概述">
       <i class="fa fa-chevron-left"></i> Docker 概述
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2022/05/28/tree/" rel="next" title="树">
+      树 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -748,14 +772,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
