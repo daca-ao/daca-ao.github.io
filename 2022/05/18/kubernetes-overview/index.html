@@ -40,7 +40,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/node-iptables.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/node-ipvs.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-29T12:21:06.595Z">
+<meta property="article:modified_time" content="2022-05-29T12:26:50.114Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -346,10 +346,11 @@
 <li>结合 cAdvisor 负责向 Master 汇报自身节点运行情况：Node 节点注册、终止、定时上报健康状况等</li>
 <li>接收 Master 发出的命令，创建相应的 pod</li>
 </ul>
-<h3 id="kube-proxy"><a href="#kube-proxy" class="headerlink" title="kube-proxy"></a><strong>kube-proxy</strong></h3><ul>
+<h3 id="kube-proxy"><a href="#kube-proxy" class="headerlink" title="kube-proxy"></a><strong>kube-proxy</strong></h3><p>负责请求的转发。</p>
+<ul>
 <li>使用 IP 表（iptables）/ IPVS 将对 pod 的网络请求重定向到本地端口</li>
-<li>利用 service 完成服务地址到 Pod 地址的代理，维护 node 上的防火墙规则和路由规则等信息，实现负载均衡</li>
-<li>为每个 service 建立服务代理对象（VIP），监听 apiserver 中 service / endpoints 的变化，并刷新对应规则</li>
+<li>为每个 service 建立服务代理对象（VIP），完成服务地址到 Pod 地址的代理</li>
+<li>维护 node 上的防火墙规则和路由规则等信息，监听 apiserver 中 service / endpoints 的变化，并刷新对应规则，实现负载均衡</li>
 <li>实现了集群内部从 pod 到 service，以及集群外部从 nodePort 到 service 的访问</li>
 </ul>
 <p><img src="/2022/05/18/kubernetes-overview/kubeproxy.png"></p>
