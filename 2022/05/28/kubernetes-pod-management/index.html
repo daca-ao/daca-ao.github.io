@@ -31,11 +31,13 @@
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/pod-status.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/pod-machine.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/pod-lifecycle.png">
+<meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/replicaset.jpg">
+<meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/deployment.jpg">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/service.gif">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/service.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/nodeport.png">
 <meta property="article:published_time" content="2022-05-28T07:50:38.000Z">
-<meta property="article:modified_time" content="2022-05-28T13:47:54.512Z">
+<meta property="article:modified_time" content="2022-05-28T14:01:51.594Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -313,10 +315,10 @@
 <li>UTS namespace：pod 中多个容器共享一个主机名（localhost）</li>
 <li>Volumes：共享存储卷，pod 中各个容器可访问在 pod 级别定义的 Volumes</li>
 </ul>
-<h1 id="容器编排组件"><a href="#容器编排组件" class="headerlink" title="容器编排组件"></a>容器编排组件</h1><p>Kubernetes 针对不同的应用场景，定义了不同的容器编排方式，以满足不同需求。<br>在之前介绍 <a href="/2022/05/18/kubernetes-overview/kube-controller-manager">kube-controller-manager</a> 的时候提起过，针对于不同的方式，Kubernetes 有各种对应的 service controller 完成编排。</p>
+<h1 id="容器编排组件"><a href="#容器编排组件" class="headerlink" title="容器编排组件"></a>容器编排组件</h1><p>Kubernetes 针对不同的应用场景，定义了不同的容器编排方式，以满足不同需求。<br>在之前介绍 <a href="/2022/05/18/kubernetes-overview#kube-controller-manager">kube-controller-manager</a> 的时候提起过，针对于不同的方式，Kubernetes 有各种对应的 service controller 完成编排。</p>
 <p>常用的编排方式有下面几种：</p>
-<h2 id="ReplicaSet"><a href="#ReplicaSet" class="headerlink" title="ReplicaSet"></a>ReplicaSet</h2><ul>
-<li>创建给定 Pod 的副本</li>
+<h2 id="ReplicaSet"><a href="#ReplicaSet" class="headerlink" title="ReplicaSet"></a>ReplicaSet</h2><p>创建，并管理给定的一个或多个 Pod 的副本。</p>
+<ul>
 <li>如 Pod 因某种原因死亡，则通知该 controller 并立即跳入操作，以重新创建新的 Pod</li>
 </ul>
 <p><code>Replication Controller</code>：通过 ReplicaSet 控制 Pod 的动态扩容和缩放</p>
@@ -325,10 +327,11 @@
 <li>需要时复制多份 Pod，不需要后缩减 Pod 至指定份数</li>
 <li>期望值可手动更新，或自动扩容代理完成</li>
 </ul>
-<h2 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h2><p>最常用的编排方式，由 Deployment Controller 控制，用于编排无状态应用。</p>
-<p>Deployment 基于并使用 ReplicaSet 管理副本：通过放大新的 ReplicaSet 和缩小（最终删除）现有 ReplicaSet 提供滚动升级。</p>
-<p>正因如此，Deployment Controller 包括了 Replication Controller 的所有功能。</p>
-<p>传递关系：deployment 控制 replicaSet 的版本属性，replicaSet 控制 pod 的数量</p>
+<p><img src="/2022/05/28/kubernetes-pod-management/replicaset.jpg"></p>
+<h2 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h2><p>最常用的编排方式，由 <code>Deployment Controller</code> 控制，用于编排无状态应用。</p>
+<p>Deployment 管理 pod 一个或多个副本，并且确保 pod 按照期望的状态运行。<br>Deployment 基于并使用 ReplicaSet 管理副本：通过放大新的 ReplicaSet 和缩小（最终删除）现有 ReplicaSet 提供滚动升级。</p>
+<p>正因如此，Deployment Controller 包括了 Replication Controller 的<strong>所有功能</strong>。<br>并且存在着这样的传递关系：<strong>deployment 控制 replicaSet 的版本属性，replicaSet 控制 pod 的数量</strong>。</p>
+<p><img src="/2022/05/28/kubernetes-pod-management/deployment.jpg"></p>
 <p>访问 Deployment</p>
 <ol>
 <li>通过 ServiceName 访问</li>
@@ -336,6 +339,25 @@
 <li>clusterIp 根据机器上 iptables 的配置，转发到指定的 pod</li>
 </ol>
 <p>创建 Deployment</p>
+<ol>
+<li>kubectl 发起请求，创建 deployment</li>
+<li>apiserver 接收到创建 deployment 的请求，将相关资源写入 etcd<ol>
+<li>之后所有组件与 apiserver / etcd 的交互均类似</li>
+</ol>
+</li>
+<li>controller 的操作，包括：<ol>
+<li>deployment controller 会 list / watch 资源变化，并发起创建 replicaSet 请求</li>
+<li>replicaSet controller 会 list / watch 资源变化并发起创建 pod 请求</li>
+</ol>
+</li>
+<li>scheduler 检测到未绑定的（新建的或游离的）pod 资源，通过一系列匹配以及过滤选择合适的 node 进行绑定<ol>
+<li>以此完成 master 对 pod 的调度</li>
+<li>指定：通过 Node 的标签 Label 和 Pod 的 nodeSelector 属性进行匹配</li>
+</ol>
+</li>
+<li>kubelet 发现自己的 node 需创建新的 pod，负责 pod 的创建及后续生命周期管理</li>
+<li>kube-proxy 负责初始化 service 相关的资源：服务发现、负载均衡等网络规则</li>
+</ol>
 <h2 id="DaemonSet"><a href="#DaemonSet" class="headerlink" title="DaemonSet"></a>DaemonSet</h2><p>编排守护进程</p>
 <ul>
 <li><code>DaemonSet Controller</code>：能让特定或所有节点运行同一个 pod<ul>
@@ -360,7 +382,7 @@
 <li>只能返回所有待转发对象（pod）的请求方式</li>
 </ul>
 </li>
-<li><p>命名规则：$(podName).$(headlessServiceName).$(namespace).$(clusterDomainName)</p>
+<li><p>命名规则：<code>$(podName).$(headlessServiceName).$(namespace).$(clusterDomainName)</code></p>
 <ul>
 <li>一般指定到 headlessServiceName 即可</li>
 </ul>

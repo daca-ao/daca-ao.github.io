@@ -40,7 +40,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/node-iptables.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/node-ipvs.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-28T13:48:42.009Z">
+<meta property="article:modified_time" content="2022-05-28T13:50:42.501Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -271,7 +271,7 @@
 <li>用户可通过 REST 接口或 kubectl 命令行工具进行集群管理；因此 kubectl 本质上也是与 kube-apiserver 进行通信。</li>
 </ul>
 <p>Master 和 Node 中几乎所有的组件都需要和 apiserver 通信，以执行所需要的职责。<br>这样模块之间不会直接互相调用，而是统一通过 apiserver 打交道完成通信；并且屏蔽了与 etcd 的直接交互。</p>
-<h3 id="kube-scheduler-调度程序"><a href="#kube-scheduler-调度程序" class="headerlink" title="kube-scheduler 调度程序"></a><strong>kube-scheduler 调度程序</strong></h3><p>调度程序通过执行一系列复杂的算法（比如轮询调度 RR），为<strong>每个 <a href="/2022/05/28/kubernetes-pod-management/Pod">pod</a> 匹配到一个最佳的目标 node</strong>，然后分发任务。</p>
+<h3 id="kube-scheduler-调度程序"><a href="#kube-scheduler-调度程序" class="headerlink" title="kube-scheduler 调度程序"></a><strong>kube-scheduler 调度程序</strong></h3><p>调度程序通过执行一系列复杂的算法（比如轮询调度 RR），为<strong>每个 <a href="/2022/05/28/kubernetes-pod-management#Pod">pod</a> 匹配到一个最佳的目标 node</strong>，然后分发任务。</p>
 <h3 id="kube-controller-manager"><a href="#kube-controller-manager" class="headerlink" title="kube-controller-manager"></a><strong>kube-controller-manager</strong></h3><p>守护进程。顾名思义，是 Kubernetes 管理各个 service controller 的控制中心。</p>
 <p>每个 controller 本质上是一个控制循环，它通过 apiserver 监视集群的共享状态，对服务进行监控和恢复，尝试改变某个服务与期望不符的实际情况。</p>
 <p>Kubernetes 内部的 service controller 包括：</p>
