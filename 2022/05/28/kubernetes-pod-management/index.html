@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/service.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/nodeport.png">
 <meta property="article:published_time" content="2022-05-28T07:50:38.000Z">
-<meta property="article:modified_time" content="2022-05-29T06:42:45.821Z">
+<meta property="article:modified_time" content="2022-05-29T10:17:15.512Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -337,8 +337,8 @@
 </ol>
 <p>创建 Deployment</p>
 <ol>
-<li>kubectl 发起请求，创建 deployment</li>
-<li>apiserver 接收到创建 deployment 的请求，将相关资源写入 etcd<ol>
+<li>kubectl 发起创建 deployment 的请求到 apiserver</li>
+<li>apiserver 接收到请求后，将相关资源写入 etcd<ol>
 <li>之后所有组件与 apiserver / etcd 的交互均类似</li>
 </ol>
 </li>
