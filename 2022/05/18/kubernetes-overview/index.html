@@ -40,7 +40,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/node-iptables.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/node-ipvs.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-05-29T13:07:43.832Z">
+<meta property="article:modified_time" content="2022-05-31T15:02:27.801Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -392,7 +392,7 @@
 <li>SED: shortest expected delay / 预计延迟时间最短</li>
 <li>NQ: never queue / 从不排队</li>
 </ul>
-<h1 id="存储管理"><a href="#存储管理" class="headerlink" title="存储管理"></a>存储管理</h1><p>Kubernetes 一共使用三种资源管理存储：</p>
+<h3 id="Failover"><a href="#Failover" class="headerlink" title="Failover"></a>Failover</h3><h1 id="存储管理"><a href="#存储管理" class="headerlink" title="存储管理"></a>存储管理</h1><p>Kubernetes 一共使用三种资源管理存储：</p>
 <p>Persistent Volume（持久化卷，<strong>PV</strong>）</p>
 <ul>
 <li>对底层共享存储的抽象</li>
@@ -411,7 +411,7 @@
 <li>不同类型可映射到服务质量级别、备份策略、或群管理员确定的任意策略的 PV 上</li>
 <li>在其他存储系统上会被称为 profiles</li>
 </ul>
-<p>应用场景：<br>用户提交 PVC，在 PVC 中指定存储类型（storageClassName），如果符合已经定义好的 StorageClass，则会为其自动创建 PV 并进行绑定。</p>
+<p>应用场景：用户提交 PVC，在 PVC 中指定存储类型（storageClassName），如果符合已经定义好的 StorageClass，则会为其自动创建 PV 并进行绑定。</p>
 
     </div>
 
@@ -496,7 +496,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%9E%84%E6%88%90"><span class="nav-number">1.</span> <span class="nav-text">主要构成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cluster"><span class="nav-number">1.1.</span> <span class="nav-text">Cluster</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Master"><span class="nav-number">1.2.</span> <span class="nav-text">Master</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#kube-apiserver-%E8%BF%9B%E7%A8%8B"><span class="nav-number">1.2.1.</span> <span class="nav-text">kube-apiserver 进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kube-scheduler-%E8%B0%83%E5%BA%A6%E7%A8%8B%E5%BA%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">kube-scheduler 调度程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kube-controller-manager"><span class="nav-number">1.2.3.</span> <span class="nav-text">kube-controller-manager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#etcd-%E7%BB%84%E4%BB%B6"><span class="nav-number">1.2.4.</span> <span class="nav-text">etcd 组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Flannel"><span class="nav-number">1.2.5.</span> <span class="nav-text">Flannel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node"><span class="nav-number">1.3.</span> <span class="nav-text">Node</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#kubelet"><span class="nav-number">1.3.1.</span> <span class="nav-text">kubelet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kube-proxy"><span class="nav-number">1.3.2.</span> <span class="nav-text">kube-proxy</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">存储管理</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%9E%84%E6%88%90"><span class="nav-number">1.</span> <span class="nav-text">主要构成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cluster"><span class="nav-number">1.1.</span> <span class="nav-text">Cluster</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Master"><span class="nav-number">1.2.</span> <span class="nav-text">Master</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#kube-apiserver-%E8%BF%9B%E7%A8%8B"><span class="nav-number">1.2.1.</span> <span class="nav-text">kube-apiserver 进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kube-scheduler-%E8%B0%83%E5%BA%A6%E7%A8%8B%E5%BA%8F"><span class="nav-number">1.2.2.</span> <span class="nav-text">kube-scheduler 调度程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kube-controller-manager"><span class="nav-number">1.2.3.</span> <span class="nav-text">kube-controller-manager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#etcd-%E7%BB%84%E4%BB%B6"><span class="nav-number">1.2.4.</span> <span class="nav-text">etcd 组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Flannel"><span class="nav-number">1.2.5.</span> <span class="nav-text">Flannel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Node"><span class="nav-number">1.3.</span> <span class="nav-text">Node</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#kubelet"><span class="nav-number">1.3.1.</span> <span class="nav-text">kubelet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#kube-proxy"><span class="nav-number">1.3.2.</span> <span class="nav-text">kube-proxy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Failover"><span class="nav-number">1.3.3.</span> <span class="nav-text">Failover</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E7%AE%A1%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">存储管理</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
