@@ -39,8 +39,10 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/node-userspace.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/node-iptables.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/node-ipvs.png">
+<meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/pv-pvc-storageclass.png">
+<meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/pv-pvc-creation.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-06-01T12:12:40.057Z">
+<meta property="article:modified_time" content="2022-06-01T12:24:04.466Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -400,23 +402,25 @@
 <h1 id="存储管理"><a href="#存储管理" class="headerlink" title="存储管理"></a>存储管理</h1><p>Kubernetes 一共使用三种资源管理存储：</p>
 <p>Persistent Volume（持久化卷，<strong>PV</strong>）</p>
 <ul>
-<li>对底层共享存储的抽象</li>
-<li>由管理员进行创建和配置</li>
-<li>通过插件机制完成与共享存储的对接</li>
+<li>属于对 Kubernetes 底层共享存储的抽象，由管理员进行创建和配置</li>
+<li>通过<strong>插件</strong>机制完成与实际共享存储的对接</li>
 <li>其生命周期与使用它的 pod 相互独立</li>
 </ul>
 <p>Persistent Volume Claim（<strong>PVC</strong>）</p>
 <ul>
-<li>namespace 里的资源，描述一个用户对 PV 的请求 claim</li>
+<li>属于 namespace 里的资源，描述一个用户对 PV 的请求 claim</li>
 <li>请求信息包含存储大小、访问模式等</li>
+<li>PVC 直接与 pod 绑定</li>
 </ul>
 <p><strong>StorageClass</strong></p>
 <ul>
-<li>为 PV 创建模板，为管理员提供一种描述存储“类型”的方法</li>
-<li>不同类型可映射到服务质量级别、备份策略、或群管理员确定的任意策略的 PV 上</li>
+<li>PV 的创建模板，为管理员创建 PV 的时候提供一种描述存储“类型”的方法</li>
+<li>不同的 StorageClass 可映射到服务质量级别、备份策略、或群管理员确定的任意策略的 PV 上</li>
 <li>在其他存储系统上会被称为 profiles</li>
 </ul>
+<p><img src="/2022/05/18/kubernetes-overview/pv-pvc-storageclass.png"></p>
 <p>应用场景：用户提交 PVC，在 PVC 中指定存储类型（storageClassName），如果符合已经定义好的 StorageClass，则会为其自动创建 PV 并进行绑定。</p>
+<p><img src="/2022/05/18/kubernetes-overview/pv-pvc-creation.png"></p>
 
     </div>
 
