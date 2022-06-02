@@ -39,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/service.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/nodeport.png">
 <meta property="article:published_time" content="2022-05-28T07:50:38.000Z">
-<meta property="article:modified_time" content="2022-06-02T12:44:17.711Z">
+<meta property="article:modified_time" content="2022-06-02T15:45:38.514Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -354,13 +354,15 @@
 </ol>
 <p>以上全过程的每一步，各组件<strong>都通过 apiserver / etcd 进行交互和信息存储</strong>（即步骤 2）。</p>
 <p>其它编排方式的 pod 的创建过程与此类似。</p>
-<h2 id="DaemonSet"><a href="#DaemonSet" class="headerlink" title="DaemonSet"></a>DaemonSet</h2><p>顾名思义，用于编排守护进程。每个 <strong>node 最多运行 DaemonSet 的一个副本</strong>。</p>
+<h2 id="DaemonSet"><a href="#DaemonSet" class="headerlink" title="DaemonSet"></a>DaemonSet</h2><p>顾名思义，用于编排守护进程。不同于 Deployment 的随机按需分布，每个 <strong>node 最多运行 DaemonSet 的一个副本</strong>。</p>
 <p><code>DaemonSet Controller</code>：能让特定或所有节点运行同一个 pod</p>
 <ul>
 <li>节点被加入 Kubernetes 集群后：pod 会被 DaemonSet 调度到该节点执行</li>
 <li>节点被移出 Kubernetes 集群后：被 DaemonSet 调度的 pod 会被移除</li>
 <li>删除 DaemonSet：所有与其相关的 pod 都会被移除</li>
 </ul>
+<p>典型运用场景：</p>
+<p>在每个节点上运行<strong>存储</strong> Daemon<br>在每个节点上运行<strong>日志收集</strong> Daemon<br>在每个节点上运行<strong>监控</strong> Daemon</p>
 <h2 id="StatefulSet"><a href="#StatefulSet" class="headerlink" title="StatefulSet"></a>StatefulSet</h2><p>用于编排有状态应用。保证副本按照固定的顺序启动/更新/删除。</p>
 <p>由于 StatefulSet 没有 clusterIp，无法通过 iptables 指定转发规则和负载均衡（loadbalance），因此访问时只能返回所有待转发对象（pod）的请求方式。</p>
 <p>访问 StatefulSet 通过 HeadlessServiceName 访问：</p>
@@ -480,13 +482,16 @@
 <li>pod 创建完成后，kubelet 会在该 pod 中注册该集群已创建的所有 service 相关的环境变量</li>
 <li>注意：service 创建之前的所有 pod 并不会注册该环境变量</li>
 </ul>
-<h1 id="Rolling-Update"><a href="#Rolling-Update" class="headerlink" title="Rolling Update"></a>Rolling Update</h1><h1 id="运行时调度"><a href="#运行时调度" class="headerlink" title="运行时调度"></a>运行时调度</h1><p>默认配置下，scheduler 会将 pod 调度到所有可用的 node 上；但当集群中每个节点配置有所区别时，我们有多种方法将特定功能的 pod 调度到指定 node 上。</p>
+<h1 id="Rolling-Update"><a href="#Rolling-Update" class="headerlink" title="Rolling Update"></a>Rolling Update</h1><h1 id="运行时调度"><a href="#运行时调度" class="headerlink" title="运行时调度"></a>运行时调度</h1><p>默认配置下，scheduler 会将 pod 自动调度到所有可用的 node 上；但当集群中每个节点配置有所区别时，我们有多种方法将特定功能的 pod 调度到指定 node 上。</p>
 <p>区别于全局调度 —— 设置 Kubernetes 启动调度器，我们可以通过打标签（<strong>Label</strong>）或设置亲和性（<strong>Affinity</strong>），在运行时进行调度。</p>
-<h2 id="设置-Label"><a href="#设置-Label" class="headerlink" title="设置 Label"></a>设置 Label</h2><p>给 node 上添加标签：</p>
+<h2 id="设置-Label"><a href="#设置-Label" class="headerlink" title="设置 Label"></a>设置 Label</h2><p>给 node 添加标签：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl label node k8s-node1 prod=sit</span><br></pre></td></tr></table></figure>
 
 <p>给 pod 设置 nodeSelector：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pod 文件：</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">nodeSelector:</span></span><br><span class="line">    <span class="string">prod=sit</span></span><br><span class="line">  <span class="string">...</span></span><br><span class="line"><span class="comment"># 如指定 node 标签不存在，pod 会一直 pending，不会被分配到任何的 node 上</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 或：</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">nodeName:</span> <span class="string">k8s-node1</span></span><br><span class="line">  <span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<p>给 node 删除标签：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl label node k8s-node1 prod-</span><br></pre></td></tr></table></figure>
 
 
 <h2 id="设置亲和度-Affinity"><a href="#设置亲和度-Affinity" class="headerlink" title="设置亲和度 Affinity"></a>设置亲和度 Affinity</h2><p>为 node 或 pod 设定 Affinity（亲和性）</p>
