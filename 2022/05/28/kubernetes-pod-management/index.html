@@ -39,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/service.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/nodeport.png">
 <meta property="article:published_time" content="2022-05-28T07:50:38.000Z">
-<meta property="article:modified_time" content="2022-06-03T02:52:38.808Z">
+<meta property="article:modified_time" content="2022-06-03T11:05:49.392Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -244,7 +244,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Kubernetes Node 通过 <strong>Pod</strong> 来管理自己所承载的容器。至于 Pod 怎么管理容器，涉及到 Kubernetes 容器编排的概念。</p>
+        <p>Kubernetes Node 通过 Pod 来管理自己所承载的容器。至于 Pod 怎么管理容器，涉及到 Kubernetes 容器编排的概念。</p>
 <span id="more"></span>
 
 <p>Kubernetes 结合的是 Google 数十年对大规模应用容器技术的经验的积累和升华。它对容器的编排管理包括且不仅限于：</p>
@@ -363,17 +363,21 @@
 </ul>
 <p>典型应用场景：</p>
 <ul>
-<li>在每个节点上运行<strong>存储</strong> Daemon</li>
-<li>在每个节点上运行<strong>日志收集</strong> Daemon</li>
-<li>在每个节点上运行<strong>监控</strong> Daemon</li>
+<li>在每个节点上运行<strong>存储</strong> Daemon（glusterd, ceph 等）</li>
+<li>在每个节点上运行<strong>日志收集</strong> Daemon（fluentd, <strong>logstash</strong> 等）</li>
+<li>在每个节点上运行<strong>监控</strong> Daemon（<strong>Prometheus Node Exporter</strong>, <strong>collectd</strong> 等）</li>
 </ul>
+<p>kube-proxy 就是 Kubernetes 用于在每个 node 上运行系统组件的 DaemonSet。</p>
 <h2 id="StatefulSet"><a href="#StatefulSet" class="headerlink" title="StatefulSet"></a>StatefulSet</h2><p>用于编排有状态应用。保证副本按照固定的顺序启动/更新/删除。</p>
 <p>由于 StatefulSet 没有 clusterIp，无法通过 iptables 指定转发规则和负载均衡（loadbalance），因此访问时只能返回所有待转发对象（pod）的请求方式。</p>
 <p>访问 StatefulSet 通过 HeadlessServiceName 访问：</p>
 <ul>
 <li>命名规则：<code>$(podName).$(headlessServiceName).$(namespace).$(clusterDomainName)</code>，一般指定到 headlessServiceName 即可。</li>
 </ul>
-<h2 id="Job-cronjob"><a href="#Job-cronjob" class="headerlink" title="Job/cronjob"></a>Job/cronjob</h2><p>编排离线业务</p>
+<br>
+
+<p>以上的 Deployment，ReplicaSet，DaemonSet 等管理<strong>服务类容器</strong>的编排方式，管理的是 HTTP 服务、Daemon 等<strong>持续</strong>的服务。</p>
+<h2 id="Job-cronjob"><a href="#Job-cronjob" class="headerlink" title="Job/cronjob"></a>Job/cronjob</h2><p>不同于以上编排方式，Job 编排的是<strong>一次性</strong>的<strong>工作类容器</strong>，比如批处理任务，完成后容器就直接退出。</p>
 <br>
 
 <p>每个 pod 的 IP 地址是不稳定的，会随着 pod 销毁和创建发生变化；然而服务调用需要对不同 pod 进行负载均衡，利用非固定的 IP 进行网络调用并不现实。</p>
