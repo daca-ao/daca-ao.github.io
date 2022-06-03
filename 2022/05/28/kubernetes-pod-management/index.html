@@ -39,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/service.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/nodeport.png">
 <meta property="article:published_time" content="2022-05-28T07:50:38.000Z">
-<meta property="article:modified_time" content="2022-06-02T15:45:38.514Z">
+<meta property="article:modified_time" content="2022-06-03T02:52:38.808Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -361,8 +361,12 @@
 <li>节点被移出 Kubernetes 集群后：被 DaemonSet 调度的 pod 会被移除</li>
 <li>删除 DaemonSet：所有与其相关的 pod 都会被移除</li>
 </ul>
-<p>典型运用场景：</p>
-<p>在每个节点上运行<strong>存储</strong> Daemon<br>在每个节点上运行<strong>日志收集</strong> Daemon<br>在每个节点上运行<strong>监控</strong> Daemon</p>
+<p>典型应用场景：</p>
+<ul>
+<li>在每个节点上运行<strong>存储</strong> Daemon</li>
+<li>在每个节点上运行<strong>日志收集</strong> Daemon</li>
+<li>在每个节点上运行<strong>监控</strong> Daemon</li>
+</ul>
 <h2 id="StatefulSet"><a href="#StatefulSet" class="headerlink" title="StatefulSet"></a>StatefulSet</h2><p>用于编排有状态应用。保证副本按照固定的顺序启动/更新/删除。</p>
 <p>由于 StatefulSet 没有 clusterIp，无法通过 iptables 指定转发规则和负载均衡（loadbalance），因此访问时只能返回所有待转发对象（pod）的请求方式。</p>
 <p>访问 StatefulSet 通过 HeadlessServiceName 访问：</p>
