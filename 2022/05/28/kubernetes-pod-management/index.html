@@ -39,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/service.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/nodeport.png">
 <meta property="article:published_time" content="2022-05-28T07:50:38.000Z">
-<meta property="article:modified_time" content="2022-06-05T05:33:47.338Z">
+<meta property="article:modified_time" content="2022-06-05T15:08:11.453Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -581,41 +581,40 @@
 <li>nodeAffinity 如果有多个 nodeSelectorTerms，那么 pod 只需满足一个就能分配到 node 上</li>
 <li>nodeSelectorTerms 如果有多个 matchExpressions，pod 必须都满足才能分配到 node 上</li>
 </ul>
-<h2 id="Taint（污点）-amp-Toleration（容忍度）"><a href="#Taint（污点）-amp-Toleration（容忍度）" class="headerlink" title="Taint（污点） &amp; Toleration（容忍度）"></a>Taint（污点） &amp; Toleration（容忍度）</h2><p>我们知道，具有节点亲和性的 node 和 pod 之间是相吸的；<br>与亲和性作用相反的是，具有污点的 node 和 pod 之间是<strong>互斥</strong>的。</p>
-<p>通过配置 Taint 和 Toleration 互相配合，可以避免 pod 被分配到不合适的节点上</p>
+<h2 id="Taint（污点）-amp-Toleration（容忍度）"><a href="#Taint（污点）-amp-Toleration（容忍度）" class="headerlink" title="Taint（污点） &amp; Toleration（容忍度）"></a>Taint（污点） &amp; Toleration（容忍度）</h2><p>我们知道，具有节点亲和性的 node 和 pod 之间是相吸的；<br>与亲和性作用相反的是，具有“污点”的 node 和 pod 之间是<strong>互斥</strong>的。</p>
+<p>通过配置 Taint 和 Toleration，可以避免 pod 被分配到不合适的节点上</p>
 <ul>
-<li>每个 node 上都可应用一个或多个 taint：表示对于那些不能容忍这些 taint 的 pod，不会被该 node 接受</li>
-<li>pod 上应用一个或多个 toleration：这些 pod 可以（但不要求）被调度到具有相应 taint 的 node 上</li>
+<li>每个 node 可被应用一个或多个 taint，表示这个 node 不会接受那些不能容忍这些 taint 的 pod</li>
+<li>每个 pod 可被应用一个或多个 toleration，表示这些 pod 可以（但不要求）被调度到具有相应 taint 的 node 上</li>
 </ul>
 <p>设置污点 taint：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint node [node] key=value:[effect]</span><br><span class="line"><span class="comment"># effect=[NoSchedule | PreferNoSchedule | NoExecute]</span></span><br><span class="line"><span class="comment"># NoSchedule：一定不要被调度</span></span><br><span class="line"><span class="comment"># PreferNoSchedule：尽量不要调度</span></span><br><span class="line"><span class="comment"># NoExecute：不仅不会调度，还会驱逐 node 上已有的 pod</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint node [node] key=value:[effect]</span><br><span class="line"><span class="comment"># effect=[NoSchedule | PreferNoSchedule | NoExecute]</span></span><br></pre></td></tr></table></figure>
 
 <p>去除污点：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint node [node] key:[effect]-</span><br></pre></td></tr></table></figure>
 
-<p>pod 上的 toleration 里面声明的 key 和 effect 需要跟 taint 的设置保持一致</p>
-<p>设置方式</p>
+<p>与之相对，pod 上的 toleration 里面声明的 key 和 effect 需要跟 taint 的设置保持一致。</p>
+<p>举例：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">tolerations:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">key:</span> <span class="string">&quot;key&quot;</span></span><br><span class="line">  <span class="attr">operator:</span> <span class="string">&quot;Exists&quot;</span></span><br><span class="line">  <span class="attr">effect:</span> <span class="string">&quot;NoSchedule&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 或：</span></span><br><span class="line"><span class="attr">tolerations:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">key:</span> <span class="string">&quot;key&quot;</span></span><br><span class="line">  <span class="attr">operator:</span> <span class="string">&quot;Equal&quot;</span></span><br><span class="line">  <span class="attr">value:</span> <span class="string">&quot;value&quot;</span></span><br><span class="line">  <span class="attr">effect:</span> <span class="string">&quot;NoSchedule&quot;</span></span><br></pre></td></tr></table></figure>
+
 <ul>
-<li>operator 为 Exists，则无需指定 value</li>
-<li>operator 为 Equal，则 value 需跟 taint 的值相等</li>
-<li>不指定 operator 默认为 Equal</li>
+<li>operator 为 Exists：无需指定 value</li>
+<li>operator 为 Equal：value 需跟 taint 的值相等</li>
+<li>不指定 operator，默认为 Equal</li>
 <li>空的 key 配合 Exists 能匹配所有键值对</li>
 <li>空的 effect 匹配所有的 effect</li>
 </ul>
-<p>例：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">tolerations:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">key:</span> <span class="string">&quot;key&quot;</span></span><br><span class="line">  <span class="attr">operator:</span> <span class="string">&quot;Exists&quot;</span></span><br><span class="line">  <span class="attr">effect:</span> <span class="string">&quot;NoSchedule&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 或：</span></span><br><span class="line"><span class="attr">tolerations:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">key:</span> <span class="string">&quot;key&quot;</span></span><br><span class="line">  <span class="attr">operator:</span> <span class="string">&quot;Equal&quot;</span></span><br><span class="line">  <span class="attr">value:</span> <span class="string">&quot;value&quot;</span></span><br><span class="line">  <span class="attr">effect:</span> <span class="string">&quot;NoSchedule&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>toleration 中的 effect 值：</p>
-<p><code>NoSchedule</code></p>
+<p>toleration 中的 <code>effect</code> 值：</p>
+<p><code>NoSchedule</code>：一定不要被调度</p>
 <ul>
 <li>如一个 pod 没有声明容忍该 taint，则系统不会将该 pod 调度到有这个 taint 的 node 上</li>
 </ul>
-<p><code>PreferNoSchedule</code></p>
+<p><code>PreferNoSchedule</code>：尽量不要调度</p>
 <ul>
 <li>NoSchedule 的软限制版本</li>
 <li>如一个 pod 没有声明容忍该 taint，则系统尽量避免将该 pod 调度到有这个 taint 的 node 上，但不强制</li>
 </ul>
-<p><code>NoExecute</code></p>
+<p><code>NoExecute</code>：不仅不会调度，还会驱逐 node 上已有的 pod</p>
 <ul>
 <li>定义 pod 驱逐行为，应对节点故障</li>
 <li>没有设置 toleration 的 pod 会被立刻驱逐</li>
