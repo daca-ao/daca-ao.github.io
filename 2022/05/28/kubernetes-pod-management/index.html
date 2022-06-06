@@ -40,7 +40,7 @@
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/nodeport.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/topologykey.png">
 <meta property="article:published_time" content="2022-05-28T07:50:38.000Z">
-<meta property="article:modified_time" content="2022-06-05T16:24:20.626Z">
+<meta property="article:modified_time" content="2022-06-06T15:03:55.777Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -384,6 +384,8 @@
 <li>Never：永不重启，如果 Job 执行失败，则每次重新启动一个 pod 再次执行</li>
 <li>OnFailure：失败时重启容器</li>
 </ul>
+<p>Job 可通过配置 parallelism 设置并行执行，通过设置 completions 设置运行个数。</p>
+<p>cronJob：概念同 Linux 的 cronJob，意为<strong>定时任务</strong>。</p>
 <br>
 
 <p>每个 pod 的 IP 地址是不稳定的，会随着 pod 销毁和创建发生变化；然而服务调用需要对不同 pod 进行负载均衡，利用非固定的 IP 进行网络调用并不现实。</p>
