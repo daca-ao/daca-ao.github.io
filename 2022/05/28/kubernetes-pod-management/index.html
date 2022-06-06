@@ -40,7 +40,7 @@
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/nodeport.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/topologykey.png">
 <meta property="article:published_time" content="2022-05-28T07:50:38.000Z">
-<meta property="article:modified_time" content="2022-06-06T16:55:14.842Z">
+<meta property="article:modified_time" content="2022-06-06T16:58:30.559Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -443,7 +443,7 @@
 <ul>
 <li>从 port 和 nodePort 过来的数据，经过 kube-proxy 从后端 pod 的 targetPort 进入容器</li>
 </ul>
-<p>也就是说，port 和 nodePort 都是 service 的端口，前者暴露给从集群内访问服务的方式，后者则暴露给集群外访问服务的方式；<br>这两个端口的流入数据均需经过反向代理 kube-proxy 流入后端具体 pod 的 targetPort，从而进入到 pod 上的 container 内。<br>一般来说，port 和 targetPort 配置相同的端口。</p>
+<p>也就是说，port 和 nodePort 都是 service 的端口，前者暴露给从集群内访问服务的方式，后者则暴露给集群外访问服务的方式；<br>这两个端口的流入数据均需经过反向代理 kube-proxy 流入后端具体 pod 的 targetPort，从而进入到 pod 上的 container 内。<br>一般来说，在同一个集群中的 port 和 targetPort 会配置相同的端口。</p>
 <p>再来说说不同 IP 的概念：</p>
 <p><strong>Pod IP</strong>：顾名思义，是 Pod 的 IP，其实就是 pause 容器的 IP，通常是一个虚拟的二层网络。</p>
 <p><strong>Cluster IP</strong>：service 对象的 IP。</p>
