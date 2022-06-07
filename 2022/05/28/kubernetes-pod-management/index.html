@@ -38,9 +38,10 @@
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/service.gif">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/service.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/nodeport.png">
+<meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/rolling-update.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/topologykey.png">
 <meta property="article:published_time" content="2022-05-28T07:50:38.000Z">
-<meta property="article:modified_time" content="2022-06-06T16:58:30.559Z">
+<meta property="article:modified_time" content="2022-06-07T14:54:24.708Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -402,7 +403,7 @@
 <ul>
 <li>比如某些 pod 被打上了 “app=xxx” 的标签</li>
 <li>Service controller 通过 <code>serviceSelector</code> 选择 label 同样为 “app=xxx” 的 pod</li>
-<li>列举所有被选中的 pod 的 IP，构建出一个负载均衡列表 endpoints<ul>
+<li>列举所有被选中的 pod 的 IP，构建出一个负载均衡列表 <strong>endpoints</strong><ul>
 <li>这些 endpoints 可被包装成一个完整的 service 对外提供服务</li>
 <li>endpoints 所有 IP 和 pod 的端口通过 service controller 和 endpoint controller 共同选择并配置完成</li>
 <li>如果某个 pod 出现故障，脱离服务集群，它的 IP 会自动在 endpoints 中被移除</li>
@@ -412,6 +413,7 @@
 <li>kube-proxy 通过 iptables / ipvs 为每一个 service 对象实现固定的 IP，称之为 VIP 或者 <code>cluster IP</code></li>
 <li>Service 的信息会通过 apiserver 存入 etcd 中</li>
 </ul>
+<p><small>注：iptables-save 指令可以查看 iptables。</small></p>
 <p>因此每一个 service 都有固定的 IP 和一些 endpoints。即使 pod 因为不稳定导致 ip 发生变化，但是面向客户端的是 service 的固定 IP 和端口。</p>
 <p><img src="/2022/05/28/kubernetes-pod-management/service.gif"></p>
 <p><img src="/2022/05/28/kubernetes-pod-management/service.png"></p>
@@ -501,7 +503,8 @@
 <li>pod 创建完成后，kubelet 会在该 pod 中注册该集群已创建的所有 service 相关的环境变量</li>
 <li>注意：service 创建之前的所有 pod 并不会注册该环境变量</li>
 </ul>
-<h1 id="Rolling-Update"><a href="#Rolling-Update" class="headerlink" title="Rolling Update"></a>Rolling Update</h1><p>![]</p>
+<h1 id="Rolling-Update"><a href="#Rolling-Update" class="headerlink" title="Rolling Update"></a>Rolling Update</h1><p>应用更新的时候，每次只更新一小部分</p>
+<p><img src="/2022/05/28/kubernetes-pod-management/rolling-update.png"></p>
 <h1 id="运行时调度"><a href="#运行时调度" class="headerlink" title="运行时调度"></a>运行时调度</h1><p>默认配置下，scheduler 会将 pod 自动调度到所有可用的 node 上；但当集群中每个节点配置有所区别时，我们有多种方法将特定功能的 pod 调度到指定 node 上。</p>
 <p>区别于全局调度 —— 设置 Kubernetes 启动调度器，我们可以通过打标签（<strong>Label</strong>）或设置亲和性（<strong>Affinity</strong>），在运行时进行调度。</p>
 <h2 id="设置-Label"><a href="#设置-Label" class="headerlink" title="设置 Label"></a>设置 Label</h2><p>给 node 添加标签：</p>
