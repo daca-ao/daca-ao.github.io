@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/rolling-update.png">
 <meta property="og:image" content="http://example.com/2022/05/28/kubernetes-pod-management/topologykey.png">
 <meta property="article:published_time" content="2022-05-28T07:50:38.000Z">
-<meta property="article:modified_time" content="2022-06-07T15:06:46.075Z">
+<meta property="article:modified_time" content="2022-06-07T17:35:53.450Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -507,20 +507,21 @@
 <li>pod 创建完成后，kubelet 会在该 pod 中注册该集群已创建的所有 service 相关的环境变量</li>
 <li>注意：service 创建之前的所有 pod 并不会注册该环境变量</li>
 </ul>
-<h1 id="Rolling-Update"><a href="#Rolling-Update" class="headerlink" title="Rolling Update"></a>Rolling Update</h1><p>应用更新的时候，每次只更新一小部分，成功之后再去更新更多的副本，最终完成所有副本的更新。</p>
+<h1 id="Rolling-Update"><a href="#Rolling-Update" class="headerlink" title="Rolling Update"></a>Rolling Update</h1><p>应用更新的时候，Kubernetes 每次只更新一小部分，成功之后再去更新更多的副本，最终完成所有副本的更新。</p>
 <p>比如某个拥有 3 个 replica 的 deployment 需要从 v1 更新至 v2：</p>
 <ul>
-<li>先成功启动 v2 版本控制下的一个 pod，同时完全关闭 v1 版本控制下的一个 pod</li>
+<li>先成功启动 v2 版本的 ReplicaSet 控制下的一个 pod，同时完全关闭 v1 版本控制下的一个 pod</li>
 <li>上述操作完成后，逐渐增加 v2 版本控制的 pod 数量至 3；同时 v1 版本控制的 pod 数量减到 0</li>
 </ul>
 <p><img src="/2022/05/28/kubernetes-pod-management/rolling-update.png"></p>
-<p>应用的回滚则与上述过程相反。</p>
+<p>应用的回滚则与上述过程相反。而且在每一次新版本的安装需要 –record 做好记录，之后调用 <code>kubectl rollout undo</code> 的时候才能指定已记录的版本（<code>--to-revision</code>）进行回滚。</p>
 <p>最大好处：<strong>零停机</strong>，更新过程中保证业务连续性。</p>
 <p>实际应用：配置 <code>RollingUpdateStrategy</code> 控制滚动更新策略</p>
 <ul>
 <li><code>maxSurge</code>: deployment 还可以创建多少个新 pod</li>
 <li><code>maxUnavailable</code>: deployment 可删除多少个旧 pod</li>
 </ul>
+<p>更新/回滚完成后，另一版本的 ReplicaSet <strong>并不会被删除</strong>，其 pod 数量减为 0。</p>
 <h1 id="运行时调度"><a href="#运行时调度" class="headerlink" title="运行时调度"></a>运行时调度</h1><p>默认配置下，scheduler 会将 pod 自动调度到所有可用的 node 上；但当集群中每个节点配置有所区别时，我们有多种方法将特定功能的 pod 调度到指定 node 上。</p>
 <p>区别于全局调度 —— 设置 Kubernetes 启动调度器，我们可以通过打标签（<strong>Label</strong>）或设置亲和性（<strong>Affinity</strong>），在运行时进行调度。</p>
 <h2 id="设置-Label"><a href="#设置-Label" class="headerlink" title="设置 Label"></a>设置 Label</h2><p>给 node 添加标签：</p>
