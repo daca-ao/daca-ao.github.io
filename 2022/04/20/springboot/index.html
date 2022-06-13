@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2022/04/20/springboot/spring-factories.png">
 <meta property="og:image" content="http://example.com/2022/04/20/springboot/application-properties.png">
 <meta property="article:published_time" content="2022-04-20T13:46:10.000Z">
-<meta property="article:modified_time" content="2022-06-12T18:12:28.328Z">
+<meta property="article:modified_time" content="2022-06-13T16:44:16.681Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta name="twitter:card" content="summary">
@@ -329,6 +329,10 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.web.bind.annotation;</span><br><span class="line"></span><br><span class="line">...  <span class="comment">// imports</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@RequestMapping(method = RequestMethod.GET)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> GetMapping &#123;</span><br><span class="line"></span><br><span class="line">    ...  <span class="comment">// 除了 method() 其它方法跟 @RequestMapping 相同</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>注：新的项目会保留对旧注解的支持。</p>
+<p>不过，某些提交表单的场景并不支持 PUT 和 DELETE 的 Rest 请求，我们需要对此进行包装。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 不支持 --&gt;</span></span><br></pre></td></tr></table></figure>
+
+
 <h2 id="自定义配置文件-Properties"><a href="#自定义配置文件-Properties" class="headerlink" title="自定义配置文件 Properties"></a>自定义配置文件 Properties</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;factory&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CarFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String model;</span><br><span class="line">    <span class="keyword">private</span> Engine engine;</span><br><span class="line">    <span class="keyword">private</span> String brand;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> iteration;</span><br><span class="line">    <span class="keyword">private</span> List&lt;String&gt; tags;</span><br><span class="line"></span><br><span class="line">    ...  <span class="comment">// getters &amp; setters</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>随后就可以在配置文件中用 <code>factory.model=civic</code> 等赋值给新的属性。</p>
