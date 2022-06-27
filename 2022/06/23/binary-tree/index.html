@@ -27,12 +27,14 @@
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
 <meta property="og:description" content="二叉树可能不是计算机世界中最基本的数据结构，但是将它誉为计算机应用中的基石，这个赞誉并不为过。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/06/23/binary-tree/tree.png">
 <meta property="article:published_time" content="2022-06-23T14:40:21.000Z">
-<meta property="article:modified_time" content="2022-06-24T16:32:03.750Z">
+<meta property="article:modified_time" content="2022-06-27T13:32:11.779Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据结构">
 <meta property="article:tag" content="树">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/06/23/binary-tree/tree.png">
 
 <link rel="canonical" href="http://example.com/2022/06/23/binary-tree/">
 
@@ -236,41 +238,36 @@
 <span id="more"></span>
 
 <p>了解二叉树之前，我们先来理一下“树”的概念。</p>
-<p>在计算机科学中，<strong>树</strong>（<strong>tree</strong>）属于<strong>抽象数据类型</strong>（Abstract Data Type, <strong>ADT</strong>），是一个非空的有限元素的集合。</p>
+<h1 id="什么是树"><a href="#什么是树" class="headerlink" title="什么是树"></a>什么是树</h1><p>在计算机科学中，线性数据结构和表数据结构一般不适合描述具有<strong>层次结构</strong>的数据，比如祖先 - 后代、上级 - 下属、整体 - 部分之类的数据。</p>
+<p>由此我们引入了一个新类型的非空有限元素的集合：<strong>树</strong>（<strong>tree</strong>）</p>
 <ul>
-<li>重要性：线性数据结构和表数据结构一般不适合描述具有层次结构的数据<ul>
-<li>层次结构：祖先-后代、上级-下属、整体-部分等</li>
-</ul>
-</li>
-<li>最高层元素为根（root）</li>
+<li>树的最高层元素称为根（root）</li>
 <li>余下的非空元素组成该树的子树（subtree）</li>
 <li>根在上，树在下</li>
+<li>每棵树的末端为树的叶子（leaf node）</li>
 </ul>
 <p>一般的树的结构：</p>
-<p>名词解释：</p>
+<p><img src="/2022/06/23/binary-tree/tree.png"></p>
+<p>树属于<strong>抽象数据类型</strong>（Abstract Data Type, <strong>ADT</strong>）。</p>
+<h1 id="树的各个概念"><a href="#树的各个概念" class="headerlink" title="树的各个概念"></a>树的各个概念</h1><p>父节点：若一个节点含有子节点，则这个节点称为其子节点的父节点</p>
+<p>子节点：一个节点如含有子树，则该子树的根节点称为该节点的子节点</p>
+<p>由此衍生的概念有：</p>
 <ul>
-<li>父节点：若一个节点含有子节点，则这个节点称为其子节点的父节点<ul>
 <li>节点的祖先：从根到该节点所经过分支上的所有节点</li>
-</ul>
-</li>
-<li>子节点：一个节点如含有子树，则该子树的根节点称为该节点的子节点<ul>
 <li>子孙：以某节点为根的子树中任一节点都称为该节点的子孙</li>
 <li>兄弟节点：具有相同父节点的节点互称为兄弟节点</li>
 <li>堂兄弟节点：父节点在同一层的节点互为堂兄弟</li>
 </ul>
-</li>
-<li>节点层次（level）：从根开始定义，根为第一层，根的子节点为第二层…以此类推</li>
-<li>树的高度/深度：树中节点的最大层次</li>
-<li>节点的度（degree of a node）：一个节点含有的子树的个数<ul>
+<p>节点层次（level）：从根开始定义，根为第一层，根的子节点为第二层……以此类推</p>
+<p>树的高度/深度：树中节点的最大层次</p>
+<p>节点的度（degree of a node）：一个节点含有的子树的个数</p>
+<ul>
 <li>树的度：一棵树中节点的度的最大值</li>
 <li>叶节点/终端节点：度为0的节点</li>
 <li>非终端节点/分支节点：度不为0的节点</li>
 </ul>
-</li>
-<li>森林：没有回路的图，也可以看成由 m(m&gt;0) 棵互不相交的树的集合称为森林</li>
-</ul>
-<p>树的种类：</p>
-<ul>
+<p>森林：没有回路的图，也可以看成由 m（m&gt;0）棵互不相交的树的集合称为森林</p>
+<h1 id="树的种类"><a href="#树的种类" class="headerlink" title="树的种类"></a>树的种类</h1><ul>
 <li>无序树：树中任意节点的子节点之间没有顺序关系，也称为自由树</li>
 <li>有序树：树中任意节点的子节点之间有顺序关系<ul>
 <li>二叉树<ul>
@@ -287,8 +284,7 @@
 </ul>
 </li>
 </ul>
-<p>二叉树 详见 8.1. 二叉树</p>
-<p>有限个元素的集合（可以为空）<br>二叉树非空时包括</p>
+<h1 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h1><p>有限个元素的集合（可以为空）<br>二叉树非空时包括</p>
 <ul>
 <li>根元素</li>
 <li>（如有）2 个子二叉树：左子树和右子树</li>
@@ -515,6 +511,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%A0%91"><span class="nav-number">1.</span> <span class="nav-text">什么是树</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%91%E7%9A%84%E5%90%84%E4%B8%AA%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">树的各个概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%91%E7%9A%84%E7%A7%8D%E7%B1%BB"><span class="nav-number">3.</span> <span class="nav-text">树的种类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="nav-number">4.</span> <span class="nav-text">二叉树</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
