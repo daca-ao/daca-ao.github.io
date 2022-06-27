@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/06/23/binary-tree/tree.png">
 <meta property="article:published_time" content="2022-06-23T14:40:21.000Z">
-<meta property="article:modified_time" content="2022-06-27T13:32:11.779Z">
+<meta property="article:modified_time" content="2022-06-27T15:24:04.408Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据结构">
 <meta property="article:tag" content="树">
@@ -249,42 +249,48 @@
 <p>一般的树的结构：</p>
 <p><img src="/2022/06/23/binary-tree/tree.png"></p>
 <p>树属于<strong>抽象数据类型</strong>（Abstract Data Type, <strong>ADT</strong>）。</p>
-<h1 id="树的各个概念"><a href="#树的各个概念" class="headerlink" title="树的各个概念"></a>树的各个概念</h1><p>父节点：若一个节点含有子节点，则这个节点称为其子节点的父节点</p>
-<p>子节点：一个节点如含有子树，则该子树的根节点称为该节点的子节点</p>
+<h1 id="树的各个概念"><a href="#树的各个概念" class="headerlink" title="树的各个概念"></a>树的各个概念</h1><p>父节点：若一个节点含有子节点，则这个节点称为其子节点的父节点。</p>
+<p>子节点：一个节点如含有子树，则该子树的根节点称为该节点的子节点。</p>
 <p>由此衍生的概念有：</p>
 <ul>
-<li>节点的祖先：从根到该节点所经过分支上的所有节点</li>
+<li>节点的祖先：从根到该节点所经过的分支上的所有节点</li>
 <li>子孙：以某节点为根的子树中任一节点都称为该节点的子孙</li>
 <li>兄弟节点：具有相同父节点的节点互称为兄弟节点</li>
 <li>堂兄弟节点：父节点在同一层的节点互为堂兄弟</li>
 </ul>
-<p>节点层次（level）：从根开始定义，根为第一层，根的子节点为第二层……以此类推</p>
-<p>树的高度/深度：树中节点的最大层次</p>
-<p>节点的度（degree of a node）：一个节点含有的子树的个数</p>
+<p>节点层次（level）：从根开始定义，根为第一层，根的子节点为第二层……以此类推。</p>
+<p>树的高度/深度：树中节点的最大层次。</p>
+<p>节点的<strong>度</strong>（<strong>degree</strong> of a node）：一个节点含有的子树的棵数</p>
 <ul>
 <li>树的度：一棵树中节点的度的最大值</li>
-<li>叶节点/终端节点：度为0的节点</li>
-<li>非终端节点/分支节点：度不为0的节点</li>
+<li>叶节点/终端节点：度为 0 的节点</li>
+<li>非终端节点/分支节点：度不为 0 的节点</li>
 </ul>
-<p>森林：没有回路的图，也可以看成由 m（m&gt;0）棵互不相交的树的集合称为森林</p>
-<h1 id="树的种类"><a href="#树的种类" class="headerlink" title="树的种类"></a>树的种类</h1><ul>
+<p>森林：没有回路的图，也可以看成由 m（m &gt; 0）棵互不相交的树的集合称为森林。</p>
+<h1 id="树的种类"><a href="#树的种类" class="headerlink" title="树的种类"></a>树的种类</h1><p>按照节点次序可以分为：</p>
+<ul>
 <li>无序树：树中任意节点的子节点之间没有顺序关系，也称为自由树</li>
-<li>有序树：树中任意节点的子节点之间有顺序关系<ul>
-<li>二叉树<ul>
+<li>有序树：树中任意节点的子节点之间有顺序关系</li>
+</ul>
+<p>有序树中，按照度的数量，可以分为：</p>
+<ul>
+<li>二叉树</li>
+<li>N 叉树</li>
+</ul>
+<br>
+
+<p>本帖主要介绍二叉树，这也是计算机科学中最常用的树型数据结构。</p>
+<h1 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h1><ul>
 <li>完全二叉树<ul>
 <li>满二叉树</li>
 </ul>
 </li>
 <li>平衡二叉树（AVL树）：当且仅当任何节点的两棵子树的高度差不大于1</li>
 <li>二叉搜索树</li>
-</ul>
-</li>
 <li>霍夫曼树：带权路径最短的二叉树，也称为最优二叉树</li>
 <li>B树：对读写操作进行优化的自平衡二叉搜索树，非叶子节点里拥有多于两个子节点</li>
 </ul>
-</li>
-</ul>
-<h1 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h1><p>有限个元素的集合（可以为空）<br>二叉树非空时包括</p>
+<p>有限个元素的集合（可以为空）<br>二叉树非空时包括</p>
 <ul>
 <li>根元素</li>
 <li>（如有）2 个子二叉树：左子树和右子树</li>
