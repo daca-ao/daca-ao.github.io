@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/pv-pvc-storageclass.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/pv-pvc-creation.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2022-06-01T12:24:04.466Z">
+<meta property="article:modified_time" content="2022-06-28T17:21:46.850Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -251,7 +251,7 @@
 <span id="more"></span>
 
 <p>Kubernetes 源于 Google 开发的 Borg，最初用于调度公司内部近 20 亿个容器，属于云原生的一部分，相当于容器的“操作系统”。</p>
-<p>云原生其它内容还包括 ConfigMap（配置中心）、etcd（发现中心，负责存储和通知）、service mesh（网格服务，sidecar，为每个服务提供网关、鉴权等的载体）、CI/CD。</p>
+<p>云原生其它内容还包括 <strong>ConfigMap</strong>（配置中心）、<strong>etcd</strong>（发现中心，负责存储和通知）、<strong>service mesh</strong>（网格服务，别称 <strong>sidecar</strong>，为每个服务提供非业务的逻辑，如网关、鉴权等，是<em>去中心化</em>的象征）、CI/CD。</p>
 <h1 id="主要构成"><a href="#主要构成" class="headerlink" title="主要构成"></a>主要构成</h1><p>既然是基于容器技术的分布式集群管理系统，Kubernetes 也应该有集群（Cluster），有主（Master）从（Node）的概念。<br>除此之外还包括 Kubernetes 的指令系统（kubectl）和存储管理（etcd）等。</p>
 <p>简图如下：</p>
 <p><img src="/2022/05/18/kubernetes-overview/kubernetes-structure.jpg"></p>
