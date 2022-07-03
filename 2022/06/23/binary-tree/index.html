@@ -29,8 +29,12 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/06/23/binary-tree/tree.png">
 <meta property="og:image" content="http://example.com/2022/06/23/binary-tree/complete-binary-tree.png">
+<meta property="og:image" content="http://example.com/2022/06/23/binary-tree/perfect-binary-tree.png">
+<meta property="og:image" content="http://example.com/2022/06/23/binary-tree/full-binary-tree.png">
+<meta property="og:image" content="http://example.com/2022/06/23/binary-tree/incomplete-binary-tree.png">
+<meta property="og:image" content="http://example.com/2022/06/23/binary-tree/right-skewed-binary-tree.png">
 <meta property="article:published_time" content="2022-06-23T14:40:21.000Z">
-<meta property="article:modified_time" content="2022-07-03T15:45:47.262Z">
+<meta property="article:modified_time" content="2022-07-03T16:03:31.433Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据结构">
 <meta property="article:tag" content="树">
@@ -286,7 +290,7 @@
 <li>根元素</li>
 <li>两个个子二叉树，分别叫左子树和右子树</li>
 </ul>
-<p>二叉树和树的根本区别：</p>
+<p>二叉树和树的<strong>根本区别</strong>：</p>
 <ul>
 <li>二叉树可以为空；而树不能为空</li>
 <li>二叉树的每个元素恰好有两棵子树（以左、右区分次序，可以为空）；而树中每个元素可以有若干个且无序的子树</li>
@@ -297,30 +301,34 @@
 <li>包含 n 个元素的二叉树，其高度最大为 n，最小为 ⌈log2(n+1)⌉ （上取整数）</li>
 <li>任意一棵二叉树中，若有 N0 个叶节点，N2 个度为 2 的节点，则有：N2 = N0 - 1</li>
 <li>设完全二叉树中一元素序号为 i（1≤i≤n），则：<ol>
-<li>当 i=1 时，该元素为二叉树的根。若 i&gt;1，则该元素父节点的编号为 ⌊i/2⌋ （下取整数）。</li>
-<li>若 2i&gt;n，该元素无左孩子；否则其左孩子的编号为 2i 。</li>
-<li>若 2i+1&gt;n，该元素无右孩子；否则其右孩子的编号为 2i+1 。</li>
+<li>当 i = 1 时，该元素为二叉树的根。若 i &gt; 1，则该元素父节点的编号为 ⌊i/2⌋ （下取整数）。</li>
+<li>若 2i &gt; n，该元素无左孩子；否则其左孩子的编号为 2i 。</li>
+<li>若 2i + 1 &gt; n，该元素无右孩子；否则其右孩子的编号为 2i + 1 。</li>
 </ol>
 </li>
-<li>完全二叉树中，度为1的节点的数目要不是 1，要不是 0</li>
+<li>完全二叉树中，度为 1 的节点的数目要不是 1，要不是 0</li>
 </ol>
-<h2 id="二叉树类型"><a href="#二叉树类型" class="headerlink" title="二叉树类型"></a>二叉树类型</h2><ul>
-<li>霍夫曼树：带权路径最短的二叉树，也称为最优二叉树</li>
-</ul>
-<h3 id="完全二叉树（Complete-Binary-Tree）"><a href="#完全二叉树（Complete-Binary-Tree）" class="headerlink" title="完全二叉树（Complete Binary Tree）"></a>完全二叉树（Complete Binary Tree）</h3><p>对于一棵深度为 d（d&gt;1）的二叉树：</p>
+<h2 id="二叉树类型"><a href="#二叉树类型" class="headerlink" title="二叉树类型"></a>二叉树类型</h2><h3 id="完全二叉树（Complete-Binary-Tree）"><a href="#完全二叉树（Complete-Binary-Tree）" class="headerlink" title="完全二叉树（Complete Binary Tree）"></a>完全二叉树（Complete Binary Tree）</h3><p>对于一棵深度为 d（d &gt; 1）的二叉树：</p>
 <ul>
-<li>除了第 d 层（叶子节点那一层）外其他各层节点数目已满，且第 d 层所有节点从左向右连续紧密排列<br>特性：</li>
+<li>除了第 d 层（叶子节点那一层）外其他各层节点数目已满，且第 d 层所有节点从左向右连续紧密排列</li>
+</ul>
+<p>完全二叉树的特性：</p>
+<ul>
 <li>左孩子节点位置 = 当前父节点位置 * 2 + 1（从 0 开始）</li>
 <li>右孩子节点位置 = 当前父节点位置 * 2 + 2</li>
 </ul>
 <p><img src="/2022/06/23/binary-tree/complete-binary-tree.png"></p>
-<p>满二叉树（Perfect Binary Tree）：完全二叉树去掉第 d 层所有节点，剩下部分构成一个满二叉树</p>
+<p>由完全二叉树衍生出来的：</p>
+<p><strong>满二叉树</strong>（<strong>Perfect Binary Tree</strong>）：完全二叉树去掉第 d 层所有节点之后，所剩下的部分构成一棵满二叉树。</p>
 <ul>
-<li>一棵深度为 d-1 的二叉树含有 2(d-1)-1个元素</li>
+<li>一棵深度为 d-1 的二叉树含有 2(d-1)-1 个元素</li>
 </ul>
-<p>完满二叉树（Full Binary Tree）：除了叶子节点之外的每一个节点都有两个孩子节点</p>
+<p><img src="/2022/06/23/binary-tree/perfect-binary-tree.png"></p>
+<p><strong>完满二叉树</strong>（Full Binary Tree）：除了叶子节点之外的每一个节点都有两个孩子节点。</p>
+<p><img src="/2022/06/23/binary-tree/full-binary-tree.png"></p>
+<p><strong>霍夫曼树</strong>：带权路径最短的二叉树，也称为最优二叉树。</p>
 <h3 id="二叉搜索树"><a href="#二叉搜索树" class="headerlink" title="二叉搜索树"></a>二叉搜索树</h3><ul>
-<li>平衡二叉树（AVL树）：当且仅当任何节点的两棵子树的高度差不大于1</li>
+<li>平衡二叉树（AVL树）：当且仅当任何节点的两棵子树的高度差不大于 1</li>
 <li>B树：对读写操作进行优化的自平衡二叉搜索树，非叶子节点里拥有多于两个子节点</li>
 </ul>
 <h2 id="常用操作"><a href="#常用操作" class="headerlink" title="常用操作"></a>常用操作</h2><ul>
@@ -334,9 +342,9 @@
 <li>（数学表达树）给出对应带括号的表达式</li>
 </ul>
 <p>这些常用操作都可通过遍历二叉树来完成。</p>
-<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>二叉树描述</p>
+<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>通常有两种描述二叉树的结构：</p>
 <ol>
-<li>公式化描述：利用特性5</li>
+<li>公式化描述：利用二叉树的特性 5</li>
 </ol>
 <ul>
 <li>二叉树可以作为缺少部分元素的完全二叉树</li>
@@ -345,8 +353,10 @@
 </ul>
 </li>
 </ul>
+<p><img src="/2022/06/23/binary-tree/incomplete-binary-tree.png"></p>
+<p><img src="/2022/06/23/binary-tree/right-skewed-binary-tree.png"></p>
 <ol start="2">
-<li>链表描述（最常用方法）</li>
+<li>链表描述：这是最常用的方法</li>
 </ol>
 <ul>
 <li>每个元素使用一个有两个指针域（LeftChild, RightChild）和数据域 data 的节点表示</li>
@@ -355,37 +365,16 @@
 </ul>
 <p>二叉树的抽象数据类型描述：</p>
 <p>在这里我们用 Java 来实现二叉树的数据结构。</p>
-<p>链表二叉树节点类BinaryTreeNode定义代码：</p>
-<p>二叉树遍历方法：</p>
-<ul>
-<li>前序遍历（Pre-Order）</li>
-</ul>
-<ul>
-<li>中序遍历（In-Order）</li>
-</ul>
-<ul>
-<li>后序遍历（Post-Order）</li>
-</ul>
-<ul>
-<li>逐层遍历（Level-Order）</li>
-</ul>
+<p>链表二叉树节点类 BinaryTreeNode 定义代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinaryTreeNode</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 序号</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> key=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String data = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> isVisted = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 左儿子节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> TreeNode leftChild = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 右儿子节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> TreeNode rightChild = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 默认构造方法</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BinaryTreeNode</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key  层序编码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> data 数据域</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BinaryTreeNode</span><span class="params">(<span class="keyword">int</span> key, String data)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.key = key;</span><br><span class="line">        <span class="keyword">this</span>.data = data;</span><br><span class="line">        <span class="keyword">this</span>.leftChild = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">this</span>.rightChild = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>类 BinaryTree 定义代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
 <p>注：</p>
 <ul>
-<li>BinaryTreeNode 为上述二叉树节点的定义类或模板结构</li>
-<li>空间复杂度均为 Ο(n)，时间复杂度均为 Θ(n) 。</li>
-<li>满二叉树的所需空间为 Θ(n) 。</li>
-</ul>
-<p>对数学表达树进行：</p>
-<ul>
-<li>前序遍历：前缀（prefix）表达式</li>
-<li>中序遍历：中缀（infix）表达式</li>
-<li>后序遍历：后缀（postfix）表达式<br>例子：</li>
-</ul>
-<p>遍历结果：</p>
-<p>类BinaryTree定义代码：</p>
-<p>注：</p>
-<ul>
-<li>函数Visit作为遍历函数的参数（函数指针）</li>
+<li>函数 Visit 作为遍历函数的参数（函数指针）</li>
 <li>相比抽象数据类型描述，添加了：<ul>
 <li>PreOutput()：前序遍历输出树的数据</li>
 <li>InOutput()：中序遍历输出树的数据</li>
@@ -435,6 +424,33 @@
 <ul>
 <li>比较二叉树Compare</li>
 </ul>
+<p>二叉树遍历方法：</p>
+<ul>
+<li>前序遍历（Pre-Order）</li>
+</ul>
+<ul>
+<li>中序遍历（In-Order）</li>
+</ul>
+<ul>
+<li>后序遍历（Post-Order）</li>
+</ul>
+<ul>
+<li>逐层遍历（Level-Order）</li>
+</ul>
+<p>注：</p>
+<ul>
+<li>BinaryTreeNode 为上述二叉树节点的定义类或模板结构</li>
+<li>空间复杂度均为 Ο(n)，时间复杂度均为 Θ(n) 。</li>
+<li>满二叉树的所需空间为 Θ(n) 。</li>
+</ul>
+<p>对数学表达树进行：</p>
+<ul>
+<li>前序遍历：前缀（prefix）表达式</li>
+<li>中序遍历：中缀（infix）表达式</li>
+<li>后序遍历：后缀（postfix）表达式</li>
+</ul>
+<p>例子：</p>
+<p>遍历结果：</p>
 
     </div>
 
