@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://example.com/2022/06/23/binary-tree/right-skewed-binary-tree.png">
 <meta property="og:image" content="http://example.com/2022/06/23/binary-tree/chain-binary-tree.png">
 <meta property="article:published_time" content="2022-06-23T14:40:21.000Z">
-<meta property="article:modified_time" content="2022-07-04T14:03:29.307Z">
+<meta property="article:modified_time" content="2022-07-04T14:30:22.825Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据结构">
 <meta property="article:tag" content="树">
@@ -309,10 +309,8 @@
 </li>
 <li>完全二叉树中，度为 1 的节点的数目要不是 1，要不是 0</li>
 </ol>
-<h2 id="二叉树类型"><a href="#二叉树类型" class="headerlink" title="二叉树类型"></a>二叉树类型</h2><h3 id="完全二叉树（Complete-Binary-Tree）"><a href="#完全二叉树（Complete-Binary-Tree）" class="headerlink" title="完全二叉树（Complete Binary Tree）"></a>完全二叉树（Complete Binary Tree）</h3><p>对于一棵深度为 d（d &gt; 1）的二叉树：</p>
-<ul>
-<li>除了第 d 层（叶子节点那一层）外其他各层节点数目<strong>已满</strong>，且第 d 层所有节点<strong>从左向右</strong>连续紧密排列</li>
-</ul>
+<h2 id="二叉树类型"><a href="#二叉树类型" class="headerlink" title="二叉树类型"></a>二叉树类型</h2><h3 id="完全二叉树（Complete-Binary-Tree）"><a href="#完全二叉树（Complete-Binary-Tree）" class="headerlink" title="完全二叉树（Complete Binary Tree）"></a>完全二叉树（Complete Binary Tree）</h3><p>对于一棵深度为 d（d &gt; 1）的二叉树，除了第 d 层（叶子节点那一层）外其他各层节点数目<strong>已满</strong>，且第 d 层所有节点<strong>从左向右</strong>连续紧密排列。</p>
+<p>我们称这样的二叉树为完全二叉树。</p>
 <p>完全二叉树的特性：</p>
 <ul>
 <li>左孩子节点位置 = 当前父节点位置 * 2 + 1（从 0 开始）</li>
@@ -364,29 +362,12 @@
 <br>
 
 <p>本文我们用<strong>链表</strong>描述方式来实现二叉树的数据结构。</p>
-<p>链表二叉树节点类 BinaryTreeNode 定义代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinaryTreeNode</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 序号</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> key = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String data = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> isVisted = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 左儿子节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> TreeNode leftChild = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 右儿子节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> TreeNode rightChild = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 默认构造方法</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BinaryTreeNode</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key  层序编码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> data 数据域</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BinaryTreeNode</span><span class="params">(<span class="keyword">int</span> key, String data)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.key = key;</span><br><span class="line">        <span class="keyword">this</span>.data = data;</span><br><span class="line">        <span class="keyword">this</span>.leftChild = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">this</span>.rightChild = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>链表二叉树节点类 BinaryTreeNode：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinaryTreeNode</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 序号</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> key = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String data = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> isVisted = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 左儿子节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> BinaryTreeNode leftChild = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 右儿子节点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> BinaryTreeNode rightChild = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 默认构造方法</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BinaryTreeNode</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key  层序编码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> data 数据域</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BinaryTreeNode</span><span class="params">(<span class="keyword">int</span> key, String data)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.key = key;</span><br><span class="line">        <span class="keyword">this</span>.data = data;</span><br><span class="line">        <span class="keyword">this</span>.leftChild = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">this</span>.rightChild = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> BinaryTreeNode <span class="title">getRightChild</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> rightChild;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> BinaryTreeNode <span class="title">getLeftChild</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> leftChild;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>类 BinaryTree 定义代码：</p>
+<p>二叉树类 BinaryTree：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p>注：</p>
-<ul>
-<li>函数 Visit 作为遍历函数的参数（函数指针）</li>
-<li>相比抽象数据类型描述，添加了：<ul>
-<li>PreOutput()：前序遍历输出树的数据</li>
-<li>InOutput()：中序遍历输出树的数据</li>
-<li>PostOutput()：后序遍历输出树的数据</li>
-<li>LevelOutput()：逐层输出树的数据</li>
-<li>Delete()：删除整棵二叉树，并释放节点</li>
-<li>Height()：返回一棵树的高度</li>
-<li>Size()：返回一棵树的总节点数</li>
-<li>Compare()：比较两棵二叉树是否相等</li>
-</ul>
-</li>
-<li>在各种遍历输出方法中，Output作为相对应的遍历方法中传入的函数指针变量</li>
-<li>时间复杂度为 Θ(n) </li>
-</ul>
 <p>代码实现：</p>
 <ul>
 <li>获取根节点</li>
@@ -399,41 +380,14 @@
 <ul>
 <li>拆分二叉树</li>
 </ul>
-<ul>
-<li>前序遍历</li>
-<li>时间复杂度为 Θ(n) </li>
-</ul>
-<ul>
-<li>中序遍历</li>
-<li>时间复杂度为 Θ(n) </li>
-</ul>
-<ul>
-<li>后序遍历</li>
-<li>时间复杂度为 Θ(n) </li>
-</ul>
-<ul>
-<li>逐层遍历</li>
-<li>时间复杂度为 Θ(n) </li>
-</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 前序遍历</span></span><br><span class="line"><span class="comment">// 时间复杂度为 Θ(n)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preOrder</span><span class="params">(BinaryTreeNode node)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    visit(node);</span><br><span class="line">    preOrder(node.getLeftChild());</span><br><span class="line">    preOrder(node.getRightChild());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 中序遍历</span></span><br><span class="line"><span class="comment">// 时间复杂度为 Θ(n) </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inOrder</span><span class="params">(BinaryTreeNode node)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    inOrder(node.getLeftChild());</span><br><span class="line">    visit(node);</span><br><span class="line">    inOrder(node.getRightChild());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 后序遍历</span></span><br><span class="line"><span class="comment">// 时间复杂度为 Θ(n) </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postOrder</span><span class="params">(BinaryTreeNode node)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    postOrder(node.getLeftChild());</span><br><span class="line">    postOrder(node.getRightChild());</span><br><span class="line">    visit(node);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 逐层遍历</span></span><br><span class="line"><span class="comment">// 时间复杂度为 Θ(n) </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">levelOrder</span><span class="params">(BinaryTreeNode node)</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>返回二叉树高度Height</li>
 <li>时间复杂度为 Θ(n) </li>
 </ul>
 <ul>
 <li>比较二叉树Compare</li>
-</ul>
-<p>二叉树遍历方法：</p>
-<ul>
-<li>前序遍历（Pre-Order）</li>
-</ul>
-<ul>
-<li>中序遍历（In-Order）</li>
-</ul>
-<ul>
-<li>后序遍历（Post-Order）</li>
-</ul>
-<ul>
-<li>逐层遍历（Level-Order）</li>
 </ul>
 <p>注：</p>
 <ul>
