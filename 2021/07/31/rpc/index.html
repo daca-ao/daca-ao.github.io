@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://example.com/2021/07/31/rpc/network-transmission.png">
 <meta property="og:image" content="http://example.com/2021/07/31/rpc/network-transmission-mq.png">
 <meta property="article:published_time" content="2021-07-31T15:44:42.000Z">
-<meta property="article:modified_time" content="2022-07-25T16:47:36.743Z">
+<meta property="article:modified_time" content="2022-07-25T16:48:55.863Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta name="twitter:card" content="summary">
@@ -439,7 +439,7 @@
 <li>HTTP 相对更规范，更标准，更通用，不限制于语言</li>
 <li>RPC 可实现跨语言调用，但整体灵活性不如 REST</li>
 </ul>
-<h2 id="RPC-or-HTTP"><a href="#RPC-or-HTTP" class="headerlink" title="RPC or HTTP?"></a>RPC or HTTP?</h2><p>HTTP 接口在接口不多、系统与系统交互较少时，是解决信息孤岛初期常使用的通信手段。<br>因此 HTTP 具有简单、直接、开发方便的优点。</p>
+<h2 id="RPC-or-HTTP"><a href="#RPC-or-HTTP" class="headerlink" title="RPC or HTTP?"></a>RPC or HTTP?</h2><p>HTTP 接口在接口不多、系统与系统交互较少时，是解决信息孤岛初期常使用的通信手段。<br>因此 HTTP 具有简单、直接、开发方便的优点，同时耦合程度比 RPC 低（越往 OSI 底层靠近，耦合程度越高）。</p>
 <p>如果系统内部子系统较多，接口多时，RPC 优势更大。因为：</p>
 <ul>
 <li>长连接，不必每一次通信都像 HTTP 一样进行三次握手，减少网络开销</li>
