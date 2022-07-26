@@ -28,7 +28,7 @@
 <meta property="og:description" content="Binary search tree，也叫二叉查找树、有序二叉树。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-07-18T17:06:13.000Z">
-<meta property="article:modified_time" content="2022-07-19T15:54:18.271Z">
+<meta property="article:modified_time" content="2022-07-26T16:03:55.683Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据结构">
 <meta property="article:tag" content="树">
@@ -235,38 +235,29 @@
         <p>Binary search tree，也叫二叉查找树、有序二叉树。</p>
 <span id="more"></span>
 
-<p>先来说说搜索树。</p>
-<p>提出搜索树的背景，是使用散列描述字典时遇到了瓶颈：</p>
+<h1 id="搜索树"><a href="#搜索树" class="headerlink" title="搜索树"></a>搜索树</h1><p>先来说说搜索树。</p>
+<p>提出搜索树的背景，是使用散列描述字典时遇到了瓶颈。</p>
+<p>先是按关键字的升序输出字典元素：</p>
 <ol>
-<li>按关键字的升序输出字典元素<ol>
-<li>使用除数为 D 的链表：Θ(D+n) 时间内取出元素，O(nlogn) 时间内排序，Θ(n) 时间内输出<ol>
-<li>共需 O(D+nlogn)</li>
+<li>使用除数为 D 的链表，需要 Θ(D+n) 时间内取出元素，O(nlogn) 时间内排序，Θ(n) 时间内输出：因此一共需要 O(D+nlogn) 单位的时间；</li>
+<li>对散列使用线性开型寻址：需要 O(b+nlogn)，其中取出元素需要 Θ(b)，b 是桶的个数。</li>
 </ol>
-</li>
-<li>对散列使用线性开型寻址<ol>
-<li>取出元素需要 Θ(b)，b 是桶的个数</li>
-<li>需要 O(b+nlogn)</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>按升序找到第 k 个元素</li>
-<li>删除第 k 个元素<ol>
-<li>以上两项，如使用链表：在 O(D+n) 时间内完成</li>
-<li>使用线性开型寻址：Θ(b)</li>
+<p>随后，是按升序找到第 k 个元素 / 删除第 k 个元素</p>
+<ol>
+<li>以上两个场景，如果使用链表来描述，需要在 O(D+n) 时间内完成</li>
+<li>如果使用线性开型寻址，则时间复杂度是 Θ(b)</li>
 <li>必须采用线性时间确定 n 元素集合中第 k 个元素</li>
 </ol>
-</li>
-</ol>
-<p>搜索树是为了用于描述<strong>字典</strong>而提出的一种树形结构，即：使用搜索树描述 n 个元素的字典：</p>
+<p>搜索树是<strong>基础性数据结构</strong>（ADT），用于构建更为抽象的数据结构，如集合、multiset、关联数组等。</p>
+<p>因此搜索树，尤其是二叉搜索树适合描述<strong>字典</strong>，即：使用搜索树描述 n 个元素的字典：</p>
 <ul>
 <li>搜索、插入或删除所需的平均时间和最坏时间均为 Θ(logn) </li>
+<li>按关键字升序输出元素：Θ(n)</li>
 <li>按元素排名查找和删除操作耗时 O(logn) </li>
 <li>所有字典元素能在线性时间内按升序输出</li>
 <li>无论是平衡还是非平衡的搜索树，顺序访问某个元素平均所需时间为 Θ(1) </li>
 </ul>
-<p>实际需求：根据元素 key 的值对字典进行操作：查找、插入、删除……</p>
-<p>二叉查找树是基础性数据结构，用于构建更为抽象的数据结构，如集合、multiset、关联数组等<br>二叉查找树相比于其他数据结构的优势在于查找、插入、删除的时间复杂度较低，为 O(logn)<br>最坏时间复杂度为 Θ(n) </p>
+<p>相比于其他数据结构，二叉搜索树的优势在于查找、插入、删除的时间复杂度较低，最坏时间复杂度为 Θ(n) 。</p>
 <p>常见的搜索树有：</p>
 <ul>
 <li>自平衡二叉树，包括 <strong><a href>AVL 树</a><strong>、</strong><a href>红-黑树</a></strong></li>
@@ -277,16 +268,16 @@
 <li>若任意节点左子树非空，则左子树上所有节点的值均 &lt;（小于）其根节点的值</li>
 <li>若任意节点右子树非空，则右子树上所有节点的值均 &gt;（大于）其根节点的值</li>
 <li>任意节点的左、右子树也分别为二叉查找树</li>
-<li>每个节点有一个关键值（key），没有键值相等的节点（no duplicate nodes）</li>
+<li>每个节点有一个关键值（key），<strong>没有键值相等</strong>的节点（no duplicate nodes）</li>
 </ul>
 <p>注：如将“小于”换成“小于等于”，“大于”换成“大于等于”，则会得到一棵有重复值的二叉搜索树</p>
-<p>带索引的（indexed）二叉搜索树：</p>
+<p>延伸：带索引的（indexed）二叉搜索树</p>
 <ul>
 <li>在每个节点中添加一个 LeftSize 域</li>
 <li>该域值为该节点左子树的元素个数加一</li>
 <li>该值同时给出了一个元素在子树中的排名</li>
 </ul>
-
+<h1 id><a href="#" class="headerlink" title></a></h1>
     </div>
 
     
@@ -367,7 +358,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%B9%E5%BE%81"><span class="nav-number">1.</span> <span class="nav-text">特征</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%90%9C%E7%B4%A2%E6%A0%91"><span class="nav-number">1.</span> <span class="nav-text">搜索树</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%B9%E5%BE%81"><span class="nav-number">2.</span> <span class="nav-text">特征</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text"></span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
