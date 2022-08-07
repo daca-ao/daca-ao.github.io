@@ -28,12 +28,15 @@
 <meta property="og:description" content="消息队列是中间件的一种，是分布式系统中非常重要的组件。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/amqp.webp">
+<meta property="og:image" content="http://example.com/2021/07/20/mq/direct-exchange.png">
+<meta property="og:image" content="http://example.com/2021/07/20/mq/fanout-exchange.png">
+<meta property="og:image" content="http://example.com/2021/07/20/mq/topic-exchange.png">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-p2p.png">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-ps.png">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-psg.png">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-api.png">
 <meta property="article:published_time" content="2021-07-19T17:12:34.000Z">
-<meta property="article:modified_time" content="2022-02-26T04:22:43.907Z">
+<meta property="article:modified_time" content="2022-08-04T16:38:35.473Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -293,26 +296,67 @@
 <p><strong>基本模型</strong>：</p>
 <p><img src="/2021/07/20/mq/amqp.webp"></p>
 <ol>
-<li>消息发布者 Publisher 利用接口，将消息发布（publish）到 Exchange 中<ul>
-<li>消息一般包含消息体（payload）和标签（label）</li>
+<li>消息发布者（生产者，Publisher）利用接口，将消息发布（publish）到 Exchange 中<ul>
+<li>消息一般包含消息体（payload）和标签（label）等信息</li>
 </ul>
 </li>
 <li>消息订阅者（消费者，Consumer）利用接口创建 Queue，并绑定到 Exchange，接收所期望的消息</li>
-<li>Exchange 会按照一定的路由规则（route）确定各种绑定（Binding），将消息分发至对应的 Queue</li>
+<li>Exchange 会按照一定的路由规则（由 RoutingKey 定义）确定各种绑定（BindingKey 定义），将消息分发至对应的 Queue</li>
 <li>Consumer 发现 Queue 中有消息，就会将消息消耗（consume）掉<ul>
 <li>消耗时只消费消息体，丢弃标签</li>
 </ul>
 </li>
 </ol>
-<p>综上可知，AMQP 为发布-订阅模型的一部分</p>
+<p>综上可知，发布-订阅模型 可以利用 AMQP 实现：</p>
 <ul>
 <li>Publisher 为发布者（生产者）</li>
 <li>Consumer 为订阅者（消费者）</li>
-<li>AMQP 协议扮演消息代理（Message Broker）的角色：维护生产-消费路线，保证数据按照指定的方式进行传输。<ul>
-<li>Exchange, Bindings 和 Queues 合起来就是消息队列服务器实体，也就是 Broker</li>
+<li>AMQP 协议扮演消息代理（Message Broker）的角色：维护生产-消费路线，保证数据按照指定的方式进行传输<ul>
+<li>Exchange, Bindings 和 Queues 合起来就是消息队列服务器实体，也就是 Broker</li>
 </ul>
 </li>
 </ul>
+<h3 id="Exchange-的类型"><a href="#Exchange-的类型" class="headerlink" title="Exchange 的类型"></a>Exchange 的类型</h3><p><strong>1. Direct Exchange</strong></p>
+<ul>
+<li>采用轮询方式发送至 <code>RoutingKey = BindingKey</code> 的 Queue，类似于<strong>点对点</strong></li>
+<li>其他配对不上的 RoutingKey 的消息会被丢弃</li>
+</ul>
+<p><img src="/2021/07/20/mq/direct-exchange.png"></p>
+<p><strong>2. Fanout Exchange</strong></p>
+<ul>
+<li>发送（route）至与该 Exchange 绑定的所有 Queue，类似于<strong>广播</strong></li>
+<li>最快的转发</li>
+</ul>
+<p><img src="/2021/07/20/mq/fanout-exchange.png"></p>
+<p><strong>3. Topic Exchange</strong></p>
+<ul>
+<li>发送至 RoutingKey 与 BindingKey <strong>模糊匹配</strong>的 Queue</li>
+<li>模糊匹配约定如下：<ul>
+<li>RoutingKey 为用<strong>点号</strong>（.）分隔的字符串，BindingKey 与其模式相同 </li>
+<li>BindingKey 可使用 <code>*</code>（匹配一个单词）和 <code>#</code>（匹配多个或 0 个单词）用于模糊匹配</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2021/07/20/mq/topic-exchange.png"></p>
+<p>如上图的模糊匹配，比如有下面不同的 RoutingKey：</p>
+<ul>
+<li><code>RoutingKey = F.C.E</code>：路由到 Queue1</li>
+<li><code>RoutingKey = A.C.E</code>：路由到 Queue1 和 Queue2</li>
+<li><code>RoutingKey = A.F.B</code>：路由到 Queue2</li>
+</ul>
+<p><strong>4. Headers Exchange</strong></p>
+<ul>
+<li>采用轮询方式</li>
+<li>不依赖于 RoutingKey 和 BindingKey 的匹配规则，而是通过<strong>消息头</strong>订阅<ul>
+<li>消息发布前为消息定义一个或多个键值对的消息头</li>
+<li>消费者在接收消息的同时，需要定义类似的键值对请求头</li>
+<li>请求头与消息头匹配才可接收消息</li>
+</ul>
+</li>
+<li>和 Direct 方式完全一致，但性能差很多，基本用不到</li>
+</ul>
+<br>
+
 <p>AMQP 的三层协议：</p>
 <p><strong>Module Layer</strong>：协议最高层</p>
 <ul>
@@ -396,7 +440,7 @@
 <p>JMS 提供的最主流的开源技术是 Apache ActiveMQ。</p>
 <br>
 
-<h1 id="选型依据"><a href="#选型依据" class="headerlink" title="选型依据"></a>选型依据</h1><p>生产环境使用较多的消息队列：ActiveMQ, <a href="/2021/07/21/rabbitmq/">RabbitMQ</a>, ZeroMQ, Kafka, MetalMQ, RocketMQ 等。</p>
+<h1 id="选型依据"><a href="#选型依据" class="headerlink" title="选型依据"></a>选型依据</h1><p>生产环境使用较多的消息队列：ActiveMQ, <a href="/2021/07/21/rabbitmq/">RabbitMQ</a>, Kafka, RocketMQ, MetalMQ, ZeroMQ 等。</p>
 <table>
 <thead>
 <tr>
@@ -411,8 +455,8 @@
 <td align="center">单机吞吐量</td>
 <td align="center">万级，比 RocketMQ, Kafka 低一个数量级</td>
 <td align="center">同 ActiveMQ</td>
-<td align="center">10万级，支撑高吞吐</td>
-<td align="center">10万级，高吞吐，一般配合大数据类的系统进行实时数据运算、日志采集等场景</td>
+<td align="center">10 万级，支撑高吞吐</td>
+<td align="center">10 万级，高吞吐，一般配合大数据类的系统进行实时数据运算、日志采集等场景</td>
 </tr>
 <tr>
 <td align="center">topic 数量对吞吐量的影响</td>
@@ -602,7 +646,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9A%84%E6%B6%88%E6%81%AF%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">消息队列的消息传播模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AMQP"><span class="nav-number">2.1.</span> <span class="nav-text">AMQP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS"><span class="nav-number">2.2.</span> <span class="nav-text">JMS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AF%94%E8%BE%83"><span class="nav-number">2.3.</span> <span class="nav-text">比较</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%89%E5%9E%8B%E4%BE%9D%E6%8D%AE"><span class="nav-number">3.</span> <span class="nav-text">选型依据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E9%97%AE%E9%A2%98"><span class="nav-number">4.1.</span> <span class="nav-text">重复消费问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.</span> <span class="nav-text">消息丢失问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%A1%BA%E5%BA%8F%E9%97%AE%E9%A2%98"><span class="nav-number">4.3.</span> <span class="nav-text">消息顺序问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">应用场景</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9A%84%E6%B6%88%E6%81%AF%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">消息队列的消息传播模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AMQP"><span class="nav-number">2.1.</span> <span class="nav-text">AMQP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Exchange-%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.1.1.</span> <span class="nav-text">Exchange 的类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS"><span class="nav-number">2.2.</span> <span class="nav-text">JMS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AF%94%E8%BE%83"><span class="nav-number">2.3.</span> <span class="nav-text">比较</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%89%E5%9E%8B%E4%BE%9D%E6%8D%AE"><span class="nav-number">3.</span> <span class="nav-text">选型依据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E9%97%AE%E9%A2%98"><span class="nav-number">4.1.</span> <span class="nav-text">重复消费问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.</span> <span class="nav-text">消息丢失问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%A1%BA%E5%BA%8F%E9%97%AE%E9%A2%98"><span class="nav-number">4.3.</span> <span class="nav-text">消息顺序问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">应用场景</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
