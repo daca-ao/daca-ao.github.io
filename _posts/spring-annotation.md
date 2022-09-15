@@ -118,9 +118,11 @@ Age : 11
 
 ## @Autowired
 
-顾名思义，就是**自动装配**。能应用于 bean 中某个属性的 setter 方法、非 setter 方法、构造函数和属性上；这样就可以更精确地控制在何处和如何进行自动装配。
+顾名思义，就是**自动装配**。能应用于 bean 中某个属性的 setter 方法、非 setter 方法、构造函数和属性上；标记后可以更精确地控制在何处和如何进行自动装配。
 
 @Autowired 默认按 byType 的方式，在容器里查找匹配的 bean；当 Spring 容器中**有且只有一个匹配**的 bean 时，完成自动装配。
+
+如果需要 byName 装配，可结合 `@Qualifier` 使用。
 
 ```xml
 <!-- 配置 -->
@@ -215,7 +217,7 @@ public void prepare(SpellChecker spellChecker, WordCounter counter) {
 ```
 
 要注意的是，如果需要被注入的 Bean 里面保留着依赖的 `<property>`，Spring 会按照**配置文件（XML）优先**的原则进行依赖注入，容器会寻找对应依赖中的 getter / setter。  
-这个时候，如果依赖的 .java 文件标记了 @Autowired 而没有了 getter / setter，bean 的初始化就会报错。
+这个时候，如果依赖该 bean 的 .java 文件标记了 @Autowired 而 bean 没有定义 getter / setter，bean 的初始化就会报错。
 
 `@Autowired` 默认表明依赖是必须的，相当于标记了 `@Required`。如果 bean 找不到而允许空值，不抛出异常，可使用 `@Autowired(required=false)` 关闭默认行为。
 
@@ -238,7 +240,7 @@ public class Student {
 
 指定注入 Bean 的具体名称（name），能够从多个匹配的相同类型（type）的 bean 中找出想要装配的某个 bean。
 
-与 `@Autowired` 结合使用。
+存在多个实例时与 `@Autowired` 结合使用。
 
 示例配置：
 
@@ -444,10 +446,14 @@ ctx.registerShutdownHook();
 
 添加了这些注解，XML 配置文件可以得到真正的简化，做到“无配置”地依赖注入。
 
+
 ## @Configuration
 
 表明该类可作为 Spring IoC 容器用来管理 bean 的配置类。  
 标记了之后就不需要额外的 XML 进行配置了。
+
+类里面的某个方法如果标记了 `@Bean`，就会作为 Spring 容器中的 Bean 被注册进去。
+
 
 ## @Bean
 
@@ -641,6 +647,8 @@ public Engine engine() {
 
 Spring 组件扫描机制能将标记了 @Component 的类拉入应用程序中。
 
+当组件不好归类的时候，我们可以使用它进行标注。
+
 **`@Controller`**
 
 将 Java 类标记为 Spring Web MVC 控制器（控制层 Controller 组件）。
@@ -664,6 +672,6 @@ Spring 组件扫描机制能将标记了 @Component 的类拉入应用程序中�
 
 `@ComponentScan`：扫描指定包下的所有 Spring 组件。
 
-`@Primary`：手动创建 Spring Bean 时，指定当前为默认注入的 bean。
+`@Primary`：手动创建 Spring Bean 时，如果 IoC 容器发现了多个 bean 候选者，则 `@Primary` 可以指定当前为默认注入的 bean；否则会抛出异常。
 
-`@Lazy`：表示延迟注入 bean。
+`@Lazy`：延迟初始化，表示延迟注入 bean。

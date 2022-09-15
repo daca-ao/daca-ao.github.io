@@ -64,18 +64,58 @@ AMQP 是 RabbitMQ 的基础，也是其所实现的其他协议的鼻祖。
 
 ![](mq/amqp.webp)
 
-1. 消息发布者 Publisher 利用接口，将消息发布（publish）到 Exchange 中
-    * 消息一般包含消息体（payload）和标签（label）
+1. 消息发布者（生产者，Publisher）利用接口，将消息发布（publish）到 Exchange 中
+    * 消息一般包含消息体（payload）和标签（label）等信息
 2. 消息订阅者（消费者，Consumer）利用接口创建 Queue，并绑定到 Exchange，接收所期望的消息
-3. Exchange 会按照一定的路由规则（route）确定各种绑定（Binding），将消息分发至对应的 Queue
+3. Exchange 会按照一定的路由规则（由 RoutingKey 定义）确定各种绑定（BindingKey 定义），将消息分发至对应的 Queue
 4. Consumer 发现 Queue 中有消息，就会将消息消耗（consume）掉
     * 消耗时只消费消息体，丢弃标签
 
-综上可知，AMQP 为发布-订阅模型的一部分
+综上可知，发布-订阅模型 可以利用 AMQP 实现：
+
 * Publisher 为发布者（生产者）
 * Consumer 为订阅者（消费者）
-* AMQP 协议扮演消息代理（Message Broker）的角色：维护生产-消费路线，保证数据按照指定的方式进行传输。
-    * Exchange, Bindings 和 Queues 合起来就是消息队列服务器实体，也就是 Broker
+* AMQP 协议扮演消息代理（Message Broker）的角色：维护生产-消费路线，保证数据按照指定的方式进行传输
+    * Exchange, Bindings 和 Queues 合起来就是消息队列服务器实体，也就是 Broker
+
+
+### Exchange 的类型
+
+**1. Direct Exchange**
+* 采用轮询方式发送至 `RoutingKey = BindingKey` 的 Queue，类似于**点对点**
+* 其他配对不上的 RoutingKey 的消息会被丢弃
+
+![](mq/direct-exchange.png)
+
+**2. Fanout Exchange**
+* 发送（route）至与该 Exchange 绑定的所有 Queue，类似于**广播**
+* 最快的转发
+
+![](mq/fanout-exchange.png)
+
+**3. Topic Exchange**
+* 发送至 RoutingKey 与 BindingKey **模糊匹配**的 Queue
+* 模糊匹配约定如下：
+    * RoutingKey 为用**点号**（.）分隔的字符串，BindingKey 与其模式相同 
+    * BindingKey 可使用 `*`（匹配一个单词）和 `#`（匹配多个或 0 个单词）用于模糊匹配
+
+![](mq/topic-exchange.png)
+
+如上图的模糊匹配，比如有下面不同的 RoutingKey：
+
+* `RoutingKey = F.C.E`：路由到 Queue1
+* `RoutingKey = A.C.E`：路由到 Queue1 和 Queue2
+* `RoutingKey = A.F.B`：路由到 Queue2
+
+**4. Headers Exchange**
+* 采用轮询方式
+* 不依赖于 RoutingKey 和 BindingKey 的匹配规则，而是通过**消息头**订阅
+    * 消息发布前为消息定义一个或多个键值对的消息头
+    * 消费者在接收消息的同时，需要定义类似的键值对请求头
+    * 请求头与消息头匹配才可接收消息
+* 和 Direct 方式完全一致，但性能差很多，基本用不到
+
+<br/>
 
 AMQP 的三层协议：
 
@@ -146,11 +186,11 @@ JMS 提供的最主流的开源技术是 Apache ActiveMQ。
 
 # 选型依据
 
-生产环境使用较多的消息队列：ActiveMQ, [RabbitMQ](/2021/07/21/rabbitmq/), ZeroMQ, Kafka, MetalMQ, RocketMQ 等。
+生产环境使用较多的消息队列：ActiveMQ, [RabbitMQ](/2021/07/21/rabbitmq/), Kafka, RocketMQ, MetalMQ, ZeroMQ 等。
 
 | 特性 | ActiveMQ | RabbitMQ | RocketMQ | Kafka |
 | :--:| :-------:| :-------: | :-----: | :----: |
-| 单机吞吐量 | 万级，比 RocketMQ, Kafka 低一个数量级 | 同 ActiveMQ | 10万级，支撑高吞吐 | 10万级，高吞吐，一般配合大数据类的系统进行实时数据运算、日志采集等场景 |
+| 单机吞吐量 | 万级，比 RocketMQ, Kafka 低一个数量级 | 同 ActiveMQ | 10 万级，支撑高吞吐 | 10 万级，高吞吐，一般配合大数据类的系统进行实时数据运算、日志采集等场景 |
 | topic 数量对吞吐量的影响 | | | topic 可达到几百/几千级别，吞吐量会有较小幅度下降 RocketMQ 优势：同等机器下可支撑大量 topic | topic 从几十到几百时，吞吐量大幅下降，同等机器下 Kafka 尽量保证 topic 数量不要过多，如要支撑大规模 topic，需要增加更多机器资源 |
 | 时效性 | 毫秒级 | 微秒级，延迟最低（特点之一） | 毫秒级 | 毫秒级 |
 | 可用性 | 高，基于主从架构实现高可用 | 同 ActiveMQ | 非常高，分布式架构 | 非常高，分布式架构，一个数据多个副本，少数机器宕机，不会丢失数据，不会导致不可用 |

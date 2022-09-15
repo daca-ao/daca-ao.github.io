@@ -130,19 +130,21 @@ Spring MVC 属于 Spring Framework 的 Web 类模块中的一个提供 Web 服�
 顾名思义，它能提供 MVC 架构和随时可用的组件，有助于分离应用程序的不同方面，如输入逻辑、业务逻辑和 UI 逻辑，且在所有元素之间提供松散耦合。
 
 
-## Spring Boot
+## [Spring Boot](/2022/04/20/springboot)
 
-Spring Boot 是基于 Spring Framework 的解决方案套件（Suite），或者快捷方式，相当于一套脚手架。
+Spring Boot 是基于 Spring Framework 的解决方案**套件**（Suite），或者快捷方式，相当于一套脚手架。
 * 集成了 Web 服务器，实现了 Spring Framework 的自动化配置，以及解决了许多常用包的依赖问题
 * 开发者可很快地上手写业务代码，而不必过于关注 Spring 的部分。
 
 
 ## Spring Cloud
 
-基于 Spring Boot 的分布式应用，目的是为了解决更上层的问题，且提供了一套完善的微服务框架：
+基于 Spring Boot 的**分布式应用**，其为了解决更上层的问题，提供了一套完善的微服务框架：
 * 分布式配置：多个 Spring Boot 服务使用分布式配置服务进行配置
 * 服务注册/发现/路由/调用：多个 Spring Boot 服务间能很方便地互相发现和调用
 * 客户端负载均衡：由 Spring Boot 服务进行负载均衡计算，来决策调用其他服务的哪个实例
+
+Spring Cloud 提出了一套完善的**微服务开发规范**，协调了多个微服务组件的版本适配和兼容问题。
 
 
 # Spring v.s. EJB

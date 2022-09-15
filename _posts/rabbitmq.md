@@ -59,6 +59,8 @@ RabbitMQ 相关的重要角色如下：
 
 ![](rabbitmq/exchange.png)
 
+RabbitMQ 默认采用 Direct Exchange。
+
 **RoutingKey**：路由键。将 Publisher 的数据按照某种规则分配到特定 Exchange 上。
 
 **Binding**：绑定。基于 Binding Key 将 Exchange 和 Queue 之间连接起来，组成一个路由规则。Exchange 可以被理解为是由多个 Binding 组成的路由表。
@@ -70,7 +72,7 @@ RabbitMQ 相关的重要角色如下：
 
 ![](rabbitmq/queue.png)
 
-结构通常分为两部分：
+队列结构通常分为两部分：
 
 `rabbit_amqqueue_process`：负责协议（AMQP）相关的消息处理，包括：
 * 接收生产者发布的消息
@@ -99,43 +101,6 @@ RabbitMQ 相关的重要角色如下：
 注：消费者和生产者都可以创建队列。如果提交了一个已经存在的队列的创建请求，系统不会返回错误，不会有任何的影响。
 
 
-## Exchange 的类型
-
-**1. Direct Exchange**
-* RabbitMQ 默认的交换方式
-* 采用轮询方式发送至 `RoutingKey = BindingKey` 的订阅者（Queue），类似于点对点
-* 其他不相等的 RoutingKey 的消息会被丢弃
-
-![](rabbitmq/direct-exchange.png)
-
-**2. Fanout Exchange**
-* 发送（route）至与该 Exchange 绑定的所有订阅者（Queue），类似于广播
-* 最快的转发
-
-![](rabbitmq/fanout-exchange.png)
-
-**3. Topic Exchange**
-* 采用匹配模式
-* 发送至 RoutingKey 与 BindingKey **模糊匹配**的订阅者（Queue）
-* 约定：
-    * RoutingKey 为用点号分隔的字符串，BindingKey 与其模式相同 
-    * BindingKey 可使用 `*`（匹配一个单词）和 `#`（匹配多个或 0 个单词）用于模糊匹配
-
-![](rabbitmq/topic-exchange.png)
-
-根据上图的模糊匹配，比如有下面不同的 RoutingKey：
-* `RoutingKey = F.C.E`：路由到 Queue1
-* `RoutingKey = A.C.E`：路由到 Queue1 和 Queue2
-* `RoutingKey = A.F.B`：路由到 Queue2
-
-**4. Headers Exchange**
-* 采用轮询方式
-* 通过**消息头**订阅，不依赖于 RoutingKey 和 BindingKey 的匹配规则
-    * 消息发布前为消息定义一个或多个键值对的消息头
-    * 消费者在接收消息的同时，需要定义类似的键值对请求头
-    * 请求头与消息头匹配才可接收消息
-* 和 Direct 方式完全一致，但性能差很多，基本用不到
-
 <br/>
 
 # 运行机制
@@ -154,7 +119,7 @@ RabbitMQ 相关的重要角色如下：
 这就会造成资源分配不均的问题：有的消费者持续工作，其他的持续空闲。
 
 **2. Fair Dispatch**：公平分发，根据消费者的消费能力进行分发处理
-* 使用 `prefetchCount` 限制每次发送给消费者消息的个数
+* 使用 `channel.basicQos(prefetchCount)` 限制每次发送给消费者消息的个数
 * 可以让每个消费者在同一时间点最多去处理规定数量级个数的 message
 * 在接收该消费者的 ack 前，队列不会将新的 message 分发给该消费者。
 
@@ -187,64 +152,6 @@ RabbitMQ 相关的重要角色如下：
 5. RabbitMQ 从 Queue 中删除已经返回 ack 的消息
 6. 关闭信道
 7. 关闭连接
-
-举一个简单的代码示例：
-
-```java
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
-
-import java.nio.charset.StandardCharsets;
-
-
-class MqDemo {
-
-    private static final String QUEUE_NAME = "hello";
-    private static final String HOST = "localhost";
-
-    private ConnectionFactory factory = new ConnectionFactory();
-
-    void Send() {
-
-        factory.setHost(HOST);
-        try (Connection connection = factory.newConnection();
-            Channel channel = connection.createChannel()) {
-            channel.queueDeclare(QUEUE_NAME, false, false, false, null);  // 第二个参数：消息持久化为 false
-            String message = "Hello World!";
-            channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
-            System.out.println(" [x] Sent '" + message + "'");
-        }
-    }
-
-    void Recv() {
-
-        factory.setHost(HOST);
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
-
-        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-        System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
-
-        DeliverCallback deliverCallback = (consumerTag, delivery) -> {  // 消息的异步处理
-            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            System.out.println(" [x] Received '" + message + "'");
-        };
-        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
-    }
-}
-
-```
-
-<br/>
-
-## 为啥不直接基于 TCP
-
-RabbitMQ 是基于信道 Channel 传输消息的。Channel 通过建立真实 TCP 连接建立虚拟连接。
-
-因为对于 OS 来说，建立和关闭 TCP 连接是有代价的，频繁建立和关闭 TCP 连接对于系统的性能有很大影响，且 TCP 的连接数也有限制，从而限制了系统处理高并发的能力；  
-但是在一个 TCP 连接中建立一个或多个 channel 的成本就低很多了。
 
 <br/>
 
@@ -294,12 +201,14 @@ Exchange 和 Queue 在创建时，指定 `durable=true` 可完成持久化
     * 如有数据没有被 ack，MQ Server 不会删除消息，而是将其发送给下一个消费者
 
 **2. AMQP 事务机制**：主要是对信道 channel 的设置
+
 ```java
 // 与事务机制相关的方法：
 channel.txSelect();  // 用于将当前的信道设置成事务模式
 channel.txCommit();  // 用于提交事务
 channel.txRoolback();  // 用于事务回滚
 ```
+
 如事务提交执行前 RabbitMQ 异常崩溃或其他原因抛出异常：通过 `txRollback()` 回滚，当 `autoAck=true` 时，事务无效
 * 此时消息时自动消费确认，RabbitMQ 直接将消息从队列中擦除，即使后面事务回滚也不能起到任何作用
 
@@ -314,11 +223,20 @@ RabbitMQ 集群要求最少有一个磁盘节点。
 
 <br/>
 
+## 为啥不直接基于 TCP
+
+RabbitMQ 是基于信道 Channel 传输消息的。Channel 通过建立真实 TCP 连接建立虚拟连接。
+
+因为对于 OS 来说，建立和关闭 TCP 连接是有代价的，频繁建立和关闭 TCP 连接对于系统的性能有很大影响，且 TCP 的连接数也有限制，从而限制了系统处理高并发的能力；  
+但是在一个 TCP 连接中建立一个或多个 channel 的成本就低很多了。
+
+<br/>
+
 # 死信队列
 
 先说说什么叫死信。
 
-当一个消息遇到以下情况：
+当一个消息遇到以下之一的情况：
 * 被拒（Basic.Reject / Basic.Nack），而且达到了 retry 上限，或者 requeue = false，不能重新进入队列；
 * 消息 TTL（time to live）过期；
 * 队列已满（x-max-length），无法再添加。
@@ -327,7 +245,7 @@ RabbitMQ 集群要求最少有一个磁盘节点。
 
 当一个消息在队列中变为死信之后，它将被重新投递到另一个 Exchange 中，这个 Exchange 叫做死信交换器（**D**ead-**L**etter e**X**change, **DLX**）。
 
-DLX 根据 routing key 所绑定的 Queue 就是**死信队列**。
+DLX 根据 RoutingKey 所绑定的 Queue 就是**死信队列**。
 
 设置：
 ```yaml
@@ -337,19 +255,15 @@ RoutingKey: #
 # 表示只要有消息到达了 Exchange，那么都会路由到这个 queue 上
 ```
 
-死信队列接收消息后并不消费该消息，所以可以监听死信队列中的消息做相应的处理。
+死信队列接收消息后并**不消费该消息**，所以可以监听死信队列中的消息做相应的处理。
 
 <br/>
 
 # 应用
 
+举一个简单的代码示例：
+
 ```java
-// Connection 的制造工厂
-import com.rabbitmq.client.ConnectionFactory;
-
-// RabbitMQ 的 socket（TCP）连接，封装了 socket 协议相关逻辑
-import com.rabbitmq.client.Connection;
-
 // 网络信道，消息读写的通道，与 RabbitMQ 打交道的主要接口
 import com.rabbitmq.client.Channel;
 /*
@@ -361,35 +275,84 @@ import com.rabbitmq.client.Channel;
  * 即一个 TCP 连接上建立多个 RabbitMQ 会话，大大节省资源
  * 每个 channel 表示一个会话任务
  */
+
+// RabbitMQ 的 socket（TCP）连接，封装了 socket 协议相关逻辑
+import com.rabbitmq.client.Connection;
+// Connection 的制造工厂
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DeliverCallback;
+
+import java.nio.charset.StandardCharsets;
+
+
+class MqDemo {
+
+    private static final String QUEUE_NAME = "hello";
+    private static final String HOST = "localhost";
+
+    private ConnectionFactory factory = new ConnectionFactory();
+
+    void Send() {
+
+        factory.setHost(HOST);
+        try (Connection connection = factory.newConnection();
+            Channel channel = connection.createChannel()) {
+
+            int prefetchCount = 1;
+            channel.basicQos(prefetchCount);  // 每次只接收 1 个数据
+            channel.queueDeclare(QUEUE_NAME, false, false, false, null);  // 第二个参数：消息持久化为 false
+            String message = "Hello World!";
+            channel.basicPublish("", QUEUE_NAME, null, message.getBytes(StandardCharsets.UTF_8));
+            System.out.println(" [x] Sent '" + message + "'");
+        }
+    }
+
+    void Recv() {
+
+        factory.setHost(HOST);
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+        System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {  // 消息的异步处理
+            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+            System.out.println(" [x] Received '" + message + "'");
+        };
+        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+    }
+}
 ```
 
-比如：设置公平分发
-```java
-int prefetchCount = 1;
-channel.basicQos(prefetchCount);
-```
+设置消费者不消费消息：
 
-比如：设置消费者不消费消息
 ```java
 channel.basicNack();
-channel.basicReject(messageId, true);  // 消息被分配到其他订阅者
+channel.basicReject(messageId, true);  // 消息被拒绝，会被分配到其他订阅者
 ```
-
-**延迟队列**：存储对应的延迟消息
-* 当消息被发送以后，并不想让消费者立即拿到消息
-* 等待特定的时间后，消费者才能拿到这个消息进行消费
-
-实现：
-* 3.6.x -：采用死信队列 + TTL 过期时间实现延迟队列
-* 3.6.x +：官方提供延迟队列插件，下载放置 RabbitMQ 根目录的 `plugin/` 下
-
-**优先级队列**：优先级高的队列会先被消费
-* 可通过 `x-max-priority` 参数实现
-* 当消费速度大于生产速度，且 Broker 没有堆积时：优先级显得没有意义
 
 <br/>
 
 ## 应用场景
+
+### **延迟队列**
+
+存储对应的延迟消息
+* 当消息被发送以后，并不想让消费者立即拿到消息
+* 等待特定的时间后，消费者才能拿到这个消息进行消费
+* 应用于超时未支付订单自动取消
+
+实现：
+* 3.6.x -：采用死信队列 + queue 设置 TTL 实现延迟队列
+* 3.6.x +：官方提供延迟队列插件，下载放置 RabbitMQ 根目录的 `plugin/` 下
+
+
+### **优先级队列**
+
+优先级高的队列会先被消费
+* 可通过 `x-max-priority` 参数实现
+* 当消费速度大于生产速度，且 Broker 没有堆积时：优先级显得没有意义
 
 
 ### **异步处理**
@@ -414,6 +377,7 @@ channel.basicReject(messageId, true);  // 消息被分配到其他订阅者
 * 响应时间大大缩短
 
 ![](rabbitmq/mail-mq.png)
+
 
 ### **应用解耦**
 
