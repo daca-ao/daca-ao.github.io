@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/05/06/java-map/map-diagram.png">
 <meta property="article:published_time" content="2022-05-06T15:13:26.000Z">
-<meta property="article:modified_time" content="2022-05-08T13:42:25.188Z">
+<meta property="article:modified_time" content="2022-10-06T15:15:44.555Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -309,7 +309,8 @@
 <p><a href="/2022/05/08/java-hashmap"><strong><code>HashMap</code></strong></a>：存储 k-v 关联的数据结构，对 key 进行散列</p>
 <p><strong><code>TreeMap</code></strong></p>
 <p>TreeMap 键值有序排列的映射表，元素整体以红黑树形式排序。<br>TreeMap 实现了 NavigableMap 接口，内部 Entry 为静态类 TreeMap.Entry。</p>
-<p>**<code>LinkedHashMap</code>**：可记住 k-v 项添加次序（有序）的映射表</p>
+<p><strong><code>LinkedHashMap</code></strong></p>
+<p>可记住 k-v 项添加次序（有序）的映射表。</p>
 <p>LinkedHashMap 使用<strong>访问顺序</strong>对映射表条目进行迭代，而非插入顺序。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LinkedHashMap&lt;K, V&gt;(initialCapacity,  <span class="comment">// 给定的初始容量</span></span><br><span class="line">                    loadFactor,       <span class="comment">// 填充因子</span></span><br><span class="line">                    <span class="keyword">true</span>)             <span class="comment">// 元素访问顺序，true 为按照访问顺序，false 为按照插入顺序</span></span><br></pre></td></tr></table></figure>
 
@@ -326,7 +327,8 @@
 <li>每当方法返回 true 时，添加一个新条目，从而删除 eldest 条目</li>
 <li>另还可对 eldest 进行评估，以此决定是否应该将它删除</li>
 </ul>
-<p>**<code>EnumMap</code>**：键值属于枚举类型的映射表，底层是数组，直接且高效。</p>
+<p><strong><code>EnumMap</code></strong></p>
+<p>键值属于枚举类型的映射表，底层是数组，直接且高效。</p>
 <p><strong><code>WeakHashMap</code></strong></p>
 <p>对于弱引用对象来说，垃圾回收器将其回收，要先将引用这个对象的弱引用放入队列中。<br>当弱引用进入队列，意味着该引用不再被他人使用。</p>
 <p>WeakHashMap 使用弱引用保存键，并周期性检查队列，以便找出新添加的弱引用，保证垃圾回收时 key 能被回收，随即回收 value，从而使对应的 entry 消失，一定程度避免内存溢出。</p>
