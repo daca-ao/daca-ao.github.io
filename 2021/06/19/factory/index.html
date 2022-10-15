@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2021/06/19/factory/factory-method-diagram.png">
 <meta property="og:image" content="http://example.com/2021/06/19/factory/abstract-factory-diagram.png">
 <meta property="article:published_time" content="2021-06-19T01:19:14.000Z">
-<meta property="article:modified_time" content="2022-10-14T11:00:46.847Z">
+<meta property="article:modified_time" content="2022-10-15T10:56:16.074Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="设计模式">
 <meta name="twitter:card" content="summary">
@@ -349,7 +349,7 @@
 <li>当一个类希望由它的子类来指定它所创建的对象时</li>
 <li>当类将创建对象的职责委托给多个帮助子类中的某一个，且希望将哪一个帮助子类是代理者这一信息局部化时</li>
 </ul>
-<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>本设计模式不再将与特定应用有关的类绑定到代码中</p>
+<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>工厂方法模式不会再将与特定应用有关的类绑定到代码中：</p>
 <ul>
 <li>代码仅处理 Product 接口：因此可与用户定义的任何 ConcreteProduct 类一起使用</li>
 <li>潜在缺点：有可能仅仅为了创建一个特定 ConcreteProduct 对象，就不得不创建一个具体工厂 Creator 子类</li>
@@ -358,10 +358,7 @@
 <li>给子类提供一个 hook 来扩展对象</li>
 </ul>
 </li>
-<li>连接平行的类层次<ul>
-<li>一个类将其职责委托给一个独立的类</li>
-</ul>
-</li>
+<li>连接平行的类层次：一个类将其职责委托给一个独立的类</li>
 </ul>
 <h2 id="相关模式"><a href="#相关模式" class="headerlink" title="相关模式"></a>相关模式</h2><ul>
 <li>Abstract Factory 经常使用本设计模式来实现</li>
@@ -411,7 +408,7 @@
 </ul>
 <p><code>Client</code></p>
 <ul>
-<li>仅使用由 AbstractFactory 和 AbstractProduct 类声明的接口</li>
+<li>仅能调用由 AbstractFactory 和 AbstractProduct 类声明的接口，不可直接触及实体类</li>
 </ul>
 <h2 id="协作-1"><a href="#协作-1" class="headerlink" title="协作"></a>协作</h2><ul>
 <li>通常在运行时创建一个 <code>ConcreteFactory</code> 类实例<ul>
@@ -428,7 +425,7 @@
 <li>每当增加一种新的产品，需要改变 AbstractFactory 的接口以及所有与其相关的类</li>
 </ul>
 </li>
-<li>灵活，但不安全的做法：定义 make() 并传参，指定要创建对象的种类</li>
+<li>有一种灵活，但不安全的做法：定义 make() 并传参，指定要创建对象的种类</li>
 <li>问题：所有产品将返回类型所给定的相同接口返回给客户<ul>
 <li>因此不能通过接口获得特定子类并进行操作</li>
 </ul>
