@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="在 Hotspot 虚拟机中，除了对象本身的实例数据（Instance Data）之外，其在内存中的布局还包括了对象头（Object Header）和对齐填充（Padding）。">
+  <meta name="description" content="对象在 Hotspot 虚拟机中，除了对象本身的实例数据（Instance Data）之外，其在内存中的布局还包括了对象头（Object Header）和对齐填充（Padding）。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="对象头">
 <meta property="og:url" content="http://example.com/2021/07/16/object-header/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="在 Hotspot 虚拟机中，除了对象本身的实例数据（Instance Data）之外，其在内存中的布局还包括了对象头（Object Header）和对齐填充（Padding）。">
+<meta property="og:description" content="对象在 Hotspot 虚拟机中，除了对象本身的实例数据（Instance Data）之外，其在内存中的布局还包括了对象头（Object Header）和对齐填充（Padding）。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-16T11:42:34.000Z">
-<meta property="article:modified_time" content="2021-08-12T14:57:36.935Z">
+<meta property="article:modified_time" content="2022-10-29T05:55:04.900Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -234,7 +234,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>在 Hotspot 虚拟机中，除了对象本身的实例数据（Instance Data）之外，其在内存中的布局还包括了<strong>对象头</strong>（Object Header）和对齐填充（Padding）。</p>
+        <p>对象在 Hotspot 虚拟机中，除了对象本身的实例数据（Instance Data）之外，其在内存中的布局还包括了<strong>对象头</strong>（Object Header）和对齐填充（Padding）。</p>
 <span id="more"></span>
 
 <p>对齐填充的字节保留主要是出于 JVM 对 Java 对象内存占用的要求来考虑的。每个对象在 JVM 内存占用的大小应为 1 个字长（8 bits）的倍数，因此每个对象最后会有几个字节用于补全，没有特别的功能。<br>因此本帖不再赘述对齐填充，就专门来聊聊对象头。</p>
@@ -246,8 +246,8 @@
 </ol>
 <br>
 
-<h1 id="运行时数据（Mark-Word）"><a href="#运行时数据（Mark-Word）" class="headerlink" title="运行时数据（Mark Word）"></a>运行时数据（Mark Word）</h1><p>包括哈希码（hash code）、GC 分代年龄、锁状态标志、线程持有的锁、偏向线程 ID、偏向时间戳等等。<br>数据长度在 32 位和 64 位的虚拟机（未开启压缩指针）中分别是 32 bits 和 64 bits。</p>
-<p>对象需要存储的运行时数据很多，其实已超出了 32、64 位 Bitmap 结构所能记录的限度；但是，对象头信息是<strong>与对象自身定义数据无关</strong>的额外存储成本。<br>基于这一点，再考虑到虚拟机的空间效率，因此 Mark Word 被设计成一个<strong>非固定的数据结构</strong>，以便在极小的空间内存储尽量多的信息，且会根据对象的状态复用自己的存储空间。</p>
+<h1 id="运行时数据（Mark-Word）"><a href="#运行时数据（Mark-Word）" class="headerlink" title="运行时数据（Mark Word）"></a>运行时数据（Mark Word）</h1><p>包括哈希码（hash code）、GC 分代年龄、锁状态标志、线程持有的锁、偏向线程 ID、偏向时间戳等等。<br>Mark Word 的数据长度在 32 位和 64 位的虚拟机（未开启压缩指针）中分别是 32 bits 和 64 bits。</p>
+<p>对象需要存储的运行时数据很多，其实已超出了 32、64 位 Bitmap 结构所能记录的限度；不过，对象头信息耗费的是<strong>与对象自身定义数据无关</strong>的额外存储成本。<br>基于这一点，再考虑到虚拟机的空间效率：Mark Word 被设计成一个<strong>非固定的数据结构</strong>，以便在极小的空间内存储尽量多的信息，且会根据对象的状态复用自己的存储空间。</p>
 <p>比如：在 32 位 Hotspot 虚拟机中，如果对象未被锁定，那么 Mark Word 的 32 bits 的空间将被如下分配：</p>
 <ul>
 <li>25 bits 被用于存储对象的 hash code</li>
