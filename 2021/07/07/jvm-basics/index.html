@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/memory-allocate.png">
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/object-allocate.png">
 <meta property="article:published_time" content="2021-07-07T14:44:49.000Z">
-<meta property="article:modified_time" content="2021-08-28T15:14:05.989Z">
+<meta property="article:modified_time" content="2022-10-28T14:10:38.509Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -309,7 +309,7 @@
 <ul>
 <li><strong>新生代</strong>（<code>YoungGen</code>, Y）<ul>
 <li>= <code>Eden</code>(4/5) + <code>From Survivor</code>(S0, 1/10) + <code>To Survivor</code>(S1, 1/10)</li>
-<li>Eden 空间不足时，存活的对象转移到 Survivor，多个 Survivor 用于交换</li>
+<li>Eden 空间不足时，存活的对象转移到 Survivor，两个 Survivor 区用于交换</li>
 <li>JVM 每次只会使用 Eden 和其中一块 Survivor 来为对象服务，所以无论什么时候，总会有另一块 Survivor 是空闲着的</li>
 <li>因此，新生代实际可用的内存空间为 9/10（即 90%）的新生代空间。</li>
 </ul>
@@ -322,10 +322,10 @@
 <p>另：<strong>永久区</strong>（<code>PermGen</code>, P）</p>
 <ul>
 <li>存在于 Java 8 之前的 Hotspot 虚拟机中，其他类型 JVM 没有这个概念</li>
-<li>从 Java 8 开始，PermGen 被取消，以 Metaspace 元空间代替</li>
+<li>从 Java 8 开始，PermGen 被取消，以 <strong>Metaspace 元空间</strong>代替</li>
 <li>内存的永久保存区域，存放 Class 和 Meta 信息等，GC 时不清理。</li>
 </ul>
-<p>实际上，堆只保存对象实例的<strong>属性类型</strong>、<strong>属性值</strong>（多数在常量池中）、<strong>运行时数据</strong>和<strong>对象本身类型标记</strong>（在<a href="/2021/07/16/object-header">对象头</a>中）等，并不保存对象的方法（保存在栈里）。</p>
+<p>实际上，堆只保存对象实例的<strong>属性类型</strong>、<strong>属性值</strong>（多数在常量池中）、<strong>运行时数据</strong>和<strong>对象本身类型标记</strong>（在<a href="/2021/07/16/object-header">对象头</a>中）等，并不保存对象的方法（方法等保存在栈里）。</p>
 <p>要注意的是，在创建一个对象的时候：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Class a = <span class="keyword">new</span> Class();</span><br></pre></td></tr></table></figure>
 <p>此时 a 叫<strong>实例</strong>，不能说 a 是对象。在这里，<strong>实例保存在栈中</strong>，指的是指向对象的指针，<strong>对象则是保存在堆中</strong>。操作实例实际上是通过实例指针间接操作对象，且多个实例可以指向统一对象。<br>对象实例在堆中被分配好之后，需要在栈中保存一个 4 字节的<strong>堆内存地址</strong>，用来定位该对象实例在堆中的位置，以便实例被找到。</p>
@@ -541,7 +541,8 @@
 <h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><p>JVM 的运行模式主要有两种：<strong>Client</strong> 和 <strong>Server</strong>。</p>
 <p>Client 模式启动快，但是进入稳定期后运行速度不如 Server 快。</p>
 <p>Server 启动慢，进入稳定期后运行速度优于 Client。Server 模式采用的是重量级的虚拟机，对程序会进行更多的优化。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">raymond-mbp:~ aohuijun$ java -version</span><br><span class="line">java version <span class="string">&quot;1.8.0_161&quot;</span></span><br><span class="line">Java(TM) SE Runtime Environment (build 1.8.0_161-b12)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 25.161-b12, mixed mode)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">raymond-mbp:~ aohuijun$ java -version</span><br><span class="line">java version <span class="string">&quot;1.8.0_161&quot;</span></span><br><span class="line">Java(TM) SE Runtime Environment (build 1.8.0_161-b12)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 25.161-b12, mixed mode)</span><br></pre></td></tr></table></figure>
+
     </div>
 
     
