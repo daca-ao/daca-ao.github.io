@@ -28,7 +28,7 @@
 <meta property="og:description" content="今天将多年前整理的一些排序算法捋一捋。先说个大概。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-11-07T03:29:07.000Z">
-<meta property="article:modified_time" content="2022-11-07T10:52:07.699Z">
+<meta property="article:modified_time" content="2022-11-07T13:05:28.744Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="算法">
 <meta property="article:tag" content="排序算法">
@@ -240,11 +240,11 @@
 <p>排序算法通常按照以下标准分类：</p>
 <p><strong>1</strong>. 依据待排序数列的大小 n 计算时间复杂度（最差、平均及最好性能）。</p>
 <ul>
-<li>一般而言，好的性能是 <strong>O</strong>(nlogn)，坏的性能是 <strong>O</strong>(n2)。</li>
-<li>对于一个排序理想的性能是 <strong>O</strong>(n)。仅使用一个抽象关键比较运算的排序算法总平均上总是需要 <strong>O</strong>(nlogn)。</li>
+<li>一般而言，好的性能是 <strong>O</strong>(nlogn)，坏的性能是 <strong>O</strong>(n<sup>2</sup>)。</li>
+<li>对于一次排序，理想的性能是 <strong>O</strong>(n)；然而在平均上总是需要 <strong>O</strong>(nlogn)。</li>
 </ul>
 <p><strong>2</strong>. 存储器使用量（以及其他电脑资源的使用）</p>
-<p><strong>3</strong>. 稳定性：稳定排序算法会让原本有相等键值的记录维持相对次序。如果一个排序算法是稳定的，当有两个相等键值的记录 R 和 S，且在原本列表中 R 出现在 S 之前，在排序过的列表之中 R 也将会在 S 之前。</p>
+<p><strong>3</strong>. 稳定性：指的是某个排序算法会让原本有相等键值的记录维持相对次序。如果一个排序算法是稳定的，当有两个相等键值的记录 R 和 S，且在原本数列中 R 出现在 S 之前，在排序过的数列之中 R 也将会在 S 之前。</p>
 <br>
 
 <h1 id="稳定排序算法"><a href="#稳定排序算法" class="headerlink" title="稳定排序算法"></a>稳定排序算法</h1><ul>
@@ -265,11 +265,43 @@
 </ul>
 <p>怎么记忆哪些是稳定算法？</p>
 <ul>
-<li>时间复杂度复杂一些的（高级，包括快排、shell 排序、堆排序——归并排序除外）都不稳定（选择排序不稳定）</li>
-<li>时间复杂度简单一些的（低级，包括冒泡、插入、计数、基数）都稳定（归并排序也是稳定的）</li>
-<li>4 种稳定，4 种不稳定</li>
+<li>时间复杂度复杂一些的（高级，包括快排、shell 排序、堆排序等 —— 归并排序除外）都不稳定（选择排序不稳定）；</li>
+<li>时间复杂度简单一些的（低级，包括冒泡、插入、计数、基数）都稳定（归并排序也是稳定的）；</li>
+<li>复杂算法中，归并排序是稳定排序；简单算法中，选择排序不稳定；</li>
+<li>4 种稳定，4 种不稳定。</li>
 </ul>
 <h1 id="算法性能"><a href="#算法性能" class="headerlink" title="算法性能"></a>算法性能</h1><p>总结了个表格：</p>
+<table>
+    <tr>
+        <th rowspan="2">类别</th>
+        <th rowspan="2">排序方法</th>
+        <th rowspan="2">数据对象</th>
+        <th rowspan="2">稳定性</th>
+        <th colspan="3">时间复杂度</th>
+        <th rowspan="2">空间复杂度</th>
+    </tr>
+    <tr>
+        <th>平均情况</th>
+        <th>最好情况</th>
+        <th>最坏情况</th>
+    </tr>
+    <tr>
+        <th rowspan="2">插入排序</th>
+        <th>直接插入排序</th>
+        <td>数组</td>
+        <td>☑️</td>
+        <td>O(n<sup>2</sup>)</td>
+    </tr>
+    <tr>
+        <th>shell 排序</th>
+        <td>数组</td>
+        <td>✖️</td>
+        <td>O(n<sup>1.3</sup>)</td>
+    </tr>
+</table>
+
+<p>再上个教材的图：</p>
+<p>![]</p>
 
     </div>
 
