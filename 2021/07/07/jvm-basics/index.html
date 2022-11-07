@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/memory-allocate.png">
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/object-allocate.png">
 <meta property="article:published_time" content="2021-07-07T14:44:49.000Z">
-<meta property="article:modified_time" content="2022-11-06T01:31:09.543Z">
+<meta property="article:modified_time" content="2022-11-07T10:45:47.663Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -490,13 +490,13 @@
 <p><img src="/2021/07/07/jvm-basics/object-allocate.png"></p>
 <p>注：</p>
 <ul>
-<li>指针碰撞（Bump the Pointer）：Java 堆中内存<strong>绝对规整</strong>，所有用过的内存放一边，空闲的放另一边，中间保留一个指针作为分界点的指示器。那所分配的内存就是<strong>该指针向靠近空闲内存方向挪动一段与对象大小相等的距离空间</strong>。</li>
+<li>指针碰撞（Bump the Pointer）：Java 堆的内存<strong>绝对规整</strong>，所有用过的内存放一边，空闲的放另一边，中间保留一个指针作为分界点的指示器。在这个策略下，<strong>指示指针向靠近空闲内存方向挪动一段空间，该空间的距离与对象大小相等</strong>，这就是给对象分配的内存。</li>
 <li>空闲列表（Free List）：Java 堆中内存<strong>不规整</strong>，已使用内存与空闲内存犬牙交错。JVM 通过维护一个列表，记录可用的内存块；在分配内存的时候从列表中取一块足够大的空间划分给实例，并更新列表。</li>
-<li>系统如果使用了基于<font color="red">压缩（Compact）</font>算法的垃圾收集器，与之相匹配的内存分配策略是<font color="red">指针碰撞</font>；如果是基于<font color="blue">清理（Sweep）</font>算法的话，则采用<font color="blue">空闲列表</font>策略。</li>
+<li>系统如果使用了基于<font color="red">压缩（Compact）</font>算法的垃圾收集器，与之相匹配的内存分配策略是<font color="red">指针碰撞</font>；如果是基于<font color="blue">清理（Sweep）</font>算法的话，则对应采用<font color="blue">空闲列表</font>策略。</li>
 </ul>
 <br>
 
-<p>内存分配规则<strong>并不是百分百固定的</strong>，其细节取决于当前使用的是哪一种垃圾回收器组合，以及 JVM 的参数配置。<br>大多数情况下，对象在 Eden 区分配，少数情况（如大对象）直接分配到老年代（视垃圾回收器的类型而定）。<br>然而，并不是所有的对象都会直接被分配到堆上。通过以上对 Java 对象分配的过程分析，可以知道有另外两个地方：<strong>栈</strong>（与逃逸分析相关）和 <strong>TLAB</strong> 也是可以保存对象的。</p>
+<p>内存分配规则<strong>并不是百分百固定的</strong>，其细节取决于当前使用的是哪一种垃圾回收器组合，以及 JVM 的参数配置。<br>大多数情况下，对象在 Eden 区分配，少数情况（如大对象）直接分配到老年代（视垃圾回收器的类型而定）。<br>然而，并不是所有的对象都会直接被分配到堆上。上述对 Java 对象分配的过程分析中，可以知道有另外两个地方：<strong>栈</strong>（与逃逸分析相关）和 <strong>TLAB</strong> 也是可以保存对象的。</p>
 <h2 id="逃逸分析（Escape-Analysis）浅析"><a href="#逃逸分析（Escape-Analysis）浅析" class="headerlink" title="逃逸分析（Escape Analysis）浅析"></a>逃逸分析（Escape Analysis）浅析</h2><p>逃逸分析是 Java HotSpot 虚拟机能够分析新创建对象的使用范围，并决定是否要在 Java 堆上分配内存的一项技术（结合连通图做可达性分析）。</p>
 <p>当一个对象被定义了之后，通过分析它的动态作用域，可以知道它的逃逸状态：</p>
 <ol>
@@ -636,14 +636,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-count">59</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
