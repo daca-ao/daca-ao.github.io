@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/11/07/sort-algo-overview/sort-algo-average-time.png">
 <meta property="article:published_time" content="2022-11-07T03:29:07.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:32:06.039Z">
+<meta property="article:modified_time" content="2023-02-25T12:25:14.685Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="算法">
 <meta property="article:tag" content="排序算法">
@@ -246,7 +246,10 @@
 <li>对于一次排序，理想的性能是 <strong>O</strong>(n)；然而在平均上总是需要 <strong>O</strong>(nlogn)。</li>
 </ul>
 <p><strong>2</strong>. 存储器使用量（以及其他电脑资源的使用）</p>
-<p><strong>3</strong>. 稳定性：指的是某个排序算法会让原本有相等键值的记录维持相对次序。如果一个排序算法是稳定的，当有两个相等键值的记录 R 和 S，且在原本数列中 R 出现在 S 之前，在排序过的数列之中 R 也将会在 S 之前。</p>
+<p><strong>3</strong>. 稳定性：指的是某个排序算法会让原本有相同键值的记录维持相对次序。</p>
+<ul>
+<li>如果一个排序算法是稳定的，当有两个相同键值的记录 R 和 S，且在原本数列中 R 出现在 S 之前，那么在排序过的数列之中，R 也将会在 S 之前。</li>
+</ul>
 <br>
 
 <h1 id="稳定排序算法"><a href="#稳定排序算法" class="headerlink" title="稳定排序算法"></a>稳定排序算法</h1><ul>
@@ -286,13 +289,13 @@
 <ul>
 <li>简单证明：N 个数有 N! 个可能的全排列，即基于比较的排序算法的判定树有 N! 个叶节点，比较次数最少为 log(N!) = Ο(NlogN)（斯特林公式）</li>
 </ul>
-<p>相对应地，非比较排序有：</p>
+<p>相对应的，非比较排序有：</p>
 <ul>
 <li>计数排序</li>
 <li>桶排序</li>
 <li>基数排序</li>
 </ul>
-<p>而局限性是：对排序元素的多少有限制。</p>
+<p>非比较排序的局限性是：对排序元素的多少有限制。</p>
 <h1 id="算法性能"><a href="#算法性能" class="headerlink" title="算法性能"></a>算法性能</h1><p>总结了个表格：</p>
 <table>
     <tr>
