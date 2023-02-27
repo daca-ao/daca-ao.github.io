@@ -20,21 +20,21 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="选择排序，也称直接选择排序。">
+  <meta name="description" content="快速排序属于不稳定排序算法。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="选择排序">
-<meta property="og:url" content="http://example.com/2022/11/11/selection-sort/index.html">
+<meta property="og:title" content="快速排序">
+<meta property="og:url" content="http://example.com/2023/02/26/quick-sort/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="选择排序，也称直接选择排序。">
+<meta property="og:description" content="快速排序属于不稳定排序算法。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-11-11T13:53:08.000Z">
-<meta property="article:modified_time" content="2022-11-12T14:34:50.280Z">
+<meta property="article:published_time" content="2023-02-26T10:41:14.000Z">
+<meta property="article:modified_time" content="2023-02-27T14:04:23.816Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="算法">
 <meta property="article:tag" content="排序算法">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2022/11/11/selection-sort/">
+<link rel="canonical" href="http://example.com/2023/02/26/quick-sort/">
 
 
 <script id="page-configurations">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>选择排序 | Raymond's Cabin</title>
+  <title>快速排序 | Raymond's Cabin</title>
   
 
 
@@ -190,7 +190,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/11/selection-sort/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/02/26/quick-sort/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -203,7 +203,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          选择排序
+          快速排序
         </h1>
 
         <div class="post-meta">
@@ -213,7 +213,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2022-11-11 21:53:08" itemprop="dateCreated datePublished" datetime="2022-11-11T21:53:08+08:00">2022-11-11</time>
+              <time title="Created: 2023-02-26 18:41:14" itemprop="dateCreated datePublished" datetime="2023-02-26T18:41:14+08:00">2023-02-26</time>
             </span>
 
           
@@ -234,31 +234,25 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F">选择排序</a>，也称直接选择排序。</p>
+        <p>快速排序属于不稳定排序算法。</p>
 <span id="more"></span>
 
-<h1 id="基本思想"><a href="#基本思想" class="headerlink" title="基本思想"></a>基本思想</h1><p>选择排序属于比较排序，大体步骤如下：</p>
 <ol>
-<li>在待排序序列中<strong>选择</strong>最小（大）的元素，将其<strong>移动</strong>到该序列的起始位置（或末尾）；</li>
-<li>再从剩余未排序元素中继续选择最小（大）元素，然后移动到已排序部分的末尾（或前面）；</li>
-<li>重复操作，直到序列有序。</li>
+<li>n 个元素被分成左（left）、中（middle）、右（right）三段</li>
+<li>中段仅包含一个元素，作为支点（pivot）</li>
+<li>左段元素均小于或等于中段元素，右段元素均大于或等于中段元素<ol>
+<li>（left 和 right 的元素可独立排序，无需合并）</li>
 </ol>
-<p>选择排序是不稳定的排序：如果当前元素比某一个元素小，而该较小的元素又出现在一个和当前元素相等的元素后面，则稳定性就被破坏。</p>
-<h1 id="复杂度"><a href="#复杂度" class="headerlink" title="复杂度"></a>复杂度</h1><ul>
-<li>交换操作：0~(n-1) 次</li>
-<li>比较操作：n(n-1)/2</li>
-<li>赋值操作（元素移动次数）：0~3(n-1)</li>
-</ul>
-<p>在数据量（n）比较小的时候，选择排序比冒泡排序快：然而，这种实际适用的场合非常罕见。</p>
-<ul>
-<li>可以说，选择排序是综合性能最差的排序算法。</li>
-</ul>
-<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">selectionSort</span><span class="params">(<span class="keyword">int</span>[] a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> length = a.length;</span><br><span class="line">    <span class="keyword">int</span> minIndex;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">        minIndex = i;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; length; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (a[j] &lt; a[minIndex]) &#123;</span><br><span class="line">                minIndex = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (minIndex != i) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">int</span> temp = a[minIndex];</span><br><span class="line">            a[minIndex] = a[i];</span><br><span class="line">            a[i] = temp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h1 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 使用快速排序</span><br><span class="line">从 a[0:n-1] 中选择一个元素作为 middle：支点（在这里不一定选最中间的元素，即：left 和 right 的元素数量可以不一样）</span><br><span class="line">将余下元素分割为两端 left 和 right，使 left 中的元素均小于等于支点，right 的元素均大于等于支点</span><br><span class="line">递归使用快排对 left 排序</span><br><span class="line">递归使用快排对 right 排序</span><br><span class="line">所得序列为 left + middle + right</span><br></pre></td></tr></table></figure>
 
-<p>上述程序的缺点：即使元素已经按序排列，程序依然继续运行。如即使在第二次循环后数组元素可能已经按序排列，首层 for 循环还需要执行 n-1 次。</p>
-<p>为了终止不必要的循环，在查找最大元素期间，可顺便检查数组是否已按序排列。</p>
-<p>改进版：最好情况仅比较 n-1 次</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">sortEarlyTerm</span><span class="params">(<span class="keyword">int</span>[] a)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> length = a.length;</span><br><span class="line">    <span class="keyword">boolean</span> sorted = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> size = length; !sorted &amp;&amp; size &gt; <span class="number">1</span>; size--) &#123;</span><br><span class="line">        <span class="keyword">int</span> maxIndex = <span class="number">0</span>;</span><br><span class="line">        sorted = <span class="keyword">true</span>;</span><br><span class="line">        <span class="comment">// 如果经历一轮遍历后 sorted 还是 true，说明元素都是顺序的，就不需要再排序了</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (a[i] &gt; a[maxIndex]) &#123;</span><br><span class="line">                maxIndex = i;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                sorted = <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (maxIndex != size - <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">int</span> temp = a[maxIndex];</span><br><span class="line">            a[maxIndex] = a[size - <span class="number">1</span>];</span><br><span class="line">            a[size - <span class="number">1</span>] = temp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;class T&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">QuickSort</span><span class="params">(T *a, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Sort a[0:n-1] using quick sort.</span></span><br><span class="line">    <span class="comment">// Requires a[n] must have largest key.</span></span><br><span class="line">    <span class="built_in">quickSort</span>(a, <span class="number">0</span>, n<span class="number">-1</span>); <span class="comment">// 这里以第一个元素作为支点</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;class T&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quickSort</span><span class="params">(T a[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span></span><br><span class="line"><span class="function"></span>&#123;<span class="comment">// Sort a[l:r], a[r+1] has large value.</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (l &gt;= r) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> i = l, <span class="comment">// left-to-right cursor</span></span><br><span class="line">    j = r + <span class="number">1</span>; <span class="comment">// right-to-left cursor</span></span><br><span class="line">    T pivot = a[l];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// swap elements &gt;= pivot on left side</span></span><br><span class="line">    <span class="comment">// with elements &lt;= pivot on right side</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="keyword">while</span> (a[++i] &lt; pivot) &#123; <span class="comment">// find &gt;= element on left side</span></span><br><span class="line">            <span class="keyword">if</span> (i == r) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span> (a[--j] &gt; pivot) &#123; <span class="comment">// find &lt;= element on right side</span></span><br><span class="line">            <span class="keyword">if</span> (j == l) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (i &gt;= j) &#123;</span><br><span class="line">            <span class="keyword">break</span>; <span class="comment">// swap pair not found</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">Swap</span>(a[i], a[j]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// place pivot</span></span><br><span class="line">    a[l] = a[j];</span><br><span class="line">    a[j] = pivot;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">quickSort</span>(a, l, j<span class="number">-1</span>); <span class="comment">// sort left segment</span></span><br><span class="line">    <span class="built_in">quickSort</span>(a, j+<span class="number">1</span>, r); <span class="comment">// sort right segment</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Quicksort</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">sort</span><span class="params">(<span class="keyword">int</span>[] a)</span> </span>&#123;</span><br><span class="line">        quicksort(a, <span class="number">0</span>, a.length - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">quicksort</span><span class="params">(<span class="keyword">int</span>[] a, <span class="keyword">int</span> begin, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (begin &gt;= end) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> left = begin;</span><br><span class="line">        <span class="keyword">int</span> right = end;</span><br><span class="line">        <span class="keyword">int</span> base = a[begin];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (left != right) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// search element smaller than base from right to left</span></span><br><span class="line">            <span class="keyword">while</span> (a[right] &gt;= base &amp;&amp; left &lt; right) &#123;</span><br><span class="line">                right--;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// then search element bigger than base from left to right</span></span><br><span class="line">            <span class="keyword">while</span> (a[left] &lt;= base &amp;&amp; left &lt; right) &#123;</span><br><span class="line">                left++;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (left &lt; right) &#123;</span><br><span class="line">                Swapper.swap(a, left, right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// put base into middle</span></span><br><span class="line">        a[begin] = a[left];</span><br><span class="line">        a[left] = base;</span><br><span class="line"></span><br><span class="line">        quicksort(a, begin, left - <span class="number">1</span>); <span class="comment">// sort left part</span></span><br><span class="line">        quicksort(a, left + <span class="number">1</span>, end); <span class="comment">// sort right part</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最坏情况：left 为空—— O(n2)<br>最好情况：left 和 right 数目大致相同—— O(nlogn)</p>
+<p>中值快速排序（median-of-three quick sort）：取 {a[1], a[(1+r)/2], a[r]} 中大小居中的元素作为支点</p>
 
     </div>
 
@@ -278,13 +272,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/11/08/bubble-sort/" rel="prev" title="冒泡排序">
-      <i class="fa fa-chevron-left"></i> 冒泡排序
+    <a href="/2023/02/25/merge-sort/" rel="prev" title="归并排序">
+      <i class="fa fa-chevron-left"></i> 归并排序
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/11/12/insertion-sort/" rel="next" title="插入排序">
-      插入排序 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -343,7 +334,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%80%9D%E6%83%B3"><span class="nav-number">1.</span> <span class="nav-text">基本思想</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-number">2.</span> <span class="nav-text">复杂度</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">代码实现</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%AA%E4%BB%A3%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">伪代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">代码实现</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
