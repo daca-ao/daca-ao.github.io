@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="归并排序属于稳定排序算法。">
+  <meta name="description" content="归并排序属于稳定的比较排序算法。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="归并排序">
 <meta property="og:url" content="http://example.com/2023/02/25/merge-sort/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="归并排序属于稳定排序算法。">
+<meta property="og:description" content="归并排序属于稳定的比较排序算法。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/02/25/merge-sort/merge-sort-dynamic.gif">
 <meta property="article:published_time" content="2023-02-25T13:58:45.000Z">
-<meta property="article:modified_time" content="2023-02-28T14:13:27.489Z">
+<meta property="article:modified_time" content="2023-03-01T14:56:46.775Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="算法">
 <meta property="article:tag" content="排序算法">
@@ -236,7 +236,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>归并排序属于稳定排序算法。</p>
+        <p>归并排序属于稳定的比较排序算法。</p>
 <span id="more"></span>
 
 <p>归并排序由冯诺依曼于 1945 年首次提出，是基于分治法的一个非常典型的应用。</p>
@@ -246,26 +246,26 @@
 <li><strong>解决（Conquer）</strong>：用合并排序法对两个子序列递归地进行排序</li>
 <li><strong>归并（Merge）</strong>：合并两个已排序的子序列，得到排序结果</li>
 </ol>
-<p>两种不平衡的分解方法：</p>
+<h1 id="实现逻辑"><a href="#实现逻辑" class="headerlink" title="实现逻辑"></a>实现逻辑</h1><p>实现逻辑分两种：“自上而下”的递归法和“自下而上”的迭代法。</p>
+<p><strong>递归法（Top-down）</strong></p>
 <ol>
-<li><p>将前面 n - 1 个元素放入第一个子集，最后一个放入第二个子集</p>
-<ul>
-<li>先对前一个子集递归作排序，即<a href="/2022/11/12/insertion-sort">插入排序</a>的递归算法，复杂度为 O(n<sup>2</sup>)</li>
-</ul>
-</li>
-<li><p>将最大值放入第一个子集，其余元素放入第二个子集，对后一个子集递归作排序</p>
-<ul>
-<li>如使用 Max 排序：<a href="/2022/11/11/selection-sort">选择排序</a>的递归算法</li>
-<li>如以冒泡将最大元素移到右边：<a href="/2022/11/08/bubble-sort">冒泡排序</a>的递归算法</li>
-<li>复杂度为 Θ(n<sup>2</sup>)</li>
-</ul>
-</li>
+<li>申请空间，大小为两个已经排好序的序列之和；该空间用来存放合并后的序列；</li>
+<li>设定两个指针，初始位置分别为两个已经排序的序列的起始位置；</li>
+<li>比较两个指针所指向的元素，选择相对较小（升序）/大（降序）的元素放入到上述的合并空间，并移动指针到下一位置；</li>
+<li>重复步骤 3，直至其中一个指针到达该序列尾；</li>
+<li>将另一序列剩下所有元素直接复制到合并空间尾。</li>
 </ol>
-<h1 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h1><p>平衡分配的伪代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">template</span>&lt;class T&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sort</span><span class="params">(T E, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 对 E 中的 n 个元素进行排序，k 为全局变量</span></span><br><span class="line">    <span class="keyword">if</span> (n &gt;= k) &#123;</span><br><span class="line">        i = n/k;</span><br><span class="line">        j = n-i;</span><br><span class="line">        <span class="comment">// 令 A 包含 E 中的前 i 个元素</span></span><br><span class="line">        <span class="comment">// 令 B 包含 E 中余下 j 个元素</span></span><br><span class="line">        <span class="built_in">sort</span>(A, i);</span><br><span class="line">        <span class="built_in">sort</span>(B, j);  <span class="comment">// 这里可以递归</span></span><br><span class="line">        <span class="built_in">merge</span>(A, B, E, i, j);  <span class="comment">// 将 A 和 B 合并到 E</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 使用插入排序算法对 E 进行排序</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>迭代法（Bottom-up）</strong></p>
+<p>假设序列中有 n 个元素：</p>
+<ol>
+<li>将序列中每相邻的两个数字进行归并操作，形成 $ceil(n/2)$ 个序列，排序后每个序列包含一个或两个元素；</li>
+<li>如果此时序列数不为 1，则将上述的序列再次合并，形成 $ceil(n/4)$ 个序列，每个序列包含三个或四个元素；</li>
+<li>重复步骤 2，直到所有元素排序完毕，即序列数为 1。</li>
+</ol>
+<h1 id="伪代码"><a href="#伪代码" class="headerlink" title="伪代码"></a>伪代码</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sort</span><span class="params">(T E, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 对 E 中的 n 个元素进行排序，k 为全局变量</span></span><br><span class="line">    <span class="keyword">if</span> (n &gt;= k) &#123;</span><br><span class="line">        <span class="comment">// 分成两个子序列</span></span><br><span class="line">        i = n/k;</span><br><span class="line">        j = n-i;</span><br><span class="line">        <span class="comment">// 令 A 包含 E 中的前 i（n/k）个元素</span></span><br><span class="line">        <span class="comment">// 令 B 包含 E 中余下 j 个元素</span></span><br><span class="line">        sort(A, i);  <span class="comment">// 开始递归</span></span><br><span class="line">        sort(B, j);  <span class="comment">// 这里可递归</span></span><br><span class="line">        merge(A, B, E, i, j);  <span class="comment">// 将 A 和 B 合并到 E</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 使用插入排序算法对 E 进行排序</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>在这里，子集合数为 2，A 含有 n/k 个元素</p>
-<p>可以看出 merge 的时间为 O(n)<br>算法所花费时间：</p>
+<p><code>merge()</code> 的时间复杂度为 O(n)</p>
+<p>而整个算法所花费时间：</p>
 <p>当 n/k 约等于 n - n/k 时时间耗费最少：即 k = 2 —— 对半分</p>
 <ul>
 <li>平均复杂度为 Θ(nlogn)</li>
@@ -368,7 +368,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%AA%E4%BB%A3%E7%A0%81"><span class="nav-number">1.</span> <span class="nav-text">伪代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">代码实现</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E9%80%BB%E8%BE%91"><span class="nav-number">1.</span> <span class="nav-text">实现逻辑</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%AA%E4%BB%A3%E7%A0%81"><span class="nav-number">2.</span> <span class="nav-text">伪代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">代码实现</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/11/07/sort-algo-overview/sort-algo-average-time.png">
 <meta property="article:published_time" content="2022-11-07T03:29:07.000Z">
-<meta property="article:modified_time" content="2023-02-27T14:05:31.901Z">
+<meta property="article:modified_time" content="2023-03-01T13:32:56.465Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="算法">
 <meta property="article:tag" content="排序算法">
@@ -255,9 +255,9 @@
 <h1 id="稳定排序算法"><a href="#稳定排序算法" class="headerlink" title="稳定排序算法"></a>稳定排序算法</h1><ul>
 <li><a href="/2022/11/08/bubble-sort">冒泡排序</a></li>
 <li><a href="/2022/11/12/insertion-sort">插入排序</a></li>
+<li>基数排序</li>
 <li>计数排序</li>
 <li>桶排序</li>
-<li>基数排序</li>
 <li><a href="/2023/02/25/merge-sort">归并排序</a></li>
 <li>二叉排序树排序</li>
 <li>图书馆排序</li>
@@ -291,11 +291,11 @@
 </ul>
 <p>相对应的，非比较排序有：</p>
 <ul>
+<li>基数排序</li>
 <li>计数排序</li>
 <li>桶排序</li>
-<li>基数排序</li>
 </ul>
-<p>非比较排序的局限性是：对排序元素的多少有限制。</p>
+<p>非比较排序的局限性是：对排序元素的大小有限制。</p>
 <h1 id="算法性能"><a href="#算法性能" class="headerlink" title="算法性能"></a>算法性能</h1><p>总结了个表格：</p>
 <table>
     <tr>
@@ -367,26 +367,19 @@
         <th>快速排序</th>
         <td>数组</td>
         <td>✖️</td>
-        <td>O(nlog<sub>2</sub>n)</td>
-        <td>O(nlog<sub>2</sub>n)</td>
+        <td>O(nlogn)</td>
+        <td>O(nlogn)</td>
         <td><font color="#AE0810">O(n<sup>2</sup>)</font></td>
-        <td>O(nlog<sub>2</sub>n)</td>
+        <td>O(logn)</td>
     </tr>
     <tr>
-        <th colspan="2" rowspan="3">归并排序</th>
-        <td rowspan="2">数组</td>
-        <td rowspan="3">☑️</td>
-        <td rowspan="3">O(nlog<sub>2</sub>n)</td>
-        <td rowspan="3">O(nlog<sub>2</sub>n)</td>
-        <td rowspan="3">O(nlog<sub>2</sub>n)</td>
-        <td><font color="#2E6501">O(1)</font></td>
-    </tr>
-    <tr>
-        <td>O(n) + O(logn)（如果不是从下到上）</td>
-    </tr>
-    <tr>
-        <td>链表</td>
-        <td><font color="#2E6501">O(1)</font></td>
+        <th colspan="2">归并排序</th>
+        <td>数组、链表</td>
+        <td>☑️</td>
+        <td>O(nlogn)</td>
+        <td>O(nlogn)</td>
+        <td>O(nlogn)</td>
+        <td><font color="#2E6501">O(n)</font></td>
     </tr>
     <tr>
         <th colspan="2">基数排序</th>
@@ -417,6 +410,12 @@
     </tr>
 </table>
 
+<p>以上，n 代表数据规模。</p>
+<p>对于非比较排序：</p>
+<ul>
+<li>k 代表数值中“数位”个数</li>
+<li>m 代表数据的最大值减最小值</li>
+</ul>
 <p>再上个教材的图：</p>
 <p><img src="/2022/11/07/sort-algo-overview/sort-algo-average-time.png"></p>
 
