@@ -235,7 +235,6 @@
       
         <p>我们常说到的数据库<strong>事务</strong>（Transaction），指的是访问并可能更新数据库中各种数据项的一个程序执行单元。</p>
 <span id="more"></span>
-
 <p>事务包括一系列的数据库操作，管理着 INSERT, UPDATE, DELETE 等语句。它可以是一条或一组 SQL 语句，或者是整个程序。</p>
 <p>按照作用域来看，数据库事务主要可分两种：</p>
 <ul>
@@ -272,313 +271,327 @@
 <ul>
 <li>事务处理结束后，对数据的修改是永久的，即使系统故障也不会丢失</li>
 </ul>
-<br>
-
-<h1 id="并发对数据库事务隔离性的破坏"><a href="#并发对数据库事务隔离性的破坏" class="headerlink" title="并发对数据库事务隔离性的破坏"></a>并发对数据库事务隔离性的破坏</h1><table>
+<p><br></p>
+<h1 id="并发对数据库事务隔离性的破坏"><a href="#并发对数据库事务隔离性的破坏" class="headerlink" title="并发对数据库事务隔离性的破坏"></a>并发对数据库事务隔离性的破坏</h1><div class="table-container">
+<table>
 <thead>
 <tr>
-<th align="left">并发下的问题</th>
-<th align="left">描述</th>
+<th style="text-align:left">并发下的问题</th>
+<th style="text-align:left">描述</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left">脏写</td>
-<td align="left">事务回滚了其它事务对数据项的已提交修改</td>
+<tbody>
+<tr>
+<td style="text-align:left">脏写</td>
+<td style="text-align:left">事务回滚了其它事务对数据项的已提交修改</td>
 </tr>
 <tr>
-<td align="left">丢失更新</td>
-<td align="left">事务覆盖了其它事务对数据的已提交修改</td>
+<td style="text-align:left">丢失更新</td>
+<td style="text-align:left">事务覆盖了其它事务对数据的已提交修改</td>
 </tr>
 <tr>
-<td align="left">脏读 Dirty Read</td>
-<td align="left">一个事务读取了另一个<strong>未提交</strong>的事务中的数据</td>
+<td style="text-align:left">脏读 Dirty Read</td>
+<td style="text-align:left">一个事务读取了另一个<strong>未提交</strong>的事务中的数据</td>
 </tr>
 <tr>
-<td align="left">不可重复读 Non-repeatable Read</td>
-<td align="left">对于数据库中某个数据，在同一个事务范围内多次查询却返回不同数据值<br>因为在查询间隔，该数据被另一个事务修改并提交了</td>
+<td style="text-align:left">不可重复读 Non-repeatable Read</td>
+<td style="text-align:left">对于数据库中某个数据，在同一个事务范围内多次查询却返回不同数据值<br>因为在查询间隔，该数据被另一个事务修改并提交了</td>
 </tr>
 <tr>
-<td align="left">幻读（多行的不可重复读）Phantom</td>
-<td align="left">一个事务多次查询之间的数据的条数不一致<br>针对<strong>一批数据整体</strong>出现的问题</td>
+<td style="text-align:left">幻读（多行的不可重复读）Phantom</td>
+<td style="text-align:left">一个事务多次查询之间的数据的条数不一致<br>针对<strong>一批数据整体</strong>出现的问题</td>
 </tr>
-</tbody></table>
-<br>
-
-<h2 id="脏写"><a href="#脏写" class="headerlink" title="脏写"></a>脏写</h2><table>
+</tbody>
+</table>
+</div>
+<p><br></p>
+<h2 id="脏写"><a href="#脏写" class="headerlink" title="脏写"></a>脏写</h2><div class="table-container">
+<table>
 <thead>
 <tr>
-<th align="center">脏写示意</th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center">脏写示意</th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left"></td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left">（比如此时读出来的是 mazda）</td>
-<td align="left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:left">（比如此时读出来的是 mazda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">begin;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left"></td>
-<td align="left">update car set name=’honda’ where id = 1;</td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">update car set name=’honda’ where id = 1;</td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left"></td>
-<td align="left">commit;（脏写）</td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">commit;（脏写）</td>
 </tr>
 <tr>
-<td align="center">T6</td>
-<td align="left">rollback;</td>
-<td align="left"></td>
+<td style="text-align:center">T6</td>
+<td style="text-align:left">rollback;</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>会话 A rollback 后，car 记录会被回滚到 “mazda”，而不是已经被 B 会话提交的 “honda”，这就造成了脏写。</p>
-<br>
-
-<h2 id="丢失更新"><a href="#丢失更新" class="headerlink" title="丢失更新"></a>丢失更新</h2><table>
+<p><br></p>
+<h2 id="丢失更新"><a href="#丢失更新" class="headerlink" title="丢失更新"></a>丢失更新</h2><div class="table-container">
+<table>
 <thead>
 <tr>
-<th align="center">丢失更新示意</th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center">丢失更新示意</th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left"></td>
-<td align="left">begin;</td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">select * from car where id = 1;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">select * from car where id = 1;</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left"></td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left">（比如此时两个会话读出来的都是 mazda）</td>
-<td align="left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:left">（比如此时两个会话读出来的都是 mazda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left">update car set name=’honda’ where id = 1;</td>
-<td align="left"></td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left">update car set name=’honda’ where id = 1;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T6</td>
-<td align="left"></td>
-<td align="left">update car set name=’mitsubishi’ where id = 1;</td>
+<td style="text-align:center">T6</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">update car set name=’mitsubishi’ where id = 1;</td>
 </tr>
 <tr>
-<td align="center">T7</td>
-<td align="left">commit;</td>
-<td align="left"></td>
+<td style="text-align:center">T7</td>
+<td style="text-align:left">commit;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T8</td>
-<td align="left"></td>
-<td align="left">commit;</td>
+<td style="text-align:center">T8</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">commit;</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>会话 B 的 “mitsubishi” 更新会因为会话 A 的提交而丢失。</p>
-<br>
-
-<h2 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h2><table>
+<p><br></p>
+<h2 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h2><div class="table-container">
+<table>
 <thead>
 <tr>
-<th align="center">脏读示意</th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center">脏读示意</th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left"></td>
-<td align="left">begin;</td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">update car set name=’audi’ where id = 1;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">update car set name=’audi’ where id = 1;</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left"></td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left">commit;</td>
-<td align="left"></td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left">commit;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T6</td>
-<td align="left"></td>
-<td align="left">rollback;</td>
+<td style="text-align:center">T6</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">rollback;</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>T4 的时候读取到的结果如果是 “audi”，就出现了脏读，因为会话 B 将事务回退了。</p>
-<br>
-
-<h2 id="不可重复读"><a href="#不可重复读" class="headerlink" title="不可重复读"></a>不可重复读</h2><table>
+<p><br></p>
+<h2 id="不可重复读"><a href="#不可重复读" class="headerlink" title="不可重复读"></a>不可重复读</h2><div class="table-container">
+<table>
 <thead>
 <tr>
-<th align="center">不可重复读示意</th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center">不可重复读示意</th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left"></td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left">（比如此时会话读出来的是 mazda）</td>
-<td align="left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:left">（比如此时会话读出来的是 mazda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">begin;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left"></td>
-<td align="left">update car set name=’mitsubishi’ where id = 1;</td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">update car set name=’mitsubishi’ where id = 1;</td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left"></td>
-<td align="left">commit;</td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">commit;</td>
 </tr>
 <tr>
-<td align="center"><strong>T6</strong></td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left"></td>
+<td style="text-align:center"><strong>T6</strong></td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left">（此时会话读出来的是 mitsubishi）</td>
-<td align="left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:left">（此时会话读出来的是 mitsubishi）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T7</td>
-<td align="left"></td>
-<td align="left">begin;</td>
+<td style="text-align:center">T7</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T8</td>
-<td align="left"></td>
-<td align="left">update car set name=’honda’ where id = 1;</td>
+<td style="text-align:center">T8</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">update car set name=’honda’ where id = 1;</td>
 </tr>
 <tr>
-<td align="center">T9</td>
-<td align="left"></td>
-<td align="left">commit;</td>
+<td style="text-align:center">T9</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">commit;</td>
 </tr>
 <tr>
-<td align="center"><strong>T10</strong></td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left"></td>
+<td style="text-align:center"><strong>T10</strong></td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left">（此时会话读出来的是 honda）</td>
-<td align="left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:left">（此时会话读出来的是 honda）</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>T6 和 T10 都是不可重复读。</p>
 <p>脏读 v.s. 不可重复读</p>
 <ul>
 <li>脏读读取的是其它事务<strong>未提交</strong>的脏数据</li>
 <li>不可重复读读取的是其它事务<strong>已经提交</strong>的数据</li>
 </ul>
-<br>
-
-<h2 id="幻读"><a href="#幻读" class="headerlink" title="幻读"></a>幻读</h2><table>
+<p><br></p>
+<h2 id="幻读"><a href="#幻读" class="headerlink" title="幻读"></a>幻读</h2><div class="table-container">
+<table>
 <thead>
 <tr>
-<th align="center">幻读示意</th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center">幻读示意</th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left">select * from car where id &gt; 0;</td>
-<td align="left"></td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left">select * from car where id &gt; 0;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left">（比如此时会话读出来的是 mazda）</td>
-<td align="left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:left">（比如此时会话读出来的是 mazda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">begin;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left"></td>
-<td align="left">insert into car(name) values(‘audi’)</td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">insert into car(name) values(‘audi’)</td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left">select * from car where id &gt; 0;</td>
-<td align="left"></td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left">select * from car where id &gt; 0;</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>如果 T5 读取出来的值是 (‘mazda’, ‘audi’)，就出现了幻读。</p>
 <p>幻读 v.s. 不可重复读</p>
 <ul>
 <li>不可重复读针对确定的<strong>某一行</strong>数据</li>
 <li>幻读针对的是不确定的<strong>多行</strong>数据（Result Set）</li>
 </ul>
-<br>
-
+<p><br></p>
 <p>因此我们才设定了事务之间的隔离级别：</p>
 <h1 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h1><p>逐级提高：</p>
 <p><big><strong>读未提交</strong></big>（<strong>Read Uncommitted</strong>）：所有事务都可看到其它事务修改过但未提交的内容数据。</p>
@@ -586,454 +599,480 @@
 <li>可能发生脏读、不可重复读和幻读问题</li>
 <li>没有解决任何并发问题，不常用</li>
 </ul>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">读未提交示意</th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center">读未提交示意</th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T0</td>
-<td align="left">（比如此时 id = 1 的是 honda）</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T0</td>
+<td style="text-align:left">（比如此时 id = 1 的是 honda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left">update car set name=’mazda’ where id = 1;</td>
-<td align="left">begin;</td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left">update car set name=’mazda’ where id = 1;</td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">select * from car where id = 1;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">select * from car where id = 1;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left"></td>
-<td align="left">（此时会话读出来的是 mazda）</td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">（此时会话读出来的是 mazda）</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left">commit;</td>
-<td align="left"></td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left">commit;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left"></td>
-<td align="left">select * from car where id = 1;</td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">select * from car where id = 1;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left"></td>
-<td align="left">（此时会话读出来的是 mazda）</td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">（此时会话读出来的是 mazda）</td>
 </tr>
-</tbody></table>
-<br>
-
+</tbody>
+</table>
+</div>
+<p><br></p>
 <p><big><strong>读已提交</strong></big>（<strong>Read Committed</strong>）：一个事务只能读取其它事务已经提交的内容数据</p>
 <ul>
 <li>如：事务 B 只能在事务 A 修改过并且提交之后，才能读取到事务 B 修改的数据</li>
 <li>解决了脏读问题，但没有解决不可重复读和幻读，也不常用</li>
 <li>Oracle 的默认级别</li>
 </ul>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">读已提交示意</th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center">读已提交示意</th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T0</td>
-<td align="left">（比如此时 id = 1 的是 honda）</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T0</td>
+<td style="text-align:left">（比如此时 id = 1 的是 honda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left">update car set name=’mazda’ where id = 1;</td>
-<td align="left">begin;</td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left">update car set name=’mazda’ where id = 1;</td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">select * from car where id = 1;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">select * from car where id = 1;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left"></td>
-<td align="left">（此时会话读出来的是 honda）</td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">（此时会话读出来的是 honda）</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left">commit;</td>
-<td align="left"></td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left">commit;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left"></td>
-<td align="left">select * from car where id = 1;</td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">select * from car where id = 1;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left"></td>
-<td align="left">（此时会话读出来的是 mazda）</td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">（此时会话读出来的是 mazda）</td>
 </tr>
-</tbody></table>
-<br>
-
+</tbody>
+</table>
+</div>
+<p><br></p>
 <p><big><strong>可重复读</strong></big>（<strong>Repeatable Read</strong>）：保证一个事务之间的多个实例在<strong>并发</strong>下能读取同一数据</p>
 <ul>
 <li>对同一字段的多次读取结果是一样的，除非数据被自身事务修改</li>
 <li>MySQL InnoDB 的默认级别</li>
 </ul>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">可重复读示意</th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
-<th align="left">Session C</th>
+<th style="text-align:center">可重复读示意</th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
+<th style="text-align:left">Session C</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T0</td>
-<td align="left">（比如此时 id = 1 的是 honda）</td>
-<td align="left"></td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T0</td>
+<td style="text-align:left">（比如此时 id = 1 的是 honda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
-<td align="left">begin;</td>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left">update car set name=’mazda’ where id = 1;</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left">update car set name=’mazda’ where id = 1;</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left">select * from car where id = 1;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left">select * from car where id = 1;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left">（此时会话读出来的是 mazda）</td>
-<td align="left">（此时会话读出来的是 honda）</td>
-<td align="left">（此时会话读出来的是 honda）</td>
+<td style="text-align:center"></td>
+<td style="text-align:left">（此时会话读出来的是 mazda）</td>
+<td style="text-align:left">（此时会话读出来的是 honda）</td>
+<td style="text-align:left">（此时会话读出来的是 honda）</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left">commit;</td>
-<td align="left"></td>
-<td align="left"></td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left">commit;</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left"></td>
-<td align="left">commit;</td>
-<td align="left">commit;</td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">commit;</td>
+<td style="text-align:left">commit;</td>
 </tr>
 <tr>
-<td align="center">T6</td>
-<td align="left"></td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left"></td>
+<td style="text-align:center">T6</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left"></td>
-<td align="left">（此时会话读出来的是 mazda）</td>
-<td align="left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">（此时会话读出来的是 mazda）</td>
 </tr>
-</tbody></table>
-<br>
-
+</tbody>
+</table>
+</div>
+<p><br></p>
 <p><big><strong>串行化</strong></big>（<strong>Serializable</strong>）：事务之间只能顺序执行，使之没有任何冲突</p>
 <ul>
 <li>最高级别</li>
 <li>通过加锁实现（读锁和写锁）</li>
 </ul>
 <p>串行化规范对于不同的情景有不同的阻塞操作：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center"></th>
-<th align="left">事务 A 读操作</th>
-<th align="left">事务 A 写操作</th>
+<th style="text-align:center"></th>
+<th style="text-align:left">事务 A 读操作</th>
+<th style="text-align:left">事务 A 写操作</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">事务 B 读操作</td>
-<td align="left">不阻塞</td>
-<td align="left">阻塞</td>
+<tbody>
+<tr>
+<td style="text-align:center">事务 B 读操作</td>
+<td style="text-align:left">不阻塞</td>
+<td style="text-align:left">阻塞</td>
 </tr>
 <tr>
-<td align="center">事务 B 写操作</td>
-<td align="left">阻塞</td>
-<td align="left">阻塞</td>
+<td style="text-align:center">事务 B 写操作</td>
+<td style="text-align:left">阻塞</td>
+<td style="text-align:left">阻塞</td>
 </tr>
-</tbody></table>
-<br>
-
+</tbody>
+</table>
+</div>
+<p><br></p>
 <p><strong>读读操作不阻塞</strong>：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center"></th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center"></th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T0</td>
-<td align="left">（比如此时 id = 1 的是 honda）</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T0</td>
+<td style="text-align:left">（比如此时 id = 1 的是 honda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left">begin;</td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left">（此时会话读出来的是 honda）</td>
-<td align="left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:left">（此时会话读出来的是 honda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">select * from car where id = 1;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">select * from car where id = 1;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left"></td>
-<td align="left">（此时会话读出来的是 honda）</td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">（此时会话读出来的是 honda）</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>事务 A 的读操作不会阻塞事务 B 的读操作。</p>
-<br>
-
+<p><br></p>
 <p><strong>读写操作阻塞</strong>：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center"></th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center"></th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left">begin;</td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left">（此时会话读出来的是 honda）</td>
-<td align="left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:left">（此时会话读出来的是 honda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">update car set name=’mazda’ where id = 1;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">update car set name=’mazda’ where id = 1;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left"></td>
-<td align="left">（会话 B 修改操作被阻塞）</td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">（会话 B 修改操作被阻塞）</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left">commit;</td>
-<td align="left"></td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left">commit;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left"></td>
-<td align="left">此时写操作才会被执行</td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">此时写操作才会被执行</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>事务 A 的读操作会阻塞事务 B 的写操作。</p>
-<br>
-
+<p><br></p>
 <p><strong>写读操作阻塞</strong>：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center"></th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center"></th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T0</td>
-<td align="left">（比如此时 id = 1 的是 honda）</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T0</td>
+<td style="text-align:left">（比如此时 id = 1 的是 honda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left">update car set name=’mazda’ where id = 1;</td>
-<td align="left">begin;</td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left">update car set name=’mazda’ where id = 1;</td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">select * from car where id = 1;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">select * from car where id = 1;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left"></td>
-<td align="left">（会话 B 读取操作被阻塞）</td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">（会话 B 读取操作被阻塞）</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left">commit;</td>
-<td align="left"></td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left">commit;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left"></td>
-<td align="left">此时读操作才会被执行，查到的是 mazda</td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">此时读操作才会被执行，查到的是 mazda</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>事务 A 的写操作会阻塞事务 B 的读操作。</p>
-<br>
-
+<p><br></p>
 <p><strong>写写操作阻塞</strong>：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center"></th>
-<th align="left">Session A</th>
-<th align="left">Session B</th>
+<th style="text-align:center"></th>
+<th style="text-align:left">Session A</th>
+<th style="text-align:left">Session B</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">T0</td>
-<td align="left">（比如此时 id = 1 的是 mitsubishi）</td>
-<td align="left"></td>
+<tbody>
+<tr>
+<td style="text-align:center">T0</td>
+<td style="text-align:left">（比如此时 id = 1 的是 mitsubishi）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T1</td>
-<td align="left">begin;</td>
-<td align="left"></td>
+<td style="text-align:center">T1</td>
+<td style="text-align:left">begin;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T2</td>
-<td align="left">update car set name=’mazda’ where id = 1;</td>
-<td align="left">begin;</td>
+<td style="text-align:center">T2</td>
+<td style="text-align:left">update car set name=’mazda’ where id = 1;</td>
+<td style="text-align:left">begin;</td>
 </tr>
 <tr>
-<td align="center">T3</td>
-<td align="left"></td>
-<td align="left">update car set name=’honda’ where id = 1;</td>
+<td style="text-align:center">T3</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">update car set name=’honda’ where id = 1;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left"></td>
-<td align="left">（会话 B 修改操作被阻塞）</td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">（会话 B 修改操作被阻塞）</td>
 </tr>
 <tr>
-<td align="center">T4</td>
-<td align="left">commit;</td>
-<td align="left"></td>
+<td style="text-align:center">T4</td>
+<td style="text-align:left">commit;</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T5</td>
-<td align="left">select * from car where id = 1;</td>
-<td align="left">此时写操作才会被执行</td>
+<td style="text-align:center">T5</td>
+<td style="text-align:left">select * from car where id = 1;</td>
+<td style="text-align:left">此时写操作才会被执行</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left">（此时会话读出来的是 mazda）</td>
-<td align="left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:left">（此时会话读出来的是 mazda）</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
-<td align="center">T6</td>
-<td align="left"></td>
-<td align="left">select * from car where id = 1;</td>
+<td style="text-align:center">T6</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">select * from car where id = 1;</td>
 </tr>
 <tr>
-<td align="center"></td>
-<td align="left"></td>
-<td align="left">（此时会话读出来的是 honda）</td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">（此时会话读出来的是 honda）</td>
 </tr>
 <tr>
-<td align="center">T7</td>
-<td align="left"></td>
-<td align="left">commit;</td>
+<td style="text-align:center">T7</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">commit;</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>事务 A 的写操作会阻塞事务 B 的写操作。</p>
-<br>
-
+<p><br></p>
 <p>级别越高，越能保证数据完整性和一致性，对并发的效率也越低。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="left">对象状态</th>
-<th align="left">脏读</th>
-<th align="left">不可重复读</th>
-<th align="left">幻读</th>
+<th style="text-align:left">对象状态</th>
+<th style="text-align:left">脏读</th>
+<th style="text-align:left">不可重复读</th>
+<th style="text-align:left">幻读</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="left">读未提交</td>
-<td align="left"><font color="red">可能</font></td>
-<td align="left"><font color="red">可能</font></td>
-<td align="left"><font color="red">可能</font></td>
+<tbody>
+<tr>
+<td style="text-align:left">读未提交</td>
+<td style="text-align:left"><font color="red">可能</font></td>
+<td style="text-align:left"><font color="red">可能</font></td>
+<td style="text-align:left"><font color="red">可能</font></td>
 </tr>
 <tr>
-<td align="left">读已提交</td>
-<td align="left"><font color="green">不会</font></td>
-<td align="left"><font color="red">可能</font></td>
-<td align="left"><font color="red">可能</font></td>
+<td style="text-align:left">读已提交</td>
+<td style="text-align:left"><font color="green">不会</font></td>
+<td style="text-align:left"><font color="red">可能</font></td>
+<td style="text-align:left"><font color="red">可能</font></td>
 </tr>
 <tr>
-<td align="left">可重复读</td>
-<td align="left"><font color="green">不会</font></td>
-<td align="left"><font color="green">不会</font></td>
-<td align="left"><font color="red">可能</font></td>
+<td style="text-align:left">可重复读</td>
+<td style="text-align:left"><font color="green">不会</font></td>
+<td style="text-align:left"><font color="green">不会</font></td>
+<td style="text-align:left"><font color="red">可能</font></td>
 </tr>
 <tr>
-<td align="left">串行化</td>
-<td align="left"><font color="green">不会</font></td>
-<td align="left"><font color="green">不会</font></td>
-<td align="left"><font color="green">不会</font></td>
+<td style="text-align:left">串行化</td>
+<td style="text-align:left"><font color="green">不会</font></td>
+<td style="text-align:left"><font color="green">不会</font></td>
+<td style="text-align:left"><font color="green">不会</font></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 
     </div>
 

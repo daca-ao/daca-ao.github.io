@@ -241,7 +241,6 @@
       
         <p>Java 程序的基本单元，就是一个个的类（Class）及类实例（Class Instance）。在使用类之前，必须先将类加载进 JVM 的内存中。</p>
 <span id="more"></span>
-
 <p>类加载器（Class Loader）作用：将类加载到 Java 虚拟机，并且检查类的完整性。</p>
 <p>类加载机制：</p>
 <ol>
@@ -260,8 +259,7 @@
 </ul>
 <p>.class 文件被加载后，对应在 JVM 形成一份描述该类结构的元信息对象；通过该元信息对象可以获知 Class 的结构信息，如构造函数、属性、方法等。<br>Java 允许用户借由这个 Class 相关的元信息对象间接调用 Class 对象的功能，这就是我们经常能见到的 Class 类。</p>
 <p>JVM 只会加载程序执行时所需要的 .class 文件，<strong>暂时不使用的类则不会被加载</strong>。</p>
-<br>
-
+<p><br></p>
 <h1 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h1><p>三大类，五步：<strong>加载</strong> -&gt; <strong>验证</strong> -&gt; <strong>准备</strong> -&gt; <strong>解析</strong> -&gt; <strong>初始化</strong>。</p>
 <p><strong>1. 加载 Load</strong>：加载类数据到内存，在堆区建立一个 Class 对象</p>
 <ol>
@@ -320,7 +318,8 @@
 <p>注：访问类的 final 静态变量，即常量时不会触发该类的初始化</p>
 <ul>
 <li>因为：常量在被写进类的字节码之前，会被编译器优化为 value 而不是 field；</li>
-<li>所以编译器并不会对应生成字节码来从实例中载入 field 的值，而是直接把这个 value 插入到字节码中。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConstClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;ConstClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span>	String HELLOWORLD = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(ConstClass.HELLOWORLD);  <span class="comment">// 调用类常量：只会输出 &quot;hello world&quot;，不会输出 &quot;ConstClass init&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>所以编译器并不会对应生成字节码来从实例中载入 field 的值，而是直接把这个 value 插入到字节码中。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConstClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;ConstClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span>	String HELLOWORLD = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(ConstClass.HELLOWORLD);  <span class="comment">// 调用类常量：只会输出 &quot;hello world&quot;，不会输出 &quot;ConstClass init&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
 </ul>
 <p><big><strong>二</strong></big>、使用 <code>java.lang.reflect</code> 包的方法对类进行反射调用时，如果类没有进行过初始化，则需要先触发类的初始化。</p>
 <ul>
@@ -330,15 +329,13 @@
 <ul>
 <li>这种情形会递归加载所有之前未被加载的父类</li>
 </ul>
-<p>所以：通过子类来引用父类的静态字段（包括域和静态块），只会触发父类的初始化，不会触发子类的初始化。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SuperClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;SuperClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span>	String HELLOWORLD = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SubClass</span> <span class="keyword">extends</span> <span class="title">SuperClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;SubClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(SubClass.HELLOWORLD);  <span class="comment">// 只输出 &quot;SuperClass init&quot;，不会输出 &quot;SubClass init&quot;。</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以：通过子类来引用父类的静态字段（包括域和静态块），只会触发父类的初始化，不会触发子类的初始化。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SuperClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;SuperClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span>	String HELLOWORLD = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SubClass</span> <span class="keyword">extends</span> <span class="title">SuperClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;SubClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(SubClass.HELLOWORLD);  <span class="comment">// 只输出 &quot;SuperClass init&quot;，不会输出 &quot;SubClass init&quot;。</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <ul>
 <li>对于静态字段，只有直接定义这个字段的类才会被初始化</li>
 </ul>
 <p><big><strong>四</strong></big>、JVM 启动时，用户需要指定一个主类（包含 <code>main</code> 方法的类），JVM 先初始化这个类。</p>
 <p><big><strong>五</strong></big>、JDK 1.7 动态语言支持：如果一个 <code>java.lang.invoke.MethodHandle</code> 实例最后的解析结果 <code>REF_getStatic</code>, <code>REF_putStatic</code>, <code>REF_invokeStatic</code> 的方法 handle，且这个方法 handle 所对应的类没进行过初始化，则需要先触发类的初始化。</p>
-<br>
-
+<p><br></p>
 <p>例：程序从 <code>HelloWorld.class</code> 开始运行——</p>
 <ol>
 <li>虚拟机从磁盘读取文件或请求 Web 上的文件等方法，加载 HelloWorld 类文件（<code>.class</code> 文件）的内容；</li>
@@ -346,12 +343,10 @@
 <li>虚拟机执行 HelloWorld 中 <code>main()</code> 方法；</li>
 <li>如 <code>main()</code> 或 <code>main()</code> 调用的方法需要用到更多的类：就加载这些类。</li>
 </ol>
-<br>
-
+<p><br></p>
 <h2 id="类的唯一性"><a href="#类的唯一性" class="headerlink" title="类的唯一性"></a>类的唯一性</h2><p>JVM 并不是一次性将所有文件都加载进来的，而是按需加载，通过不同的类加载器（后面小节会说到）加载不同的类。<br>当程序到了某一段逻辑需要额外的类时，再通过类加载机制去加载到 JVM 中；而且会存放一段时间，便于频繁使用。</p>
 <p>JVM 判断两个类是否相同：不仅要判定类的全限定名是否相同（同一个 .class 文件），而且要判断是否由同一个类加载器实例加载（<code>isAssingnableFrom()</code>）。<br>也就是：任何一个类，需要这个类自身和加载它的类加载器来确定它在 JVM 的唯一性。</p>
-<br>
-
+<p><br></p>
 <h1 id="类加载器类型"><a href="#类加载器类型" class="headerlink" title="类加载器类型"></a>类加载器类型</h1><p>每个 Java 程序至少拥有三类加载器。</p>
 <p><strong>1. 引导（启动，Bootstrap）类加载器</strong></p>
 <p>最顶层的类加载器，随 JVM 启动而启动，是 JVM 不可分割的一部分</p>
@@ -369,8 +364,7 @@
 <li>在构造的时候会同时构造 <code>ExtClassLoader</code></li>
 </ul>
 <p>出于安全性考虑，虚拟机是<strong>按照文件名</strong>识别并加载 jar 包的，而且 Bootstrap 类加载器只加载包名以 <code>java</code>, <code>javax</code>, <code>sun</code> 等开头的类。<br>如果文件名不被 JVM 识别，即使将再多 jar 包丢到 /lib 目录下面也没用。<br>而且，即使是自己重新打了一个 <code>rt.jar</code>，也是过不了虚拟机的安全机制，加载不了的。</p>
-<br>
-
+<p><br></p>
 <p><strong>2. 扩展（Extension）类加载器</strong></p>
 <p>由 Sun 实现的 <strong><code>sun.misc.Launcher$ExtClassLoader</code></strong> 类，通过 Java 实现。</p>
 <ul>
@@ -380,8 +374,7 @@
 <li>开发者可以直接使用该加载器</li>
 <li>在构造的时候同时构造 <code>AppClassLoader</code></li>
 </ul>
-<br>
-
+<p><br></p>
 <p><strong>3. 应用（Application）类加载器</strong></p>
 <p>由 Sun 实现的 <strong><code>sun.misc.Launcher$AppClassLoader</code></strong> 类，通过 Java 实现，继承自 <code>URLClassLoader</code>。<br>因为 <code>AppClassLoader</code> 又是 <code>ClassLoader.getSystemClassLoader()</code> 的返回值，所以又称之为<strong>系统类加载器 System ClassLoader</strong>）</p>
 <ul>
@@ -390,8 +383,7 @@
 <li>如应用没有自定义类加载器，那：它就是程序中<strong>默认</strong>的类加载器。</li>
 </ul>
 <p>另：还可从 <code>/jre/lib/endorsed</code> 目录加载 —— 将某个标准 Java 类库替换为更新的版本。</p>
-<br>
-
+<p><br></p>
 <p>除了上述三类必备的类加载器之外，用户还可以自定义类加载器：<br><strong>4. Custom Class Loader</strong></p>
 <ul>
 <li>用户自定义的类加载器，父类为 <code>AppClassLoader</code></li>
@@ -399,9 +391,7 @@
 <p>自定义类加载器的原因：像刚刚所说的，JVM 比较认生，只识别指定文件名和路径下的资源文件，因此 Java 提供的默认 ClassLoader 只会加载指定目录下的 jar 和 .class。</p>
 <h2 id="基类源码浅析"><a href="#基类源码浅析" class="headerlink" title="基类源码浅析"></a>基类源码浅析</h2><p>除了 Bootstrap 类加载器，所有的类加载器，包括自定义的类加载器，均需继承 <code>ClassLoader</code> 类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassLoader</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ClassLoader parent;</span><br><span class="line"></span><br><span class="line">    <span class="function">ClassLoader <span class="title">getParent</span><span class="params">()</span>    <span class="comment">// 返回父类加载器，如为 Bootstrap ClassLoader 则返回 null</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="keyword">static</span> ClassLoader <span class="title">getSystemClassLoader</span><span class="params">()</span>  <span class="comment">// 获取系统的类加载器，即应用类加载器</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="keyword">protected</span> Class <span class="title">findClass</span><span class="params">(String name)</span>  <span class="comment">// 类加载器应覆盖此方法，以查找类的字节码</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="keyword">protected</span> Class&lt;?&gt; <span class="title">loadClass</span><span class="params">(String name, <span class="keyword">boolean</span> resolve)</span>  <span class="comment">// 加载类</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    Class <span class="title">defineClass</span><span class="params">(String name, <span class="keyword">byte</span>[] byteCodeData, <span class="keyword">int</span> offset, <span class="keyword">int</span> length)</span></span></span><br><span class="line"><span class="function">    <span class="comment">// 将新的类添加到虚拟机中，其字节码在给定的数据范围（offset, length）中</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    ...</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<br>
-
+<p><br></p>
 <h1 id="类加载层次：双亲委派模型"><a href="#类加载层次：双亲委派模型" class="headerlink" title="类加载层次：双亲委派模型"></a>类加载层次：双亲委派模型</h1><p>类加载器有一种“父/子关系”，它们是<strong>组合</strong>而非继承关系：</p>
 <ul>
 <li>子类保存对父类的引用；</li>
@@ -426,20 +416,16 @@
 <li>如没加载到：任务再转交给该 ClassLoader 自身，或到网络或指定文件系统 URL 加载该类</li>
 <li>如没加载到：抛出 <code>ClassNotFoundException</code></li>
 </ul>
-<p><img src="/2021/07/08/class-loader/classloader.png"></p>
+<p><img src="/2021/07/08/class-loader/classloader.png" alt></p>
 <p>再举个例子：</p>
 <p>自定义类加载器通过 defineClass() 加载一个 “java.lang.” 开头的类并不会成功；虚拟机将会抛出 <code>java.lang.SecurityException: Prohibited package name: java lang</code> 异常。<br>因为类的加载早就分配好了是由引导类加载器加载 “java.lang.” 开头的类。</p>
-<br>
-
+<p><br></p>
 <h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>类图关系：</p>
-<p><img src="/2021/07/08/class-loader/classloader-class-diagram.png"></p>
+<p><img src="/2021/07/08/class-loader/classloader-class-diagram.png" alt></p>
 <p>如图，<code>ExtClassLoader</code> 和 <code>AppClassLoader</code> 都继承于 <code>URLClassLoader</code>。</p>
-<br>
-
+<p><br></p>
 <p><code>ClassLoader</code> 中的四个方法：</p>
-<p><strong>1.</strong> <code>loadClass()</code> ：由 <code>ClassLoader</code> 实现，逻辑就是<strong>双亲委派模型</strong>的实现：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="keyword">boolean</span> resolve) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">synchronized</span> (getClassLoadingLock(name)) &#123;</span><br><span class="line">        <span class="comment">// 先从缓存查找该 class 对象，找到了就不用再重新加载了</span></span><br><span class="line">        Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="keyword">null</span>) &#123;  <span class="comment">// 没找到</span></span><br><span class="line">            <span class="keyword">long</span> t0 = System.nanoTime();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (parent != <span class="keyword">null</span>) &#123;  <span class="comment">// 委托父类加载器加载</span></span><br><span class="line">                    c = parent.loadClass(name, <span class="keyword">false</span>);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;  <span class="comment">// 没有父类加载器：委托引导类加载器</span></span><br><span class="line">                    c = findBootstrapClassOrNull(name); </span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ClassNotFoundException	e) &#123;</span><br><span class="line">                <span class="comment">// ClassNotFoundException thrown if class not found</span></span><br><span class="line">                <span class="comment">// from the non-null parent class loader</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (c == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// If still not found, then invoke findClass in order</span></span><br><span class="line">                <span class="comment">// 父类都找不到：调用自己类定义的 findClass() 去找</span></span><br><span class="line">                c = findClass(name);</span><br><span class="line">                <span class="comment">// this	is the defining class loader; record the stats</span></span><br><span class="line">                sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);</span><br><span class="line">                sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);</span><br><span class="line">                sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (resolve) &#123;  <span class="comment">// 是否需要在加载时进行解析</span></span><br><span class="line">            resolveClass(c);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<p><strong>1.</strong> <code>loadClass()</code> ：由 <code>ClassLoader</code> 实现，逻辑就是<strong>双亲委派模型</strong>的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="keyword">boolean</span> resolve) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">synchronized</span> (getClassLoadingLock(name)) &#123;</span><br><span class="line">        <span class="comment">// 先从缓存查找该 class 对象，找到了就不用再重新加载了</span></span><br><span class="line">        Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="keyword">null</span>) &#123;  <span class="comment">// 没找到</span></span><br><span class="line">            <span class="keyword">long</span> t0 = System.nanoTime();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (parent != <span class="keyword">null</span>) &#123;  <span class="comment">// 委托父类加载器加载</span></span><br><span class="line">                    c = parent.loadClass(name, <span class="keyword">false</span>);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;  <span class="comment">// 没有父类加载器：委托引导类加载器</span></span><br><span class="line">                    c = findBootstrapClassOrNull(name); </span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ClassNotFoundException	e) &#123;</span><br><span class="line">                <span class="comment">// ClassNotFoundException thrown if class not found</span></span><br><span class="line">                <span class="comment">// from the non-null parent class loader</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (c == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// If still not found, then invoke findClass in order</span></span><br><span class="line">                <span class="comment">// 父类都找不到：调用自己类定义的 findClass() 去找</span></span><br><span class="line">                c = findClass(name);</span><br><span class="line">                <span class="comment">// this	is the defining class loader; record the stats</span></span><br><span class="line">                sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);</span><br><span class="line">                sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);</span><br><span class="line">                sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (resolve) &#123;  <span class="comment">// 是否需要在加载时进行解析</span></span><br><span class="line">            resolveClass(c);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p><strong>2.</strong> <code>findClass()</code>：定义类加载器的类加载逻辑，在 <code>loadClass()</code> 被调用。</p>
 <ul>
 <li>父类加载器加载失败后，就会调用自己的 <code>findClass()</code> 方法加载类。</li>
@@ -447,22 +433,18 @@
 <li>一般来说，自定义类加载器会复写 <code>findClass()</code> 方法，定义自己的加载规则，将取得的字节码转换成流，再调用 <code>defineClass()</code> 生成 Class 对象。</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例代码：</span></span><br><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">    <span class="comment">// 获取类的字节数组</span></span><br><span class="line">    <span class="keyword">byte</span>[] classData = getClassData(name);</span><br><span class="line">    <span class="keyword">if</span> (classData == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ClassNotFoundException();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 调用 defineClass() 生成 class 对象</span></span><br><span class="line">        <span class="keyword">return</span> defineClass(name, classData, <span class="number">0</span>, classData.length);  <span class="comment">// 此处还没有对 class 文件进行解析</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p><strong>3.</strong> <code>defineClass()</code>：通常与 <code>findClass()</code> 一起使用。</p>
 <p><strong>4.</strong> <code>resolveClass()</code>：创建并解析 Class 对象，符号引用替换成直接引用。</p>
-<br>
-
+<p><br></p>
 <p><code>SecureClassLoader</code>：新增几个与使用相关的代码源验证（代码源位置和证书验证），和权限定义类验证（主要是对 class 源码的访问权限）的方法。</p>
-<br>
-
+<p><br></p>
 <p><code>URLClassLoader</code>：一般和这个类打交道，包括扩展类加载器。</p>
 <ul>
 <li>为父抽象类提供了实现</li>
 <li>新增 <code>URLClassPath</code> 类协助取得 class 字节码流等功能</li>
 <li>避免重写 <code>findClass()</code> 的时间消耗</li>
 </ul>
-<br>
-
+<p><br></p>
 <h1 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h1><p>应用场景：</p>
 <ol>
 <li>常用于代码的加解密：想要让自己的 Java 不那么容易被反编译，可以先将编译后的代码使用某种算法加密；<ul>
@@ -477,8 +459,7 @@
 <li>如不想打破双亲委派模型：重写 <code>findClass()</code></li>
 <li>如想打破双亲委派模型：重写 <code>loadClass()</code></li>
 </ul>
-<br>
-
+<p><br></p>
 <h1 id="破坏双亲委派"><a href="#破坏双亲委派" class="headerlink" title="破坏双亲委派"></a>破坏双亲委派</h1><p>这是除了重写 <code>ClassLoader</code> 的 <code>loadClass()</code> 方法之外，另外一种破坏双亲委派的做法。</p>
 <p><strong>背景 1</strong>：Java 应用存在很多的服务提供者接口（Service Provider Interface, <strong>SPI</strong>），允许第三方提供实现。</p>
 <ul>
@@ -495,20 +476,18 @@
 <li>其次，虽然这看起来像是<strong>应用类加载器</strong>将要干的活，但是由于双亲委派模式的存在，Bootstrap 类加载器<strong>无法反向委托</strong>应用类加载器去加载实现类</li>
 </ul>
 <p>那怎么办呢？</p>
-<br>
-
+<p><br></p>
 <p>可以利用<strong>线程上下文加载器</strong>（ContextClassLoader, since Java 2）解决问题。</p>
 <ul>
 <li>可通过 <code>java.lang.Thread</code> 中的 <code>getContextClassLoader()</code> 和 <code>setContextClassLoader()</code> 获取和设置线程的上下文加载器</li>
 <li>如果没有手动设置，线程就会继承其父线程的上下文加载器；初始线程的上下文加载器，就是<strong>应用类加载器</strong>（<code>AppClassLoader</code>）</li>
 </ul>
 <p>以 JDBC 实现为例：</p>
-<p><img src="/2021/07/08/class-loader/context-classloader.png"></p>
+<p><img src="/2021/07/08/class-loader/context-classloader.png" alt></p>
 <p>以上加载方式显然破坏了双亲委派模型：抛弃了原本的委托链，使程序逆向使用类加载器。</p>
 <p>示例：可参考 <code>DriverManager</code> (from <code>rt.jar</code>)，通过读取配置文件获取需要加载的类的全限定名。</p>
 <p>ContextClassLoader 默认存放了 AppClassLoader 的引用。<br>无论当前程序在何处（Bootstrap ClassLoader 或者 ExtClassLoader 等），有需要时都可以调用 <code>Thread.getCurrentThread().getContextClassLoader()</code> 获得应用类加载器。</p>
-<br>
-
+<p><br></p>
 <h2 id="应用：Tomcat-的类加载器结构"><a href="#应用：Tomcat-的类加载器结构" class="headerlink" title="应用：Tomcat 的类加载器结构"></a>应用：Tomcat 的类加载器结构</h2><p>应用场景：</p>
 <p><strong>1</strong>. 最基本需求：部署在同一个 Web 容器的两个 Web 程序，它们所使用的 Java 类库可以相互隔离。</p>
 <ul>
@@ -516,25 +495,22 @@
 <li>所以不能要求一个类库在一个 Web 容器中只有一份，容器应保证每个应用程序的类库可以独立使用。</li>
 </ul>
 <p>用双亲委派模型能做到吗？做不到。<br>双亲委派模型是根据包名+类名加载类的，不以版本作区分。因此如果不同应用的依赖类库不能相互隔离的话，容器一旦加载了其中一个版本的类库，另一个版本的就不能用了。</p>
-<br>
-
+<p><br></p>
 <p><strong>2</strong>. 常见需求：部署在同一个 Web 容器上的两个 Web 应用程序，它们所使用的 Java 类库可以共享。</p>
 <ul>
 <li>其实就是第一个需求的相对：比如有 10 个使用 Spring Framework 的应用程序部署于同一个容器中，如果每个应用隔离一份 Spring，将会造成巨大的资源浪费。</li>
 <li>类库不能共享，则多组同质化类库加载到 Web 容器内存后，很容易造成虚拟机的方法区过度膨胀。</li>
 </ul>
 <p>用双亲委派模型能做到吗？做不到。<br>双亲委派模型根据不同的程序运行时，去给程序加载所需的类库，有多少个应用在跑，就无脑加载多少次，不会去管“如果某几个应用用了同样的类库，我就加载一次”的情况。</p>
-<br>
-
+<p><br></p>
 <p><strong>3</strong>. Web 容器需要尽可能保证自身的安全，不受部署的 Web 应用程序影响</p>
 <ul>
 <li>特别是某些使用 Java 实现的 Web 容器，其自身的库依赖问题也要重视；</li>
 <li>基于安全考虑，容器所使用的类库应该与应用程序的类库相互独立。</li>
 </ul>
-<br>
-
+<p><br></p>
 <p>又要隔离，又要共享，还要和容器类库相互独立，Tomcat 的类加载器结构只能<strong>打破双亲委派模型</strong>去做这些事。</p>
-<p><img src="/2021/07/08/class-loader/tomcat-classloader.png"></p>
+<p><img src="/2021/07/08/class-loader/tomcat-classloader.png" alt></p>
 <p>每次新启动一个 Web 应用，其类加载器默认的加载顺序是：</p>
 <ol>
 <li>先从缓存中加载</li>

@@ -251,12 +251,11 @@
       
         <p>Kubernetes 是 Google 在 2014 年发布的 Omega 开源版本，是全球发展最快、市场占有率最高的容器编排引擎产品。</p>
 <span id="more"></span>
-
 <p>Kubernetes 源于 Google 开发的 Borg，最初用于调度公司内部近 20 亿个容器，属于云原生的一部分，相当于容器的“操作系统”。</p>
 <p>云原生其它内容还包括 <strong>ConfigMap</strong>（配置中心）、<strong>etcd</strong>（发现中心，负责存储和通知）、<strong>service mesh</strong>（网格服务，别称 <strong>sidecar</strong>，为每个服务提供非业务的逻辑，如网关、鉴权等，是<em>去中心化</em>的象征）、CI/CD。</p>
 <h1 id="主要构成"><a href="#主要构成" class="headerlink" title="主要构成"></a>主要构成</h1><p>既然是基于容器技术的分布式集群管理系统，Kubernetes 也应该有集群（Cluster），有主（Master）从（Node）的概念。<br>除此之外还包括 Kubernetes 的指令系统（kubectl）和存储管理（etcd）等。</p>
 <p>简图如下：</p>
-<p><img src="/2022/05/18/kubernetes-overview/kubernetes-structure.jpg"></p>
+<p><img src="/2022/05/18/kubernetes-overview/kubernetes-structure.jpg" alt></p>
 <ul>
 <li>Master 统一管理 Node 节点，在工作程序运行有效负载（应用程序）的地方控制和监视集群</li>
 <li>Node 在分布式系统中可以是物理主机，也可以是虚拟机</li>
@@ -266,7 +265,7 @@
 <h2 id="Cluster"><a href="#Cluster" class="headerlink" title="Cluster"></a>Cluster</h2><p>Kubernetes 集群是计算、存储和网络资源的集合。Kubernetes 利用这些资源运行各种基于容器的应用。</p>
 <h2 id="Master"><a href="#Master" class="headerlink" title="Master"></a>Master</h2><p>Cluster 的司令部，因此<strong>调度</strong>是它的主要任务。</p>
 <p>Master 各组件如图：</p>
-<p><img src="/2022/05/18/kubernetes-overview/kubernetes-master.png"></p>
+<p><img src="/2022/05/18/kubernetes-overview/kubernetes-master.png" alt></p>
 <p>Master 各系统组件都被划分到 <code>kube-system</code> 的 namespace 中。</p>
 <h3 id="kube-apiserver-进程"><a href="#kube-apiserver-进程" class="headerlink" title="kube-apiserver 进程"></a><strong>kube-apiserver 进程</strong></h3><p>为一基于 HTTP/HTTPS RESTful 服务器，是集群内各个功能模块之间数据交互和通信的中心枢纽</p>
 <ul>
@@ -313,6 +312,7 @@
 <li>容量：node 上的可用资源，包括 CPU、内存和可以调度到 node 上的 pods 的最大数量</li>
 <li>通用信息：包括内核版本、Kubernetes 版本（kubelet, kube-proxy 版本），容器版本，操作系统名等</li>
 </ul>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -320,7 +320,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>OutOfDisk</td>
 <td><code>True</code>：node 的空闲空间不足以添加新 pod</td>
 </tr>
@@ -336,13 +337,15 @@
 <td>DiskPressure</td>
 <td><code>True</code>：node 不存在磁盘压力：磁盘用量低</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>Node 各组件如图：</p>
-<p><img src="/2022/05/18/kubernetes-overview/kubernetes-node.png"></p>
+<p><img src="/2022/05/18/kubernetes-overview/kubernetes-node.png" alt></p>
 <p>更动画化的示意图：</p>
-<p><img src="/2022/05/18/kubernetes-overview/kubernetes-worker.png"></p>
+<p><img src="/2022/05/18/kubernetes-overview/kubernetes-worker.png" alt></p>
 <p>一个 Node 的生态如下：</p>
-<p><img src="/2022/05/18/kubernetes-overview/kubernetes-node-env.png"></p>
+<p><img src="/2022/05/18/kubernetes-overview/kubernetes-node-env.png" alt></p>
 <p>除 kubelet（<strong>唯一没有以容器形式运行的组件</strong>）外，Node 各系统组件都被划分到 <code>kube-system</code> 的 namespace 中。</p>
 <h3 id="kubelet"><a href="#kubelet" class="headerlink" title="kubelet"></a><strong>kubelet</strong></h3><p>kubelet 组件是 Node 的心脏，用于管理容器生命周期（创建、修改、监控、删除等）。</p>
 <ul>
@@ -357,7 +360,7 @@
 <li>维护 node 上的防火墙规则和路由规则等信息，监听 apiserver 中 service / endpoints 的变化，并刷新对应规则，实现负载均衡</li>
 <li>实现了集群内部从 pod 到 service，以及集群外部从 nodePort 到 service 的访问</li>
 </ul>
-<p><img src="/2022/05/18/kubernetes-overview/kubeproxy.png"></p>
+<p><img src="/2022/05/18/kubernetes-overview/kubeproxy.png" alt></p>
 <p>kube-proxy 的实现模式主要有三种：</p>
 <p><code>userspace</code>：最早的默认负载均衡方案（before Kubernetes v1.1）</p>
 <ol>
@@ -366,11 +369,11 @@
 <li>随后请求转到 userspace，被转发给用户空间监听的 kube-proxy 端口</li>
 <li>kube-proxy 处理请求后，将请求封装，再根据内核空间 iptables 中的规则，将请求转发给后端的 service(backend) pod</li>
 </ol>
-<p><img src="/2022/05/18/kubernetes-overview/node-userspace.png"></p>
+<p><img src="/2022/05/18/kubernetes-overview/node-userspace.png" alt></p>
 <p>不过，流量从 userspace 进出内核带来的性能损耗是不可接受的。</p>
 <p><code>iptables</code>：基于 netfilter 实现，是目前默认的代理模式。</p>
 <p>当客户端请求 service IP 时，本地内核的 iptables 会根据规则，将请求直接路由到各个 service pod 上。</p>
-<p><img src="/2022/05/18/kubernetes-overview/node-iptables.png"></p>
+<p><img src="/2022/05/18/kubernetes-overview/node-iptables.png" alt></p>
 <p>与 userspace 模式最大区别是：</p>
 <ul>
 <li>iptables 使用 NAT 模块实现 service 入口地址到 pod 实际地址的转换，采用随机数实现负载均衡，免去一次内核态到用户态的切换</li>
@@ -383,7 +386,7 @@
 </ul>
 <p><code>ipvs</code>：since Kubernetes v1.9-alpha, default since v1.11</p>
 <p>请求方式、路由建立与刷新与 iptables 相同，不一样的是，规则载体由 iptables 变成了 ipvs。</p>
-<p><img src="/2022/05/18/kubernetes-overview/node-ipvs.png"></p>
+<p><img src="/2022/05/18/kubernetes-overview/node-ipvs.png" alt></p>
 <p>ipvs（基于哈希表）的性能优于 iptables（基于链表），其支持的轮询算法包括：</p>
 <ul>
 <li>DR: Direct Routing</li>
@@ -420,9 +423,9 @@
 <li>不同的 StorageClass 可映射到服务质量级别、备份策略、或群管理员确定的任意策略的 PV 上</li>
 <li>在其他存储系统上会被称为 profiles</li>
 </ul>
-<p><img src="/2022/05/18/kubernetes-overview/pv-pvc-storageclass.png"></p>
+<p><img src="/2022/05/18/kubernetes-overview/pv-pvc-storageclass.png" alt></p>
 <p>应用场景：用户提交 PVC，在 PVC 中指定存储类型（storageClassName），如果符合已经定义好的 StorageClass，则会为其自动创建 PV 并进行绑定。</p>
-<p><img src="/2022/05/18/kubernetes-overview/pv-pvc-creation.png"></p>
+<p><img src="/2022/05/18/kubernetes-overview/pv-pvc-creation.png" alt></p>
 
     </div>
 

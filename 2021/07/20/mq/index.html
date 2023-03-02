@@ -244,13 +244,10 @@
       
         <p>消息队列是中间件的一种，是分布式系统中非常重要的组件。</p>
 <span id="more"></span>
-
 <p>消息队列（Message Queue, <strong>MQ</strong>）的通用场景可简单描述为：</p>
 <pre><code>当不需要立即获得结果，但是又需要对并发量进行控制的时候。
-</code></pre>
-<p>消息队列是生产者-消费者模型的典型代表；除了实现高性能、高可用、可伸缩和最终一致性架构之外，还除去了接收和发送应用程序同时执行的要求。</p>
-<br>
-
+</code></pre><p>消息队列是生产者-消费者模型的典型代表；除了实现高性能、高可用、可伸缩和最终一致性架构之外，还除去了接收和发送应用程序同时执行的要求。</p>
+<p><br></p>
 <h1 id="消息队列的消息传播模式"><a href="#消息队列的消息传播模式" class="headerlink" title="消息队列的消息传播模式"></a>消息队列的消息传播模式</h1><p><strong>推</strong>（<strong>push</strong>）模式：服务器主动将信息送到客户端</p>
 <p>优点：</p>
 <ul>
@@ -294,7 +291,7 @@
 <li>绑定 Binding：决定交换器将信息投递到队列的规则</li>
 </ol>
 <p><strong>基本模型</strong>：</p>
-<p><img src="/2021/07/20/mq/amqp.webp"></p>
+<p><img src="/2021/07/20/mq/amqp.webp" alt></p>
 <ol>
 <li>消息发布者（生产者，Publisher）利用接口，将消息发布（publish）到 Exchange 中<ul>
 <li>消息一般包含消息体（payload）和标签（label）等信息</li>
@@ -321,13 +318,13 @@
 <li>采用轮询方式发送至 <code>RoutingKey = BindingKey</code> 的 Queue，类似于<strong>点对点</strong></li>
 <li>其他配对不上的 RoutingKey 的消息会被丢弃</li>
 </ul>
-<p><img src="/2021/07/20/mq/direct-exchange.png"></p>
+<p><img src="/2021/07/20/mq/direct-exchange.png" alt></p>
 <p><strong>2. Fanout Exchange</strong></p>
 <ul>
 <li>发送（route）至与该 Exchange 绑定的所有 Queue，类似于<strong>广播</strong></li>
 <li>最快的转发</li>
 </ul>
-<p><img src="/2021/07/20/mq/fanout-exchange.png"></p>
+<p><img src="/2021/07/20/mq/fanout-exchange.png" alt></p>
 <p><strong>3. Topic Exchange</strong></p>
 <ul>
 <li>发送至 RoutingKey 与 BindingKey <strong>模糊匹配</strong>的 Queue</li>
@@ -337,7 +334,7 @@
 </ul>
 </li>
 </ul>
-<p><img src="/2021/07/20/mq/topic-exchange.png"></p>
+<p><img src="/2021/07/20/mq/topic-exchange.png" alt></p>
 <p>如上图的模糊匹配，比如有下面不同的 RoutingKey：</p>
 <ul>
 <li><code>RoutingKey = F.C.E</code>：路由到 Queue1</li>
@@ -355,8 +352,7 @@
 </li>
 <li>和 Direct 方式完全一致，但性能差很多，基本用不到</li>
 </ul>
-<br>
-
+<p><br></p>
 <p>AMQP 的三层协议：</p>
 <p><strong>Module Layer</strong>：协议最高层</p>
 <ul>
@@ -386,13 +382,13 @@
 <li>消息被消费以后，queue 中不再有存储，所以消息消费者不可能消费到已经被消费的消息</li>
 <li>Queue 支持存在多个消费者，但是对一个消息而言，只会有一个消费者可以消费</li>
 </ul>
-<p><img src="/2021/07/20/mq/jms-p2p.png"></p>
+<p><img src="/2021/07/20/mq/jms-p2p.png" alt></p>
 <p><strong>2</strong>. <strong>发布/订阅</strong>（publish/subscribe, <strong>topic</strong>）：可重复消费</p>
 <ul>
 <li>消息生产者将信息<strong>发布</strong>到 topic 中，同时有多个消息消费者消费（<strong>订阅</strong>）该消息</li>
 <li>和点对点方式不同，发布到 topic 的消息会被<strong>所有</strong>订阅者消费</li>
 </ul>
-<p><img src="/2021/07/20/mq/jms-ps.png"></p>
+<p><img src="/2021/07/20/mq/jms-ps.png" alt></p>
 <p>另：<strong>订阅组发布/订阅模式</strong>：</p>
 <ul>
 <li>发布/订阅模式下，当发布者消息量很大时，显然<strong>单个订阅者的处理能力是不足的</strong></li>
@@ -400,102 +396,108 @@
 <li>可看成是一个 topic 下有多个 Queue，每个 Queue 是点对点的方式，Queue之间是发布/订阅方式。</li>
 <li>这样订阅者很容易实现消费能力线性扩展</li>
 </ul>
-<p><img src="/2021/07/20/mq/jms-psg.png"></p>
+<p><img src="/2021/07/20/mq/jms-psg.png" alt></p>
 <p>JMS 编程接口：</p>
-<p><img src="/2021/07/20/mq/jms-api.png"></p>
-<h2 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h2><table>
-<thead>
-<tr>
-<th align="left"></th>
-<th align="left">JMS</th>
-<th align="left">AMQP</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">定义</td>
-<td align="left">Java API</td>
-<td align="left">协议</td>
-</tr>
-<tr>
-<td align="left">跨语言</td>
-<td align="left">否</td>
-<td align="left">是</td>
-</tr>
-<tr>
-<td align="left">跨平台</td>
-<td align="left">否</td>
-<td align="left">是</td>
-</tr>
-<tr>
-<td align="left">模型</td>
-<td align="left">2 + 1 种消息模型</td>
-<td align="left">5 种消息模型</td>
-</tr>
-<tr>
-<td align="left">支持消息类型</td>
-<td align="left">多种</td>
-<td align="left">byte[]</td>
-</tr>
-</tbody></table>
-<p>JMS 提供的最主流的开源技术是 Apache ActiveMQ。</p>
-<br>
-
-<h1 id="选型依据"><a href="#选型依据" class="headerlink" title="选型依据"></a>选型依据</h1><p>生产环境使用较多的消息队列：ActiveMQ, <a href="/2021/07/21/rabbitmq/">RabbitMQ</a>, Kafka, RocketMQ, MetalMQ, ZeroMQ 等。</p>
+<p><img src="/2021/07/20/mq/jms-api.png" alt></p>
+<h2 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h2><div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">特性</th>
-<th align="center">ActiveMQ</th>
-<th align="center">RabbitMQ</th>
-<th align="center">RocketMQ</th>
-<th align="center">Kafka</th>
+<th style="text-align:left"></th>
+<th style="text-align:left">JMS</th>
+<th style="text-align:left">AMQP</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">单机吞吐量</td>
-<td align="center">万级，比 RocketMQ, Kafka 低一个数量级</td>
-<td align="center">同 ActiveMQ</td>
-<td align="center">10 万级，支撑高吞吐</td>
-<td align="center">10 万级，高吞吐，一般配合大数据类的系统进行实时数据运算、日志采集等场景</td>
+<tbody>
+<tr>
+<td style="text-align:left">定义</td>
+<td style="text-align:left">Java API</td>
+<td style="text-align:left">协议</td>
 </tr>
 <tr>
-<td align="center">topic 数量对吞吐量的影响</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center">topic 可达到几百/几千级别，吞吐量会有较小幅度下降 RocketMQ 优势：同等机器下可支撑大量 topic</td>
-<td align="center">topic 从几十到几百时，吞吐量大幅下降，同等机器下 Kafka 尽量保证 topic 数量不要过多，如要支撑大规模 topic，需要增加更多机器资源</td>
+<td style="text-align:left">跨语言</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">是</td>
 </tr>
 <tr>
-<td align="center">时效性</td>
-<td align="center">毫秒级</td>
-<td align="center">微秒级，延迟最低（特点之一）</td>
-<td align="center">毫秒级</td>
-<td align="center">毫秒级</td>
+<td style="text-align:left">跨平台</td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">是</td>
 </tr>
 <tr>
-<td align="center">可用性</td>
-<td align="center">高，基于主从架构实现高可用</td>
-<td align="center">同 ActiveMQ</td>
-<td align="center">非常高，分布式架构</td>
-<td align="center">非常高，分布式架构，一个数据多个副本，少数机器宕机，不会丢失数据，不会导致不可用</td>
+<td style="text-align:left">模型</td>
+<td style="text-align:left">2 + 1 种消息模型</td>
+<td style="text-align:left">5 种消息模型</td>
 </tr>
 <tr>
-<td align="center">消息可靠性</td>
-<td align="center">有较低的概率丢失数据</td>
-<td align="center">基本不丢</td>
-<td align="center">经过参数优化配置可做到 0 丢失</td>
-<td align="center">同 RocketMQ</td>
+<td style="text-align:left">支持消息类型</td>
+<td style="text-align:left">多种</td>
+<td style="text-align:left">byte[]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>JMS 提供的最主流的开源技术是 Apache ActiveMQ。</p>
+<p><br></p>
+<h1 id="选型依据"><a href="#选型依据" class="headerlink" title="选型依据"></a>选型依据</h1><p>生产环境使用较多的消息队列：ActiveMQ, <a href="/2021/07/21/rabbitmq/">RabbitMQ</a>, Kafka, RocketMQ, MetalMQ, ZeroMQ 等。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特性</th>
+<th style="text-align:center">ActiveMQ</th>
+<th style="text-align:center">RabbitMQ</th>
+<th style="text-align:center">RocketMQ</th>
+<th style="text-align:center">Kafka</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">单机吞吐量</td>
+<td style="text-align:center">万级，比 RocketMQ, Kafka 低一个数量级</td>
+<td style="text-align:center">同 ActiveMQ</td>
+<td style="text-align:center">10 万级，支撑高吞吐</td>
+<td style="text-align:center">10 万级，高吞吐，一般配合大数据类的系统进行实时数据运算、日志采集等场景</td>
 </tr>
 <tr>
-<td align="center">功能支持</td>
-<td align="center">MQ 领域的功能极其完备</td>
-<td align="center">基于 erlang 开发，并发能力极强，性能极好，延迟很低</td>
-<td align="center">MQ 功能较为完善，还是分布式的，扩展性好</td>
-<td align="center">功能较为简单，主要支持简单的 MQ 功能，在大数据领域实时计算以及日志采集被大规模采用</td>
+<td style="text-align:center">topic 数量对吞吐量的影响</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">topic 可达到几百/几千级别，吞吐量会有较小幅度下降 RocketMQ 优势：同等机器下可支撑大量 topic</td>
+<td style="text-align:center">topic 从几十到几百时，吞吐量大幅下降，同等机器下 Kafka 尽量保证 topic 数量不要过多，如要支撑大规模 topic，需要增加更多机器资源</td>
 </tr>
-</tbody></table>
-<br>
-
+<tr>
+<td style="text-align:center">时效性</td>
+<td style="text-align:center">毫秒级</td>
+<td style="text-align:center">微秒级，延迟最低（特点之一）</td>
+<td style="text-align:center">毫秒级</td>
+<td style="text-align:center">毫秒级</td>
+</tr>
+<tr>
+<td style="text-align:center">可用性</td>
+<td style="text-align:center">高，基于主从架构实现高可用</td>
+<td style="text-align:center">同 ActiveMQ</td>
+<td style="text-align:center">非常高，分布式架构</td>
+<td style="text-align:center">非常高，分布式架构，一个数据多个副本，少数机器宕机，不会丢失数据，不会导致不可用</td>
+</tr>
+<tr>
+<td style="text-align:center">消息可靠性</td>
+<td style="text-align:center">有较低的概率丢失数据</td>
+<td style="text-align:center">基本不丢</td>
+<td style="text-align:center">经过参数优化配置可做到 0 丢失</td>
+<td style="text-align:center">同 RocketMQ</td>
+</tr>
+<tr>
+<td style="text-align:center">功能支持</td>
+<td style="text-align:center">MQ 领域的功能极其完备</td>
+<td style="text-align:center">基于 erlang 开发，并发能力极强，性能极好，延迟很低</td>
+<td style="text-align:center">MQ 功能较为完善，还是分布式的，扩展性好</td>
+<td style="text-align:center">功能较为简单，主要支持简单的 MQ 功能，在大数据领域实时计算以及日志采集被大规模采用</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><br></p>
 <h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>消息队列的<strong>优点</strong>在于能够实现异步、解耦、流量削峰填谷，能解决相关特殊业务场景的问题。</p>
 <p>而<strong>缺点</strong>在于其系统可用性较为敏感，万一 MQ 崩溃了，系统相当一部分的功能会无法响应。<br>而且，消息队列提高了系统复杂性，需要考虑一些消息队列的常见问题和解决方案。<br>此外，消息队列还会带来一些一致性问题：</p>
 <ul>

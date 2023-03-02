@@ -249,8 +249,7 @@
 <li>降低代码量和复杂度：不需要由开发者再进行基础数据结构的设计，提高代码复用性，降低编码难度，增强可操作性</li>
 <li>提升代码性能：被 JDK 收录的集合类库是一系列数据结构类型的具体实现，其质量和性能较高，降低底层代码的性能风险和维护成本</li>
 </ul>
-<br>
-
+<p><br></p>
 <h1 id="诞生背景"><a href="#诞生背景" class="headerlink" title="诞生背景"></a>诞生背景</h1><p>Java 最初版本：只为最常用的数据结构提供很少的一组类：</p>
 <ul>
 <li><code>Vector</code></li>
@@ -280,14 +279,9 @@
 <li>使用 <code>HashSet</code> 实现，则无法预知元素被访问的顺序</li>
 </ul>
 <p>即：构建集合时，只有使用具体的实现类才有意义。</p>
-<p>如：使用接口类型存放集合的引用</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Queue&lt;Customer&gt; expressLane = <span class="keyword">new</span> CircularArrayQueue&lt;&gt;(<span class="number">100</span>);</span><br><span class="line">expressLane.add(<span class="keyword">new</span> Customer(<span class="string">&quot;Harry&quot;</span>));</span><br></pre></td></tr></table></figure>
-
-<p>如要改为另一种实现方式，直接更改它的实现类即可：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Queue&lt;Customer&gt; expressLane = <span class="keyword">new</span> LinkedListQueue&lt;&gt;();</span><br><span class="line">expressLane.add(<span class="keyword">new</span> Customer(<span class="string">&quot;Harry&quot;</span>));</span><br></pre></td></tr></table></figure>
-
-<br>
-
+<p>如：使用接口类型存放集合的引用<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Queue&lt;Customer&gt; expressLane = <span class="keyword">new</span> CircularArrayQueue&lt;&gt;(<span class="number">100</span>);</span><br><span class="line">expressLane.add(<span class="keyword">new</span> Customer(<span class="string">&quot;Harry&quot;</span>));</span><br></pre></td></tr></table></figure></p>
+<p>如要改为另一种实现方式，直接更改它的实现类即可：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Queue&lt;Customer&gt; expressLane = <span class="keyword">new</span> LinkedListQueue&lt;&gt;();</span><br><span class="line">expressLane.add(<span class="keyword">new</span> Customer(<span class="string">&quot;Harry&quot;</span>));</span><br></pre></td></tr></table></figure></p>
+<p><br></p>
 <h1 id="集合“体系”下的集合框架（Collections-Framework）"><a href="#集合“体系”下的集合框架（Collections-Framework）" class="headerlink" title="集合“体系”下的集合框架（Collections Framework）"></a>集合“体系”下的集合框架（Collections Framework）</h1><p>集合框架的构成：</p>
 <ul>
 <li>提供一系列的集合接口：如 <code>Set</code>，<code>List</code>，<code>Map</code> 等</li>
@@ -313,26 +307,23 @@
 <li>框架使用者创建的子类可以扩展超类的功能，不必重新创建基本机制</li>
 <li>Java 集合类库为集合实现者定义并描述大量接口和抽象类</li>
 </ul>
-<br>
-
+<p><br></p>
 <h1 id="基本接口"><a href="#基本接口" class="headerlink" title="基本接口"></a>基本接口</h1><p>接口类图如下：</p>
-<p><img src="/2021/05/26/collections-java/interface-diagram.png"></p>
-<p><big>包括：</big></p>
+<p><img src="/2021/05/26/collections-java/interface-diagram.png" alt></p>
+<big>包括：</big>
+
 <h2 id="Collection-java-util-Collection"><a href="#Collection-java-util-Collection" class="headerlink" title="Collection (java.util.Collection)"></a><small><a href="/2022/04/30/java-collection">Collection</a> (<code>java.util.Collection</code>)</small></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 以下为子接口</span></span><br><span class="line">java.util.Set</span><br><span class="line">java.util.SortedSet</span><br><span class="line">java.util.NavigableSet</span><br><span class="line">java.util.Queue</span><br><span class="line">java.util.concurrent.BlockingQueue</span><br><span class="line">java.util.concurrent.TransferQueue</span><br><span class="line">java.util.Deque</span><br><span class="line">java.util.concurrent.BlockingQueue</span><br></pre></td></tr></table></figure>
-
 <h2 id="Map-java-util-Map"><a href="#Map-java-util-Map" class="headerlink" title="Map (java.util.Map)"></a><small><a href="/2022/05/06/java-map">Map</a> (<code>java.util.Map</code>)</small></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 以下为子接口</span></span><br><span class="line">java.util.SortedMap</span><br><span class="line">java.util.NavigableMap</span><br><span class="line">java.util.concurrent.ConcurrentMap</span><br><span class="line">java.util.concurrent.ConcurrentNavigableMap</span><br></pre></td></tr></table></figure>
+<big>和基础功能，如：</big>
 
-<p><big>和基础功能，如：</big></p>
+
 <h2 id="Iterators"><a href="#Iterators" class="headerlink" title="Iterators"></a>Iterators</h2><p>迭代器，与 Enumeration 接口类似，但更加强大</p>
 <p><code>Iterator</code>：既实现了 Enumeration 接口，还能删除元素</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">E <span class="title">next</span><span class="params">()</span></span>;  <span class="comment">// 返回下一个元素</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">hasNext</span><span class="params">()</span>  <span class="comment">// 循环调用遍历元素</span></span></span><br><span class="line"><span class="function"><span class="comment">// 到达队列末尾时，next() 抛出 NoSuchElementException</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="comment">/** </span></span></span><br><span class="line"><span class="comment"><span class="function"> * next() 和 remove() 的调用具有依赖性</span></span></span><br><span class="line"><span class="comment"><span class="function"> * 调用 remove() 之前不调用 next()：抛出 IllegalStateException 异常</span></span></span><br><span class="line"><span class="comment"><span class="function"> */</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">remove</span><span class="params">()</span>  <span class="comment">// 删除上次调用 next() 时返回的元素    </span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">forEachRemaining</span><span class="params">()</span>  <span class="comment">// 编译器将其翻译为带有迭代器的循环</span></span></span><br></pre></td></tr></table></figure>
-
 <p>例子：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (String element : c) &#123;</span><br><span class="line">    doSomething(element);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// for each 对于标准类库任何集合都可使用</span></span><br></pre></td></tr></table></figure>
-
 <p>应用：以 Map 为例</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Map&lt;Integer, Object&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    map.put(<span class="number">1</span>, <span class="string">&quot;a&quot;</span>);</span><br><span class="line">    map.put(<span class="number">2</span>, <span class="string">&quot;b&quot;</span>);</span><br><span class="line">    map.put(<span class="number">3</span>, <span class="string">&quot;c&quot;</span>);</span><br><span class="line"></span><br><span class="line">    Iterator&lt;Integer&gt; iterator = map.keySet().iterator();</span><br><span class="line">    <span class="comment">// 差劲的遍历方法，迭代 key，每次根据 key 再 get</span></span><br><span class="line">    <span class="comment">// Sonar 已不再建议这种迭代方式</span></span><br><span class="line">    <span class="keyword">while</span>(iterator.hasNext()) &#123;</span><br><span class="line">        Integer key = iterator.next();</span><br><span class="line">        System.out.println(key + <span class="string">&quot;=&quot;</span> + map.get(key));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 一般遍历方法，entrySet 是一个 Set 实现类，返回一个 Iterator 对象</span></span><br><span class="line">    Iterator&lt;?&gt; iterator2 = map.entrySet().iterator();</span><br><span class="line">    <span class="keyword">while</span>(iterator2.hasNext()) &#123;</span><br><span class="line">        System.out.println(iterator2.next());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 一般遍历方法，在 JDK 1.7- 最常见</span></span><br><span class="line">    <span class="keyword">for</span>(Map.Entry&lt;Integer, Object&gt; entry: map.entrySet()) &#123;</span><br><span class="line">        System.out.println(entry.getKey() + <span class="string">&quot;=&quot;</span> + entry.getValue());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// JDK 1.8 中的遍历方法，利用 lambda 表达式简化了语句</span></span><br><span class="line">    <span class="comment">// forEach 内部实现其实仍是一般方法</span></span><br><span class="line">    map.forEach((k, v)-&gt;&#123;</span><br><span class="line">        System.out.println(k + <span class="string">&quot;=&quot;</span> + v);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">// 进一步简化</span></span><br><span class="line">    map.forEach((k, v)-&gt;System.out.println(k + <span class="string">&quot;=&quot;</span> + v));</span><br><span class="line">    <span class="comment">// 这里用到的是 Iterable 的 forEach() 接口</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用迭代器迭代，更加线程安全</span></span><br></pre></td></tr></table></figure>
-
 <p>注：<code>iterator.next()</code> 和 <code>iterator.hasNext()</code>，与 <code>Enumeration.nextElement()</code> 和 <code>Enumeration.hasMoreElements()</code> 一样</p>
 <ul>
 <li>仅仅是因为 iterator 接口的名字较短，导致更多人愿意使用</li>
@@ -364,21 +355,23 @@
 </ul>
 </li>
 </ul>
-<p><big>注：</big></p>
+<big>注：</big>
+
 <p>Java 集合类库中的迭代器不同于其他类库的迭代器</p>
 <ul>
 <li>传统集合类库迭代器使用数组索引建模：不需执行查找操作便可使迭代器移动</li>
 <li>Java 迭代器只能调用 <code>next()</code>，执行查找操作时，迭代器随之移动</li>
 </ul>
 <p>因此 Java 迭代器应位于两元素之间：调用 <code>next()</code> 时跳至下一元素，返回前一元素。</p>
-<p><img src="/2021/05/26/collections-java/next.png"></p>
+<p><img src="/2021/05/26/collections-java/next.png" alt></p>
 <p>即：可将 <code>Iterator.next()</code> 和 <code>InputStream.read(</code>) 等效</p>
 <ul>
 <li>从数据流中读取一个字节，自动“消耗掉”该字节</li>
 <li>下次调用 <code>read()</code> 将会消耗并返回输入的下一个字节</li>
 <li>同样方式，反复调用 <code>next()</code> 可读取集合中所有元素</li>
 </ul>
-<p><big>说到 Iterator，就不可避免地提到 Collection 的父接口：</big></p>
+<big>说到 Iterator，就不可避免地提到 Collection 的父接口：</big>
+
 <h2 id="Iterable"><a href="#Iterable" class="headerlink" title="Iterable"></a><small><code>Iterable</code></small></h2><ul>
 <li>实现了 iterator 方法 <code>iterator()</code>，用于生成一个 Iterator 迭代器</li>
 <li>Since JDK 1.8：提供新的 <code>forEach()</code>，详情可参照<a target="_blank" rel="noopener" href="https://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/java/lang/Iterable.java">源码</a>。<ul>
@@ -387,7 +380,6 @@
 </li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; list = Arrays.asList(<span class="keyword">new</span> String[]&#123;<span class="string">&quot;Hello&quot;</span>, <span class="string">&quot; &quot;</span>, <span class="string">&quot;World!&quot;</span>&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// lambda 表达式遍历</span></span><br><span class="line">list.forEach(s -&gt; System.out.println(s));</span><br><span class="line"></span><br><span class="line"><span class="comment">// lambda 表达式遍历简化版</span></span><br><span class="line">list.forEach(System.out::println);</span><br></pre></td></tr></table></figure>
-
 <p><strong>Iterable 和 Iterator 接口的区别</strong></p>
 <p>Iterable 描述的是一组可以迭代的元素，而每个元素在 Iterable 接口的实现是无状态的；<br>Iterable 实现了 iterator() 方法来获取 Iterator，Iterator 对象对于每一个元素是有状态描述的：因为 <code>next</code> 指针的存在，调用 <code>next()</code> <code>hasNext()</code> 方法会改变 next 的引用。</p>
 <p>正因此，Iterable 的 forEach() 在无状态的情况下，每一次调用都遍历集合里面的<strong>所有元素</strong>；<br>而 Iterator.forEachRemaining() 返回的则是所有<strong>未被遍历过的元素</strong>。 </p>
@@ -402,10 +394,7 @@
 <li>如实现了 Comparable 接口：仍可利用 Comparator 重定义排序方法</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">Comparable</span>&lt;<span class="title">Student</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Student s)</span> </span>&#123;</span><br><span class="line">        ... <span class="comment">// 提供对象的自然排序</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyComparator</span> <span class="keyword">implements</span> <span class="title">Comparator</span>&lt;<span class="title">Student</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Student s1, Student s2)</span> </span>&#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
 <h2 id="Runtime-exceptions"><a href="#Runtime-exceptions" class="headerlink" title="Runtime exceptions"></a>Runtime exceptions</h2><ul>
 <li><code>UnsupportedOperationException</code><ul>
 <li>集合进行不被支持的操作时抛出</li>
@@ -431,58 +420,59 @@
 </ul>
 </li>
 </ul>
-<br>
-
+<p><br></p>
 <h1 id="通用实现"><a href="#通用实现" class="headerlink" title="通用实现"></a>通用实现</h1><p>实现接口的类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 抽象类</span></span><br><span class="line">java.util.AbstractCollection</span><br><span class="line">java.util.AbstractList</span><br><span class="line">java.util.AbstractSequentialList</span><br><span class="line">java.util.AbstractSet</span><br><span class="line">java.util.AbstractQueue</span><br><span class="line"></span><br><span class="line">java.util.AbstractMap</span><br></pre></td></tr></table></figure>
-
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 具体类</span></span><br><span class="line">java.util.LinkedList</span><br><span class="line">java.util.ArrayList</span><br><span class="line">java.util.HashSet</span><br><span class="line">java.util.TreeSet</span><br><span class="line">java.util.PriorityQueue</span><br><span class="line">java.util.ArrayDeque</span><br><span class="line">java.util.concurrent.ConcurrentLinkedDeque</span><br><span class="line"></span><br><span class="line">java.util.HashMap</span><br><span class="line">java.util.TreeMap</span><br><span class="line">java.util.EnumMap</span><br><span class="line">java.util.concurrent.ConcurrentHashMap</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/05/26/collections-java/class-diagram.png"></p>
+<p><img src="/2021/05/26/collections-java/class-diagram.png" alt></p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">Interface</th>
-<th align="center">哈希表</th>
-<th align="center">可变数组</th>
-<th align="center">平衡树</th>
-<th align="center">链表</th>
-<th align="center">哈希表+链表</th>
+<th style="text-align:center">Interface</th>
+<th style="text-align:center">哈希表</th>
+<th style="text-align:center">可变数组</th>
+<th style="text-align:center">平衡树</th>
+<th style="text-align:center">链表</th>
+<th style="text-align:center">哈希表+链表</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">List</td>
-<td align="center">-</td>
-<td align="center">ArrayList</td>
-<td align="center">-</td>
-<td align="center">LinkedList</td>
-<td align="center">-</td>
+<tbody>
+<tr>
+<td style="text-align:center">List</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">ArrayList</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">LinkedList</td>
+<td style="text-align:center">-</td>
 </tr>
 <tr>
-<td align="center">Deque</td>
-<td align="center">-</td>
-<td align="center">ArrayDeque</td>
-<td align="center">-</td>
-<td align="center">LinkedDeque</td>
-<td align="center">-</td>
+<td style="text-align:center">Deque</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">ArrayDeque</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">LinkedDeque</td>
+<td style="text-align:center">-</td>
 </tr>
 <tr>
-<td align="center">Map</td>
-<td align="center">HashMap</td>
-<td align="center">-</td>
-<td align="center">TreeMap</td>
-<td align="center">-</td>
-<td align="center">LinkedHashMap</td>
+<td style="text-align:center">Map</td>
+<td style="text-align:center">HashMap</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">TreeMap</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">LinkedHashMap</td>
 </tr>
 <tr>
-<td align="center">Set</td>
-<td align="center">HashSet</td>
-<td align="center">-</td>
-<td align="center">TreeSet</td>
-<td align="center">-</td>
-<td align="center">LinkedHashSet</td>
+<td style="text-align:center">Set</td>
+<td style="text-align:center">HashSet</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">TreeSet</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">LinkedHashSet</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <table>
     <tr>
         <th></th>
@@ -525,8 +515,7 @@
 
 
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 遗留类：JCF 针对较旧的集合类为其添加了集合接口实现</span></span><br><span class="line">java.util.Vector</span><br><span class="line">java.util.Stack</span><br><span class="line">java.util.Hashtable</span><br><span class="line">java.util.Properties</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/05/26/collections-java/legacy-class-diagram.png"></p>
+<p><img src="/2021/05/26/collections-java/legacy-class-diagram.png" alt></p>
 <p><code>Hashtable</code>：与 HashMap 作用一样</p>
 <ul>
 <li>实现 Map 接口</li>
@@ -549,15 +538,12 @@
 <li>加了同步锁，同步的可变数组（线程安全），同时也包含了其自身的较旧的方法</li>
 <li>读写方法都只是简单加上 <code>synchronized</code>，性能较差</li>
 </ul>
-<p>Vector 扩容：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Vector</span><span class="params">(<span class="keyword">int</span> initialCapacity, <span class="keyword">int</span> capacityIncrement)</span>  <span class="comment">// 增量为正整数：按指定增量扩容</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Vector</span><span class="params">(<span class="keyword">int</span> initialCapacity)</span>  <span class="comment">// 每次扩容将容量扩大一倍</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Vector</span><span class="params">()</span>  <span class="comment">// 等同于 public Vector(10)</span></span></span><br></pre></td></tr></table></figure>
-
+<p>Vector 扩容：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Vector</span><span class="params">(<span class="keyword">int</span> initialCapacity, <span class="keyword">int</span> capacityIncrement)</span>  <span class="comment">// 增量为正整数：按指定增量扩容</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Vector</span><span class="params">(<span class="keyword">int</span> initialCapacity)</span>  <span class="comment">// 每次扩容将容量扩大一倍</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Vector</span><span class="params">()</span>  <span class="comment">// 等同于 public Vector(10)</span></span></span><br></pre></td></tr></table></figure></p>
 <p><code>Stack</code>：栈，扩展自 Vector 类</p>
 <p><code>BitSet</code>：位集，存放位序列</p>
-<br>
-
-<h1 id="JCF-类图"><a href="#JCF-类图" class="headerlink" title="JCF 类图"></a>JCF 类图</h1><p><img src="/2021/05/26/collections-java/jcf-1.png"></p>
-<p><img src="/2021/05/26/collections-java/jcf-2.png"></p>
+<p><br></p>
+<h1 id="JCF-类图"><a href="#JCF-类图" class="headerlink" title="JCF 类图"></a>JCF 类图</h1><p><img src="/2021/05/26/collections-java/jcf-1.png" alt></p>
+<p><img src="/2021/05/26/collections-java/jcf-2.png" alt></p>
 <p>在使用时的最佳实践，应该是<strong>根据业务的需要</strong>去选择正确的集合类型。</p>
 
     </div>

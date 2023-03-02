@@ -251,7 +251,6 @@
       
         <p>Kubernetes Node 通过 Pod 来管理自己所承载的容器。至于 Pod 怎么管理容器，涉及到 Kubernetes 容器编排的概念。</p>
 <span id="more"></span>
-
 <p>Kubernetes 结合的是 Google 数十年对大规模应用容器技术的经验的积累和升华。它对容器的编排管理包括且不仅限于：</p>
 <ul>
 <li>上线下线</li>
@@ -277,7 +276,7 @@
 <p>类似于一个 Servlet 容器完成部署 war 包、日志收集等功能。</p>
 <p>每个 pod 启动时，内部会启动一个 <strong>infra container</strong>（由 Google 的一个镜像：<code>gcr.io/google_containers/pause</code> 启动而来，也叫 <strong>pause 容器</strong>）。<br>pause 容器使用默认网络模式；<br>pod 中的其它容器的网络模式为 container 模式，并会被指定为 pause 容器的 ID：<code>network_mode: &quot;container:&#123;pauseContainerID&#125;&quot;</code>。<br>由此，pod 内部所有容器可<strong>共享 pause 容器的网络</strong>，通过 pause 容器统一识别外部网络空间，跟集群内其它 pod 进行通信。</p>
 <p>由此完成了对 pod 中所有内部容器的共享设置：共享资源，共享配置；各个容器之间可通过 <code>localhost</code> 相互访问，对外则总是<strong>被同时调度</strong>。</p>
-<p><img src="/2022/05/28/kubernetes-pod-management/pod-network.png"></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/pod-network.png" alt></p>
 <p>Pod 有多种模式，包括 Sidebar，Proxy 等。</p>
 <p>Pod 的状态（status）有五种：</p>
 <ul>
@@ -291,13 +290,12 @@
 <li><strong>Failed</strong>：pod 中所有容器已终止，且至少一个容器以失败告终（非零退出或被系统停止）</li>
 <li><strong>Unknown</strong>：某种原因无法获取 pod 状态，通常由于与 pod 的主机通信错误</li>
 </ul>
-<p><img src="/2022/05/28/kubernetes-pod-management/pod-status.png"></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/pod-status.png" alt></p>
 <p>yaml 格式的 pod 定义文件完整内容：</p>
 <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span>        　　<span class="comment">#必选，版本号，例如 v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span>       　　　　　　<span class="comment">#必选，Pod/Deployment/ReplicationController/Service/Job/...</span></span><br><span class="line"><span class="attr">metadata:</span>       　　　　　　<span class="comment">#必选，元数据</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">string</span>        　　<span class="comment">#必选，Pod 名称</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">string</span>     　　<span class="comment">#必选，Pod 所属的命名空间</span></span><br><span class="line">  <span class="attr">labels:</span>       　　　　　　<span class="comment">#自定义标签</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">value</span>      　<span class="comment">#自定义标签名字</span></span><br><span class="line">  <span class="attr">annotations:</span>        　　<span class="comment">#自定义注释列表</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span></span><br><span class="line"><span class="attr">spec:</span>         　　　　　　　<span class="comment">#必选，Pod 中容器的详细定义（specification）</span></span><br><span class="line">  <span class="attr">containers:</span>       　　　　<span class="comment">#必选，Pod 中容器列表</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span>      　　<span class="comment">#必选，容器名称</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">string</span>     　　<span class="comment">#必选，容器的镜像名称</span></span><br><span class="line">    <span class="attr">imagePullPolicy:</span> [<span class="string">Always</span> <span class="string">|</span> <span class="string">Never</span> <span class="string">|</span> <span class="string">IfNotPresent</span>]  <span class="comment">#获取镜像的策略 </span></span><br><span class="line">        <span class="comment">#Alawys 表示下载镜像 IfnotPresent 表示优先使用本地镜像，否则下载镜像，Never 表示仅使用本地镜像</span></span><br><span class="line">    <span class="attr">command:</span> [<span class="string">string</span>]     　　<span class="comment">#容器的启动命令列表，如不指定，使用打包时使用的启动命令</span></span><br><span class="line">    <span class="attr">args:</span> [<span class="string">string</span>]      　　 <span class="comment">#容器的启动命令参数列表</span></span><br><span class="line">    <span class="attr">workingDir:</span> <span class="string">string</span>      <span class="comment">#容器的工作目录</span></span><br><span class="line">    <span class="attr">volumeMounts:</span>     　　　　<span class="comment">#挂载到容器内部的存储卷配置</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span>      　　　<span class="comment">#引用 pod 定义的共享存储卷的名称，需用volumes[]部分定义的的卷名</span></span><br><span class="line">      <span class="attr">mountPath:</span> <span class="string">string</span>     <span class="comment">#存储卷在容器内 mount 的绝对路径，应少于 512 字符</span></span><br><span class="line">      <span class="attr">readOnly:</span> <span class="string">boolean</span>     <span class="comment">#是否为只读模式</span></span><br><span class="line">    <span class="attr">ports:</span>        　　　　　　<span class="comment">#需要暴露的端口库号列表</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span>      　　　<span class="comment">#端口号名称</span></span><br><span class="line">      <span class="attr">containerPort:</span> <span class="string">int</span>    <span class="comment">#容器需要监听的端口号</span></span><br><span class="line">      <span class="attr">hostPort:</span> <span class="string">int</span>     　　 <span class="comment">#容器所在主机需要监听的端口号，默认与 Container 相同</span></span><br><span class="line">      <span class="attr">protocol:</span> <span class="string">string</span>      <span class="comment">#端口协议，支持 TCP 和 UDP，默认 TCP</span></span><br><span class="line">    <span class="attr">env:</span>        　　　　　　<span class="comment">#容器运行前需设置的环境变量列表</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span>      　　<span class="comment">#环境变量名称</span></span><br><span class="line">      <span class="attr">value:</span> <span class="string">string</span>     　　<span class="comment">#环境变量的值</span></span><br><span class="line">    <span class="attr">resources:</span>        　　<span class="comment">#资源限制和请求的设置</span></span><br><span class="line">      <span class="attr">limits:</span>       　　　　<span class="comment">#资源限制的设置</span></span><br><span class="line">        <span class="attr">cpu:</span> <span class="string">string</span>     　　<span class="comment">#Cpu 的限制，单位为core数，将用于 docker run --cpu-shares 参数</span></span><br><span class="line">        <span class="attr">memory:</span> <span class="string">string</span>      <span class="comment">#内存限制，单位可以为 Mib/Gib，将用于 docker run --memory 参数</span></span><br><span class="line">      <span class="attr">requests:</span>       　　<span class="comment">#资源请求的设置</span></span><br><span class="line">        <span class="attr">cpu:</span> <span class="string">string</span>     　　<span class="comment">#Cpu 请求，容器启动的初始可用数量</span></span><br><span class="line">        <span class="attr">memory:</span> <span class="string">string</span>      <span class="comment">#内存清楚，容器启动的初始可用数量</span></span><br><span class="line">    <span class="attr">livenessProbe:</span>      　　<span class="comment">#对 Pod 内个容器健康检查的设置，当探测无响应几次后将自动重启该容器</span></span><br><span class="line">            <span class="comment">#检查方法有 exec、httpGet 和 tcpSocket，对一个容器只需设置其中一种方法即可</span></span><br><span class="line">      <span class="attr">exec:</span>       　　　　　　<span class="comment">#对 Pod 容器内检查方式设置为 exec 方式</span></span><br><span class="line">        <span class="attr">command:</span> [<span class="string">string</span>]   <span class="comment">#exec 方式需要指定的命令或脚本</span></span><br><span class="line">      <span class="attr">httpGet:</span>        　　　　<span class="comment">#对 Pod 内各容器健康检查方法设置为 HttpGet，需要制定 Path、port</span></span><br><span class="line">        <span class="attr">path:</span> <span class="string">string</span></span><br><span class="line">        <span class="attr">port:</span> <span class="string">number</span></span><br><span class="line">        <span class="attr">host:</span> <span class="string">string</span></span><br><span class="line">        <span class="attr">scheme:</span> <span class="string">string</span></span><br><span class="line">        <span class="attr">HttpHeaders:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">string</span></span><br><span class="line">      <span class="attr">tcpSocket:</span>      　　　　　　<span class="comment">#对 Pod 内各容器健康检查方式设置为 tcpSocket 方式</span></span><br><span class="line">         <span class="attr">port:</span> <span class="string">number</span></span><br><span class="line">       <span class="attr">initialDelaySeconds:</span> <span class="number">0</span>   <span class="comment">#容器启动完成后首次探测的时间，单位为秒</span></span><br><span class="line">       <span class="attr">timeoutSeconds:</span> <span class="number">0</span>    　　<span class="comment">#对容器健康检查探测等待响应的超时时间，单位秒，默认 1 秒</span></span><br><span class="line">       <span class="attr">periodSeconds:</span> <span class="number">0</span>     　　<span class="comment">#对容器监控检查的定期探测时间设置，单位秒，默认 10 秒一次</span></span><br><span class="line">       <span class="attr">successThreshold:</span> <span class="number">0</span></span><br><span class="line">       <span class="attr">failureThreshold:</span> <span class="number">0</span></span><br><span class="line">       <span class="attr">securityContext:</span></span><br><span class="line">         <span class="attr">privileged:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">restartPolicy:</span> [<span class="string">Always</span> <span class="string">|</span> <span class="string">Never</span> <span class="string">|</span> <span class="string">OnFailure</span>] <span class="comment">#Pod的重启策略，Always 表示一旦不管以何种方式终止运行，kubelet 都将重启，OnFailure 表示只有 Pod 以非 0 退出码退出才重启，Never 表示不再重启该 Pod</span></span><br><span class="line">  <span class="attr">nodeSelector:</span> <span class="string">object</span>   　　<span class="comment">#设置 NodeSelector 表示将该Pod调度到包含这个 label 的 node 上，以 key：value 的格式指定</span></span><br><span class="line">  <span class="attr">imagePullSecrets:</span>     　　　　<span class="comment">#Pull 镜像时使用的 secret 名称，以 key：secretkey 格式指定</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span></span><br><span class="line">  <span class="attr">hostNetwork:</span> <span class="literal">false</span>      　　<span class="comment">#是否使用主机网络模式，默认为 false，如果设置为 true，表示使用宿主机网络</span></span><br><span class="line">  <span class="attr">volumes:</span>        　　　　　　<span class="comment">#在该 pod 上定义共享存储卷列表</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">string</span>     　　 　　<span class="comment">#共享存储卷名称 （volumes类型有很多种，以下为其各类型的描述：）</span></span><br><span class="line">    <span class="attr">emptyDir:</span> &#123;&#125;      　　　　<span class="comment">#类型为 emptyDir 的存储卷，与 Pod 同生命周期的一个临时目录。为空值</span></span><br><span class="line">    <span class="attr">hostPath:</span> <span class="string">string</span>      　　<span class="comment">#类型为 hostPath 的存储卷，表示挂载 Pod 所在宿主机的目录</span></span><br><span class="line">      <span class="attr">path:</span> <span class="string">string</span>      　　<span class="comment">#Pod 所在宿主机的目录，将被用于同期中 mount 的目录</span></span><br><span class="line">    <span class="attr">secret:</span>       　　　　　　<span class="comment">#类型为 secret 的存储卷，挂载集群与定义的 secret 对象到容器内部</span></span><br><span class="line">      <span class="attr">secretname:</span> <span class="string">string</span>  </span><br><span class="line">      <span class="attr">items:</span> </span><br><span class="line">      <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">string</span></span><br><span class="line">        <span class="attr">path:</span> <span class="string">string</span></span><br><span class="line">    <span class="attr">configMap:</span>      　　　　<span class="comment">#类型为 configMap 的存储卷，挂载预定义的 configMap 对象到容器内部</span></span><br><span class="line">      <span class="attr">name:</span> <span class="string">string</span></span><br><span class="line">      <span class="attr">items:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">string</span></span><br><span class="line">        <span class="attr">path:</span> <span class="string">string</span></span><br></pre></td></tr></table></figure>
-
 <p>在容器编排的时候，可根据 pod 的标签（<strong>labels</strong>）区分这个 pod 要运行在哪台主机（node）上。</p>
 <p>每个 pod 就像一个受 node 管理的机器人一样，接收路由过来的请求，做着自己的事情。</p>
-<p><img src="/2022/05/28/kubernetes-pod-management/pod-machine.png"></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/pod-machine.png" alt></p>
 <h2 id="Pod-生命周期"><a href="#Pod-生命周期" class="headerlink" title="Pod 生命周期"></a>Pod 生命周期</h2><p>初始化阶段：在 pod 主容器启动前，可以启动一些 init 容器来完成必要的初始化工作；这些 init 容器串行化执行，执行完后便会退出。</p>
 <p>主容器启动后和结束前可分别指定操作 post start 和 pre stop，用来执行一些操作。</p>
 <p>主容器启动后，可设置探针（probe）监测 pod 的状态：</p>
@@ -307,8 +305,8 @@
 <li>每类探针支持三种探测方法：exec, httpGet, tcpSocket</li>
 <li>探针的返回结果：success, failure, unknown</li>
 </ul>
-<p><img src="/2022/05/28/kubernetes-pod-management/pod-lifecycle.png"></p>
-<p><img src="/2022/05/28/kubernetes-pod-management/pod-booming.png"></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/pod-lifecycle.png" alt></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/pod-booming.png" alt></p>
 <h2 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a><strong>Namespace</strong></h2><p>在 Kubernetes 集群内，可将资源对象（controller、pod 等）分配到不同的命名空间 namespace 中，以实现多租户的资源隔离。</p>
 <p>集群默认的 namespace 是 <code>default</code>，<code>kube-*</code> 都是 Kubernetes 系统的命名空间。</p>
 <p>在一个 pod 中，所有容器共享的资源包括：</p>
@@ -329,21 +327,21 @@
 <li>需要时复制多份 Pod，不需要后缩减 Pod 至指定份数</li>
 <li>期望值可通过手动更新，或自动扩容代理完成</li>
 </ul>
-<p><img src="/2022/05/28/kubernetes-pod-management/replicaset.jpg"></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/replicaset.jpg" alt></p>
 <p>水平扩容/缩容：</p>
-<p><img src="/2022/05/28/kubernetes-pod-management/scaling.png"></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/scaling.png" alt></p>
 <p>修改 replicaSet 控制的 pod 副本数量即可。比如从 2 改到 3 -&gt; 水平扩容，反之则是水平收缩。</p>
 <h2 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h2><p>最常用的编排方式，由 <code>Deployment Controller</code> 控制，用于编排无状态应用。</p>
 <p>Deployment 基于并使用 ReplicaSet 管理 pod 副本：通过放大新的 ReplicaSet 和缩小（最终删除）现有 ReplicaSet 提供滚动升级。</p>
 <p>正因如此，Deployment Controller 包括了 Replication Controller 的<strong>所有功能</strong>。<br>并且存在着这样的传递关系：<strong>deployment 控制 replicaSet 的版本属性，replicaSet 控制 pod 的数量</strong>。</p>
-<p><img src="/2022/05/28/kubernetes-pod-management/deployment.jpg"></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/deployment.jpg" alt></p>
 <p>由于 Kubernetes 中对象的命名方式是：子对象名 = 父对象名 + 随机字符串/数字，所以从 deployment pod 的名字就可以看出来：<br>比如要创建的 deployment 是 <code>nginx-deployment</code>，那么创建出来的 ReplicaSet 是 <code>nginx-deployment-xxx</code>，最终创建出来的 pod 就是 <code>nginx-deployment-xxx-yyy</code>。</p>
 <h3 id="访问-Deployment"><a href="#访问-Deployment" class="headerlink" title="访问 Deployment"></a>访问 Deployment</h3><ol>
 <li>通过 ServiceName 访问</li>
 <li>CoreDNS 解析 ServiceName，返回 clusterIp</li>
 <li>clusterIp 根据机器上 iptables / ipvs 的配置，转发到指定的 pod</li>
 </ol>
-<h3 id="创建-Deployment"><a href="#创建-Deployment" class="headerlink" title="创建 Deployment"></a>创建 Deployment</h3><p><img src="/2022/05/28/kubernetes-pod-management/deployment-create.png"></p>
+<h3 id="创建-Deployment"><a href="#创建-Deployment" class="headerlink" title="创建 Deployment"></a>创建 Deployment</h3><p><img src="/2022/05/28/kubernetes-pod-management/deployment-create.png" alt></p>
 <ol>
 <li><code>kubectl</code> 发起创建 deployment 的请求到 apiserver</li>
 <li>apiserver 接收到请求后，将相关资源写入 etcd</li>
@@ -382,8 +380,7 @@
 <ul>
 <li>命名规则：<code>$(podName).$(headlessServiceName).$(namespace).$(clusterDomainName)</code>，一般指定到 headlessServiceName 即可。</li>
 </ul>
-<br>
-
+<p><br></p>
 <p>以上的 Deployment，ReplicaSet，DaemonSet 等管理<strong>服务类容器</strong>的编排方式，管理的是 HTTP 服务、Daemon 等<strong>持续</strong>的服务。</p>
 <h2 id="Job-CronJob"><a href="#Job-CronJob" class="headerlink" title="Job/CronJob"></a>Job/CronJob</h2><p>不同于以上编排方式，Job 编排的是<strong>一次性</strong>的<strong>工作类容器</strong>，比如批处理任务，完成后容器就直接退出。</p>
 <p>Job 重启策略：</p>
@@ -394,17 +391,14 @@
 <p>Job 可通过配置 parallelism 设置并行执行，通过设置 completions 设置运行个数。</p>
 <p>CronJob：概念同 Linux 的 cronjob，意为<strong>定时任务</strong>。CronJob 比普通的 Job 多了一个 schedule:</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">schedule:</span> <span class="string">&quot;*/1 * * * *&quot;</span></span><br><span class="line">  <span class="attr">jobTemplate:</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="string">...</span></span><br></pre></td></tr></table></figure>
-
 <p>上述编排方式对应的 controller 会通过动态创建和销毁 pod 来保证应用整体的健壮性。换句话说，<strong>pod 是脆弱的，但应用是健壮的</strong>。</p>
-<br>
-
+<p><br></p>
 <p>每个 pod 的 IP 地址是不稳定的，会随着 pod 销毁和创建发生变化；然而服务调用需要对不同 pod 进行负载均衡，利用非固定的 IP 进行网络调用并不现实。</p>
 <p>Kubernetes 专门<strong>抽象</strong>了一组 pod 的<strong>逻辑定义</strong>来解决这个问题。</p>
 <h1 id="Service"><a href="#Service" class="headerlink" title="Service"></a>Service</h1><p>Pod 是不稳定的，但是服务可以保证稳定。<br>区别于 service controller 负责容器运行和编排，service 负责 Kubernetes 集群中<strong>容器的访问</strong>。</p>
 <p>Service 的定义：</p>
 <pre><code>An abstract way to expose an application running on a set of Pods as a network service.
-</code></pre>
-<p>Service 的职责：与每个 node 的 kube-proxy 进程相结合，<strong>提供固定的 IP 和端口</strong>，在将数据包分发到相应服务节点时充当代理，进行负载均衡。</p>
+</code></pre><p>Service 的职责：与每个 node 的 kube-proxy 进程相结合，<strong>提供固定的 IP 和端口</strong>，在将数据包分发到相应服务节点时充当代理，进行负载均衡。</p>
 <p>工作原理：根据 service 的每个 pod 所设置的标签 label</p>
 <ul>
 <li>比如某些 pod 被打上了 “app=xxx” 的标签</li>
@@ -421,8 +415,8 @@
 </ul>
 <p><small>注：iptables-save 指令可以查看 iptables。</small></p>
 <p>因此每一个 service 都有固定的 IP 和一些 endpoints。即使 pod 因为不稳定导致 ip 发生变化，但是面向客户端的是 service 的固定 IP 和端口。</p>
-<p><img src="/2022/05/28/kubernetes-pod-management/service.gif"></p>
-<p><img src="/2022/05/28/kubernetes-pod-management/service.png"></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/service.gif" alt></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/service.png" alt></p>
 <p>值得注意的是，并不是所有的 service pod 都带有 selector，也不是只有带着 selector 的才能组建 service。</p>
 <p>对于那些带 selector 的 service，endpoints controller 根据 selector 筛选出属于该 service 的所有 pod，依此创建出 endpoints 记录，并修改 DNS 配置，返回指向这些 pod 的记录（地址）；</p>
 <p>对于那些不带 selector 的 service，它们无法直接创建出 endpoints，只能通过以下方式配置 DNS：</p>
@@ -433,10 +427,8 @@
 </ul>
 <h2 id="端口和-IP"><a href="#端口和-IP" class="headerlink" title="端口和 IP"></a>端口和 IP</h2><p>Service 配置如下：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">my-service</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">MyApp</span>    <span class="comment"># 会自动生成对应的 endpoint 对象，如不配置则不会自动生成，需要手动指定</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">80</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">9376</span></span><br><span class="line">      <span class="attr">nodePort:</span> <span class="number">30036</span></span><br></pre></td></tr></table></figure>
-
 <p>对应的 Endpoints 对象：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Endpoints</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">my-service</span></span><br><span class="line"><span class="attr">subsets:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">addresses:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">ip:</span> <span class="number">192.0</span><span class="number">.2</span><span class="number">.42</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">port:</span> <span class="number">9376</span>    <span class="comment"># 配置相对应的 port，使其能对应上相应的 service</span></span><br></pre></td></tr></table></figure>
-
 <p>可以看到，service 的配置 yaml 文件中定义了很多种端口：</p>
 <p><strong>port</strong>：service 暴露在 clusterIP 上的接口</p>
 <ul>
@@ -488,7 +480,7 @@
 <p>Service 的特例，主要面向集群外部的服务。</p>
 <p>ExternalName 可将外部独立服务映射进 Kubernetes 集群，且具备 Kubernetes 内服务的一些特征（如 namespace 等），为集群提供服务。</p>
 <p>不像上述三种类型服务通过 kube-proxy 路由，该种映射依赖于 DNS 实现（kube-dns version &gt;= 1.7）</p>
-<p><img src="/2022/05/28/kubernetes-pod-management/nodeport.png"></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/nodeport.png" alt></p>
 <p>小结：</p>
 <ul>
 <li>前三种类型的 service 通过 selector 指定服务对应的 pod，根据所有 pod 地址创建出 endpoints 对象作为服务后端<ul>
@@ -515,8 +507,8 @@
 <li>先成功启动 v2 版本的 ReplicaSet 控制下的一个 pod，同时完全关闭 v1 版本控制下的一个 pod</li>
 <li>上述操作完成后，逐渐增加 v2 版本控制的 pod 数量至 3；同时 v1 版本控制的 pod 数量减到 0</li>
 </ul>
-<p><img src="/2022/05/28/kubernetes-pod-management/rolling-update.png"></p>
-<p>应用的回滚则与上述过程相反。而且在每一次新版本的安装需要 –record 做好记录，之后调用 <code>kubectl rollout undo</code> 的时候才能指定已记录的版本（<code>--to-revision</code>）进行回滚。</p>
+<p><img src="/2022/05/28/kubernetes-pod-management/rolling-update.png" alt></p>
+<p>应用的回滚则与上述过程相反。而且在每一次新版本的安装需要 —record 做好记录，之后调用 <code>kubectl rollout undo</code> 的时候才能指定已记录的版本（<code>--to-revision</code>）进行回滚。</p>
 <p>最大好处：<strong>零停机</strong>，更新过程中保证业务连续性。</p>
 <p>实际应用：配置 <code>RollingUpdateStrategy</code> 控制滚动更新策略</p>
 <ul>
@@ -528,14 +520,10 @@
 <p>区别于全局调度 —— 设置 Kubernetes 启动调度器，我们可以通过打标签（<strong>Label</strong>）或设置亲和性（<strong>Affinity</strong>），在运行时进行调度。</p>
 <h2 id="设置-Label"><a href="#设置-Label" class="headerlink" title="设置 Label"></a>设置 Label</h2><p>给 node 添加标签：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl label node k8s-node1 prod=sit</span><br></pre></td></tr></table></figure>
-
 <p>给 pod 设置 nodeSelector：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pod 文件：</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">nodeSelector:</span></span><br><span class="line">    <span class="string">prod=sit</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="comment"># 如指定 node 标签不存在，pod 会一直 pending，不会被分配到任何的 node 上</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 或：</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">nodeName:</span> <span class="string">k8s-node1</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
-
 <p>给 node 删除标签：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl label node k8s-node1 prod-</span><br></pre></td></tr></table></figure>
-
-
 <h2 id="设置亲和度-Affinity"><a href="#设置亲和度-Affinity" class="headerlink" title="设置亲和度 Affinity"></a>设置亲和度 Affinity</h2><p>为 node 或 pod 设定亲和性，能够匹配更多的逻辑组合，而不只是字符串的完全相等。亲和度主要分为三类：</p>
 <h3 id="nodeAffinity"><a href="#nodeAffinity" class="headerlink" title="nodeAffinity"></a><code>nodeAffinity</code></h3><p>主机亲和性，处理的是 <strong>pod 和主机之间</strong>的关系，让 pod 部署/不要部署在哪些主机上。</p>
 <p>规则包括：</p>
@@ -544,14 +532,12 @@
 <li>强制性规则，pod 调度时必须满足的规则，否则就不停重试，pod 一直 pending</li>
 </ul>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="string">...</span></span><br><span class="line">  <span class="attr">affinity:</span></span><br><span class="line">    <span class="attr">nodeAffinity:</span></span><br><span class="line">      <span class="attr">requiredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">        <span class="attr">nodeSelectorTerms:</span>  <span class="comment"># nodeSelector 组</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">key</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">            <span class="attr">values:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">&quot;value1&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">&quot;value2&quot;</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
-
 <p>软亲和性 <code>preferredDuringSchedulingIgnoredDuringException</code></p>
 <ul>
 <li>柔性调度规则，pod 调度时可满足其规则（“更倾向于”部署在指定 node 上）</li>
 <li>若无法满足规则，可调度到一个不匹配规则的 node 上。</li>
 </ul>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="string">...</span></span><br><span class="line">  <span class="attr">affinity:</span></span><br><span class="line">    <span class="attr">nodeAffinity:</span></span><br><span class="line">      <span class="attr">preferredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">weight:</span> <span class="number">60</span>  <span class="comment"># 权重</span></span><br><span class="line">        <span class="attr">preference:</span>  <span class="comment"># 偏好</span></span><br><span class="line">          <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">zone</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">            <span class="attr">values:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">&quot;value1&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">&quot;value2&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">weight:</span> <span class="number">30</span></span><br><span class="line">        <span class="attr">preference:</span></span><br><span class="line">          <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">zone2</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">Exists</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
-
 <p>解释一下上述两种亲和性的后缀 <code>-IgnoredDuringException</code>：</p>
 <ul>
 <li>字面上的理解：“有异常的时候忽略”</li>
@@ -565,15 +551,14 @@
 </ul>
 <h3 id="podAffinity"><a href="#podAffinity" class="headerlink" title="podAffinity"></a>podAffinity</h3><p>pod 亲和性，主要解决 <strong>pod 与 pod 之间</strong>的关系：哪些 pod 可以部署在同一拓扑域。规则与 nodeAffinity 相同。</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 例子1：</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="string">...</span></span><br><span class="line">  <span class="attr">affinity:</span></span><br><span class="line">    <span class="attr">podAffinity:</span></span><br><span class="line">      <span class="attr">requiredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">        <span class="attr">labelSelector:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">key</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">            <span class="attr">values:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">&quot;value1&quot;</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">&quot;value2&quot;</span></span><br><span class="line">          <span class="attr">topologyKey:</span> <span class="string">prod</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
-
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 例子2:</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="string">...</span></span><br><span class="line">  <span class="attr">affinity:</span></span><br><span class="line">    <span class="attr">podAffinity:</span></span><br><span class="line">      <span class="attr">preferredDuringSchedulingIgnoredDuringExecution:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">weight:</span> <span class="number">60</span></span><br><span class="line">        <span class="attr">podAffinityTerm:</span></span><br><span class="line">          <span class="attr">labelSelector:</span> </span><br><span class="line">            <span class="attr">matchExpressions:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">zone</span></span><br><span class="line">              <span class="attr">operator:</span> <span class="string">In</span></span><br><span class="line">              <span class="attr">values:</span></span><br><span class="line">              <span class="bullet">-</span> <span class="string">&quot;value1&quot;</span></span><br><span class="line">              <span class="bullet">-</span> <span class="string">&quot;value2&quot;</span></span><br><span class="line">          <span class="attr">topologyKey:</span> <span class="string">prod</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">weight:</span> <span class="number">30</span></span><br><span class="line">        <span class="attr">preference:</span></span><br><span class="line">          <span class="attr">matchExpressions:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">zone2</span></span><br><span class="line">            <span class="attr">operator:</span> <span class="string">Exists</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
-
 <p>拓扑域（topologyKey）：根据 node 上的标签划分范围，范围内的 pod 即在一个域里面。</p>
-<p><img src="/2022/05/28/kubernetes-pod-management/topologykey.png"></p>
+<p><img src="/2022/05/28/kubernetes-pod-management/topologykey.png" alt></p>
 <h3 id="podAntiAffinity"><a href="#podAntiAffinity" class="headerlink" title="podAntiAffinity"></a>podAntiAffinity</h3><p>顾名思义，pod 反亲和性，也是解决集群内部 <strong>pod 与 pod 之间</strong>的关系</p>
 <ul>
 <li>主要解决 pod <strong>不可以</strong>和哪些 pod 部署在同一拓扑域的问题</li>
 </ul>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -583,7 +568,8 @@
 <th>调度目标</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>nodeAffinity</td>
 <td>主机标签</td>
 <td>In, NotIn, Exists, DoesNotExist, Gt, Lt</td>
@@ -601,7 +587,9 @@
 <td>In, NotIn, Exists, DoesNotExist</td>
 <td>pod 和指定的 pod 不在同一拓扑域</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>亲和性的应用：应用 A 和 B 之间交互频繁，有必要利用亲和性将两个应用尽可能靠近，甚至分配在同一 node 上，减少网络通信带来的性能损耗</p>
 <p>反亲和性的应用：应用采用<strong>多副本</strong>部署，使用反亲和性将应用实例打散分布在各个 node 上，提高 HA</p>
 <p>各种匹配规则的叠加：</p>
@@ -616,16 +604,10 @@
 <li>每个 node 可被应用一个或多个 taint，表示这个 node 不会接受那些不能容忍这些 taint 的 pod</li>
 <li>每个 pod 可被应用一个或多个 toleration，表示这些 pod 可以（但不要求）被调度到具有相应 taint 的 node 上</li>
 </ul>
-<p>设置污点 taint：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint node [node] key=value:[effect]</span><br><span class="line"><span class="comment"># effect=[NoSchedule | PreferNoSchedule | NoExecute]</span></span><br></pre></td></tr></table></figure>
-
-<p>去除污点：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint node [node] key:[effect]-</span><br></pre></td></tr></table></figure>
-
+<p>设置污点 taint：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint node [node] key=value:[effect]</span><br><span class="line"><span class="comment"># effect=[NoSchedule | PreferNoSchedule | NoExecute]</span></span><br></pre></td></tr></table></figure></p>
+<p>去除污点：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint node [node] key:[effect]-</span><br></pre></td></tr></table></figure></p>
 <p>与之相对，pod 上的 toleration 里面声明的 key 和 effect 需要跟 taint 的设置保持一致。</p>
-<p>举例：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">tolerations:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">key:</span> <span class="string">&quot;key&quot;</span></span><br><span class="line">  <span class="attr">operator:</span> <span class="string">&quot;Exists&quot;</span></span><br><span class="line">  <span class="attr">effect:</span> <span class="string">&quot;NoSchedule&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 或：</span></span><br><span class="line"><span class="attr">tolerations:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">key:</span> <span class="string">&quot;key&quot;</span></span><br><span class="line">  <span class="attr">operator:</span> <span class="string">&quot;Equal&quot;</span></span><br><span class="line">  <span class="attr">value:</span> <span class="string">&quot;value&quot;</span></span><br><span class="line">  <span class="attr">effect:</span> <span class="string">&quot;NoSchedule&quot;</span></span><br></pre></td></tr></table></figure>
-
+<p>举例：<br><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">tolerations:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">key:</span> <span class="string">&quot;key&quot;</span></span><br><span class="line">  <span class="attr">operator:</span> <span class="string">&quot;Exists&quot;</span></span><br><span class="line">  <span class="attr">effect:</span> <span class="string">&quot;NoSchedule&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 或：</span></span><br><span class="line"><span class="attr">tolerations:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">key:</span> <span class="string">&quot;key&quot;</span></span><br><span class="line">  <span class="attr">operator:</span> <span class="string">&quot;Equal&quot;</span></span><br><span class="line">  <span class="attr">value:</span> <span class="string">&quot;value&quot;</span></span><br><span class="line">  <span class="attr">effect:</span> <span class="string">&quot;NoSchedule&quot;</span></span><br></pre></td></tr></table></figure></p>
 <ul>
 <li>operator 为 Exists：无需指定 value</li>
 <li>operator 为 Equal：value 需跟 taint 的值相等才生效</li>

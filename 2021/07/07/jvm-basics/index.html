@@ -246,7 +246,6 @@
       
         <p>JVM 作为 Java 程序的容器，是所有 Java 程序依赖的平台。</p>
 <span id="more"></span>
-
 <p>JVM 执行 Java 程序的过程：</p>
 <ol>
 <li>通过类加载器加载各个 <code>.class</code> 文件</li>
@@ -254,8 +253,7 @@
 <li>在适当的时候执行垃圾回收</li>
 </ol>
 <p>多一些阅读<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/specs/jvms/se13/html/index.html">官方文档（Java 13）</a>，涉猎 JVM 的原理，有助于 Java Developer 们避开开发过程中的许多陷阱。</p>
-<br>
-
+<p><br></p>
 <h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>顶层：<a href="/2021/07/08/class-loader"><strong>类加载器</strong></a> <strong>Class Loader</strong></p>
 <ul>
 <li>加载 JVM .class 文件</li>
@@ -272,15 +270,14 @@
 <ul>
 <li>通过本地方法接口（Native Interfaces）与本地方法库（Native Libraries）交互</li>
 </ul>
-<p><img src="/2021/07/07/jvm-basics/jvm-overview.png"></p>
+<p><img src="/2021/07/07/jvm-basics/jvm-overview.png" alt></p>
 <p>JVM 在初始运行的时候，会分配好 <font color="#548235">Method Area</font>（方法区）和 <font color="#548235">Heap</font>（堆）；在为程序管理并分配内存的时候，每遇到一个线程，就会为其分配一个 <font color="#FFC000">Program Counter Register</font>（程序计数器），一个 <font color="#FFC000">Native Method Stack</font>（本地方法栈） 和一个 <font color="#FFC000">VM Stack</font>（虚拟机栈）。</p>
 <ul>
 <li>即：<strong>线程私有</strong>的三块（<font color="#FFC000">程序计数器</font>、<font color="#FFC000">本地方法栈</font>和<font color="#FFC000">虚拟机栈</font>）区域的生命周期与 Java 程序中的某个所属线程相同；<strong>线程共享</strong>的<font color="#548235">方法区</font>和<font color="#548235">堆</font>与 Java 程序运行的生命周期相同。</li>
 <li>所以：这也是系统垃圾回收只发生在线程共享的区域（大部分只发生在<strong>堆</strong>中）的原因。</li>
 </ul>
 <p>当线程终止时：线程私有的程序计数器、本地方法栈和虚拟机栈所占用的空间会被释放掉。</p>
-<br>
-
+<p><br></p>
 <p>我们知道，计算机存储数据主要利用三个空间：<strong>寄存器</strong>、<strong>栈</strong>和<strong>堆</strong>。</p>
 <ul>
 <li>Java 不能直接控制和处理寄存器，只能操作栈空间和堆空间。</li>
@@ -300,10 +297,9 @@
 <li>在堆空间中，数据存放的位置随机分配</li>
 </ul>
 <p>注：以上 JVM 的<strong>静态内存储模型</strong>（JVM 内存模型）只是一种对内存的划分，只局限在 JVM 内存。</p>
-<br>
-
+<p><br></p>
 <h2 id="线程共享区域"><a href="#线程共享区域" class="headerlink" title="线程共享区域"></a><font color="#548235">线程共享区域</font></h2><p>包括<strong>方法区</strong>和<strong>堆</strong>。</p>
-<p><img src="/2021/07/07/jvm-basics/jvm-shared.png"></p>
+<p><img src="/2021/07/07/jvm-basics/jvm-shared.png" alt></p>
 <h3 id="1-堆-Heap"><a href="#1-堆-Heap" class="headerlink" title="1. 堆 Heap"></a><strong><big>1. 堆 Heap</big></strong></h3><p>JVM 只有一个堆区，在 JVM 启动的时候被创建，被所有线程共享，更是垃圾回收的主要战场。</p>
 <p>堆用于存储对象（包括数组，因为数组也是一种对象），是 JVM 的内存数据区。分为以下几个部分：</p>
 <ul>
@@ -326,12 +322,9 @@
 <li>内存的永久保存区域，存放 Class 和 Meta 信息等，GC 时不清理。</li>
 </ul>
 <p>实际上，堆只保存对象实例的<strong>属性类型</strong>、<strong>属性值</strong>（多数在常量池中）、<strong>运行时数据</strong>和<strong>对象本身类型标记</strong>（在<a href="/2021/07/16/object-header">对象头</a>中）等，并不保存对象的方法（方法等保存在栈里）。</p>
-<p>要注意的是，在创建一个对象的时候：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Class a = <span class="keyword">new</span> Class();</span><br></pre></td></tr></table></figure>
-<p>此时 a 叫<strong>实例</strong>，不能说 a 是对象。在这里，<strong>实例保存在栈中</strong>，指的是指向对象的<strong>指针</strong>；而<strong>对象则是保存在堆中</strong>。操作实例实际上是通过实例指针间接操作对象，且多个实例可以指向同一个对象。<br>因此 a 所指向的堆内存中的具体空间，才是对象。<br>对象实例在堆中被分配好之后，保存到实例中的是一个 4 字节的<strong>堆内存地址</strong>。</p>
+<p>要注意的是，在创建一个对象的时候：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Class a = <span class="keyword">new</span> Class();</span><br></pre></td></tr></table></figure><br>此时 a 叫<strong>实例</strong>，不能说 a 是对象。在这里，<strong>实例保存在栈中</strong>，指的是指向对象的<strong>指针</strong>；而<strong>对象则是保存在堆中</strong>。操作实例实际上是通过实例指针间接操作对象，且多个实例可以指向同一个对象。<br>因此 a 所指向的堆内存中的具体空间，才是对象。<br>对象实例在堆中被分配好之后，保存到实例中的是一个 4 字节的<strong>堆内存地址</strong>。</p>
 <p>堆处于<strong>物理不连续</strong>的内存空间中，只要逻辑上连续即可。</p>
-<br>
-
+<p><br></p>
 <h3 id="2-方法区-Method-Area"><a href="#2-方法区-Method-Area" class="headerlink" title="2. 方法区 Method Area"></a><strong><big>2. 方法区 Method Area</big></strong></h3><p>方法区是 JVM 的一个<strong>概念</strong>，不同的 JVM 会有不一样的具体实现，不同版本的 JDK 对应的 JVM 也会根据设计规范有不一样的实现。</p>
 <p>对于每一个要加载的<strong>类型</strong>（类 Class、接口、枚举、注解），方法区存放的东西有很多，主要包括：</p>
 <p><strong>1</strong>. Object Class Data（类的类定义数据，即类型信息），包括：</p>
@@ -368,8 +361,7 @@
 <li>除常量外的静态变量（Java 6 及之前版本）</li>
 </ul>
 <p>从 Java 7 开始，它们就被放进堆里面了。</p>
-<br>
-
+<p><br></p>
 <p>和堆一样，方法区可以由不连续的区域组成，并且可以设置固定大小，也可设置为可扩展。</p>
 <p>方法区的大小决定了系统<strong>可以保存多少个类</strong>，如果类太多导致方法区溢出，则会抛出异常：  </p>
 <ul>
@@ -377,8 +369,9 @@
 <li>Since Java 8：<code>java.lang.OutOfMemoryError: Metaspace</code></li>
 </ul>
 <p>正是因为方法区所存储的数据与堆有一种类比关系，而且方法区不属于堆的一部分，所以也被称为“非堆” No-Heap。<br>正因为方法区不属于堆，所以它很少会触发垃圾回收，发生内存回收的目的主要是针对<strong>常量池的回收</strong>和<strong>类的卸载</strong>。</p>
-<p><img src="/2021/07/07/jvm-basics/method-area.png"></p>
-<p><big><strong>随 JDK 版本变迁的方法区实现（对于 HotSpot 虚拟机而言）</strong></big></p>
+<p><img src="/2021/07/07/jvm-basics/method-area.png" alt></p>
+<big>**随 JDK 版本变迁的方法区实现（对于 HotSpot 虚拟机而言）**</big>
+
 <ul>
 <li>Until Java 6：PermGen 被分配在 JVM 堆中，与堆相互隔离，大小在启动 JVM 时固定</li>
 <li>Java 7：将 PermGen 中的静态变量、字符串常量池等移到堆中，其他不变<ul>
@@ -387,9 +380,9 @@
 </li>
 <li>Since Java 8：取消 PermGen，改为 Metaspace（元空间，顾名思义，即存储类相关的<strong>元数据</strong>）实现，与堆共同分配在本地内存（使用本地内存），大小可以动态调整。</li>
 </ul>
-<p><img src="/2021/07/07/jvm-basics/jvm-shared-6.png"></p>
-<p><img src="/2021/07/07/jvm-basics/jvm-shared-7.png"></p>
-<p><img src="/2021/07/07/jvm-basics/jvm-shared-8.png"></p>
+<p><img src="/2021/07/07/jvm-basics/jvm-shared-6.png" alt></p>
+<p><img src="/2021/07/07/jvm-basics/jvm-shared-7.png" alt></p>
+<p><img src="/2021/07/07/jvm-basics/jvm-shared-8.png" alt></p>
 <p>元空间和永久区最大的区别是：元空间不存在虚拟机设置的内存中，而是直接使用<strong>本地内存</strong>。</p>
 <ul>
 <li>好处：64 位的系统就能取很大的内存，基本上杜绝了方法区溢出；如果还报 <code>OutOfMemoryError</code>，那就是启动的时候设置得太小。</li>
@@ -401,9 +394,7 @@
 <li>而且对永久区的调优是比较困难的</li>
 <li>HotSpot 为了能与 Oracle JRockit（没有永久区）合并而做的改动</li>
 </ol>
-<br>
-<br>
-
+<p><br><br><br></p>
 <h2 id="线程私有区域"><a href="#线程私有区域" class="headerlink" title="线程私有区域"></a><font color="#FFC000">线程私有区域</font></h2><p>包括<strong>程序计数器</strong>、<strong>本地方法栈</strong>和<strong>虚拟机栈</strong>。</p>
 <p><strong><big>1. 程序计数器 Program Counter Register</big></strong></p>
 <p>存储当前线程下一条需要执行的 JVM 字节码指令的地址</p>
@@ -453,7 +444,6 @@
 </ul>
 <p>局部变量表的每一个槽位是可以被复用的，称为<strong>槽位复用</strong>。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;  <span class="comment">// a 和 b 分别位列不同的槽位中</span></span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line">        System.out.println(a);</span><br><span class="line">        <span class="keyword">int</span> b = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span> </span>&#123;  <span class="comment">// a 超过了作用域，失效了；b 复用了 a 的槽位，达到了节省资源的目的</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line">            System.out.println(a);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> b = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p><strong>b. 操作数栈 Operand Stack</strong></p>
 <ul>
 <li>结构与局部变量表一致，但顾名思义，对它的访问是通过 push 和 pop 操作来进行的，而不是通过索引；</li>
@@ -475,27 +465,22 @@
 <li>与虚拟机栈作用类似</li>
 <li>区别在于：虚拟机栈为 JVM 提供执行 Java 方法的服务，而本地方法栈则是为 JVM 提供执行 native 方法的服务</li>
 </ul>
-<br>
-
-<p>例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StackFrameTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        StackFrameTest test = <span class="keyword">new</span> StackFrameTest();</span><br><span class="line">        test.method1(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">2</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;method1 i = &quot;</span> + i);</span><br><span class="line">        method2(i, num);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">3</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;method2 i = &quot;</span> + i + <span class="string">&quot;, j = &quot;</span> + j);</span><br><span class="line">        method3(i, j, num);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method3</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j, <span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">4</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;method3 i = &quot;</span> + i + <span class="string">&quot;, j = &quot;</span> + j + <span class="string">&quot;, x = &quot;</span> + x);</span><br><span class="line">        method4(i, j, x, num);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method4</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j, <span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;method3 i = &quot;</span> + i + <span class="string">&quot;, j = &quot;</span> + j + <span class="string">&quot;, x = &quot;</span> + x + <span class="string">&quot;, y = &quot;</span> + y);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<p><br></p>
+<p>例子：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StackFrameTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        StackFrameTest test = <span class="keyword">new</span> StackFrameTest();</span><br><span class="line">        test.method1(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">2</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;method1 i = &quot;</span> + i);</span><br><span class="line">        method2(i, num);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">3</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;method2 i = &quot;</span> + i + <span class="string">&quot;, j = &quot;</span> + j);</span><br><span class="line">        method3(i, j, num);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method3</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j, <span class="keyword">int</span> x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> num = <span class="number">4</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;method3 i = &quot;</span> + i + <span class="string">&quot;, j = &quot;</span> + j + <span class="string">&quot;, x = &quot;</span> + x);</span><br><span class="line">        method4(i, j, x, num);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method4</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j, <span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;method3 i = &quot;</span> + i + <span class="string">&quot;, j = &quot;</span> + j + <span class="string">&quot;, x = &quot;</span> + x + <span class="string">&quot;, y = &quot;</span> + y);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <ul>
 <li>执行 main() 方法时，对应栈帧的变量表、操作数栈、帧数据的变化，以及程序计数器、本地方法栈等如下图：</li>
 </ul>
-<p><img src="/2021/07/07/jvm-basics/vm-stack.png"></p>
-<br>
-
-<h1 id="内存分配流程"><a href="#内存分配流程" class="headerlink" title="内存分配流程"></a>内存分配流程</h1><p><img src="/2021/07/07/jvm-basics/memory-allocate.png"></p>
-<p><img src="/2021/07/07/jvm-basics/object-allocate.png"></p>
+<p><img src="/2021/07/07/jvm-basics/vm-stack.png" alt></p>
+<p><br></p>
+<h1 id="内存分配流程"><a href="#内存分配流程" class="headerlink" title="内存分配流程"></a>内存分配流程</h1><p><img src="/2021/07/07/jvm-basics/memory-allocate.png" alt></p>
+<p><img src="/2021/07/07/jvm-basics/object-allocate.png" alt></p>
 <p>注：</p>
 <ul>
 <li>指针碰撞（Bump the Pointer）：Java 堆的内存<strong>绝对规整</strong>，所有用过的内存放一边，空闲的放另一边，中间保留一个指针作为分界点的指示器。在这个策略下，<strong>指示指针向靠近空闲内存方向挪动一段空间，该空间的距离与对象大小相等</strong>，这就是给对象分配的内存。</li>
 <li>空闲列表（Free List）：Java 堆中内存<strong>不规整</strong>，已使用内存与空闲内存犬牙交错。JVM 通过维护一个列表，记录可用的内存块；在分配内存的时候从列表中取一块足够大的空间划分给实例，并更新列表。</li>
 <li>系统如果使用了基于<font color="red">压缩（Compact）</font>算法的垃圾收集器，与之相匹配的内存分配策略是<font color="red">指针碰撞</font>；如果是基于<font color="blue">清理（Sweep）</font>算法的话，则对应采用<font color="blue">空闲列表</font>策略。</li>
 </ul>
-<br>
-
+<p><br></p>
 <p>内存分配规则<strong>并不是百分百固定的</strong>，其细节取决于当前使用的是哪一种垃圾回收器组合，以及 JVM 的参数配置。<br>大多数情况下，对象在 Eden 区分配，少数情况（如大对象）直接分配到老年代（视垃圾回收器的类型而定）。<br>然而，并不是所有的对象都会直接被分配到堆上。上述对 Java 对象分配的过程分析中，可以知道有另外两个地方：<strong>栈</strong>（与逃逸分析相关）和 <strong>TLAB</strong> 也是可以保存对象的。</p>
 <h2 id="逃逸分析（Escape-Analysis）浅析"><a href="#逃逸分析（Escape-Analysis）浅析" class="headerlink" title="逃逸分析（Escape Analysis）浅析"></a>逃逸分析（Escape Analysis）浅析</h2><p>逃逸分析是 Java HotSpot 虚拟机能够分析新创建对象的使用范围，并决定是否要在 Java 堆上分配内存的一项技术（结合连通图做可达性分析）。</p>
 <p>当一个对象被定义了之后，通过分析它的动态作用域，可以知道它的逃逸状态：</p>
@@ -515,7 +500,6 @@
 </ol>
 <p>简单来说：不在作用域了，就会被视为逃逸。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Student student = <span class="keyword">new</span> Student();  <span class="comment">// 逃逸了的对象</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Gc5</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Student student = new Student();  // 没有逃逸</span></span><br><span class="line">    Gc1();</span><br><span class="line">    System.gc();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>当一个对象<strong>没有逃逸</strong>时，Java HotSpot 虚拟机可对其进行以下优化：</p>
 <ol>
 <li><strong>锁消除</strong>：编译器确定当前对象只有被当前线程使用，不会被外部访问的时候，会移除该对象的同步锁<ul>
@@ -532,8 +516,7 @@
 <p>最大的好处：通常的应用中，没有逃逸的局部对象占的比例很大。如果使用栈上分配，大量对象会随着方法的结束（栈帧出栈）自动销毁，不用走 GC 了，大大减小了垃圾回收的负荷。</p>
 <h2 id="TLAB"><a href="#TLAB" class="headerlink" title="TLAB"></a>TLAB</h2><p>全称为 <strong>Thread Local Allocation Buffer</strong>，线程本地分配缓存区，是线程专用的内存分配区域。</p>
 <p>背景：多个线程在堆上申请空间，如果每次对象分配都必须进行同步（CAS + 失败重试保证操作原子性），当竞争激烈的时候，内存分配的效率会进一步下降。<br>因此 JVM 为每个 Java 线程在 <strong>Eden 区</strong>划出一块内存（仅占 Eden 空间的 1%）作为 TLAB，每个线程使用自己的 TLAB，在避免线程同步，发生冲突的同时提升了对象分配的效率。</p>
-<br>
-
+<p><br></p>
 <h1 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h1><p>JVM 的运行模式主要有两种：<strong>Client</strong> 和 <strong>Server</strong>。</p>
 <p>Client 模式启动快，但是进入稳定期后运行速度不如 Server 快。</p>
 <p>Server 启动慢，进入稳定期后运行速度优于 Client。Server 模式采用的是重量级的虚拟机，对程序会进行更多的优化。</p>

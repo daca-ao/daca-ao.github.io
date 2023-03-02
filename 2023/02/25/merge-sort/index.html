@@ -637,7 +637,6 @@ t(n/k)+t(n-n/k)+cn & \quad n \geq k
   if (typeof MathJax === 'undefined') {
     window.MathJax = {
       loader: {
-          load: ['[tex]/mhchem'],
         source: {
           '[tex]/amsCd': '[tex]/amscd',
           '[tex]/AMScd': '[tex]/amscd'
@@ -645,7 +644,6 @@ t(n/k)+t(n-n/k)+cn & \quad n \geq k
       },
       tex: {
         inlineMath: {'[+]': [['$', '$']]},
-          packages: {'[+]': ['mhchem']},
         tags: 'ams'
       },
       options: {

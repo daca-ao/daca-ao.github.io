@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/g1-gc.jpg">
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/g1-mix-gc.png">
 <meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
-<meta property="article:modified_time" content="2021-09-05T14:30:21.153Z">
+<meta property="article:modified_time" content="2022-11-07T12:43:31.016Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -252,13 +252,10 @@
       
         <p>其实，很多 Java 初学者即使一点 GC 都不懂，也能写出一个能用甚至还不错的程序或系统，但并不代表 Java 的 GC 就不重要。</p>
 <span id="more"></span>
-
 <p>今天就来唠一唠这个 Java 的重要思想和 JVM 重要的组成部分 —— 垃圾回收。</p>
 <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>啥是内存垃圾？</p>
 <p>当内存中的对象失去了所有的引用，变成了“孤魂野鬼”的时候，也就被称为“垃圾”。</p>
-<p>这里展示一个垃圾对象的诞生过程：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String str1 = <span class="keyword">new</span> String(<span class="string">&quot;abc&quot;</span>);  <span class="comment">// &quot;abc&quot; 这个 String 对象有一个引用 str1 指向它</span></span><br><span class="line">String str2 = str1;               <span class="comment">// &quot;abc&quot; 现在有两个引用了：str1 和 str2 都指向它</span></span><br><span class="line">str1 = <span class="keyword">null</span>;  <span class="comment">// 失去引用 str1</span></span><br><span class="line">str2 = <span class="keyword">null</span>;  <span class="comment">// 失去引用 str2，失去全部引用，变成野对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 由此，new String(&quot;abc&quot;); 产生的对象失去了所有指向它的引用，将无法再被程序访问 */</span></span><br></pre></td></tr></table></figure>
-
+<p>这里展示一个垃圾对象的诞生过程：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String str1 = <span class="keyword">new</span> String(<span class="string">&quot;abc&quot;</span>);  <span class="comment">// &quot;abc&quot; 这个 String 对象有一个引用 str1 指向它</span></span><br><span class="line">String str2 = str1;               <span class="comment">// &quot;abc&quot; 现在有两个引用了：str1 和 str2 都指向它</span></span><br><span class="line">str1 = <span class="keyword">null</span>;  <span class="comment">// 失去引用 str1</span></span><br><span class="line">str2 = <span class="keyword">null</span>;  <span class="comment">// 失去引用 str2，失去全部引用，变成野对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 由此，new String(&quot;abc&quot;); 产生的对象失去了所有指向它的引用，将无法再被程序访问 */</span></span><br></pre></td></tr></table></figure></p>
 <p>有了垃圾，怎么清理呢？</p>
 <p>就 C / C++ 语言来说，它们没有垃圾回收机制。<br>除非程序结束，否则在堆中申请后还没被释放，且没有任何指向的内存会一直处于“三无”状态：</p>
 <ul>
@@ -267,12 +264,9 @@
 <li>无法更改。</li>
 </ul>
 <p>当这样无法再被访问的内存越积越多的时候，可利用的内存越来越少，就会导致内存泄漏（Memory Leak）。</p>
-<p>如下为一次内存泄漏过程：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">int</span> *) <span class="built_in">malloc</span> (<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">int</span>)*<span class="number">1024</span>);</span><br><span class="line"><span class="comment">// 内存分配函数的参数没有问题，指针的转型也没有问题，但是并没有任何指针指向它……</span></span><br></pre></td></tr></table></figure>
-
+<p>如下为一次内存泄漏过程：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">int</span> *) <span class="built_in">malloc</span> (<span class="built_in"><span class="keyword">sizeof</span></span>(<span class="keyword">int</span>)*<span class="number">1024</span>);</span><br><span class="line"><span class="comment">// 内存分配函数的参数没有问题，指针的转型也没有问题，但是并没有任何指针指向它……</span></span><br></pre></td></tr></table></figure></p>
 <p>JVM 所提供的垃圾回收机制（Garbage Collection, <strong>GC</strong>）会不定时地去回收垃圾对象所占用的内存，大大地降低内存泄漏的隐患。</p>
-<br>
-
+<p><br></p>
 <h1 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h1><p>首先我们要明白，垃圾回收机制所要回收的，是已经<strong>没有任何引用的对象占据的内存空间</strong>，而不是内存本身。<br>JVM 通过自动检测对象是否超过作用域，从而达到自动回收内存的目的。<br>主要包括两步：</p>
 <ul>
 <li>在程序运行过程中<strong>标记</strong>垃圾对象</li>
@@ -287,9 +281,7 @@
 <li>当一个对象引用超过了生存期限（失效）或指向新对象时，引用计数器 - 1；</li>
 <li>当引用计数器对应的值变为 0 时，该对象不可能再被使用，虚拟机就会伺机回收该对象。</li>
 </ul>
-<p>计数法的好处就是快、简单，但无法检测循环引用：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> B b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> A a;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  <span class="comment">// 孤岛效应</span></span><br><span class="line">    A a = <span class="keyword">new</span> A();</span><br><span class="line">    B b = <span class="keyword">new</span> B();</span><br><span class="line">    a.b = b;</span><br><span class="line">    b.a = a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<p>计数法的好处就是快、简单，但无法检测循环引用：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> B b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> A a;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  <span class="comment">// 孤岛效应</span></span><br><span class="line">    A a = <span class="keyword">new</span> A();</span><br><span class="line">    B b = <span class="keyword">new</span> B();</span><br><span class="line">    a.b = b;</span><br><span class="line">    b.a = a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>而且每一次的引用产生和消除，需要伴随着一个加减法操作，对系统的性能有一定的影响。</p>
 <p>基于以上问题，JVM 并没有选择此方法作为垃圾回收算法。</p>
 <p><strong>2</strong>. 跟踪法 / <strong>根搜索算法</strong>：</p>
@@ -297,21 +289,22 @@
 <p>GC roots 包括：</p>
 <ul>
 <li><p>虚拟机栈中引用的对象：</p>
-  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User user = <span class="keyword">new</span> User();</span><br></pre></td></tr></table></figure></li>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User user = <span class="keyword">new</span> User();</span><br></pre></td></tr></table></figure>
+</li>
 <li><p>静态属性引用的对象：</p>
-  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> User user = <span class="keyword">new</span> User();</span><br></pre></td></tr></table></figure></li>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> User user = <span class="keyword">new</span> User();</span><br></pre></td></tr></table></figure>
+</li>
 <li><p>常量引用的对象：</p>
-  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> User user = <span class="keyword">new</span> User();</span><br></pre></td></tr></table></figure></li>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> User user = <span class="keyword">new</span> User();</span><br></pre></td></tr></table></figure>
+</li>
 <li><p>本地方法栈中引用的对象。</p>
 </li>
 </ul>
 <p>从根结点开始去访问某些对象，如果能被访问到，就将这些对象是<strong>可触及的</strong>。从 GC roots 开始，不可触及（不可达）的对象将会被回收。</p>
-<br>
-
-<p><img src="/2021/07/09/garbage-collection/root-search.png"></p>
+<p><br></p>
+<p><img src="/2021/07/09/garbage-collection/root-search.png" alt></p>
 <p>如上：红色部分为某个 GC Root 不可达的节点，它们可被回收。</p>
-<br>
-
+<p><br></p>
 <p>为了丰富的描述对象与对象之间的关系，更为了实现系统缓存的原因，Java 从 JDK 1.2 开始，建立了四种引用级别。</p>
 <h2 id="引用级别"><a href="#引用级别" class="headerlink" title="引用级别"></a>引用级别</h2><p>4 种引用级别由高到低：</p>
 <ol>
@@ -344,7 +337,6 @@
 </li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    Integer id;</span><br><span class="line">    String name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        User user = <span class="keyword">new</span> User();  <span class="comment">// 对象创建, 且有强引用</span></span><br><span class="line">        user.id = <span class="number">1</span>;</span><br><span class="line">        user.name = <span class="string">&quot;Ray&quot;</span>;</span><br><span class="line">        SoftReference&lt;User&gt; softRef = <span class="keyword">new</span> SoftReference&lt;&gt;(user);  <span class="comment">// 添加软引用</span></span><br><span class="line"></span><br><span class="line">        user = <span class="keyword">null</span>;  <span class="comment">// 移除强引用，现在 user 就只有软引用了</span></span><br><span class="line">        User sameUser;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> != (sameUser = softRef.get())) &#123;</span><br><span class="line">            <span class="comment">// 只有软引用的对象未被垃圾回收</span></span><br><span class="line">            System.out.println(<span class="string">&quot;recovered &quot;</span> + sameUser.name + <span class="string">&quot;(&quot;</span> + sameUser.id + <span class="string">&quot;) from SoftReference!&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 只有软引用的对象被垃圾回收，内存较为稀缺</span></span><br><span class="line">            System.out.println(<span class="string">&quot;user object GCed!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p><strong>弱引用</strong>（<code>WeakReference</code>）</p>
 <ul>
 <li>与软引用类似</li>
@@ -356,7 +348,6 @@
 <li>也可以和引用队列联合使用</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    User user = <span class="keyword">new</span> User();  <span class="comment">// 对象创建, 且有强引用</span></span><br><span class="line">    user.id = <span class="number">2</span>;</span><br><span class="line">    user.name = <span class="string">&quot;Ray&quot;</span>;</span><br><span class="line">    WeakReference&lt;User&gt; weakRef = <span class="keyword">new</span> WeakReference&lt;&gt;(user);  <span class="comment">// 添加软引用</span></span><br><span class="line"></span><br><span class="line">    user = <span class="keyword">null</span>;  <span class="comment">// 移除强引用，现在 user 就只有弱引用了</span></span><br><span class="line">    User sameUser;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">null</span> != (sameUser = weakRef.get())) &#123;</span><br><span class="line">        <span class="comment">// 只有弱引用的对象未被垃圾回收</span></span><br><span class="line">        System.out.println(<span class="string">&quot;recovered &quot;</span> + sameUser.name + <span class="string">&quot;(&quot;</span> + sameUser.id + <span class="string">&quot;) from WeakReference!&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 只有弱引用的对象被垃圾回收</span></span><br><span class="line">        System.out.println(<span class="string">&quot;user object GCed!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p><strong>虚引用</strong>（<code>PhantomReference</code>）</p>
 <ul>
 <li>“形同虚设”，不会决定对象的生命周期<ul>
@@ -368,11 +359,9 @@
 <li>与软引用、弱引用区别：虚引用必须和引用队列联合使用</li>
 </ul>
 <h2 id="槽位复用对垃圾回收的影响"><a href="#槽位复用对垃圾回收的影响" class="headerlink" title="槽位复用对垃圾回收的影响"></a>槽位复用对垃圾回收的影响</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">byte</span>[] a = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">5</span>*<span class="number">1024</span>*<span class="number">1024</span>];</span><br><span class="line">            System.out.println(a.length);</span><br><span class="line">        &#125;</span><br><span class="line">        System.gc();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span> </span>&#123;  <span class="comment">// b 复用了 a 的槽位</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">byte</span>[] a = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">5</span>*<span class="number">1024</span>*<span class="number">1024</span>];</span><br><span class="line">            System.out.println(a.length);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> b = <span class="number">10</span>;</span><br><span class="line">        System.gc();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>对于 method1()，虽然 a 已经不在作用域中，但是 a 仍然占用一个槽位，并且存在引用，所以该数组还<strong>不能被回收</strong>。</p>
 <p>对于 method2()，b 复用了 a 的槽位，此时数组已经不再占用栈帧的局部变量表中的槽位了，<strong>可以被回收</strong>。</p>
-<br>
-
+<p><br></p>
 <h1 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h1><p>JVM 的垃圾回收算法，基本上是基于跟踪法发展而来。具体来说，主要有<strong>三种</strong>：</p>
 <p><strong>1. 标记-清除算法 Mark-Sweep</strong></p>
 <p>标记清除算法是现代垃圾回收算法的思想基础。顾名思义，算法会分为“标记”和“清除”两个阶段：</p>
@@ -380,14 +369,14 @@
 <li>从根集合扫描出存活的对象（遍历有向图），从存活（可达）的对象进行标记；</li>
 <li>完了之后再扫描堆栈中未标记的对象，并进行回收。</li>
 </ul>
-<p><img src="/2021/07/09/garbage-collection/mark-sweep.jpg"></p>
+<p><img src="/2021/07/09/garbage-collection/mark-sweep.jpg" alt></p>
 <p>该算法（M-S）最大的问题是效率低，回收完成后会产生大量的不连续空间（空间碎片），插入新对象的时候不好操作。</p>
 <p><strong>2. 标记-压缩算法 Mark-Compact</strong></p>
 <ul>
 <li>第一阶段的“标记”同标记-清除算法；</li>
 <li>第二阶段：把被标记的对象移动到内存的一端，从而形成连续内存，并回收所有存活对象以外的内存。</li>
 </ul>
-<p><img src="/2021/07/09/garbage-collection/mark-compact.jpg"></p>
+<p><img src="/2021/07/09/garbage-collection/mark-compact.jpg" alt></p>
 <p>该算法（M-C）不会产生内存碎片，因此提高了内存利用率，相当于“用时间换空间”。适用于触发次数不那么多的<strong>老年代</strong>的垃圾回收。</p>
 <p><strong>3. 复制算法 Copying</strong></p>
 <ul>
@@ -396,35 +385,31 @@
 <li>复制完成之后，将前面一块内存回收。</li>
 </ul>
 <p>复制算法为了解决标记-清除算法效率低的问题而设计，简单高效；但是内存利用率较低（每次只能用一半内存）。</p>
-<p><img src="/2021/07/09/garbage-collection/copying.jpg"></p>
+<p><img src="/2021/07/09/garbage-collection/copying.jpg" alt></p>
 <p>看完了介绍，联想一下 JVM 堆的结构，有没有想到什么？</p>
-<br>
-
+<p><br></p>
 <p>没错，堆里面新生代的 <code>From Survivor</code> 和 <code>To Survivor</code> 之间，就是这么样操作的（不然怎么叫 “from” 和 “to”），这也算是对“只能使用 1/2 内存”的优化。<br>出于简单高效的优点，而且新生代大多数对象都“朝不保夕”，所以<strong>新生代</strong>的 GC 使用了复制算法。</p>
-<br>
-
+<p><br></p>
 <p>结合以上算法，还根据堆的各个功能区产生了两种<strong>策略</strong>，以提升回收效率：</p>
 <p><strong>4. 分代收集算法</strong></p>
 <ul>
 <li>复制算法用于新生代：以空间换时间</li>
 <li>压缩或清除算法用于老年代：以时间换空间</li>
 </ul>
-<p><img src="/2021/07/09/garbage-collection/generation.jpg"></p>
+<p><img src="/2021/07/09/garbage-collection/generation.jpg" alt></p>
 <p><strong>5. 分区算法</strong>：将堆空间划分成连续不同的小区间，每个区间独立使用，独立回收。</p>
 <p>当堆空间很大的时候，执行一次 GC 会非常耗时。</p>
-<p><img src="/2021/07/09/garbage-collection/division.jpg"></p>
+<p><img src="/2021/07/09/garbage-collection/division.jpg" alt></p>
 <p>分区算法的好处是：可以<strong>控制一次回收多少小空间，而不是整个堆</strong>，避免 GC 时间过长，造成系统停顿。</p>
 <p>如上：绿转白的是指定回收的内存块，可通过设置垃圾占比阈值来控制回收与否。</p>
-<br>
-
+<p><br></p>
 <h1 id="回收策略"><a href="#回收策略" class="headerlink" title="回收策略"></a>回收策略</h1><p>JVM 的 GC 算法为<strong>分代收集</strong>，具体的设计为：</p>
 <ol>
 <li>频繁收集新生代</li>
 <li>较少收集老年代</li>
 <li>更少收集永久区/元空间</li>
 </ol>
-<br>
-
+<p><br></p>
 <p>新生代的垃圾收集：<big><strong>Young GC</strong></big>（YG，也叫 Minor GC）</p>
 <p>对象确定在新生代分配之后，如果 Eden 区没有足够的空间，便会触发 YG。<br>步骤如下：</p>
 <ol>
@@ -445,7 +430,6 @@
 <li>显式调用 GC：</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">System.gc();  <span class="comment">// 请求运行垃圾回收器触发 Full GC，不一定真的执行了垃圾回收，且不受代码控制</span></span><br><span class="line"></span><br><span class="line">Runtime.getRuntime().gc();</span><br></pre></td></tr></table></figure>
-
 <p><small>（注：真正的垃圾回收机制，具体在什么时间点开始发生动作，是不可预料的；这和抢占式的线程在发生作用时的原理一样，你不知道它什么时候开始，什么时候完成。所以<strong>不能通过 Java 代码干预 Java 垃圾回收</strong>。）</small></p>
 <p>Young GC 被触发的次数大大高于 Old GC 被触发的次数。</p>
 <p>触发了 Full GC 之后，整个应用程序会暂停一小段时间，称作 <strong>STOP THE WORLD</strong>，是独占式的垃圾回收。<br>如果执行 Full GC 之后老年代的空间仍不足：抛出 <code>OutOfMemoryException: Java heap space</code><br>如果执行 Full GC 之后元空间的空间仍不足：抛出 <code>OutOfMemoryException: Metaspace</code></p>
@@ -465,35 +449,38 @@
 <li>循环跳转</li>
 <li>异常跳转</li>
 </ul>
-<br>
-
+<p><br></p>
 <h1 id="垃圾收集器（Garbage-Collector）"><a href="#垃圾收集器（Garbage-Collector）" class="headerlink" title="垃圾收集器（Garbage Collector）"></a>垃圾收集器（Garbage Collector）</h1><p>JDK 1.7 update 14 版本中，针对 HotSpot 虚拟机设计的垃圾收集器在不同代内存的作用分布如下：</p>
-<p><img src="/2021/07/09/garbage-collection/jdk-1-7-gc.jpg"></p>
+<p><img src="/2021/07/09/garbage-collection/jdk-1-7-gc.jpg" alt></p>
 <p>上图中，连着线的 GC 说明线的两头相连的收集器可以结合使用。</p>
 <p>在介绍各种垃圾回收器之前，我们先给出一个定义：<br><strong>吞吐量</strong>：运行用户代码时间占用户代码时间和垃圾回收时间总和的百分比，越高说明垃圾回收对程序的影响越小，即程序吞吐量越大。</p>
 <p>JVM 提供如下多种垃圾收集器：</p>
-<h2 id="串行-GC（Serial-Garbage-Collector）"><a href="#串行-GC（Serial-Garbage-Collector）" class="headerlink" title="串行 GC（Serial Garbage Collector）"></a>串行 GC（Serial Garbage Collector）</h2><p><img src="/2021/07/09/garbage-collection/serial-gc.jpg"></p>
+<h2 id="串行-GC（Serial-Garbage-Collector）"><a href="#串行-GC（Serial-Garbage-Collector）" class="headerlink" title="串行 GC（Serial Garbage Collector）"></a>串行 GC（Serial Garbage Collector）</h2><p><img src="/2021/07/09/garbage-collection/serial-gc.jpg" alt></p>
 <p>单线程执行 GC 不存在线程切换，因此在单 CPU 环境下性能较好。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">JVM 参数</th>
-<th align="center">作用</th>
+<th style="text-align:center">JVM 参数</th>
+<th style="text-align:center">作用</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">-XX:SurvivorRatio</td>
-<td align="center">设置 Eden 区与 Survivor 区的比例</td>
+<tbody>
+<tr>
+<td style="text-align:center">-XX:SurvivorRatio</td>
+<td style="text-align:center">设置 Eden 区与 Survivor 区的比例</td>
 </tr>
 <tr>
-<td align="center">-XX:PretenureSizeThreshold</td>
-<td align="center">设置大对象直接进入老年代的阈值</td>
+<td style="text-align:center">-XX:PretenureSizeThreshold</td>
+<td style="text-align:center">设置大对象直接进入老年代的阈值</td>
 </tr>
 <tr>
-<td align="center">-XX:MaxTenuringThreshold</td>
-<td align="center">设置对象进入老年代的年龄阈值</td>
+<td style="text-align:center">-XX:MaxTenuringThreshold</td>
+<td style="text-align:center">设置对象进入老年代的年龄阈值</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>包括：</p>
 <p><strong>Serial</strong></p>
 <ul>
@@ -508,33 +495,36 @@
 <li>作为 CMS 收集器的备案</li>
 </ul>
 <p>启用<font color="#FF8C00">指定</font>的收集器：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">JVM 参数</th>
-<th align="center">新生代</th>
-<th align="center">老年代</th>
+<th style="text-align:center">JVM 参数</th>
+<th style="text-align:center">新生代</th>
+<th style="text-align:center">老年代</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">-XX:+UseSerialGC</td>
-<td align="center"><font color="#FF8C00">Serial</font></td>
-<td align="center"><font color="#FF8C00">Serial Old</font></td>
+<tbody>
+<tr>
+<td style="text-align:center">-XX:+UseSerialGC</td>
+<td style="text-align:center"><font color="#FF8C00">Serial</font></td>
+<td style="text-align:center"><font color="#FF8C00">Serial Old</font></td>
 </tr>
 <tr>
-<td align="center">-XX:+UseParNewGC</td>
-<td align="center">ParNew</td>
-<td align="center"><font color="#FF8C00">Serial Old</font></td>
+<td style="text-align:center">-XX:+UseParNewGC</td>
+<td style="text-align:center">ParNew</td>
+<td style="text-align:center"><font color="#FF8C00">Serial Old</font></td>
 </tr>
 <tr>
-<td align="center">-XX:+UseParallelGC</td>
-<td align="center">Parallel Scavenge</td>
-<td align="center"><font color="#FF8C00">Serial Old</font></td>
+<td style="text-align:center">-XX:+UseParallelGC</td>
+<td style="text-align:center">Parallel Scavenge</td>
+<td style="text-align:center"><font color="#FF8C00">Serial Old</font></td>
 </tr>
-</tbody></table>
-<br>
-
-<h2 id="并行-GC（Parallel-Garbage-Collector）"><a href="#并行-GC（Parallel-Garbage-Collector）" class="headerlink" title="并行 GC（Parallel Garbage Collector）"></a>并行 GC（Parallel Garbage Collector）</h2><p><img src="/2021/07/09/garbage-collection/parallel-gc.jpg"></p>
+</tbody>
+</table>
+</div>
+<p><br></p>
+<h2 id="并行-GC（Parallel-Garbage-Collector）"><a href="#并行-GC（Parallel-Garbage-Collector）" class="headerlink" title="并行 GC（Parallel Garbage Collector）"></a>并行 GC（Parallel Garbage Collector）</h2><p><img src="/2021/07/09/garbage-collection/parallel-gc.jpg" alt></p>
 <p>将串行回收器多线程化，在多 CPU 环境下有更好的性能。<br>与串行回收器有相同的回收策略、算法、参数。</p>
 <p>还包括以下参数：</p>
 <table>
@@ -586,37 +576,40 @@
 <li>使用标记-压缩算法</li>
 </ul>
 <p>启用<font color="#FF8C00">指定</font>的收集器：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">JVM 参数</th>
-<th align="center">新生代</th>
-<th align="center">老年代</th>
+<th style="text-align:center">JVM 参数</th>
+<th style="text-align:center">新生代</th>
+<th style="text-align:center">老年代</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">-XX:+UseParNewGC</td>
-<td align="center"><font color="#FF8C00">ParNew</font></td>
-<td align="center">Serial Old</td>
+<tbody>
+<tr>
+<td style="text-align:center">-XX:+UseParNewGC</td>
+<td style="text-align:center"><font color="#FF8C00">ParNew</font></td>
+<td style="text-align:center">Serial Old</td>
 </tr>
 <tr>
-<td align="center">-XX:+UseConcMarkSweepGC</td>
-<td align="center"><font color="#FF8C00">ParNew</font></td>
-<td align="center"><font color="#FF8C00">CMS</font></td>
+<td style="text-align:center">-XX:+UseConcMarkSweepGC</td>
+<td style="text-align:center"><font color="#FF8C00">ParNew</font></td>
+<td style="text-align:center"><font color="#FF8C00">CMS</font></td>
 </tr>
 <tr>
-<td align="center">-XX:+UseParallelGC</td>
-<td align="center"><font color="#FF8C00">Parallel Scavenge</font></td>
-<td align="center">Serial Old</td>
+<td style="text-align:center">-XX:+UseParallelGC</td>
+<td style="text-align:center"><font color="#FF8C00">Parallel Scavenge</font></td>
+<td style="text-align:center">Serial Old</td>
 </tr>
 <tr>
-<td align="center">-XX:+UseParallelOldGC</td>
-<td align="center"><font color="#FF8C00">Parallel Scavenge</font></td>
-<td align="center"><font color="#FF8C00">Parallel Old</font></td>
+<td style="text-align:center">-XX:+UseParallelOldGC</td>
+<td style="text-align:center"><font color="#FF8C00">Parallel Scavenge</font></td>
+<td style="text-align:center"><font color="#FF8C00">Parallel Old</font></td>
 </tr>
-</tbody></table>
-<br>
-
+</tbody>
+</table>
+</div>
+<p><br></p>
 <h2 id="并发标记-清除（Concurrent-Mark-Sweep-CMS-Garbage-Collector）"><a href="#并发标记-清除（Concurrent-Mark-Sweep-CMS-Garbage-Collector）" class="headerlink" title="并发标记-清除（Concurrent Mark-Sweep, CMS Garbage Collector）"></a>并发标记-清除（Concurrent Mark-Sweep, <strong>CMS</strong> Garbage Collector）</h2><p>顾名思义：CMS 使用了标记-清除算法，且属于<strong>并行</strong> GC。</p>
 <ul>
 <li>以获取最短回收停顿时间为目标</li>
@@ -639,7 +632,7 @@
 <li><strong>并发清理</strong>（concurrent-sweep）</li>
 <li>并发重置（concurrent-reset）：将状态重置，等待下一次 CMS。</li>
 </ol>
-<p><img src="/2021/07/09/garbage-collection/cms-gc.jpg"></p>
+<p><img src="/2021/07/09/garbage-collection/cms-gc.jpg" alt></p>
 <p>缺点：</p>
 <ol>
 <li>产生大量空间碎片，可能提前触发 Full GC</li>
@@ -653,40 +646,43 @@
 <li>此时性能会降低。</li>
 </ul>
 <p>可用参数：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">JVM 参数</th>
-<th align="center">作用</th>
+<th style="text-align:center">JVM 参数</th>
+<th style="text-align:center">作用</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">-XX:-CMSPrecleaningEnabled</td>
-<td align="center">禁用预清理操作</td>
+<tbody>
+<tr>
+<td style="text-align:center">-XX:-CMSPrecleaningEnabled</td>
+<td style="text-align:center">禁用预清理操作</td>
 </tr>
 <tr>
-<td align="center">-XX:ConcGCThreads</td>
-<td align="center">设置并发运行的线程数量，如未设置，则使用 ParallelCMSThreads 计算</td>
+<td style="text-align:center">-XX:ConcGCThreads</td>
+<td style="text-align:center">设置并发运行的线程数量，如未设置，则使用 ParallelCMSThreads 计算</td>
 </tr>
 <tr>
-<td align="center">-XX:ParallelCMSThreads</td>
-<td align="center">（早期版本）设置并发运行的线程数量</td>
+<td style="text-align:center">-XX:ParallelCMSThreads</td>
+<td style="text-align:center">（早期版本）设置并发运行的线程数量</td>
 </tr>
 <tr>
-<td align="center">-XX:CMSInitiatingOccupancyFraction</td>
-<td align="center">当老年代空间使用量达到某个百分比时，执行 CMS。默认 68</td>
+<td style="text-align:center">-XX:CMSInitiatingOccupancyFraction</td>
+<td style="text-align:center">当老年代空间使用量达到某个百分比时，执行 CMS。默认 68</td>
 </tr>
 <tr>
-<td align="center">-XX:+CMSCompactAtFullCollection</td>
-<td align="center">GC 后进行一次碎片整理</td>
+<td style="text-align:center">-XX:+CMSCompactAtFullCollection</td>
+<td style="text-align:center">GC 后进行一次碎片整理</td>
 </tr>
 <tr>
-<td align="center">-XX:CMSFullGCsBeforeCompaction</td>
-<td align="center">指定执行多少次 GC 后，进行一次碎片整理</td>
+<td style="text-align:center">-XX:CMSFullGCsBeforeCompaction</td>
+<td style="text-align:center">指定执行多少次 GC 后，进行一次碎片整理</td>
 </tr>
-</tbody></table>
-<br>
-
+</tbody>
+</table>
+</div>
+<p><br></p>
 <h2 id="G1（Garbage-First）Garbage-Collector"><a href="#G1（Garbage-First）Garbage-Collector" class="headerlink" title="G1（Garbage-First）Garbage Collector"></a><strong>G1</strong>（Garbage-First）Garbage Collector</h2><p>分区算法的应用：因此 G1 应用于堆的<strong>全世代</strong>，优先回收垃圾比例最高的区域。</p>
 <ul>
 <li>从 JDK 1.7 开始投入使用，是 JDK 9 后的默认 GC<ul>
@@ -696,32 +692,36 @@
 <li>将堆划分为多个区域，每次收集部分区域，减少 GC 停顿时间</li>
 <li>兼顾吞吐量和停顿时间，可直观设定停顿时间</li>
 </ul>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">JVM 参数</th>
-<th align="center">作用</th>
+<th style="text-align:center">JVM 参数</th>
+<th style="text-align:center">作用</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">-XX:+UseG1GC</td>
-<td align="center">打开 G1 收集器开关</td>
+<tbody>
+<tr>
+<td style="text-align:center">-XX:+UseG1GC</td>
+<td style="text-align:center">打开 G1 收集器开关</td>
 </tr>
 <tr>
-<td align="center">-XX:MaxGCPauseMillis</td>
-<td align="center">指定目标最大停顿时间</td>
+<td style="text-align:center">-XX:MaxGCPauseMillis</td>
+<td style="text-align:center">指定目标最大停顿时间</td>
 </tr>
 <tr>
-<td align="center">-XX:ParallelGCThreads</td>
-<td align="center">设置并发线程数量</td>
+<td style="text-align:center">-XX:ParallelGCThreads</td>
+<td style="text-align:center">设置并发线程数量</td>
 </tr>
 <tr>
-<td align="center">-XX:InitiatingHeapOccupancyPercent</td>
-<td align="center">指定堆的使用率为多少的时候，触发并发标记周期。默认 45</td>
+<td style="text-align:center">-XX:InitiatingHeapOccupancyPercent</td>
+<td style="text-align:center">指定堆的使用率为多少的时候，触发并发标记周期。默认 45</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>G1 对内存空间的划分与传统的内存空间划分有所不同：</p>
-<p><img src="/2021/07/09/garbage-collection/g1-division.webp"></p>
+<p><img src="/2021/07/09/garbage-collection/g1-division.webp" alt></p>
 <p>G1 分四个阶段，而且按照顺序循环往复：</p>
 <ol>
 <li>新生代 GC</li>
@@ -729,7 +729,7 @@
 <li>混合收集</li>
 <li>Full GC（非必须）</li>
 </ol>
-<p><img src="/2021/07/09/garbage-collection/g1-steps.png"></p>
+<p><img src="/2021/07/09/garbage-collection/g1-steps.png" alt></p>
 <h3 id="新生代-GC"><a href="#新生代-GC" class="headerlink" title="新生代 GC"></a><strong>新生代 GC</strong></h3><p>G1 的新生代 GC 就是复制算法的那一套：</p>
 <ul>
 <li>Eden 区被占满的时候，新生代 GC 就会被启动</li>
@@ -740,7 +740,7 @@
 </li>
 </ul>
 <h3 id="并发标记周期"><a href="#并发标记周期" class="headerlink" title="并发标记周期"></a><strong>并发标记周期</strong></h3><p>G1 的并发标记周期如下：</p>
-<p><img src="/2021/07/09/garbage-collection/g1-gc.jpg"></p>
+<p><img src="/2021/07/09/garbage-collection/g1-gc.jpg" alt></p>
 <p>由上图可知，G1 是参照了 CMS 而设计的，吸取了 CMS 的优点，包括<strong>初始标记</strong>、<strong>并发标记</strong>、<strong>重新标记</strong>和<strong>并发清理</strong>。<br>另：</p>
 <ul>
 <li>根区域扫描：扫描 survivor 区域，标记可以直接到达老年代的对象</li>
@@ -756,7 +756,7 @@
 <li>被标记的年轻代和老年代都会被回收</li>
 <li>活跃度低的会被清理，剩余的存活对象会被移动到其他区域，减少内存碎片。</li>
 </ol>
-<p><img src="/2021/07/09/garbage-collection/g1-mix-gc.png"></p>
+<p><img src="/2021/07/09/garbage-collection/g1-mix-gc.png" alt></p>
 
     </div>
 

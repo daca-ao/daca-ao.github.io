@@ -238,7 +238,6 @@
       
         <p>今天在学习整理系统并发的知识点的时候，发现自己对操作系统调度的某些概念有些模糊了，特别是线程这一块。今天就另开一个帖子记一下。</p>
 <span id="more"></span>
-
 <h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>首先来区分两个概念：<strong>进程</strong>与<strong>线程</strong></p>
 <p>进程，是操作系统的资源调度实体</p>
 <ul>
@@ -267,9 +266,8 @@
 </ul>
 <p>处理器在线程之间高速地切换，让使用者感觉线程在同时执行。</p>
 <p>刚刚说到，一个进程可以包含不止一个线程。<br>单线程，指的是程序中只存在一个线程；实际上，程序的主方法就是一个主线程。<br>多线程，指的是在一个程序中运行多个任务，目的是更好的使用CPU资源。一个程序中多个线程如果同时执行的时候，我们称之为<strong>并发</strong>。</p>
-<p><img src="/2021/08/03/threads/threads-and-processes.png"></p>
-<br>
-
+<p><img src="/2021/08/03/threads/threads-and-processes.png" alt></p>
+<p><br></p>
 <h1 id="线程状态"><a href="#线程状态" class="headerlink" title="线程状态"></a>线程状态</h1><p><strong>就绪</strong></p>
 <ul>
 <li>线程被分配了除 CPU 以外的全部资源，等待获得 CPU 调度</li>
@@ -291,8 +289,7 @@
 <li>由于终端请求，或操作系统的要求等原因，导致挂起</li>
 </ul>
 <p>那进程状态是怎样定义的？由于进程不是调度单位，不必划分成过细的状态，如 Windows 操作系统中仅把进程分成可运行和不可运行态，挂起状态属于不可运行态。</p>
-<br>
-
+<p><br></p>
 <h1 id="线程同步"><a href="#线程同步" class="headerlink" title="线程同步"></a>线程同步</h1><p>当使用多个线程来访问同一个数据时，非常容易出现线程安全问题。<br>比如，多个线程都在操作同一数据（竞争条件 race condition），导致数据不一致。</p>
 <p>此时需要使用同步机制解决：只能让一个线程将所有操作都执行完，且在它执行过程中，其他线程不参与执行。</p>
 <p>线程同步前提：</p>
@@ -309,7 +306,6 @@
 </ul>
 <p>举个死锁的例子：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DeadLockDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String A = <span class="string">&quot;A&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String B = <span class="string">&quot;B&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> DeadLockDemo().deadLock();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">deadLock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Thread t1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (A) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.currentThread().sleep(<span class="number">2000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">synchronized</span> (B) &#123;</span><br><span class="line">                        System.out.println(<span class="string">&quot;t1&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        Thread t2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (B) &#123;</span><br><span class="line">                    <span class="keyword">synchronized</span> (A) &#123;</span><br><span class="line">                        System.out.println(<span class="string">&quot;t2&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        t1.start();</span><br><span class="line">        t2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>t1 获得锁 A 之后，在尝试获得锁 B 的时候，t2 获得了锁 B，并在尝试获得锁 A；两者互相尝试去获得对方已经获得的锁，自然就会发生死锁。</p>
 <p>如何避免死锁？</p>
 <ul>
@@ -325,15 +321,14 @@
 <li>当消费者发现仓储无产品可消费，则通知生产者生产；</li>
 <li>生产者生产出可消费产品时，应通知等待的消费者消费</li>
 </ol>
-<br>
-
+<p><br></p>
 <h1 id="多线程编程的优势"><a href="#多线程编程的优势" class="headerlink" title="多线程编程的优势"></a>多线程编程的<strong>优势</strong></h1><ul>
 <li>进程间不能共享内存，但线程之间共享内存很容易</li>
 <li>系统创建线程所分配的资源相对创建进程而言，代价小</li>
 </ul>
-<br>
+<p><br></p>
+<h1 id="多线程就一定快吗？"><a href="#多线程就一定快吗？" class="headerlink" title="多线程就一定快吗？"></a>多线程就一定快吗？</h1><big>**不一定。**</big>
 
-<h1 id="多线程就一定快吗？"><a href="#多线程就一定快吗？" class="headerlink" title="多线程就一定快吗？"></a>多线程就一定快吗？</h1><p><big><strong>不一定。</strong></big></p>
 <p>起更多的线程，并不能保证程序最大程度上并发执行；若想要通过多线程让程序执行得更快，则需要面临很多的问题和挑战。<br>最大的问题，便是<strong>上下文切换</strong>和线程<strong>创建/销毁</strong>的开销。</p>
 <h2 id="上下文切换"><a href="#上下文切换" class="headerlink" title="上下文切换"></a>上下文切换</h2><p>支持多线程执行程序的单核 CPU 通过给每个线程分配 CPU 时间片（一般是几十 ms），并且通过时间片分配算法，在不同的时间片之间高速切换，以执行不同线程的任务。</p>
 <p>因为切换速度飞快且频繁，才让人感觉多个线程好像在同时执行。<br>而且在切换至下一个时间片之前，需要保存上一个时间片执行任务的状态，以便到时候切换回上一个时间片的正确状态，重新加载并执行。<br>以上都是上下文切换消耗资源，影响执行效率的原因。</p>
@@ -342,8 +337,7 @@
 <p>实在是需要锁的话，最好使用 CAS 算法来实现乐观锁的机制。</p>
 <p>另外，可以通过协程来实现在单线程里实现多任务的调度，维护多任务的切换。</p>
 <h2 id="线程的创建和销毁"><a href="#线程的创建和销毁" class="headerlink" title="线程的创建和销毁"></a>线程的创建和销毁</h2><p>使用线程池来减少创建销毁线程带来的系统开销。</p>
-<br>
-
+<p>&lt;/br&gt;</p>
 <h1 id="线程管理的资源限制"><a href="#线程管理的资源限制" class="headerlink" title="线程管理的资源限制"></a>线程管理的资源限制</h1><p>并发代码运行的环境通常会受到硬件资源和软件资源的限制。</p>
 <ul>
 <li>硬件资源限制包括网络带宽、硬盘读写速度、CPU 处理速度等；</li>

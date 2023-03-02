@@ -28,7 +28,7 @@
 <meta property="og:description" content="选择排序，也称直接选择排序。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-11-11T13:53:08.000Z">
-<meta property="article:modified_time" content="2023-03-01T13:10:26.329Z">
+<meta property="article:modified_time" content="2023-03-01T15:00:25.491Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="算法">
 <meta property="article:tag" content="排序算法">
@@ -236,7 +236,6 @@
       
         <p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F">选择排序</a>，也称直接选择排序。</p>
 <span id="more"></span>
-
 <h1 id="基本思想"><a href="#基本思想" class="headerlink" title="基本思想"></a>基本思想</h1><p>选择排序属于比较排序，大体步骤如下：</p>
 <ol>
 <li>在待排序序列中<strong>选择</strong>最小（大）的元素，将其<strong>移动</strong>到该序列的起始位置（或末尾）；</li>
@@ -254,7 +253,6 @@
 <li>可以说，选择排序是综合性能最差的排序算法。</li>
 </ul>
 <h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">selectionSort</span><span class="params">(<span class="keyword">int</span>[] a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> length = a.length;</span><br><span class="line">    <span class="keyword">int</span> minIndex;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">        minIndex = i;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; length; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (a[j] &lt; a[minIndex]) &#123;</span><br><span class="line">                minIndex = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (minIndex != i) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="keyword">int</span> temp = a[minIndex];</span><br><span class="line">            a[minIndex] = a[i];</span><br><span class="line">            a[i] = temp;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>上述程序的缺点：即使元素已经按序排列，程序依然继续运行。如即使在第二次循环后数组元素可能已经按序排列，首层 for 循环还需要执行 n-1 次。</p>
 <p>为了终止不必要的循环，在查找最大元素期间，可顺便检查数组是否已按序排列。</p>
 <p>改进版：最好情况仅比较 n-1 次</p>

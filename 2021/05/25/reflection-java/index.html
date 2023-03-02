@@ -34,8 +34,8 @@
 <meta property="article:published_time" content="2021-05-25T05:14:16.996Z">
 <meta property="article:modified_time" content="2022-09-27T14:31:07.687Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
-<meta property="article:tag" content="反射">
 <meta property="article:tag" content="Java">
+<meta property="article:tag" content="反射">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2021/05/25/reflection-java/reflection-vs-rtti.png">
 
@@ -241,9 +241,8 @@
       
         <p>首先，我们这里讨论的并不是物理上的反射（哈哈），而是基于计算机科学的反射式编程概念，讨论一下它的原理以及在 Java 语言当中的实现。</p>
 <span id="more"></span>
-<br>
-
-<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>在计算机科学中，<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%8F%8D%E5%B0%84%E5%BC%8F%E7%BC%96%E7%A8%8B">反射式编程</a>（reflective programming），或反射（reflection），指的是计算机程序运行时“访问、检测和修改它本身状态或行为的能力”：</p>
+<p><br></p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>在计算机科学中，<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/反射式编程">反射式编程</a>（reflective programming），或反射（reflection），指的是计算机程序运行时“访问、检测和修改它本身状态或行为的能力”：</p>
 <ul>
 <li>它可以把一个类，类的成员变量（函数、属性等）当成一个对象来操作；</li>
 <li>在程序运行的时候，开发者还可以动态地对类进行以下操作：<ul>
@@ -256,11 +255,8 @@
 </ul>
 <p>最早的计算机在它们的原生汇编语言里编程，其本质上就是反射：由定义编程指令作为数据；<br>而在面向对象的编程语言中，反射允许在编译期无法确认接口的名称、字段、方法的情况下，在<strong>运行时检查类、接口、字段和方法</strong>。</p>
 <p>为什么有反射？因为它“<strong>灵活</strong>”。<br>在运行期根据某种条件才能确定使用哪个类的对象时，就可使用反射。</p>
-<p>例子：<strong>策略模式</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 可在运行时根据不同条件创建不同的类，实现不同的 Strategy 实例</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * 例：构造时传进不同的 String 代表某个子类以初始化不同的实例</span></span><br><span class="line"><span class="comment"> * 能避免很多的 if-else</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象类</span></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseStrategy</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 执行某种策略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> BaseStrategy <span class="title">select</span><span class="params">(String type)</span> </span>&#123;</span><br><span class="line">    ... <span class="comment">// 根据 type 进行不同实例的初始化</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<br>
-
+<p>例子：<strong>策略模式</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 可在运行时根据不同条件创建不同的类，实现不同的 Strategy 实例</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * 例：构造时传进不同的 String 代表某个子类以初始化不同的实例</span></span><br><span class="line"><span class="comment"> * 能避免很多的 if-else</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 抽象类</span></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseStrategy</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 执行某种策略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> BaseStrategy <span class="title">select</span><span class="params">(String type)</span> </span>&#123;</span><br><span class="line">    ... <span class="comment">// 根据 type 进行不同实例的初始化</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><br></p>
 <h1 id="Java-的反射机制"><a href="#Java-的反射机制" class="headerlink" title="Java 的反射机制"></a>Java 的反射机制</h1><p>Java 中的反射机制，指的是直接操作编译后的 <code>.class</code> 文件，动态获取程序信息及动态调用对象的功能。</p>
 <p>优点：</p>
 <ul>
@@ -272,22 +268,17 @@
 <ul>
 <li>对性能有影响，总是慢于直接执行 Java 代码</li>
 </ul>
-<br>
-
-<h2 id="Java-的反射与所谓“传统-RTTI”的区别"><a href="#Java-的反射与所谓“传统-RTTI”的区别" class="headerlink" title="Java 的反射与所谓“传统 RTTI”的区别"></a>Java 的反射与所谓“传统 RTTI”的区别</h2><p><img src="/2021/05/25/reflection-java/reflection-vs-rtti.png"></p>
-<br>
-
-<h2 id="普通的生成对象-v-s-反射生成对象"><a href="#普通的生成对象-v-s-反射生成对象" class="headerlink" title="普通的生成对象 v.s. 反射生成对象"></a>普通的生成对象 v.s. 反射生成对象</h2><p><img src="/2021/05/25/reflection-java/r.png"></p>
-<br>
-
-<h2 id="class-文件包括了什么？"><a href="#class-文件包括了什么？" class="headerlink" title=".class 文件包括了什么？"></a>.class 文件包括了什么？</h2><p><img src="/2021/05/25/reflection-java/class.png"></p>
+<p><br></p>
+<h2 id="Java-的反射与所谓“传统-RTTI”的区别"><a href="#Java-的反射与所谓“传统-RTTI”的区别" class="headerlink" title="Java 的反射与所谓“传统 RTTI”的区别"></a>Java 的反射与所谓“传统 RTTI”的区别</h2><p><img src="/2021/05/25/reflection-java/reflection-vs-rtti.png" alt></p>
+<p><br></p>
+<h2 id="普通的生成对象-v-s-反射生成对象"><a href="#普通的生成对象-v-s-反射生成对象" class="headerlink" title="普通的生成对象 v.s. 反射生成对象"></a>普通的生成对象 v.s. 反射生成对象</h2><p><img src="/2021/05/25/reflection-java/r.png" alt></p>
+<p><br></p>
+<h2 id="class-文件包括了什么？"><a href="#class-文件包括了什么？" class="headerlink" title=".class 文件包括了什么？"></a>.class 文件包括了什么？</h2><p><img src="/2021/05/25/reflection-java/class.png" alt></p>
 <p>注：左边为编译前源码的内容，右边为类的信息</p>
-<br>
-
-<h2 id="Class-对象相关"><a href="#Class-对象相关" class="headerlink" title="Class 对象相关"></a>Class 对象相关</h2><h3 id="基本类图"><a href="#基本类图" class="headerlink" title="基本类图"></a>基本类图</h3><p><img src="/2021/05/25/reflection-java/class-diagram.png"></p>
+<p><br></p>
+<h2 id="Class-对象相关"><a href="#Class-对象相关" class="headerlink" title="Class 对象相关"></a>Class 对象相关</h2><h3 id="基本类图"><a href="#基本类图" class="headerlink" title="基本类图"></a>基本类图</h3><p><img src="/2021/05/25/reflection-java/class-diagram.png" alt></p>
 <p>我们可知，Java 反射体系里面重要的实体类有：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java.lang.Class  <span class="comment">// 类相关</span></span><br><span class="line">java.lang.reflect.Constructor  <span class="comment">// 构造函数相关</span></span><br><span class="line">java.lang.reflect.Field  <span class="comment">// 属性相关</span></span><br><span class="line">java.lang.reflect.Method  <span class="comment">// 其他方法相关</span></span><br></pre></td></tr></table></figure>
-
 <p>相同的 class 全路径下只会有一个相对应的 .class 文件</p>
 <ul>
 <li>因此通过该全路径获得的所有 Class 对象都是相等的（<code>.equals() = true</code>）</li>
@@ -296,60 +287,40 @@
 <li>类名.class</li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Class personClazz = Person.class;</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
+<ol>
 <li>类实例.getClass()</li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Person person = <span class="keyword">new</span> Person();</span><br><span class="line">Class personClazz1 = person.getClass();</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
+<ol>
 <li>Class.forName(“类的全路径”)</li>
 </ol>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Class personClazz2 = Class.forName(<span class="string">&quot;com.example.Person&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-
 <h3 id="Class-类常用方法"><a href="#Class-类常用方法" class="headerlink" title="Class 类常用方法"></a>Class 类常用方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 静态方法</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">Class.forName(<span class="string">&quot;com.example.Person&quot;</span>)     <span class="comment">// 根据全路径动态加载类</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 非静态方法</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">newInstance()       <span class="comment">// 根据对象的 class 新建一个对象</span></span><br><span class="line"></span><br><span class="line">getSuperclass()         <span class="comment">// 获取继承的父类</span></span><br><span class="line">getInterfaces()         <span class="comment">// 获取继承的接口</span></span><br><span class="line">getDeclaredFields()     <span class="comment">// 获取所有声明的域，但不能获得继承过来的域</span></span><br><span class="line">getDeclaredMethods()    <span class="comment">// 获取当前类的所有方法</span></span><br><span class="line">getConstructors()       <span class="comment">// 获取所有构造函数</span></span><br><span class="line">getModifiers()          <span class="comment">// 获取修饰符</span></span><br><span class="line">getPackages()           <span class="comment">// 获得 package</span></span><br><span class="line">getField(String name)   <span class="comment">// 获得某个 public 域，包括从父类继承过来的域</span></span><br><span class="line">getFields()             <span class="comment">// 获得所有 public 域</span></span><br><span class="line">getMethods()            <span class="comment">// 获得所有 public 方法</span></span><br><span class="line"></span><br><span class="line">isAnnotation()      <span class="comment">// 判断是否为注解类型</span></span><br><span class="line">isPrimitive()       <span class="comment">// 判断是否为基本类型</span></span><br><span class="line">isArray()           <span class="comment">// 判断是否为数组类型</span></span><br><span class="line">isEnum()            <span class="comment">// 判断是否为枚举类型</span></span><br><span class="line"></span><br><span class="line">getClassLoader()    <span class="comment">// 获得类的类加载器</span></span><br></pre></td></tr></table></figure>
-
 <p><code>Class.forName()</code> 和 <code>ClassLoader.loadClass()</code> 的区别：</p>
 <ul>
 <li><code>Class.forName()</code> 是将类的 .class 文件加载到 JVM 中，并且该类已经被初始化完成了；</li>
 <li><code>ClassLoader.loadClass()</code> 只是将 .class 文件加载到 JVM 中，还没经过链接，更不用说初始化了。</li>
 </ul>
-<br>
-
-<h2 id="Constructor-构造函数相关"><a href="#Constructor-构造函数相关" class="headerlink" title="Constructor 构造函数相关"></a>Constructor 构造函数相关</h2><p>通过 Class 对象创建构造方法对象</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// .getConstructor() 方法支持无参及多个参数传入</span></span><br><span class="line">Constructor c = personClazz.getConstructor(String.class, Integer.class, Byte.class);</span><br><span class="line">Constructor c1 = personClazz.getConstroctor();</span><br></pre></td></tr></table></figure>
-<p>随后通过 constructor 实例创建对象的时候，要根据 constructor 初始化时传入对应的参数来创建对象</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Person p = (Person) c.newInstance(<span class="string">&quot;test&quot;</span>, <span class="number">10</span>, (<span class="keyword">byte</span>) <span class="number">1</span>);</span><br><span class="line">Person p2 = (Person) c1.newInstance();</span><br></pre></td></tr></table></figure>
-
-<br>
-
+<p><br></p>
+<h2 id="Constructor-构造函数相关"><a href="#Constructor-构造函数相关" class="headerlink" title="Constructor 构造函数相关"></a>Constructor 构造函数相关</h2><p>通过 Class 对象创建构造方法对象<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// .getConstructor() 方法支持无参及多个参数传入</span></span><br><span class="line">Constructor c = personClazz.getConstructor(String.class, Integer.class, Byte.class);</span><br><span class="line">Constructor c1 = personClazz.getConstroctor();</span><br></pre></td></tr></table></figure><br>随后通过 constructor 实例创建对象的时候，要根据 constructor 初始化时传入对应的参数来创建对象<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Person p = (Person) c.newInstance(<span class="string">&quot;test&quot;</span>, <span class="number">10</span>, (<span class="keyword">byte</span>) <span class="number">1</span>);</span><br><span class="line">Person p2 = (Person) c1.newInstance();</span><br></pre></td></tr></table></figure></p>
+<p><br></p>
 <h2 id="Field-属性相关"><a href="#Field-属性相关" class="headerlink" title="Field 属性相关"></a>Field 属性相关</h2><p>先获取到 Class 对象</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Class personClazz = Person.class;</span><br></pre></td></tr></table></figure>
-
 <p>通过 Class 对象获取 Field 对象</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Field nameField = personClazz.getField(<span class="string">&quot;name&quot;</span>);  <span class="comment">// 获得类的属性</span></span><br><span class="line"><span class="comment">// 或：Field nameField = personClazz.getDeclaredField(&quot;name&quot;);</span></span><br></pre></td></tr></table></figure>
-
 <p>根据实际的对象，获取属性值</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Constructor c = personClazz.getConstructor();</span><br><span class="line">Person person = (Person) c.newInstance();  <span class="comment">// 创建实际对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 根据实际对象获取实际的属性值</span></span><br><span class="line">String name = (String) nameField.get(person);</span><br></pre></td></tr></table></figure>
-
 <p>可通过反射调用私有变量</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 步骤同上，但在获得 Field 对象时的方法有些许不同</span></span><br><span class="line">Field nameField = personClazz.getDeclaredField(<span class="string">&quot;name&quot;</span>);</span><br><span class="line"><span class="comment">// 多个 Field：Class.getDeclaredFields()</span></span><br></pre></td></tr></table></figure>
-
 <p>然后调用</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nameField.setAccessible(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
-
 <p>随后便可通过 <code>.get()</code> 方法获取值。</p>
-<br>
-
+<p><br></p>
 <h2 id="Method-方法相关：与属性类似"><a href="#Method-方法相关：与属性类似" class="headerlink" title="Method 方法相关：与属性类似"></a>Method 方法相关：与属性类似</h2><p>可通过反射调用私有方法</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">clazz.getDeclaredMethod(String name, Class[] parameterTypes);</span><br><span class="line">clazz.getDeclaredMethods();</span><br></pre></td></tr></table></figure>
-
 <p>然后调用</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">method.setAccessible(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
-
-<br>
-
+<p><br></p>
 <h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><p>可以应用于服务的水平分割，如 MVC 框架：每一层都存在着能承载结果的实体类</p>
 <ul>
 <li>视图层：VO (V:view) / UO</li>
@@ -360,7 +331,6 @@
 <p>视图层依赖于应用层，应用层依赖于领域层，基础设施层依赖于领域层。</p>
 <p>例：持久对象 PersonPO 转为 值对象 PersonVO，如果属性繁多，一个一个转会很麻烦。<br>解决方法：利用反射实现工具类（如：<code>BeanUtils</code>）</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 调用：</span></span><br><span class="line">BeanUtils.convert(objectFrom, objectTo);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 示例代码：</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">convert</span><span class="params">(Object srcObj, Object targetObj)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    <span class="comment">// 第一步，获得 class 对象</span></span><br><span class="line">    Class srcClazz = srcObj.getClass();</span><br><span class="line">    Class targetClazz = targetObj.getClass();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 第二步，获得 Field</span></span><br><span class="line">    Field[] srcFields =  srcClazz.getDeclaredFields();</span><br><span class="line">    Field[] targetFields =  targetClazz.getDeclaredFields();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 第三步：赋值</span></span><br><span class="line">    <span class="keyword">for</span> (Field srcField : srcFields) &#123;</span><br><span class="line">        <span class="keyword">for</span> (Field targetField : targetFields) &#123;</span><br><span class="line">            <span class="keyword">if</span> (srcField.getName().equals(targetField.getName())) &#123;</span><br><span class="line">                srcField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">                targetField.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">                targetField.set(targetObj, srcField.get(srcObj));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>会有一部分的性能损耗，但并不大：因为服务器并没有那么脆弱。<br>如果使用“反模式”：所有层次从上到下都用同一个实体类，只要有一点变化的话，从上到下都会有影响。</p>
 
     </div>
@@ -371,8 +341,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E5%8F%8D%E5%B0%84/" rel="tag"># 反射</a>
               <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/%E5%8F%8D%E5%B0%84/" rel="tag"># 反射</a>
           </div>
 
         

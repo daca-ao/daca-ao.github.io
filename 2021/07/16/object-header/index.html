@@ -236,7 +236,6 @@
       
         <p>对象在 Hotspot 虚拟机中，除了对象本身的实例数据（Instance Data）之外，其在内存中的布局还包括了<strong>对象头</strong>（Object Header）和对齐填充（Padding）。</p>
 <span id="more"></span>
-
 <p>对齐填充的字节保留主要是出于 JVM 对 Java 对象内存占用的要求来考虑的。每个对象在 JVM 内存占用的大小应为 1 个字长（8 bits）的倍数，因此每个对象最后会有几个字节用于补全，没有特别的功能。<br>因此本帖不再赘述对齐填充，就专门来聊聊对象头。</p>
 <p>Hotspot 虚拟机的对象头包括两（三）部分信息：</p>
 <ol>
@@ -244,8 +243,7 @@
 <li>类型指针</li>
 <li>数组长度（前提是该对象是数组）</li>
 </ol>
-<br>
-
+<p><br></p>
 <h1 id="运行时数据（Mark-Word）"><a href="#运行时数据（Mark-Word）" class="headerlink" title="运行时数据（Mark Word）"></a>运行时数据（Mark Word）</h1><p>包括哈希码（hash code）、GC 分代年龄、锁状态标志、线程持有的锁、偏向线程 ID、偏向时间戳等等。<br>Mark Word 的数据长度在 32 位和 64 位的虚拟机（未开启压缩指针）中分别是 32 bits 和 64 bits。</p>
 <p>对象需要存储的运行时数据很多，其实已超出了 32、64 位 Bitmap 结构所能记录的限度；不过，对象头信息耗费的是<strong>与对象自身定义数据无关</strong>的额外存储成本。<br>基于这一点，再考虑到虚拟机的空间效率：Mark Word 被设计成一个<strong>非固定的数据结构</strong>，以便在极小的空间内存储尽量多的信息，且会根据对象的状态复用自己的存储空间。</p>
 <p>比如：在 32 位 Hotspot 虚拟机中，如果对象未被锁定，那么 Mark Word 的 32 bits 的空间将被如下分配：</p>
@@ -307,10 +305,9 @@
     </tr>
 </table>
 
-<br>
-
+<p><br></p>
 <p>在 64 位环境中，对象的运行时数据存储分布如下：</p>
-<table>
+<p><table>
     <tr>
         <th>场景（状态）</th>
         <th colspan="6">存储内容占用的空间</th>
@@ -360,9 +357,7 @@
         <td colspan="5">空</td>
         <td>11</td>
     </tr>
-</table>
-<br>
-
+</table><br><br></p>
 <p>一个对象在一个时间点总是处于其中的一个状态，只是状态之间可能会切换。</p>
 <p><strong>参数说明</strong>：</p>
 <p><code>biased_lock</code>：对象第一次被线程索取锁的时候，线程 ID 会写入 Mark Word 内（32 位系统的前 23 bits，或 64 位系统的前 54 bits）</p>
@@ -387,62 +382,61 @@
 </ul>
 <p>接下来聊聊 Mark Word 里面很重要的锁标志位。</p>
 <h2 id="锁标志位"><a href="#锁标志位" class="headerlink" title="锁标志位"></a>锁标志位</h2><p>锁标志位 和 是否为偏向锁 两者共同对应到唯一的锁状态。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
-<th align="center">对象状态</th>
-<th align="center">组合</th>
-<th align="center">是否为偏向锁</th>
-<th align="center">锁标志位</th>
+<th style="text-align:center">对象状态</th>
+<th style="text-align:center">组合</th>
+<th style="text-align:center">是否为偏向锁</th>
+<th style="text-align:center">锁标志位</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">无锁</td>
-<td align="center">001</td>
-<td align="center">0</td>
-<td align="center">01</td>
+<tbody>
+<tr>
+<td style="text-align:center">无锁</td>
+<td style="text-align:center">001</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">01</td>
 </tr>
 <tr>
-<td align="center">偏向锁</td>
-<td align="center">101</td>
-<td align="center">1</td>
-<td align="center">01</td>
+<td style="text-align:center">偏向锁</td>
+<td style="text-align:center">101</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">01</td>
 </tr>
 <tr>
-<td align="center">轻量级锁（CAS + 失败尝试）</td>
-<td align="center">-00</td>
-<td align="center">-</td>
-<td align="center">00</td>
+<td style="text-align:center">轻量级锁（CAS + 失败尝试）</td>
+<td style="text-align:center">-00</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">00</td>
 </tr>
 <tr>
-<td align="center">重量级锁（互斥）</td>
-<td align="center">-10</td>
-<td align="center">-</td>
-<td align="center">10</td>
+<td style="text-align:center">重量级锁（互斥）</td>
+<td style="text-align:center">-10</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">10</td>
 </tr>
 <tr>
-<td align="center">GC 标记</td>
-<td align="center">-11</td>
-<td align="center">-</td>
-<td align="center">11</td>
+<td style="text-align:center">GC 标记</td>
+<td style="text-align:center">-11</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">11</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>所以说 <code>synchronized</code> 锁的是<strong>对象</strong>，而且分 4 种程度不同的锁。</p>
 <p>锁只能升级不能降级，但是偏向锁可以被重置为无锁状态（也就是改一个位的值的事）。</p>
-<br>
-
+<p><br></p>
 <h1 id="类型指针（Klass-pointer）"><a href="#类型指针（Klass-pointer）" class="headerlink" title="类型指针（Klass pointer）"></a>类型指针（Klass pointer）</h1><p>你没看错，就是这个 “klass”。</p>
 <p>它用来存储对象的类型指针，该指针指向它所属类的元数据。JVM 通过这个指针来确定这个对象是哪一个类的实例。</p>
-<p>举个例子：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Person p = <span class="keyword">new</span> Person();</span><br><span class="line"><span class="comment">// p 是实例，保存在栈中，是对新的 Person() 对象的引用</span></span><br><span class="line"><span class="comment">// Person() 对象在堆中，保存了一个自己的类型指针 klass pointer</span></span><br><span class="line"><span class="comment">// Person() 对象要在元空间 metaspace 找到元数据 instanceKlass，靠的就是 klass pointer</span></span><br></pre></td></tr></table></figure>
-
+<p>举个例子：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Person p = <span class="keyword">new</span> Person();</span><br><span class="line"><span class="comment">// p 是实例，保存在栈中，是对新的 Person() 对象的引用</span></span><br><span class="line"><span class="comment">// Person() 对象在堆中，保存了一个自己的类型指针 klass pointer</span></span><br><span class="line"><span class="comment">// Person() 对象要在元空间 metaspace 找到元数据 instanceKlass，靠的就是 klass pointer</span></span><br></pre></td></tr></table></figure></p>
 <p>该指针的位长度为 JVM 的一个字大小，跟 Mark Word 的大小是一样的：32 位 JVM 的长度位 32 bits，64 位的则是 64 bits。<br>如果应用对象过多，使用 64 位的指针会浪费大量的内存。此时为了节约内存，可以开启指针压缩 <code>-XX:+UseCompressedOops</code> 将长度压缩为 32 位。</p>
-<br>
-
+<p><br></p>
 <h1 id="数组长度"><a href="#数组长度" class="headerlink" title="数组长度"></a>数组长度</h1><p>如果对象是一个数组，那么对象头还需要有额外空间用于存储数组长度。</p>
 <p>具体长度随 JVM 架构差别而不同，跟 Mark Word 和 klass pointer 的大小也是一样的：32 位 JVM 的长度位 32 bits，64 位的则是 64 bits。<br>如果在 64 位 JVM 上开启了指针压缩的话，该区域长度也会被压缩为 32 位。</p>
-<br>
-
+<p><br></p>
 <p>最后问个小问题：</p>
 <p>32 位的 Hotspot JVM 中，<code>Integer</code> 对象的大小是拆箱 <code>int</code> 的几倍？<br>解：Mark Word 32 bits，4个字节；类型指针同样 4 个字节；至于实例数据，<code>Integer</code> 只有一个 <code>int</code> 类型的成员变量 value，大小 4 字节：以上合起来 12 字节，加上补齐，一共 16 字节，是 int 的 4 倍。</p>
 

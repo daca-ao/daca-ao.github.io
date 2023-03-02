@@ -239,7 +239,6 @@
       
         <p>接触过 Java 开发的人，基本上都听说过 <code>Spring</code>。</p>
 <span id="more"></span>
-
 <p>Spring 是目前最受欢迎的 Java 开发容器框架。它的成功是基于 <strong>IoC</strong>（<strong>I</strong>nvension <strong>o</strong>f <strong>C</strong>ontrol, 控制反转）和 <strong>AOP</strong>（<strong>A</strong>spect <strong>O</strong>riented <strong>P</strong>rogramming, 面向切面编程）等理念，而不是技术本身。</p>
 <p>跟 EJB 差不多的是，Spring 也是基于使用 Bean 或 JavaBean 属性（也可以是任意 POJO 组件）进行组件管理的。</p>
 <p>Spring 的<a target="_blank" rel="noopener" href="https://spring.io/projects/spring-framework#learn">版本迭代</a>非常快，但是基本的架构是不会做大改动的。</p>
@@ -253,9 +252,8 @@
 <li><strong>事件驱动</strong>（event driven）：响应式的一种，通过事件对业务进行驱动形式的分发</li>
 <li><strong>批量任务处理</strong>（batch）</li>
 </ul>
-<p><img src="/2021/11/20/spring-overview/what-spring-can-do.png"></p>
-<br>
-
+<p><img src="/2021/11/20/spring-overview/what-spring-can-do.png" alt></p>
+<p><br></p>
 <h1 id="初衷和目标"><a href="#初衷和目标" class="headerlink" title="初衷和目标"></a>初衷和目标</h1><p>初衷：</p>
 <ol>
 <li>简化 Java EE 开发</li>
@@ -272,8 +270,7 @@
 <li>应用程序代码并不依赖于 Spring APIs</li>
 <li>Spring 不和现有的解决方案竞争，而是致力于将它们融合在一起</li>
 </ol>
-<br>
-
+<p><br></p>
 <h1 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h1><ul>
 <li>轻量级，基本版本的大小约为 2 MB</li>
 <li>由 IoC 和 AOP 带来的高内聚，低侵入/低耦合</li>
@@ -287,8 +284,7 @@
 <li>降低 J2EE API 的使用难度，使 J2EE 开发变得更容易使用</li>
 <li>支持 JUnit4 注解，方便程序的测试</li>
 </ul>
-<br>
-
+<p><br></p>
 <h1 id="Spring-开发项目内的各种概念"><a href="#Spring-开发项目内的各种概念" class="headerlink" title="Spring 开发项目内的各种概念"></a>Spring 开发项目内的各种概念</h1><h2 id="Spring-Framework"><a href="#Spring-Framework" class="headerlink" title="Spring Framework"></a>Spring Framework</h2><p>Spring Framework 是一个大引擎，是我们最常说的“Spring”，也是 Spring 所有项目的核心。</p>
 <p>Spring Framework 包括 20+ 组件/模块，分为：</p>
 <ul>
@@ -306,7 +302,7 @@
 <li>AOP：提供面向切面编程的支持</li>
 <li>测试：提供与 JUnit 等测试组件对接的支持</li>
 </ul>
-<p><img src="/2021/11/20/spring-overview/spring-framework-runtime.png"></p>
+<p><img src="/2021/11/20/spring-overview/spring-framework-runtime.png" alt></p>
 <p>Spring Framework 能帮我们做什么？</p>
 <ul>
 <li>根据配置文件，创建及组装对象之间的依赖关系；</li>
@@ -317,9 +313,8 @@
 <li>方便地与 J2EE 及更多技术整合（如缓存框架）。</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 核心依赖包：</span></span><br><span class="line">spring-beans-5.0.0.RELEASE.jar  <span class="comment"># 提供 BeanFactory</span></span><br><span class="line">spring-context-5.0.0.RELEASE.jar  <span class="comment"># 使用类似 JNDI 方法访问对象</span></span><br><span class="line">spring-context-support-5.0.0.RELEASE.jar</span><br><span class="line">spring-core-5.0.0.RELEASE.jar  <span class="comment"># 框架基本组成部分，包括 IoC 和 DI</span></span><br><span class="line">spring-expression-5.0.0.RELEASE.jar  <span class="comment"># Spring 表达式语言支持</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># AOP 模块：</span></span><br><span class="line">spring-aop-5.0.0.RELEASE.jar  <span class="comment"># 基于代理的 AOP 支持</span></span><br><span class="line">spring-aspects-5.0.0.RELEASE.jar  <span class="comment"># 基于 Aspects 的 AOP 支持</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据处理与集成：</span></span><br><span class="line">spring-jdbc-5.0.0.RELEASE.jar  <span class="comment"># 对 JDBC 连接的封装功能</span></span><br><span class="line">spring-orm-5.0.0.RELEASE.jar  <span class="comment"># 对象关系映射 API 集成，包括 JPA、JDO、Hibernate 等</span></span><br><span class="line">spring-oxm-5.0.0.RELEASE.jar  <span class="comment"># JAXB、XML Beans 等</span></span><br><span class="line">spring-tx-5.0.0.RELEASE.jar  <span class="comment"># 事务操作</span></span><br><span class="line">spring-jms-5.0.0.RELEASE.jar  <span class="comment"># 生产消费消息模型</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Web模块：</span></span><br><span class="line">spring-web-5.0.0.RELEASE.jar  <span class="comment"># 提供 web 基础功能</span></span><br><span class="line">spring-webmvc-5.0.0.RELEASE.jar  <span class="comment"># 提供 Spring MVC 功能</span></span><br><span class="line">spring-websocket-5.0.0.RELEASE.jar  <span class="comment"># 提供 web socket 支持</span></span><br><span class="line">spring-webmvc-portlet-5.0.0.RELEASE.jar  <span class="comment"># 提供 portlet 环境支持</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试：</span></span><br><span class="line">spring-test  <span class="comment"># 提供对测试功能的支持</span></span><br></pre></td></tr></table></figure>
-
 <p>依赖关系：</p>
-<p><img src="/2021/11/20/spring-overview/spring-framework-dependencies.png"></p>
+<p><img src="/2021/11/20/spring-overview/spring-framework-dependencies.png" alt></p>
 <p>Spring 允许只选择适用自身开发的模块，不需要将其他模块也引入。</p>
 <h2 id="Spring-MVC"><a href="#Spring-MVC" class="headerlink" title="Spring MVC"></a>Spring MVC</h2><p>Spring MVC 属于 Spring Framework 的 Web 类模块中的一个提供 Web 服务的基础框架。</p>
 <p>顾名思义，它能提供 MVC 架构和随时可用的组件，有助于分离应用程序的不同方面，如输入逻辑、业务逻辑和 UI 逻辑，且在所有元素之间提供松散耦合。</p>

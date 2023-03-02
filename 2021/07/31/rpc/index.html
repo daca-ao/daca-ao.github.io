@@ -243,7 +243,6 @@
       
         <p>RPC 全称 Remote Procedure Call Protocol，远程过程调用协议。</p>
 <span id="more"></span>
-
 <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>单体服务的时代：</p>
 <ul>
 <li>以前用户量和数据量都比较小，<strong>一个项目中包含了所有的服务</strong>：所有功能模块都在一个工程中编码、编译、打包，随后部署到一个服务器中，即可提供服务；</li>
@@ -274,7 +273,7 @@
 <li>因此衍⽣出了⼀系列相应的技术，如对服务提供、服务调⽤、连接处理、通信协议、序列化⽅式、服务发现、服务路由、⽇志输出等⾏为进⾏封装的服务框架。</li>
 </ul>
 <p>由此可见，我们总结了服务由单体 -&gt; 负载均衡（水平） -&gt; 分布式（垂直） -&gt; 垂直+水平的优化与升级（以 Dubbo 的发展为例）：</p>
-<p><img src="/2021/07/31/rpc/roadmap.png"></p>
+<p><img src="/2021/07/31/rpc/roadmap.png" alt></p>
 <p>因此业界常说的<strong>分布式服务</strong>的概念，与 RPC 紧密相关。</p>
 <p>既然是比垂直 MVC 架构的负载更均衡，RPC 要做到的，就是能通过网络请求远程计算机程序的服务时，要能像本地调用一样方便，让调用者感知不到远程调用的逻辑。</p>
 <p>总的来说，它属于<strong>跨网络跨进程通信</strong>的范畴，是一种通过网络从远程计算机程序请求服务，而不需要了解底层网络技术的<strong>思想</strong>，并不是一种具体的规范或者协议，使用 TCP、UDP 都可以。</p>
@@ -284,8 +283,7 @@
 <li>远程通信协议：RMI, Socket, SOAP(HTTP with XML), REST(HTTP with JSON)</li>
 <li>通信框架：MINA, Netty</li>
 </ul>
-<br>
-
+<p><br></p>
 <h1 id="完整框架"><a href="#完整框架" class="headerlink" title="完整框架"></a>完整框架</h1><p>先说说在 RPC 思想中主要的功能组成模块：</p>
 <p><strong>客户端</strong>（<strong>client</strong>）：服务调用方。</p>
 <p><strong>客户端存根</strong>（<strong>client stub</strong>）</p>
@@ -304,9 +302,9 @@
 <p><strong>服务端</strong>（<strong>server</strong>）：服务真正提供者。</p>
 <p><strong>网络服务</strong>：底层传输，可为 TCP 或 HTTP。</p>
 <p>在一次网络调用中，RPC 的<strong>核心调用</strong>如下：</p>
-<p><img src="/2021/07/31/rpc/rpc-call.jpeg"></p>
+<p><img src="/2021/07/31/rpc/rpc-call.jpeg" alt></p>
 <p>时序图：</p>
-<p><img src="/2021/07/31/rpc/sequence-diagram.jpg"></p>
+<p><img src="/2021/07/31/rpc/sequence-diagram.jpg" alt></p>
 <ol>
 <li>客户端通过本地调用，执行需要调用的语句，并传递参数</li>
 <li>客户端 stub 接收到调用请求后，将方法、入参等信息序列化成能够进行网络传输的消息体</li>
@@ -320,13 +318,12 @@
 <li>客户端接收到调用语句返回的结果数据</li>
 </ol>
 <p>整个调用为一同步过程。</p>
-<p><img src="/2021/07/31/rpc/rpc-call.png"></p>
+<p><img src="/2021/07/31/rpc/rpc-call.png" alt></p>
 <p>上图在原来的核心调用之外，多了一个“<strong>RPC Runtime</strong>”的概念：发送和接收请求，其中客户端的 RPC Runtime 多了等待远端执行结果的功能。</p>
 <p>完整的 RPC 架构图如下：</p>
-<p><img src="/2021/07/31/rpc/framework.jpeg"></p>
+<p><img src="/2021/07/31/rpc/framework.jpeg" alt></p>
 <p>在一个典型的 RPC 使用场景中，包含了服务发现、服务暴露、负载、容错、网络传输、序列化等组件，其中 RPC 的思想就指明了程序应该怎么样来进行序列化和网络传输。</p>
-<br>
-
+<p><br></p>
 <h1 id="核心功能的技术点"><a href="#核心功能的技术点" class="headerlink" title="核心功能的技术点"></a>核心功能的技术点</h1><h2 id="服务寻址"><a href="#服务寻址" class="headerlink" title="服务寻址"></a>服务寻址</h2><p>我们要调用某个方法的函数体是由函数指针指定的；但放在远程调用中，因为两个进程的地址空间完全不同，函数指针无效。</p>
 <p>因此在 RPC 中，所有函数必须有自己的 ID，该 ID 在所有进程中唯一确定；客户端作远程调用时必须附上 ID。<br>所以服务寻址可以使用 Call ID 映射。</p>
 <p>客户端和服务端分别维护 “函数 &lt;—&gt; <strong>Call ID</strong>” 的<strong>映射表</strong>：</p>
@@ -344,7 +341,7 @@
 <p>再说回 RPC：方法在本地调用的时候，JVM 将参数压入栈，函数自己去栈里读就好；而远程调用的客户端和服务端不能通过内存传递参数，只能通过网络，因此需要有序列化和反序列化的存在。</p>
 <p>在 OSI 协议模型中，表示层（Presentation Layer）的主要功能就是序列化和反序列化。</p>
 <h2 id="网络传输"><a href="#网络传输" class="headerlink" title="网络传输"></a>网络传输</h2><p>要讨论的就是上图“核心功能”的那一块：</p>
-<p><img src="/2021/07/31/rpc/network-transmission.png"></p>
+<p><img src="/2021/07/31/rpc/network-transmission.png" alt></p>
 <p>客户端和服务端通过网络连接，所有数据需要通过网络传输。<br>在网络传输中，我们需要一个网络传输层传递 Call ID + 序列化的参数字节流，以及序列化的调用结果（一来一去）。</p>
 <p>网络传输的实现协议不限：</p>
 <ul>
@@ -384,7 +381,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="基于消息队列"><a href="#基于消息队列" class="headerlink" title="基于消息队列"></a><strong>基于消息队列</strong></h3><p><img src="/2021/07/31/rpc/network-transmission-mq.png"></p>
+<h3 id="基于消息队列"><a href="#基于消息队列" class="headerlink" title="基于消息队列"></a><strong>基于消息队列</strong></h3><p><img src="/2021/07/31/rpc/network-transmission-mq.png" alt></p>
 <p>总的来说，使用消息队列实现能够保证 RPC 在消息传递过程中的安全性和稳定性。</p>
 <p>更具体一点：</p>
 <ul>
@@ -406,8 +403,7 @@
 <li>序列化与反序列化：可以自己实现，也可使用 <code>Hessian</code>, <code>Protobuf</code>（Google 内部混合语言数据标准）, <code>Thrift</code>（Facebook 开源框架）或 <code>FlatBuffers</code> 等</li>
 <li>网络传输库：可以自己写 Socket，不过不多，更多的是应用 <code>Asio</code>, <code>ZeroMQ</code>, <code>Netty</code> 等现成的框架。</li>
 </ul>
-<br>
-
+<p><br></p>
 <h1 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h1><p>RPC 多应用在大型网站，内部子系统较多、接口非常多的系统中。</p>
 <ul>
 <li>长链接：不必每次通信都像 HTTP 一样三次握手，减少网络开销</li>
@@ -415,8 +411,7 @@
 <li>安全性：没有暴露资源操作</li>
 <li>微服务支持</li>
 </ul>
-<br>
-
+<p><br></p>
 <h1 id="与其它技术栈的比较"><a href="#与其它技术栈的比较" class="headerlink" title="与其它技术栈的比较"></a>与其它技术栈的比较</h1><h2 id="RPC-v-s-RESTful"><a href="#RPC-v-s-RESTful" class="headerlink" title="RPC v.s. RESTful"></a>RPC v.s. RESTful</h2><p><strong>1</strong>. 面向的对象不同</p>
 <ul>
 <li>REST 的主体是资源，而 RPC 更侧重于动作</li>
