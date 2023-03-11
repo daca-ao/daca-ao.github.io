@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/11/07/sort-algo-overview/sort-algo-average-time.png">
 <meta property="article:published_time" content="2022-11-07T03:29:07.000Z">
-<meta property="article:modified_time" content="2023-03-06T12:51:03.439Z">
+<meta property="article:modified_time" content="2023-03-11T13:11:56.423Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="算法">
 <meta property="article:tag" content="排序算法">
@@ -365,9 +365,9 @@ mjx-container[display="true"] + br {
 <h1 id="稳定排序算法"><a href="#稳定排序算法" class="headerlink" title="稳定排序算法"></a>稳定排序算法</h1><ul>
 <li><a href="/2022/11/08/bubble-sort">冒泡排序</a></li>
 <li><a href="/2022/11/12/insertion-sort">插入排序</a></li>
-<li>基数排序</li>
+<li><a href="/2023/03/11/bin-radix-sort#桶排序的改进：基数排序">基数排序</a></li>
 <li>计数排序</li>
-<li>桶排序</li>
+<li><a href="/2023/03/11/bin-radix-sort#桶排序">桶排序</a></li>
 <li><a href="/2023/02/25/merge-sort">归并排序</a></li>
 <li>二叉排序树排序</li>
 <li>图书馆排序</li>
@@ -495,6 +495,15 @@ mjx-container[display="true"] + br {
         <td colspan="8"></td>
     </tr>
     <tr>
+        <th colspan="2">桶排序</th>
+        <td>数组、链表</td>
+        <td>☑️</td>
+        <td>O(n)</td>
+        <td>O(n)</td>
+        <td>O(n)</td>
+        <td>O(m)</td>
+    </tr>
+    <tr>
         <th colspan="2">基数排序</th>
         <td>数组</td>
         <td>☑️</td>
@@ -511,15 +520,6 @@ mjx-container[display="true"] + br {
         <td>O(n+m)</td>
         <td>O(n+m)</td>
         <td>O(n+m)</td>
-    </tr>
-    <tr>
-        <th colspan="2">桶排序</th>
-        <td>数组、链表</td>
-        <td>☑️</td>
-        <td>O(n)</td>
-        <td>O(n)</td>
-        <td>O(n)</td>
-        <td>O(m)</td>
     </tr>
 </table>
 
@@ -628,7 +628,7 @@ mjx-container[display="true"] + br {
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">65</span>
+          <span class="site-state-item-count">66</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

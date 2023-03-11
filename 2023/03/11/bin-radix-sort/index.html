@@ -20,17 +20,19 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Storing blogs">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Raymond&#39;s Cabin">
-<meta property="og:url" content="http://example.com/archives/2021/06/index.html">
+  <meta name="description" content="聊了那么多基于比较的排序算法，咱们今天来聊聊非比较排序。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="桶排序与基数排序">
+<meta property="og:url" content="http://example.com/2023/03/11/bin-radix-sort/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="Storing blogs">
+<meta property="og:description" content="聊了那么多基于比较的排序算法，咱们今天来聊聊非比较排序。">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-03-11T13:07:34.000Z">
+<meta property="article:modified_time" content="2023-03-11T13:10:43.972Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/archives/2021/06/">
+<link rel="canonical" href="http://example.com/2023/03/11/bin-radix-sort/">
 
 
 <script id="page-configurations">
@@ -38,12 +40,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'en'
   };
 </script>
 
-  <title>Archive | Raymond's Cabin</title>
+  <title>桶排序与基数排序 | Raymond's Cabin</title>
   
 
 
@@ -74,7 +76,119 @@
   </style>
 </noscript>
 
-</head>
+<style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container use-motion">
@@ -179,235 +293,129 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        
-        <span class="collection-header">Nice! 66 posts in total. Keep on posting.</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/11/bin-radix-sort/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="敖惠竣｜Ao Huijun, Raymond">
+      <meta itemprop="description" content="Storing blogs">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Raymond's Cabin">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          桶排序与基数排序
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-03-11 21:07:34" itemprop="dateCreated datePublished" datetime="2023-03-11T21:07:34+08:00">2023-03-11</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2021</span>
+        <p>聊了那么多基于比较的排序算法，咱们今天来聊聊非比较排序。</p>
+<span id="more"></span>
+<p>首先来说说桶排序。</p>
+<h1 id="桶排序"><a href="#桶排序" class="headerlink" title="桶排序"></a>桶排序</h1><ul>
+<li>节点首先会被放入有限数量的桶中，具有相同值的节点都被放在同一个桶中，把桶链接起来就可以创建一个有序的链表。</li>
+<li>非比较排序：不受 Ο(nlogn)下限的影响。</li>
+</ul>
+<p>桶的实现：</p>
+<ul>
+<li>每个桶都是一个由节点组成的线性表。桶中的节点介于 0 到 n 之间</li>
+<li>可以把每个桶都描述成一个链表<ul>
+<li>在进行节点分配之前，所有的桶都是空的<br>对于桶排序，需要：</li>
+</ul>
+</li>
+<li>从输入链表的首部开始，逐个删除该链表中每个节点，并把所删除的节点放进适当的桶（相应链表）中</li>
+<li>收集并链接每个桶中的节点，产生一个有序的链表</li>
+</ul>
+<h1 id="桶排序的改进：基数排序"><a href="#桶排序的改进：基数排序" class="headerlink" title="桶排序的改进：基数排序"></a>桶排序的改进：基数排序</h1><ul>
+<li>把待排序的数按照某个基数（常见为按照位数）分解成一串数字，然后对数字（每个位数）进行排序。</li>
+<li>如有数位较短的：前面补 0，从最低位开始依次排序。<ul>
+<li>可采用 LSD（Least Significant Digital）或 MSD（Most Significant Digital）</li>
+</ul>
+</li>
+<li>基数排序不仅只能适用于整数，还可以用于字符串和特定格式的浮点数。</li>
+<li>对桶排序的扩充：在 Θ(n)时间内对范围为 0~nc-1之间的 n个整数进行排序（c为常量）<ul>
+<li>用 range = nc调用 BinSort，排序复杂度从 Θ(n+range)变成 Θ(nc)。</li>
+</ul>
+</li>
+<li>适合于有多个关键字的排序问题。</li>
+</ul>
+<p>与传统桶排序相比：<br>桶排序：使用 range = 1000 调用 BinSort()</p>
+<ul>
+<li>初始化 1000 执行步</li>
+<li>节点分配 10 执行步</li>
+<li>从箱子收集节点 1000 执行步</li>
+<li>总步数 2010<br>基数排序：取 range = 10<br>每个数至多有3位数字：要进行 3 次排序，每次排序的桶的 range 都为10<br>每次桶排序中：</li>
+<li>初始化10执行步</li>
+<li>节点分配10执行步</li>
+<li>收集节点10执行步</li>
+<li>总步数90</li>
+</ul>
+<p>问题：<br>为何要从低位开始向高位排序？</p>
+<ul>
+<li>如果要从高位排序，那么次高位的排序会影响已经排好的大小关系。在数学中，数位越高，数位值对数的大小的影响就越大。从低位开始排序，就是对这种影响的排序。数位按照影响力从低到高的顺序排序，数位影响力相同则比较数位值。<br>为何同一数位的排序子排序要使用稳定排序？</li>
+<li>稳定排序能够保证上一次的排序成果被保留，十位数的排序过程能保留个位数的排序结果，百位数的排序过程能保留十位数的排序结果，以此类推。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-06-22T14:22:58+08:00"
-              content="2021-06-22">
-          06-22
-        </time>
-      </div>
+      <footer class="post-footer">
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/06/22/observer/" itemprop="url">
-            <span itemprop="name">观察者模式（Observer）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-06-22T14:22:52+08:00"
-              content="2021-06-22">
-          06-22
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/06/22/decorator/" itemprop="url">
-            <span itemprop="name">装饰器模式（Decorator）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-06-22T14:22:38+08:00"
-              content="2021-06-22">
-          06-22
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/06/22/adapter/" itemprop="url">
-            <span itemprop="name">适配器模式（Adapter）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-06-22T14:22:30+08:00"
-              content="2021-06-22">
-          06-22
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/06/22/template-method/" itemprop="url">
-            <span itemprop="name">模版方法模式（Template Method）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-06-19T11:12:20+08:00"
-              content="2021-06-19">
-          06-19
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/06/19/command/" itemprop="url">
-            <span itemprop="name">命令模式（Command）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-06-19T11:11:52+08:00"
-              content="2021-06-19">
-          06-19
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/06/19/proxy/" itemprop="url">
-            <span itemprop="name">代理模式（Proxy）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-06-19T09:20:09+08:00"
-              content="2021-06-19">
-          06-19
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/06/19/strategy/" itemprop="url">
-            <span itemprop="name">策略模式（Strategy）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-06-19T09:19:36+08:00"
-              content="2021-06-19">
-          06-19
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/06/19/singleton/" itemprop="url">
-            <span itemprop="name">单例模式（Singleton）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-06-19T09:19:14+08:00"
-              content="2021-06-19">
-          06-19
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/06/19/factory/" itemprop="url">
-            <span itemprop="name">工厂模式汇总</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-06-14T14:06:42+08:00"
-              content="2021-06-14">
-          06-14
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2021/06/14/design-patterns/" itemprop="url">
-            <span itemprop="name">设计模式概述</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
+        
 
 
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/02/26/quick-sort/" rel="prev" title="快速排序">
+      <i class="fa fa-chevron-left"></i> 快速排序
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-  </div>
+      </footer>
+    
+  </article>
   
   
   
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/archives/2021/06/page/2/">2</a><a class="extend next" rel="next" href="/archives/2021/06/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
 
 
 
@@ -459,6 +467,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A1%B6%E6%8E%92%E5%BA%8F"><span class="nav-number">1.</span> <span class="nav-text">桶排序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A1%B6%E6%8E%92%E5%BA%8F%E7%9A%84%E6%94%B9%E8%BF%9B%EF%BC%9A%E5%9F%BA%E6%95%B0%E6%8E%92%E5%BA%8F"><span class="nav-number">2.</span> <span class="nav-text">桶排序的改进：基数排序</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -606,6 +615,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
