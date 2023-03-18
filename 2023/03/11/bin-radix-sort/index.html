@@ -28,7 +28,7 @@
 <meta property="og:description" content="聊了那么多基于比较的排序算法，咱们今天来聊聊非比较排序。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-03-11T13:07:34.000Z">
-<meta property="article:modified_time" content="2023-03-14T14:03:45.946Z">
+<meta property="article:modified_time" content="2023-03-18T14:07:25.227Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta name="twitter:card" content="summary">
 
@@ -348,8 +348,9 @@ mjx-container[display="true"] + br {
 <span id="more"></span>
 <p>桶排序和基数排序都是基于<strong>链表</strong>的数据结构实现的排序算法。</p>
 <p>首先来说说桶排序。</p>
-<h1 id="桶排序"><a href="#桶排序" class="headerlink" title="桶排序"></a>桶排序</h1><ul>
-<li>节点首先会被放入有限数量的桶中，具有相同值的节点都被放在同一个桶中，把桶链接起来就可以创建一个有序的链表。</li>
+<h1 id="桶排序"><a href="#桶排序" class="headerlink" title="桶排序"></a>桶排序</h1><p>桶排序（Bucket Sort, Bin Sort）将节点放入有限数量的桶中，具有相同值的节点都被放在同一个桶中，把桶链接起来就可以创建一个有序的链表。</p>
+<ul>
+<li>每个桶再使用别的算法或者递归调用桶排序再进行排序</li>
 <li>非比较排序：不受 Ο(nlogn)下限的影响。</li>
 </ul>
 <p>桶的实现：</p>
