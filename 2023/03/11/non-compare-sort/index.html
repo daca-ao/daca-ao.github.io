@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/03/11/non-compare-sort/radix-sort.png">
 <meta property="article:published_time" content="2023-03-11T13:07:34.000Z">
-<meta property="article:modified_time" content="2023-04-05T13:39:16.188Z">
+<meta property="article:modified_time" content="2023-04-05T13:42:35.543Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="算法">
 <meta property="article:tag" content="排序算法">
@@ -422,8 +422,9 @@ O(n+m*k*logk)\\
 <h1 id="桶排序的改进：基数排序"><a href="#桶排序的改进：基数排序" class="headerlink" title="桶排序的改进：基数排序"></a>桶排序的改进：基数排序</h1><p>Radix sort，顾名思义，是把待排序的数按照某个基数（radix）分解成一串数字，然后对数字进行排序。</p>
 <ul>
 <li>一般以<strong>位数</strong>作为基数，即排序的时候是<strong>逐位排序</strong>；</li>
-<li>如有数位较短的：前面补 0，从最低位开始依次排序。<ul>
-<li>可采用 LSD（Least Significant Digital）或 MSD（Most Significant Digital）</li>
+<li>如有数位较短的：前面补 0 再开始依次排序。<ul>
+<li>可采用 LSD（Least Significant Digital，低位优先）或 MSD（Most Significant Digital，高位优先）</li>
+<li>一般采用 LSD</li>
 </ul>
 </li>
 </ul>
@@ -436,7 +437,7 @@ O(n+m*k*logk)\\
 <p>问题：</p>
 <p><strong>为何要从低位开始向高位排序？</strong></p>
 <ul>
-<li>如果要从高位排序，那么次高位的排序会影响已经排好的大小关系。在数学中，<strong>数位越高，数位值对数的大小的影响就越大</strong>。从低位开始排序，就是对这种影响最小的排序。数位按照影响力从低到高的顺序排序，数位影响力相同则比较数位值。</li>
+<li>如果要从高位排序（MSD），那么次高位的排序会影响已经排好的大小关系。在数学中，<strong>数位越高，数位值对数的大小的影响就越大</strong>。从低位开始排序，就是对这种影响最小的排序。数位按照影响力从低到高的顺序排序，数位影响力相同则比较数位值。</li>
 </ul>
 <p><strong>为何同一数位的排序子排序要使用稳定排序？</strong></p>
 <ul>
