@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2021/05/26/collections-java/jcf-1.png">
 <meta property="og:image" content="http://example.com/2021/05/26/collections-java/jcf-2.png">
 <meta property="article:published_time" content="2021-05-26T15:28:59.179Z">
-<meta property="article:modified_time" content="2023-04-12T13:28:35.861Z">
+<meta property="article:modified_time" content="2023-04-12T13:44:52.267Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="集合类">
@@ -347,12 +347,14 @@
 </ul>
 </li>
 <li>Collection 中所有非线程安全的 Iterator 实现均按照 fail-fast 设计</li>
-<li>与之相对的就是：<code>fail-safe</code><ul>
+</ul>
+<p>与之相对的就是：<code>fail-safe</code></p>
+<ul>
 <li>不抛出 ConcurrentModificationException</li>
+<li>线程安全的集合的 iterator 就是 <code>fail-safe</code> 的</li>
 <li>遍历时不直接在集合内容上访问，而是先复制原有集合内容，在拷贝的集合上进行遍历</li>
 </ul>
-</li>
-</ul>
+<p>其实 fail-safe 的 iterator 由于自身的 weakly consistent，<strong>并不强保证遍历得到的元素一定正确</strong>。</p>
 <big>注：</big>
 
 <p>Java 集合类库中的迭代器不同于其他类库的迭代器</p>
@@ -362,7 +364,7 @@
 </ul>
 <p>因此 Java 迭代器应位于两元素之间：调用 <code>next()</code> 时跳至下一元素，返回前一元素。</p>
 <p><img src="/2021/05/26/collections-java/next.png" alt></p>
-<p>即：可将 <code>Iterator.next()</code> 和 <code>InputStream.read(</code>) 等效</p>
+<p>即：可将 <code>Iterator.next()</code> 和 <code>InputStream.read()</code> 等效</p>
 <ul>
 <li>从数据流中读取一个字节，自动“消耗掉”该字节</li>
 <li>下次调用 <code>read()</code> 将会消耗并返回输入的下一个字节</li>
@@ -371,16 +373,21 @@
 <big>说到 Iterator，就不可避免地提到 Collection 的父接口：</big>
 
 <h2 id="Iterable"><a href="#Iterable" class="headerlink" title="Iterable"></a><small><code>Iterable</code></small></h2><ul>
-<li>实现了 iterator 方法 <code>iterator()</code>，用于生成一个 Iterator 迭代器</li>
-<li>Since JDK 1.8：提供新的 <code>forEach()</code>，详情可参照<a target="_blank" rel="noopener" href="https://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/java/lang/Iterable.java">源码</a>。<ul>
-<li>提供了默认实现，用于使用 lambda 表达式进行遍历</li>
+<li>实现 Iterable 接口的类<strong>需要实现</strong> <code>iterator.iterator()</code>，用于生成一个 Iterator 迭代器；</li>
+<li>实现了 Iterable 接口的类，可以使用 <code>for(:)</code> 循环遍历<ul>
+<li>Since JDK 1.8：新的 <code>forEach()</code>，提供了默认实现，用于使用 lambda 表达式进行遍历（详情可参照<a target="_blank" rel="noopener" href="https://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/java/lang/Iterable.java">源码</a>）。</li>
 </ul>
 </li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; list = Arrays.asList(<span class="keyword">new</span> String[]&#123;<span class="string">&quot;Hello&quot;</span>, <span class="string">&quot; &quot;</span>, <span class="string">&quot;World!&quot;</span>&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// lambda 表达式遍历</span></span><br><span class="line">list.forEach(s -&gt; System.out.println(s));</span><br><span class="line"></span><br><span class="line"><span class="comment">// lambda 表达式遍历简化版</span></span><br><span class="line">list.forEach(System.out::println);</span><br></pre></td></tr></table></figure>
 <p><strong>Iterable 和 Iterator 接口的区别</strong></p>
-<p>Iterable 描述的是一组可以迭代的元素，而每个元素在 Iterable 接口的实现是无状态的；<br>Iterable 实现了 iterator() 方法来获取 Iterator，Iterator 对象对于每一个元素是有状态描述的：因为 <code>next</code> 指针的存在，调用 <code>next()</code> <code>hasNext()</code> 方法会改变 next 的引用。</p>
-<p>正因此，Iterable 的 forEach() 在无状态的情况下，每一次调用都遍历集合里面的<strong>所有元素</strong>；<br>而 Iterator.forEachRemaining() 返回的则是所有<strong>未被遍历过的元素</strong>。 </p>
+<ul>
+<li>Iterable 描述的是一组可以迭代的元素，而每个元素在 Iterable 接口的实现里是无状态的；</li>
+<li>而 Iterator 对象对于每一个元素是有状态描述的：因为 <code>next</code> 指针的存在，调用 <code>next()</code> <code>hasNext()</code> 方法会改变 next 的引用；</li>
+<li>Iterable 实现了 iterator() 方法来获取 Iterator；</li>
+<li>Iterable 遍历时不允许删除；而 Iterator 遍历时允许删除</li>
+</ul>
+<p>正因此，Iterable 的 forEach() 在无状态的情况下，每一次调用都遍历集合里面的<strong>所有元素</strong>；<br>而 Iterator.forEachRemaining() 同样有个 “forEach”，返回的则是所有<strong>未被遍历过的元素</strong>。 </p>
 <h2 id="Ordering"><a href="#Ordering" class="headerlink" title="Ordering"></a>Ordering</h2><p><code>Comparable</code></p>
 <ul>
 <li>其实现类要求各个元素可以自然排序，从而可以对整个集合排序</li>
