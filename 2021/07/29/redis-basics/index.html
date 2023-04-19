@@ -29,6 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-encoding-embstr.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-encoding-raw.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redisobj.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/list-message-queue.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/list-message-queue-model.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/distributed-lock.png">
@@ -38,7 +39,7 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/aof-rewrite.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-cluster.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2021-09-27T15:41:57.928Z">
+<meta property="article:modified_time" content="2023-04-19T14:15:58.587Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -89,7 +90,119 @@
   </style>
 </noscript>
 
-</head>
+<style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container use-motion">
@@ -266,14 +379,12 @@
 <h2 id="redisObject"><a href="#redisObject" class="headerlink" title="redisObject"></a><strong>redisObject</strong></h2><ul>
 <li>Redis 的对象类型、内部编码、内存回收、共享对象等功能均需其支持</li>
 </ul>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="comment">// 对象的类型，占 4 bit</span></span><br><span class="line">    <span class="keyword">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对象的内部编码，占 4 bit</span></span><br><span class="line">    <span class="keyword">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指向底层实现数据结构（即 val 对应的 SDS）的指针</span></span><br><span class="line">    <span class="keyword">void</span> *ptr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> notused:<span class="number">2</span>;  <span class="comment">/* Not used */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录对象最后一次被命令程序访问的时间</span></span><br><span class="line">    <span class="comment">// REDIS_LRU_BITS 在不同版本中的 Redis 的长度也有所不同</span></span><br><span class="line">    <span class="keyword">unsigned</span> lru:REDIS_LRU_BITS;  <span class="comment">/* lru time (relative to server.lruclock) */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录该对象被引用的次数</span></span><br><span class="line">    <span class="keyword">int</span> refcount; </span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> {</span></span><br><span class="line">    <span class="comment">// 对象的类型，占 4 bit</span></span><br><span class="line">    <span class="keyword">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对象的内部编码，占 4 bit</span></span><br><span class="line">    <span class="keyword">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指向底层实现数据结构（即 val 对应的 SDS）的指针</span></span><br><span class="line">    <span class="keyword">void</span> *ptr;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">unsigned</span> notused:<span class="number">2</span>;  <span class="comment">/* Not used */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录对象最后一次被命令程序访问的时间</span></span><br><span class="line">    <span class="comment">// REDIS_LRU_BITS 在不同版本中的 Redis 的长度也有所不同</span></span><br><span class="line">    <span class="keyword">unsigned</span> lru:REDIS_LRU_BITS;  <span class="comment">/* lru time (relative to server.lruclock) */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录该对象被引用的次数</span></span><br><span class="line">    <span class="keyword">int</span> refcount; </span><br><span class="line">} robj;</span><br></pre></td></tr></table></figure>
 <p>一个 redisObject 占用 <strong>16</strong> 字节的空间。</p>
-<big>**1. type**</big>
-
+<p><strong><big>1. type</big></strong></p>
 <p>redisObject 一共有 5 种数据类型：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_STRING 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_LIST 1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_SET 2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ZSET 3</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_HASH 4</span></span><br></pre></td></tr></table></figure></p>
 <p>4 位 type 字段最多能排出 15 种组合，记录 5 种数据类型足够。</p>
-<big>**2. encoding**</big>
-
+<p><strong><big>2. encoding</big></strong></p>
 <p>redisObject 一共有 10 种编码类型：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_RAW 0      <span class="comment">/* Raw representation */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_INT 1      <span class="comment">/* Encoded as integer */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_HT 2       <span class="comment">/* Encoded as hash table */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_ZIPMAP 3   <span class="comment">/* Encoded as zipmap, deprecated after v 3.2.5 */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_LINKEDLIST 4  <span class="comment">/* Encoded as regular linked list */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_ZIPLIST 5  <span class="comment">/* Encoded as ziplist */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_INTSET 6   <span class="comment">/* Encoded as intset */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_SKIPLIST 7  <span class="comment">/* Encoded as skiplist */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_EMBSTR 8    <span class="comment">/* Embedded sds string encoding */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REDIS_ENCODING_QUICKLIST 9  <span class="comment">/* Encoded as linked list of ziplists */</span></span></span><br></pre></td></tr></table></figure></p>
 <div class="table-container">
 <table>
@@ -348,62 +459,45 @@
 </li>
 </ul>
 <p><img src="/2021/07/29/redis-basics/redis-encoding-raw.png" alt></p>
-<big>**3. lru**</big>
-
+<p><strong><big>3. lru</big></strong></p>
 <p>通过对比 lru 的值与当前时间，可计算某个对象的空转时间（object idletime）并打印出来。</p>
 <p>lru 与 Redis 内存回收关系颇为密切。<br>如果 Redis 打开了 <code>maxmemory</code> 选项，且内存回收算法选择 <code>volatile-lru</code> 或 <code>allkeys-lru</code> 作为淘汰策略的话，当内存占用超过 maxmemory 阈值时，Redis 会优先选择 object idletime 最长的对象释放。</p>
-<big>**4. refcount**</big>：主要用于对象引用计数和内存回收（计数法）
-* 创建新对象：refcount = 1
-* 有新程序使用该对象：refcount + 1
-* 对象不再被一个新程序使用：refcount - 1
-* refcount = 0：对象占用内存会被释放
-
-refcount > 1，意味着该对象被多次使用，其被称为共享对象。  
-这就意味着当某些对象重复出现时，新程序不会创建新对象，而是仍然使用原来的对象；这样可以节省内存。
-
-Redis 五种类型都可以使用共享对象，但仅支持整数值的字符串对象，因为这考虑到对内存和 CPU（时间）的平衡：
-* 共享对象虽然降低了内存消耗，但判断两个对象是否相等需消耗额外时间
-* 整数值判断操作复杂度为 **O**(1)；普通字符串为 **O**(n)；列表等为 **O**(n<sup>2</sup>)
-
-Redis 服务器初始化时会创建 10000 个字符串对象：0 - 9999
-* Redis 需要使用值为该范围其中的字符串对象时可直接使用。
-
-再说说刚刚提到的 SDS：
-
-
-## **SDS**
-
-全称 Simple Dynamic String，简单动态字符串，是 Redis 自己开发的字符串抽象类型。
-
-所谓“动态”，意思是 Redis 能根据 redisObject 不同的值去对应上不同的编码，且进行自动扩展。
-
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之前）</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> len;  <span class="comment">// buf 已使用的长度</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="built_in">free</span>;  <span class="comment">// buf 未使用长度</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字节数组，len(buf)=len+free+1</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之后，关于 SDS 有了多种结构：sdshdr5，sdshdr8，sdshdr16，sdshdr32，sdshdr64）</span></span><br><span class="line"><span class="comment">// sdshdr8：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len;  <span class="comment">// 字符数组长度</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc;  <span class="comment">// 字符数组总共分配内存大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags;  <span class="comment">// 标记字符数组属性</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字符数组，字符串真正的值</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// 相比于 Redis 3.2 之前的 sdshdr 优化了 5 个字节的空间，使 embstr 数据空间多了 5 字节</span></span><br></pre></td></tr></table></figure>
-
-SDS 在 C 字符串基础上加入了 `len` 和 `free`（`alloc`） 字段，是为了杜绝缓冲区溢出（C 字符串在没有进行足够的内存分配时，会存在缓冲区溢出的情况），并且能存储二进制数据；
-
-同时 `len` 字段降低了原本 C 字符串读取字符长度的复杂度（从 **O**(n) 降为 **O**(1)）；
-
-另外，SDS 通过**空间预分配**和**惰性空间释放**来解决内存重新分配带来的性能问题：
-* 对 SDS 的值进行修改之后，如 SDS 的长度小于 1 M，此时分配的 len = free
-* 如 >= 1 M，就按照 1 M 分配
-* 修改删除部分元素时，不及时释放，还保留空间（len 减少掉的数量加到 free 里）
-
-针对 C 字符串只能通过 '\0' 判断字符串结束，且不能存储空字符串的特性，SDS 通过 len 字段判定结尾，且能够存储任意数据。
-
-这也是 Redis 使用自己开发的字符串的原因。
-
-<br>
-
-# 数据类型
-
-Redis 作为 NoSQL 类型的内存数据库，在内存中主要以键值对（key-value）的方式存储内容：
-
-![](redis-basics/redisobj.png)
-
-其中“值”（value）的类型有：
-
+<p><strong><big>4. refcount</big></strong>：主要用于对象引用计数和内存回收（计数法）</p>
+<ul>
+<li>创建新对象：refcount = 1</li>
+<li>有新程序使用该对象：refcount + 1</li>
+<li>对象不再被一个新程序使用：refcount - 1</li>
+<li>refcount = 0：对象占用内存会被释放</li>
+</ul>
+<p>refcount &gt; 1，意味着该对象被多次使用，其被称为共享对象。<br>这就意味着当某些对象重复出现时，新程序不会创建新对象，而是仍然使用原来的对象；这样可以节省内存。</p>
+<p>Redis 五种类型都可以使用共享对象，但仅支持整数值的字符串对象，因为这考虑到对内存和 CPU（时间）的平衡：</p>
+<ul>
+<li>共享对象虽然降低了内存消耗，但判断两个对象是否相等需消耗额外时间</li>
+<li>整数值判断操作复杂度为 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="4.618ex" height="2.262ex" role="img" focusable="false" viewbox="0 -750 2041 1000"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D442" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"/></g><g data-mml-node="mo" transform="translate(763,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="mn" transform="translate(1152,0)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g><g data-mml-node="mo" transform="translate(1652,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g></g></g></svg></mjx-container>；普通字符串为 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="4.844ex" height="2.262ex" role="img" focusable="false" viewbox="0 -750 2141 1000"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D442" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"/></g><g data-mml-node="mo" transform="translate(763,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="mi" transform="translate(1152,0)"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="mo" transform="translate(1752,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g></g></g></svg></mjx-container>；列表等为 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="5.832ex" height="2.452ex" role="img" focusable="false" viewbox="0 -833.9 2577.6 1083.9"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D442" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"/></g><g data-mml-node="mo" transform="translate(763,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="msup" transform="translate(1152,0)"><g data-mml-node="mi"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="mn" transform="translate(633,363) scale(0.707)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g></g><g data-mml-node="mo" transform="translate(2188.6,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g></g></g></svg></mjx-container></li>
+</ul>
+<p>Redis 服务器初始化时会创建 10000 个字符串对象：0 - 9999</p>
+<ul>
+<li>Redis 需要使用值为该范围其中的字符串对象时可直接使用。</li>
+</ul>
+<p>再说说刚刚提到的 SDS：</p>
+<h2 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a><strong>SDS</strong></h2><p>全称 Simple Dynamic String，简单动态字符串，是 Redis 自己开发的字符串抽象类型。</p>
+<p>所谓“动态”，意思是 Redis 能根据 redisObject 不同的值去对应上不同的编码，且进行自动扩展。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之前）</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> {</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> len;  <span class="comment">// buf 已使用的长度</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="built_in">free</span>;  <span class="comment">// buf 未使用长度</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字节数组，len(buf)=len+free+1</span></span><br><span class="line">};</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之后，关于 SDS 有了多种结构：sdshdr5，sdshdr8，sdshdr16，sdshdr32，sdshdr64）</span></span><br><span class="line"><span class="comment">// sdshdr8：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> {</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len;  <span class="comment">// 字符数组长度</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc;  <span class="comment">// 字符数组总共分配内存大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags;  <span class="comment">// 标记字符数组属性</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字符数组，字符串真正的值</span></span><br><span class="line">};</span><br><span class="line"><span class="comment">// 相比于 Redis 3.2 之前的 sdshdr 优化了 5 个字节的空间，使 embstr 数据空间多了 5 字节</span></span><br></pre></td></tr></table></figure>
+<p>SDS 在 C 字符串基础上加入了 <code>len</code> 和 <code>free</code>（<code>alloc</code>） 字段，是为了杜绝缓冲区溢出（C 字符串在没有进行足够的内存分配时，会存在缓冲区溢出的情况），并且能存储二进制数据；</p>
+<p>同时 <code>len</code> 字段降低了原本 C 字符串读取字符长度的复杂度（从 <strong>O</strong>(n) 降为 <strong>O</strong>(1)）；</p>
+<p>另外，SDS 通过<strong>空间预分配</strong>和<strong>惰性空间释放</strong>来解决内存重新分配带来的性能问题：</p>
+<ul>
+<li>对 SDS 的值进行修改之后，如 SDS 的长度小于 1 M，此时分配的 len = free</li>
+<li>如 &gt;= 1 M，就按照 1 M 分配</li>
+<li>修改删除部分元素时，不及时释放，还保留空间（len 减少掉的数量加到 free 里）</li>
+</ul>
+<p>针对 C 字符串只能通过 ‘\0’ 判断字符串结束，且不能存储空字符串的特性，SDS 通过 len 字段判定结尾，且能够存储任意数据。</p>
+<p>这也是 Redis 使用自己开发的字符串的原因。</p>
+<p><br></p>
+<h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h1><p>Redis 作为 NoSQL 类型的内存数据库，在内存中主要以键值对（key-value）的方式存储内容：</p>
+<p><img src="/2021/07/29/redis-basics/redisobj.png" alt></p>
+<p>其中“值”（value）的类型有：</p>
 <big>**String**</big>
 * Redis 最基本的数据类型，扩展性非常高
 * 上面已经提到过了：底层为字符数组，长度不超过 512 MB
@@ -532,12 +626,33 @@ zset 类型相关指令：
 | 命令      | 解释     |
 | ---------           | ------------ |
 | zadd key score1 value1 score2 value2     | 添加元素至集合 key 中；如果 value 相同，后输入的 score 会覆盖前面的 score   |
-| zscore key value                         | 查看 value 的 score 值，输出 -∞ < score < +∞ 的所有元素 |
+| zscore key value                         | 查看 value 的 score 值，输出 -∞ &lt; score &lt; +∞ 的所有元素 |
 | zrange key 0 -1                          | 正序输出                   |
 | zrangebyscore key -inf +inf              | 正序输出                   |
 | zrevrange key 0 -1                       | 倒序输出                   |
 | zcard key                                | 查看集合 key 的元素个数      |
-| zrangebyscore key indexStart indexEnd    | 输出集合 key 中 indexStart <= score <="indexEnd" 的元素，正序排列 | zrevrangebyscore key indexstart indexend 输出集合 中 的元素，倒序排列 zrem value 删除集合 中的 zset 的编码： ![](redis-basics zset-encoding-ziplist.png) ziplist 会按照 的大小排序。 当数据量增大时，zset 会调整到跳表（skiplist）的编码模式： zset-encoding-skiplist.png) 为啥每种对象类型都有至少两种编码？ 1. 接口与实现分离，当需要增加或改变内部编码时，用户使用不受影响 2. 可根据不同应用场景切换内部编码，提高效率 redis-type-encoding-mapping.png) <table>
+| zrangebyscore key indexStart indexEnd    | 输出集合 key 中 indexStart &lt;= score &lt;= indexEnd 的元素，正序排列  |
+| zrevrangebyscore key indexStart indexEnd | 输出集合 key 中 indexStart &lt;= score &lt;= indexEnd 的元素，倒序排列  |
+| zrem key value                           | 删除集合 key 中的 value     |
+
+zset 的编码：
+
+![](redis-basics/zset-encoding-ziplist.png)
+
+ZIPLIST 会按照 score 的大小排序。
+
+当数据量增大时，zset 会调整到跳表（skiplist）的编码模式：
+
+![](redis-basics/zset-encoding-skiplist.png)
+
+
+为啥每种对象类型都有至少两种编码？
+1. 接口与实现分离，当需要增加或改变内部编码时，用户使用不受影响
+2. 可根据不同应用场景切换内部编码，提高效率
+
+![](redis-basics/redis-type-encoding-mapping.png)
+
+<table>
     <tr>
         <th>类型</th>
         <th>编码（Redis 3.0）</th>
@@ -598,7 +713,7 @@ zset 类型相关指令：
         <td>REDIS_ENCODING_SKIPLIST</td>
         <td>使用跳表和字典实现的有序集合对象</td>
     </tr>
-
+</table>
 
 编码转换在 Redis 写入数据时完成，而且转换过程是不可逆的，只能从小内存编码向大内存编码转换。
 
@@ -805,7 +920,7 @@ zset 类型相关指令：
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Background saving started</span><br></pre></td></tr></table></figure>
 <p>相关的数据结构如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> &#123;</span></span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line">	<span class="comment">// save point 数组，下面会介绍</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">saveparam</span> *<span class="title">saveparams</span>;</span>  <span class="comment">/* Save points array for RDB */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 计数器。记录上一次成功执行 SAVE 或 BGSAVE 后，数据进行了多少次修改（写入、删除、更新等）</span></span><br><span class="line">	<span class="keyword">long</span> <span class="keyword">long</span> dirty;  <span class="comment">/* Changes to DB from the last save */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 例：</span></span><br><span class="line">	<span class="comment">// set key &quot;value&quot;: dirty 计数器加 1</span></span><br><span class="line">	<span class="comment">// sadd key &quot;value1&quot; &quot;value2&quot; &quot;value3&quot;: dirty 计数器加 3</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 记录上一次成功执行 SAVE 或 BGSAVE 的时间</span></span><br><span class="line">	<span class="keyword">time_t</span> lastsave;  <span class="comment">/* Unix time of last successful save */</span></span><br><span class="line"></span><br><span class="line">	...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">saveparam</span> &#123;</span>  <span class="comment">// 能否执行定时操作的标准</span></span><br><span class="line">	<span class="comment">// 执行时长</span></span><br><span class="line">	<span class="keyword">time_t</span> seconds;</span><br><span class="line">	<span class="comment">// 修改次数</span></span><br><span class="line">	<span class="keyword">int</span> changes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> {</span></span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line">	<span class="comment">// save point 数组，下面会介绍</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">saveparam</span> *<span class="title">saveparams</span>;</span>  <span class="comment">/* Save points array for RDB */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 计数器。记录上一次成功执行 SAVE 或 BGSAVE 后，数据进行了多少次修改（写入、删除、更新等）</span></span><br><span class="line">	<span class="keyword">long</span> <span class="keyword">long</span> dirty;  <span class="comment">/* Changes to DB from the last save */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 例：</span></span><br><span class="line">	<span class="comment">// set key "value": dirty 计数器加 1</span></span><br><span class="line">	<span class="comment">// sadd key "value1" "value2" "value3": dirty 计数器加 3</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 记录上一次成功执行 SAVE 或 BGSAVE 的时间</span></span><br><span class="line">	<span class="keyword">time_t</span> lastsave;  <span class="comment">/* Unix time of last successful save */</span></span><br><span class="line"></span><br><span class="line">	...</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">saveparam</span> {</span>  <span class="comment">// 能否执行定时操作的标准</span></span><br><span class="line">	<span class="comment">// 执行时长</span></span><br><span class="line">	<span class="keyword">time_t</span> seconds;</span><br><span class="line">	<span class="comment">// 修改次数</span></span><br><span class="line">	<span class="keyword">int</span> changes;</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
 <p><code>saveparam</code> 相当于 redisServer 的配置项。意思是：在 seconds 时间内执行了 changes 次修改之后，服务器会定时执行 BGSAVE 操作进行持久化。</p>
 <p>以当前时间戳减去 lastsave，结果如果大于 seconds，即满足持久化条件；以 dirty 值与 changes 比较，如果比 changes 大即满足持久化条件。</p>
 <p><img src="/2021/07/29/redis-basics/rdb.png" alt></p>
@@ -814,11 +929,11 @@ zset 类型相关指令：
 <h2 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h2><p>全称 <strong>A</strong>ppend <strong>O</strong>nly <strong>F</strong>ile。通过记录<strong>所有执行过的 redis 命令</strong>来记录数据库的变更。<br>命令被执行之后并没有马上结束，而是继续由 Redis 服务器将命令保存至 AOF 文件中。</p>
 <p>AOF 频率比 RDB 高；如果开启了 AOF 开关，服务器启动时会先执行 AOF 加载 AOF 文件，否则会执行 RDB。</p>
 <p>相关的数据结构如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> &#123;</span></span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 缓冲区，以请求协议格式保存每一个被执行完的写命令的地方</span></span><br><span class="line">	sds aof_buf  <span class="comment">/* AOF buffer, written before entering the event loop */</span></span><br><span class="line"></span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redis.h</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> {</span></span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 缓冲区，以请求协议格式保存每一个被执行完的写命令的地方</span></span><br><span class="line">	sds aof_buf  <span class="comment">/* AOF buffer, written before entering the event loop */</span></span><br><span class="line"></span><br><span class="line">	...</span><br><span class="line">}</span><br></pre></td></tr></table></figure>
 <p><img src="/2021/07/29/redis-basics/aof.png" alt></p>
 <p>多提一嘴：其实真正的写入文件，是包括写入和同步的：</p>
 <p><img src="/2021/07/29/redis-basics/write-sync.png" alt></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes  <span class="comment"># 开关</span></span><br><span class="line"></span><br><span class="line">appendfilename <span class="string">&quot;appendonly.aof&quot;</span>  <span class="comment"># 文件名</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes  <span class="comment"># 开关</span></span><br><span class="line"></span><br><span class="line">appendfilename <span class="string">"appendonly.aof"</span>  <span class="comment"># 文件名</span></span><br></pre></td></tr></table></figure>
 <p>比较一下这三种写入策略：</p>
 <p><code>appendfsync always</code>：将 aof_buf 的内容写入并同步到 AOF 文件中，真正地将指令写入了磁盘</p>
 <ul>
@@ -861,7 +976,7 @@ zset 类型相关指令：
 <h1 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h1><p><img src="/2021/07/29/redis-basics/redis-cluster.png" alt></p>
 <p>master 支持数据的更新和修改，slave 只支持数据的查看。</p>
 <p>同时，Redis 的主从切换，需要 Sentinel 的支持。</p>
-</=>
+
     </div>
 
     
@@ -945,7 +1060,7 @@ zset 类型相关指令：
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">基本对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#redisObject"><span class="nav-number">2.1.</span> <span class="nav-text">redisObject</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">3.1.</span> <span class="nav-text">消息队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">3.2.</span> <span class="nav-text">分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%B7%E5%8C%BA"><span class="nav-number">3.2.1.</span> <span class="nav-text">雷区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB"><span class="nav-number">4.1.</span> <span class="nav-text">RDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF"><span class="nav-number">4.2.</span> <span class="nav-text">AOF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%B9%E8%BF%9B%EF%BC%9AAOF-%E9%87%8D%E5%86%99"><span class="nav-number">4.2.1.</span> <span class="nav-text">改进：AOF 重写</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%BA"><span class="nav-number">5.</span> <span class="nav-text">数据分区</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-number">6.</span> <span class="nav-text">集群搭建</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">基本对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#redisObject"><span class="nav-number">2.1.</span> <span class="nav-text">redisObject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SDS"><span class="nav-number">2.2.</span> <span class="nav-text">SDS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">4.1.</span> <span class="nav-text">消息队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">4.2.</span> <span class="nav-text">分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%B7%E5%8C%BA"><span class="nav-number">4.2.1.</span> <span class="nav-text">雷区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">5.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB"><span class="nav-number">5.1.</span> <span class="nav-text">RDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF"><span class="nav-number">5.2.</span> <span class="nav-text">AOF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%B9%E8%BF%9B%EF%BC%9AAOF-%E9%87%8D%E5%86%99"><span class="nav-number">5.2.1.</span> <span class="nav-text">改进：AOF 重写</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%BA"><span class="nav-number">6.</span> <span class="nav-text">数据分区</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-number">7.</span> <span class="nav-text">集群搭建</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -1093,6 +1208,59 @@ zset 类型相关指令：
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
