@@ -30,6 +30,16 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-encoding-embstr.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-encoding-raw.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redisobj.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-encoding-int.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/hash-encoding-ziplist.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/hash-encoding-hashtable.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/list-encoding-ziplist.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/list-encoding-linkedlist.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/set-encoding-intset.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/set-encoding-hashtable.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/zset-encoding-ziplist.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/zset-encoding-skiplist.png">
+<meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-type-encoding-mapping.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/list-message-queue.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/list-message-queue-model.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/distributed-lock.png">
@@ -39,7 +49,7 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/aof-rewrite.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-cluster.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2023-04-19T14:15:58.587Z">
+<meta property="article:modified_time" content="2023-04-19T14:29:04.867Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -498,160 +508,306 @@ mjx-container[display="true"] + br {
 <h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h1><p>Redis 作为 NoSQL 类型的内存数据库，在内存中主要以键值对（key-value）的方式存储内容：</p>
 <p><img src="/2021/07/29/redis-basics/redisobj.png" alt></p>
 <p>其中“值”（value）的类型有：</p>
-<big>**String**</big>
-* Redis 最基本的数据类型，扩展性非常高
-* 上面已经提到过了：底层为字符数组，长度不超过 512 MB
-* Redis K-V 中的 key 只能为 String 类型
-* 该类型二进制安全，可以包含任何数据，如 jpg 图像或者序列化的对象
-
-String 最简单的编码：
-
-![](redis-basics/redis-encoding-int.png)
-
-String 编码转换：
-* 当 int 数据不再是整数，或大小超过 long 范围时，String 自动转为 raw 编码方式
-* 因 embstr 的实现是只读：修改 String 的值时，要先将 embstr 转化为 raw，再进行修改
-
-String 类型相关指令：
-
-| 命令      | 解释     |
-| ---------          | ------------ |
-| set key value                     | 将对应 key 赋值为 value   |
-| get key                           | 获取 key 对应的 value 值  |
-| del key                           | 删除 key                 |
-| expire key seconds                | 设置 key 在 seconds 秒后过期         |
-| expireat key timestamp            | 设置 key 的超时时间至某个时间戳        |
-| setex key timeout value           | 如果 key 存在，则将值更新为 value，过期时间为 timeout 秒     |
-| ttl key                           | 查看 key 还有多久过期                |
-| setnx key value                   | 如果 key 不存在，就新增 key 和 value  |
-| strlen key                        | 计算 key 对应 value 的长度           |
-| incr key                          | 如果 key 对应的 value 值为 int 类型，则自增 1；否则报错      |
-| incrby key numbers                | 如果 key 对应的 value 值为 int 类型，则增加对应的值；否则报错 |
-| mset key1 value1 key2 value2 ...  | 批量添加                |
-| mget key1 key2 key3 ...           | 批量获取                |
-
-<br>
-
-<big>**Hash**</big>
-* 键值对（key-value）集合
-* 本质为 String 类型的 field 和 value 的映射表
-* 指令以 h 开头
-
-Hash 类型相关指令：
-
-| 命令        | 解释     |
-| ------------          | ------------ |
-| hset key name value                  | 添加键值对 name、value 到 key 中   |
-| hget key name                        | 查看键为 name 的 value 值         |
-| hmset key name1 value1 name2 value2  | 往 key 批量添加键值对              |
-| hmget key name1 name2                | 从 key 中批量获取值               |
-| hlen key                             | 获取 key 的键值对数目              |
-| hgetall key                          | 获取 key 中所有元素，包括键和值     |
-
-Hash 的编码：
-
-![](redis-basics/hash-encoding-ziplist.png)
-
-ziplist 编码特点：如上，所有数据内存上连续，以实现快速访问。
-
-![](redis-basics/hash-encoding-hashtable.png)
-
-当 hash 中键值对数量少于 512 个，且 key 和 value 的长度都小于某个字节长度阈值时，hash 采用 ziplist 编码，否则采用 hashtable 编码。
-
-<br>
-
-<big>**List**</big>
-* 简单的 String 列表，按照插入顺序排序
-* 可添加至列表头（左）或尾（右）
-* 相关操作指令以 l 开头
-
-List 类型相关指令：
-
-| 命令      | 解释     |
-| ---------          | ------------ |
-| lpush key value1 value2         | 往 key 的左侧插入 value1、value2 ...     |
-| rpush key value1 value2         | 往 key 的右侧插入 value1、value2 ...     |
-| lpop key                        | 从 key 的左侧弹出元素                    |
-| rpop key                        | 从 key 的右侧弹出元素                    |
-| llen key                        | 查看 key 的长度（元素个数）               |
-| lindex key index                | 查看列表 key 中某个 index 对应的值        |
-| lrange key startIndex endIndex  | 查看指定范围内元素，下标从 0 开始           |
-| ltrim key startIndex endIndex   | 保留指定范围内元素，删除其他元素；下标从 0 开始  |
-
-List 的编码：
-
-![](redis-basics/list-encoding-ziplist.png)
-
-在 Redis 3.2 之后，List 使用 quicklist 替换了原来的 ziplist；quicklist 的底层使用的还是 ziplist 的实现。
-
-![](redis-basics/list-encoding-linkedlist.png)
-
-<br>
-
-<big>**Set**</big>
-* 元素为 String 的无序不重复集合，通过哈希表实现
-* 保存数字的时候是有序的
-* 相关操作指令以 s 开头
-
-Set 类型相关指令：
-
-| 命令      | 解释     |
-| ---------          | ------------ |
-| sadd key value1 value2   | 往集合 key 中添加元素 value1、value2 ...   |
-| smembers key             | 查看集合 key 中的所有元素                  |
-| sismember key value      | 查看 value 是否在集合 key 中              |
-| scard key                | 查询集合 key 的长度                       |
-| spop key                 | 取出集合 key 的一个元素                    |
-| del key                  | 删除集合 key                             |
-
-Set 的编码：
-
-![](redis-basics/set-encoding-intset.png)
-
-存入不多于 512 个纯整数时，Set 采用 intset 编码；否则均采用 hashtable 编码。
-
-![](redis-basics/set-encoding-hashtable.png)
-
-Set 中的每个元素为 dictEntry 的 key，value 值为空。
-
-<br>
-
-<big>**zset**</big>（Sorted Set）
-* String 有序不重复集合，与 Set 类似
-* 每个元素关联一个 double 类型的权重（score），Redis 根据权重从小到大排序
-* 相关操作指令以 z 开头
-
-zset 类型相关指令：
-
-| 命令      | 解释     |
-| ---------           | ------------ |
-| zadd key score1 value1 score2 value2     | 添加元素至集合 key 中；如果 value 相同，后输入的 score 会覆盖前面的 score   |
-| zscore key value                         | 查看 value 的 score 值，输出 -∞ &lt; score &lt; +∞ 的所有元素 |
-| zrange key 0 -1                          | 正序输出                   |
-| zrangebyscore key -inf +inf              | 正序输出                   |
-| zrevrange key 0 -1                       | 倒序输出                   |
-| zcard key                                | 查看集合 key 的元素个数      |
-| zrangebyscore key indexStart indexEnd    | 输出集合 key 中 indexStart &lt;= score &lt;= indexEnd 的元素，正序排列  |
-| zrevrangebyscore key indexStart indexEnd | 输出集合 key 中 indexStart &lt;= score &lt;= indexEnd 的元素，倒序排列  |
-| zrem key value                           | 删除集合 key 中的 value     |
-
-zset 的编码：
-
-![](redis-basics/zset-encoding-ziplist.png)
-
-ZIPLIST 会按照 score 的大小排序。
-
-当数据量增大时，zset 会调整到跳表（skiplist）的编码模式：
-
-![](redis-basics/zset-encoding-skiplist.png)
-
-
-为啥每种对象类型都有至少两种编码？
-1. 接口与实现分离，当需要增加或改变内部编码时，用户使用不受影响
-2. 可根据不同应用场景切换内部编码，提高效率
-
-![](redis-basics/redis-type-encoding-mapping.png)
-
+<p><strong><big>String</big></strong></p>
+<ul>
+<li>Redis 最基本的数据类型，扩展性非常高</li>
+<li>上面已经提到过了：底层为字符数组，长度不超过 512 MB</li>
+<li>Redis K-V 中的 key 只能为 String 类型</li>
+<li>该类型二进制安全，可以包含任何数据，如 jpg 图像或者序列化的对象</li>
+</ul>
+<p>String 最简单的编码：</p>
+<p><img src="/2021/07/29/redis-basics/redis-encoding-int.png" alt></p>
+<p>String 编码转换：</p>
+<ul>
+<li>当 int 数据不再是整数，或大小超过 long 范围时，String 自动转为 raw 编码方式</li>
+<li>因 embstr 的实现是只读：修改 String 的值时，要先将 embstr 转化为 raw，再进行修改</li>
+</ul>
+<p>String 类型相关指令：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>set key value</td>
+<td>将对应 key 赋值为 value</td>
+</tr>
+<tr>
+<td>get key</td>
+<td>获取 key 对应的 value 值</td>
+</tr>
+<tr>
+<td>del key</td>
+<td>删除 key</td>
+</tr>
+<tr>
+<td>expire key seconds</td>
+<td>设置 key 在 seconds 秒后过期</td>
+</tr>
+<tr>
+<td>expireat key timestamp</td>
+<td>设置 key 的超时时间至某个时间戳</td>
+</tr>
+<tr>
+<td>setex key timeout value</td>
+<td>如果 key 存在，则将值更新为 value，过期时间为 timeout 秒</td>
+</tr>
+<tr>
+<td>ttl key</td>
+<td>查看 key 还有多久过期</td>
+</tr>
+<tr>
+<td>setnx key value</td>
+<td>如果 key 不存在，就新增 key 和 value</td>
+</tr>
+<tr>
+<td>strlen key</td>
+<td>计算 key 对应 value 的长度</td>
+</tr>
+<tr>
+<td>incr key</td>
+<td>如果 key 对应的 value 值为 int 类型，则自增 1；否则报错</td>
+</tr>
+<tr>
+<td>incrby key numbers</td>
+<td>如果 key 对应的 value 值为 int 类型，则增加对应的值；否则报错</td>
+</tr>
+<tr>
+<td>mset key1 value1 key2 value2 …</td>
+<td>批量添加</td>
+</tr>
+<tr>
+<td>mget key1 key2 key3 …</td>
+<td>批量获取</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><br></p>
+<p><strong><big>Hash</big></strong></p>
+<ul>
+<li>键值对（key-value）集合</li>
+<li>本质为 String 类型的 field 和 value 的映射表</li>
+<li>指令以 h 开头</li>
+</ul>
+<p>Hash 类型相关指令：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hset key name value</td>
+<td>添加键值对 name、value 到 key 中</td>
+</tr>
+<tr>
+<td>hget key name</td>
+<td>查看键为 name 的 value 值</td>
+</tr>
+<tr>
+<td>hmset key name1 value1 name2 value2</td>
+<td>往 key 批量添加键值对</td>
+</tr>
+<tr>
+<td>hmget key name1 name2</td>
+<td>从 key 中批量获取值</td>
+</tr>
+<tr>
+<td>hlen key</td>
+<td>获取 key 的键值对数目</td>
+</tr>
+<tr>
+<td>hgetall key</td>
+<td>获取 key 中所有元素，包括键和值</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Hash 的编码：</p>
+<p><img src="/2021/07/29/redis-basics/hash-encoding-ziplist.png" alt></p>
+<p>ziplist 编码特点：如上，所有数据内存上连续，以实现快速访问。</p>
+<p><img src="/2021/07/29/redis-basics/hash-encoding-hashtable.png" alt></p>
+<p>当 hash 中键值对数量少于 512 个，且 key 和 value 的长度都小于某个字节长度阈值时，hash 采用 ziplist 编码，否则采用 hashtable 编码。</p>
+<p><br></p>
+<p><strong><big>List</big></strong></p>
+<ul>
+<li>简单的 String 列表，按照插入顺序排序</li>
+<li>可添加至列表头（左）或尾（右）</li>
+<li>相关操作指令以 l 开头</li>
+</ul>
+<p>List 类型相关指令：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lpush key value1 value2</td>
+<td>往 key 的左侧插入 value1、value2 …</td>
+</tr>
+<tr>
+<td>rpush key value1 value2</td>
+<td>往 key 的右侧插入 value1、value2 …</td>
+</tr>
+<tr>
+<td>lpop key</td>
+<td>从 key 的左侧弹出元素</td>
+</tr>
+<tr>
+<td>rpop key</td>
+<td>从 key 的右侧弹出元素</td>
+</tr>
+<tr>
+<td>llen key</td>
+<td>查看 key 的长度（元素个数）</td>
+</tr>
+<tr>
+<td>lindex key index</td>
+<td>查看列表 key 中某个 index 对应的值</td>
+</tr>
+<tr>
+<td>lrange key startIndex endIndex</td>
+<td>查看指定范围内元素，下标从 0 开始</td>
+</tr>
+<tr>
+<td>ltrim key startIndex endIndex</td>
+<td>保留指定范围内元素，删除其他元素；下标从 0 开始</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>List 的编码：</p>
+<p><img src="/2021/07/29/redis-basics/list-encoding-ziplist.png" alt></p>
+<p>在 Redis 3.2 之后，List 使用 quicklist 替换了原来的 ziplist；quicklist 的底层使用的还是 ziplist 的实现。</p>
+<p><img src="/2021/07/29/redis-basics/list-encoding-linkedlist.png" alt></p>
+<p><br></p>
+<p><strong><big>Set</big></strong></p>
+<ul>
+<li>元素为 String 的无序不重复集合，通过哈希表实现</li>
+<li>保存数字的时候是有序的</li>
+<li>相关操作指令以 s 开头</li>
+</ul>
+<p>Set 类型相关指令：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sadd key value1 value2</td>
+<td>往集合 key 中添加元素 value1、value2 …</td>
+</tr>
+<tr>
+<td>smembers key</td>
+<td>查看集合 key 中的所有元素</td>
+</tr>
+<tr>
+<td>sismember key value</td>
+<td>查看 value 是否在集合 key 中</td>
+</tr>
+<tr>
+<td>scard key</td>
+<td>查询集合 key 的长度</td>
+</tr>
+<tr>
+<td>spop key</td>
+<td>取出集合 key 的一个元素</td>
+</tr>
+<tr>
+<td>del key</td>
+<td>删除集合 key</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Set 的编码：</p>
+<p><img src="/2021/07/29/redis-basics/set-encoding-intset.png" alt></p>
+<p>存入不多于 512 个纯整数时，Set 采用 intset 编码；否则均采用 hashtable 编码。</p>
+<p><img src="/2021/07/29/redis-basics/set-encoding-hashtable.png" alt></p>
+<p>Set 中的每个元素为 dictEntry 的 key，value 值为空。</p>
+<p><br></p>
+<p><strong><big>zset</big></strong>（Sorted Set）</p>
+<ul>
+<li>String 有序不重复集合，与 Set 类似</li>
+<li>每个元素关联一个 double 类型的权重（score），Redis 根据权重从小到大排序</li>
+<li>相关操作指令以 z 开头</li>
+</ul>
+<p>zset 类型相关指令：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>zadd key score1 value1 score2 value2</td>
+<td>添加元素至集合 key 中；如果 value 相同，后输入的 score 会覆盖前面的 score</td>
+</tr>
+<tr>
+<td>zscore key value</td>
+<td>查看 value 的 score 值，输出 -∞ &lt; score &lt; +∞ 的所有元素</td>
+</tr>
+<tr>
+<td>zrange key 0 -1</td>
+<td>正序输出</td>
+</tr>
+<tr>
+<td>zrangebyscore key -inf +inf</td>
+<td>正序输出</td>
+</tr>
+<tr>
+<td>zrevrange key 0 -1</td>
+<td>倒序输出</td>
+</tr>
+<tr>
+<td>zcard key</td>
+<td>查看集合 key 的元素个数</td>
+</tr>
+<tr>
+<td>zrangebyscore key indexStart indexEnd</td>
+<td>输出集合 key 中 indexStart &lt;= score &lt;= indexEnd 的元素，正序排列</td>
+</tr>
+<tr>
+<td>zrevrangebyscore key indexStart indexEnd</td>
+<td>输出集合 key 中 indexStart &lt;= score &lt;= indexEnd 的元素，倒序排列</td>
+</tr>
+<tr>
+<td>zrem key value</td>
+<td>删除集合 key 中的 value</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>zset 的编码：</p>
+<p><img src="/2021/07/29/redis-basics/zset-encoding-ziplist.png" alt></p>
+<p>ZIPLIST 会按照 score 的大小排序。</p>
+<p>当数据量增大时，zset 会调整到跳表（skiplist）的编码模式：</p>
+<p><img src="/2021/07/29/redis-basics/zset-encoding-skiplist.png" alt></p>
+<p>为啥每种对象类型都有至少两种编码？</p>
+<ol>
+<li>接口与实现分离，当需要增加或改变内部编码时，用户使用不受影响</li>
+<li>可根据不同应用场景切换内部编码，提高效率</li>
+</ol>
+<p><img src="/2021/07/29/redis-basics/redis-type-encoding-mapping.png" alt></p>
 <table>
     <tr>
         <th>类型</th>
@@ -715,44 +871,37 @@ ZIPLIST 会按照 score 的大小排序。
     </tr>
 </table>
 
-编码转换在 Redis 写入数据时完成，而且转换过程是不可逆的，只能从小内存编码向大内存编码转换。
-
-<br>
-
-# 内存模型
-
-通过 `info memory` 来看 Redis 的内存统计：
-
+<p>编码转换在 Redis 写入数据时完成，而且转换过程是不可逆的，只能从小内存编码向大内存编码转换。</p>
+<p><br></p>
+<h1 id="内存模型"><a href="#内存模型" class="headerlink" title="内存模型"></a>内存模型</h1><p>通过 <code>info memory</code> 来看 Redis 的内存统计：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; info memory</span><br><span class="line"></span><br><span class="line"><span class="comment"># Memory</span></span><br><span class="line">used_memory:199960008</span><br><span class="line">used_memory_human:190.70M</span><br><span class="line">used_memory_rss:213798912</span><br><span class="line">used_memory_peak:201290832</span><br><span class="line">used_memory_peak_human:191.97M</span><br><span class="line">used_memory_lua:37888</span><br><span class="line">mem_fragmentation_ratio:1.07</span><br><span class="line">mem_allocator:jemalloc-5.1.0</span><br></pre></td></tr></table></figure>
-
-内存统计中各字段的含义：
-
-`used_memory`：Redis 内存分配器分配的内存总量（Byte），包括使用的虚拟内存（swap）。
-
-`used_memory_human`：used_memory 更友好的显示方式。
-
-`used_memory_rss`：Redis 进程占据操作系统的内存（Byte），与 top 和 ps 命令看到的值是一样的，包括：
-* Redis 内存分配器分配的内存
-* Redis 进程运行本身需要的内存
-* 内存碎片
-* ...
-
-但并不包括虚拟内存。
-
-注：`used_memory` 是从 Redis 得到的数量，而 `used_memory_rss` 则是从操作系统角度得到的量。两者的值不一样，是因为：
-1. Redis 进程运行需要占用内存，且存在着内存碎片的时候：前者会比后者小
-2. 当存在虚拟内存：前者会比后者大
-
-`mem_fragmentation_ratio`：内存碎片比率，等于 used_memory_rss / used_memory。
-* 数值一般大于 1，1.03 为比较健康的状态；比率越大，内存碎片的占比就越大
-* 数值小于 1，说明 Redis 使用了虚拟内存：要及时排查
-* 在实际应用中，当 Redis 的数据量比较大时，进程运行所占用的内存与 Redis 数据量和内存碎片相比会小很多。
-
-`mem_allocator`：定义 Redis 使用的内存分配器，在编译时指定
-* 可以是 libc, jemalloc 或 tcmalloc，默认使用 jemalloc
-
-以 jemalloc 为例：将内存空间划分为小、大、巨大三个范围，每个范围内划分许多小的内存块单位：
-
+<p>内存统计中各字段的含义：</p>
+<p><code>used_memory</code>：Redis 内存分配器分配的内存总量（Byte），包括使用的虚拟内存（swap）。</p>
+<p><code>used_memory_human</code>：used_memory 更友好的显示方式。</p>
+<p><code>used_memory_rss</code>：Redis 进程占据操作系统的内存（Byte），与 top 和 ps 命令看到的值是一样的，包括：</p>
+<ul>
+<li>Redis 内存分配器分配的内存</li>
+<li>Redis 进程运行本身需要的内存</li>
+<li>内存碎片</li>
+<li>…</li>
+</ul>
+<p>但并不包括虚拟内存。</p>
+<p>注：<code>used_memory</code> 是从 Redis 得到的数量，而 <code>used_memory_rss</code> 则是从操作系统角度得到的量。两者的值不一样，是因为：</p>
+<ol>
+<li>Redis 进程运行需要占用内存，且存在着内存碎片的时候：前者会比后者小</li>
+<li>当存在虚拟内存：前者会比后者大</li>
+</ol>
+<p><code>mem_fragmentation_ratio</code>：内存碎片比率，等于 used_memory_rss / used_memory。</p>
+<ul>
+<li>数值一般大于 1，1.03 为比较健康的状态；比率越大，内存碎片的占比就越大</li>
+<li>数值小于 1，说明 Redis 使用了虚拟内存：要及时排查</li>
+<li>在实际应用中，当 Redis 的数据量比较大时，进程运行所占用的内存与 Redis 数据量和内存碎片相比会小很多。</li>
+</ul>
+<p><code>mem_allocator</code>：定义 Redis 使用的内存分配器，在编译时指定</p>
+<ul>
+<li>可以是 libc, jemalloc 或 tcmalloc，默认使用 jemalloc</li>
+</ul>
+<p>以 jemalloc 为例：将内存空间划分为小、大、巨大三个范围，每个范围内划分许多小的内存块单位：</p>
 <table>
     <tr>
         <th>Category</th>
@@ -800,60 +949,52 @@ ZIPLIST 会按照 score 的大小排序。
     </tr>
 </table>
 
-<br>
-
-综上，Redis 的内存占用主要有以下部分：
-
-**1. 数据**
-* 最主要的部分，其占用的内存被统计在 used_memory 中
-* 每种数据类型可能有两种或更多的内部编码实现
-* 存储数据对象时，并不是直接将数据扔进内存，而是对对象进行各种包装：如 redisObject、SDS 等
-
-**2. 进程本身运行需要的内存**
-* 包括代码、常量池等内容，不由 jemalloc 去分配，因此不会统计在 used_memory 中
-* 在大多数场景中，这部分的内存占用可忽略
-* 除主进程外，Redis 创建的子进程（如执行 AOF、RDB 重写时创建的子进程）也会占用内存：
-    * 这部分内存并不属于 Redis 进程，因此不会统计在 used_memory 和 used_memory_rss 中
-
-**3. 缓冲内存**，包括：
-* 客户端缓冲区：存储客户端连接的输入输出缓冲
-* 复制积压缓冲区：用于部分复制功能
-* AOF 缓冲区：在进行 AOF 重写时，保存最近的写入命令
-* ...
-
-**4. 内存碎片**：Redis 分配、回收物理内存过程中产生的。
-
-产生的原因：  
-比如：对内存中的数据更改频繁，且数据之间的大小相差很大，会导致 Redis 释放的空间在物理内存中并没有释放，但 Redis 又无法有效利用这些物理内存。由此便会产生内存碎片。
-
-内存碎片的产生，和对数据进行的操作、数据的特点等有关；也和使用的内存分配器有关。
-* 如内存分配器设计合理，可以尽可能减少内存碎片产生
-* 如内存碎片很大，可以通过安全重启减小内存碎片：重启后 Redis 重新从备份文件中读取数据，在内存中进行重排
-
-内存碎片不会被统计在 used_memory 中。
-
-
-## 数据存储的细节
-
-`dictEntry` 对应的是 Redis 的每个键值对，存储着指向 key 和 val 的指针；  
-其中 val 的数据结构是一个联合体（union）。  
-另外，每一个 dictEntry 都有一个 next 指针指向下一个 dictEntry。
-
-例：
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> hello world</span><br></pre></td></tr></table></figure>
-* key 为 "hello"：存储于 SDS 中
-* val 为 "world"：存储于 redisObject 中
-    * 字符串对象 "world" 存储于 SDS
-    * `type`：指明 val 对象的类型；因为指令是 set，所以对应类型为 REDIS_STRING
-    * `ptr`：指向字符串对象所在地址
-* Redis 的内存分配器分配内存：dictEntry 有三个指针，占用 24 字节，分配器就会分配 32 字节。
-
-<br>
-
-# 优点
-
-最大的优点：<big>**快**</big>
-
+<p><br></p>
+<p>综上，Redis 的内存占用主要有以下部分：</p>
+<p><strong>1. 数据</strong></p>
+<ul>
+<li>最主要的部分，其占用的内存被统计在 used_memory 中</li>
+<li>每种数据类型可能有两种或更多的内部编码实现</li>
+<li>存储数据对象时，并不是直接将数据扔进内存，而是对对象进行各种包装：如 redisObject、SDS 等</li>
+</ul>
+<p><strong>2. 进程本身运行需要的内存</strong></p>
+<ul>
+<li>包括代码、常量池等内容，不由 jemalloc 去分配，因此不会统计在 used_memory 中</li>
+<li>在大多数场景中，这部分的内存占用可忽略</li>
+<li>除主进程外，Redis 创建的子进程（如执行 AOF、RDB 重写时创建的子进程）也会占用内存：<ul>
+<li>这部分内存并不属于 Redis 进程，因此不会统计在 used_memory 和 used_memory_rss 中</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 缓冲内存</strong>，包括：</p>
+<ul>
+<li>客户端缓冲区：存储客户端连接的输入输出缓冲</li>
+<li>复制积压缓冲区：用于部分复制功能</li>
+<li>AOF 缓冲区：在进行 AOF 重写时，保存最近的写入命令</li>
+<li>…</li>
+</ul>
+<p><strong>4. 内存碎片</strong>：Redis 分配、回收物理内存过程中产生的。</p>
+<p>产生的原因：<br>比如：对内存中的数据更改频繁，且数据之间的大小相差很大，会导致 Redis 释放的空间在物理内存中并没有释放，但 Redis 又无法有效利用这些物理内存。由此便会产生内存碎片。</p>
+<p>内存碎片的产生，和对数据进行的操作、数据的特点等有关；也和使用的内存分配器有关。</p>
+<ul>
+<li>如内存分配器设计合理，可以尽可能减少内存碎片产生</li>
+<li>如内存碎片很大，可以通过安全重启减小内存碎片：重启后 Redis 重新从备份文件中读取数据，在内存中进行重排</li>
+</ul>
+<p>内存碎片不会被统计在 used_memory 中。</p>
+<h2 id="数据存储的细节"><a href="#数据存储的细节" class="headerlink" title="数据存储的细节"></a>数据存储的细节</h2><p><code>dictEntry</code> 对应的是 Redis 的每个键值对，存储着指向 key 和 val 的指针；<br>其中 val 的数据结构是一个联合体（union）。<br>另外，每一个 dictEntry 都有一个 next 指针指向下一个 dictEntry。</p>
+<p>例：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> hello world</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>key 为 “hello”：存储于 SDS 中</li>
+<li>val 为 “world”：存储于 redisObject 中<ul>
+<li>字符串对象 “world” 存储于 SDS</li>
+<li><code>type</code>：指明 val 对象的类型；因为指令是 set，所以对应类型为 REDIS_STRING</li>
+<li><code>ptr</code>：指向字符串对象所在地址</li>
+</ul>
+</li>
+<li>Redis 的内存分配器分配内存：dictEntry 有三个指针，占用 24 字节，分配器就会分配 32 字节。</li>
+</ul>
+<p><br></p>
+<h1 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h1><p>最大的优点：<big><strong>快</strong></big></p>
 <p>Redis 是单进程单线程的模型，对于数据的操作完全基于内存，因此 CPU 不是瓶颈；而且单线程容易实现。</p>
 <p>为何 Redis 是单线程模型，处理起来还仍然这么快？</p>
 <ul>
@@ -1060,7 +1201,7 @@ ZIPLIST 会按照 score 的大小排序。
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">基本对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#redisObject"><span class="nav-number">2.1.</span> <span class="nav-text">redisObject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SDS"><span class="nav-number">2.2.</span> <span class="nav-text">SDS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">4.1.</span> <span class="nav-text">消息队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">4.2.</span> <span class="nav-text">分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%B7%E5%8C%BA"><span class="nav-number">4.2.1.</span> <span class="nav-text">雷区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">5.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB"><span class="nav-number">5.1.</span> <span class="nav-text">RDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF"><span class="nav-number">5.2.</span> <span class="nav-text">AOF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%B9%E8%BF%9B%EF%BC%9AAOF-%E9%87%8D%E5%86%99"><span class="nav-number">5.2.1.</span> <span class="nav-text">改进：AOF 重写</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%BA"><span class="nav-number">6.</span> <span class="nav-text">数据分区</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-number">7.</span> <span class="nav-text">集群搭建</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">基本对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#redisObject"><span class="nav-number">2.1.</span> <span class="nav-text">redisObject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SDS"><span class="nav-number">2.2.</span> <span class="nav-text">SDS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%9A%84%E7%BB%86%E8%8A%82"><span class="nav-number">4.1.</span> <span class="nav-text">数据存储的细节</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">6.1.</span> <span class="nav-text">消息队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">6.2.</span> <span class="nav-text">分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%B7%E5%8C%BA"><span class="nav-number">6.2.1.</span> <span class="nav-text">雷区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">7.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB"><span class="nav-number">7.1.</span> <span class="nav-text">RDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF"><span class="nav-number">7.2.</span> <span class="nav-text">AOF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%B9%E8%BF%9B%EF%BC%9AAOF-%E9%87%8D%E5%86%99"><span class="nav-number">7.2.1.</span> <span class="nav-text">改进：AOF 重写</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%BA"><span class="nav-number">8.</span> <span class="nav-text">数据分区</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-number">9.</span> <span class="nav-text">集群搭建</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
