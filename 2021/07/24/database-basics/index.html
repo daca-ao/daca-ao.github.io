@@ -28,7 +28,7 @@
 <meta property="og:description" content="我们平日里说得很多的数据库，指的是能够以一定方式（数据结构）去组织、储存在一起，能为多个用户共享，具有尽可能小的冗余度，并且能够与应用程序彼此独立的数据集合。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-23T17:26:50.000Z">
-<meta property="article:modified_time" content="2021-07-24T04:04:52.623Z">
+<meta property="article:modified_time" content="2023-04-23T15:26:23.656Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary">
@@ -236,7 +236,7 @@
         <p>我们平日里说得很多的数据库，指的是能够以一定方式（数据结构）去组织、储存在一起，能为多个用户共享，具有尽可能小的冗余度，并且能够与应用程序彼此独立的数据集合。</p>
 <span id="more"></span>
 <p>每个数据库都有一个或多个不同的 API 用于创建、访问、管理、搜索和复制所保存的数据。</p>
-<h1 id="数据库表"><a href="#数据库表" class="headerlink" title="数据库表"></a>数据库表</h1><p>一个数据库通常包含有一个或者多个表</p>
+<h1 id="数据库表"><a href="#数据库表" class="headerlink" title="数据库表"></a>数据库表</h1><p>一个数据库通常包含有一个或者多个<strong>表</strong></p>
 <ul>
 <li>表是一种数据结构，是相关数据项的集合，由<strong>列</strong>和<strong>行</strong>组成</li>
 <li>每一个表由一个名字标识（如“客户”、“订单”）</li>
@@ -256,7 +256,7 @@
 <li>实体所具有的某一属性</li>
 <li>如：“公司名”、“地址”等都是实体“公司”的属性</li>
 </ul>
-<p><strong>码</strong>，也称<strong>主键</strong></p>
+<p><strong>主键</strong>，也称<strong>码</strong></p>
 <ul>
 <li>表中可以唯一确定一行数据的某个属性（或属性组）</li>
 <li>如 [员工号]、[员工号, 绩效评定月份]</li>
@@ -280,7 +280,7 @@
 <li>冗余：存储两倍数据，可使系统速度更快</li>
 <li>外键：关联两张表的标识</li>
 <li>复合键：将多个列作为一个索引</li>
-<li>索引：对数据表中一列或多列的值进行排序的结构，类似于目录</li>
+<li><strong><a href="/2021/07/28/db-index">索引</a></strong>：对数据表中一列或多列的值进行排序的结构，类似于目录</li>
 <li>参照完整性：要求关系中不允许引用不存在的实体；与实体完整性时关系模型必须满足的完整性约束条件</li>
 </ul>
 <h1 id="关系型数据库"><a href="#关系型数据库" class="headerlink" title="关系型数据库"></a>关系型数据库</h1><p>指的是采用了关系模型（二维表格模型）来组织数据的数据库。</p>
@@ -291,32 +291,22 @@
 <li>易于维护：丰富的完整性（实体完整性、参照完整性和用户定义的完整性）定义大大减低了数据冗余和数据不一致的概率</li>
 </ol>
 <p><strong>关系型数据库管理系统</strong>（Relational Database Management System,  <strong>RDBMS</strong>），是 SQL 的基础，也是所有现代数据库系统的基础。<br>市面上流行的所有数据库系统，包括 MS Access, SQL Server, IBM DB2, MySQL 等等，都是基于 RDBMS 来开发的。</p>
-<h2 id="关系型数据库中数据表的关系"><a href="#关系型数据库中数据表的关系" class="headerlink" title="关系型数据库中数据表的关系"></a>关系型数据库中数据表的关系</h2><p><strong>函数依赖</strong></p>
+<h2 id="关系型数据库中数据表的关系"><a href="#关系型数据库中数据表的关系" class="headerlink" title="关系型数据库中数据表的关系"></a>关系型数据库中数据表的关系</h2><h3 id="函数依赖"><a href="#函数依赖" class="headerlink" title="函数依赖"></a><strong>函数依赖</strong></h3><p>在一张表中，如果在属性（或属性组）X 完全确定时，必定能确定属性 Y 的值</p>
 <ul>
-<li>在一张表中，如果在属性（或属性组）X 完全确定时，必定能确定属性 Y 的值<ul>
 <li>那么在该数据表中，不会存在任意两条记录，它们在 X 属性（或属性组）上的值相同，而在 Y 属性上的值不同</li>
 <li>即 Y 函数依赖于 X，X → Y，X 与 Y 一一对应</li>
 </ul>
-</li>
-</ul>
-<p><strong>完全函数依赖</strong></p>
+<h3 id="完全函数依赖"><a href="#完全函数依赖" class="headerlink" title="完全函数依赖"></a><strong>完全函数依赖</strong></h3><p>如存在 X → Y，且：</p>
 <ul>
-<li>如存在 X → Y，且：<ul>
 <li>对 X 任意一个真子集 X’，都不存在 X‘ → Y，则 X → Y 是一个完全函数依赖</li>
-</ul>
-</li>
 <li>非正式记法：X &gt;&gt; Y</li>
 </ul>
-<p><strong>部分函数依赖</strong></p>
+<h3 id="部分函数依赖"><a href="#部分函数依赖" class="headerlink" title="部分函数依赖"></a><strong>部分函数依赖</strong></h3><p>如存在 X → Y，且：</p>
 <ul>
-<li>如存在 X → Y，且：<ul>
 <li>在 X 中存在一个真子集 X’，使 X‘ → Y，则 X → Y 是一个部分函数依赖</li>
-</ul>
-</li>
 <li>非正式记法：X &gt; Y</li>
 </ul>
-<p><strong>传递函数依赖</strong></p>
-<ul>
+<h3 id="传递函数依赖"><a href="#传递函数依赖" class="headerlink" title="传递函数依赖"></a><strong>传递函数依赖</strong></h3><ul>
 <li>如果 X → Y，Y → Z，且 Y 不属于 X，Y → X 不成立<ul>
 <li>称 Z 传递函数依赖于 X</li>
 <li>非正式记法：X &gt;&gt;&gt; Z</li>
@@ -371,21 +361,7 @@
 </li>
 </ul>
 <p>此外还有 4NF，5NF（完美范式），6NF 等，但是对于绝大多数场景的数据库设计来说，能做到 3NF 已经基本足够。</p>
-<p>另：<strong>反范式</strong></p>
-<p>背景：没有冗余的数据库未必是最好的数据库</p>
-<ul>
-<li>有时为了提高运行效率，必须降低范式标准，适当保留冗余数据</li>
-</ul>
-<p>通过在表中增加冗余或重复的数据提高数据库读写性能：</p>
-<ul>
-<li>概念数据模型设计时：遵守第三范式</li>
-<li>物理数据模型设计时：降低范式标准<ul>
-<li>增加字段，减少查询时的关联，提高效率</li>
-</ul>
-</li>
-<li>一定要适度</li>
-</ul>
-<p>范式的优点：</p>
+<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><p>范式的优点：</p>
 <ul>
 <li>范式化的数据库更新起来更快</li>
 <li>范式化之后，只有很少的重复数据，只需要修改更少的数据</li>
@@ -400,6 +376,15 @@
 </ul>
 </li>
 </ul>
+<h2 id="反范式"><a href="#反范式" class="headerlink" title="反范式"></a>反范式</h2><p>没有冗余的数据库未必是最好的数据库；有时为了提高运行效率，必须降低范式标准，适当保留冗余数据。</p>
+<p>我们可以通过在表中增加冗余或重复的数据提高数据库读写性能：</p>
+<ul>
+<li>概念数据模型设计时：遵守第三范式</li>
+<li>物理数据模型设计时：降低范式标准<ul>
+<li>增加字段，减少查询时的关联，提高效率</li>
+</ul>
+</li>
+</ul>
 <p>反范式的优点：</p>
 <ul>
 <li>避免关联：因为所有的数据几乎都可在一张表上显示</li>
@@ -407,7 +392,8 @@
 </ul>
 <p>反范式的缺点：</p>
 <ul>
-<li>表格内冗余较多，删除数据时会造成表有些有用的信息丢失</li>
+<li>表格内冗余较多，删除数据时会造成表有些有用的信息丢失；</li>
+<li>因此反范式<strong>一定要适度</strong></li>
 </ul>
 <p>实际的应用往往是混用范式和反范式。</p>
 
@@ -493,7 +479,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">数据库表</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%B8%E5%85%B3%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">数据库相关的基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">关系型数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">3.1.</span> <span class="nav-text">关系型数据库中数据表的关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8C%83%E5%BC%8F%EF%BC%88normalization%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">范式（normalization）</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">数据库表</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%B8%E5%85%B3%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">数据库相关的基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">关系型数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%AD%E6%95%B0%E6%8D%AE%E8%A1%A8%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">3.1.</span> <span class="nav-text">关系型数据库中数据表的关系</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E4%BE%9D%E8%B5%96"><span class="nav-number">3.1.1.</span> <span class="nav-text">函数依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E5%85%A8%E5%87%BD%E6%95%B0%E4%BE%9D%E8%B5%96"><span class="nav-number">3.1.2.</span> <span class="nav-text">完全函数依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0%E4%BE%9D%E8%B5%96"><span class="nav-number">3.1.3.</span> <span class="nav-text">部分函数依赖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E9%80%92%E5%87%BD%E6%95%B0%E4%BE%9D%E8%B5%96"><span class="nav-number">3.1.4.</span> <span class="nav-text">传递函数依赖</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8C%83%E5%BC%8F%EF%BC%88normalization%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">范式（normalization）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">3.2.1.</span> <span class="nav-text">优缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8D%E8%8C%83%E5%BC%8F"><span class="nav-number">3.3.</span> <span class="nav-text">反范式</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
