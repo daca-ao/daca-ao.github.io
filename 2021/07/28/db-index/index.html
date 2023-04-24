@@ -28,7 +28,7 @@
 <meta property="og:description" content="数据库索引的本质是一种数据结构。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-28T15:08:51.000Z">
-<meta property="article:modified_time" content="2023-04-23T15:13:26.060Z">
+<meta property="article:modified_time" content="2023-04-23T15:40:10.704Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary">
@@ -273,10 +273,13 @@
 <p>如上，联合索引 <code>test_col1_col2_col3</code> 实际上建立了 <code>(col1)</code> <code>(col1,col2)</code> 和 <code>(col1,col2,col3)</code> 三个索引。</p>
 <p>如下面这个查询语句：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> test <span class="keyword">WHERE</span> col1<span class="operator">=</span>&quot;1&quot; <span class="keyword">AND</span> col2<span class="operator">=</span>&quot;2&quot; <span class="keyword">AND</span> col4<span class="operator">=</span>&quot;4&quot;;</span><br></pre></td></tr></table></figure>
-<p>执行搜索的时候会根据<strong>最左前缀匹配原则</strong>，使用索引 <code>(col1,col2)</code> 进行数据匹配。</p>
-<p>如果 SQL 语句只按照 col2 或 col3 进行查询，那么查询不会使用这个索引。</p>
-<p>这是因为数据库在建立索引时会将索引按照列的顺序进行排序，而查询时必须按照索引列的顺序依次查询。因此，只有在查询中按照索引最左边的列开始进行查询时，才能利用到这个索引。如果查询中没有按照索引最左边的列开始查询，那么即使这个索引存在，也不会被使用。</p>
-<p>最左匹配原则的应用可以提高查询效率，减少数据库系统的负载，特别是当数据库中有大量数据时。因此，在设计复合索引时，要考虑到查询中最常用的条件，将这些条件放在索引的最左边，可以使得查询效率更高。</p>
+<p>执行搜索的时候会根据<strong>最左前缀匹配原则</strong>（col1 在最左，col2 次之，col3 在最右），使用索引 <code>(col1,col2)</code> 进行数据匹配。</p>
+<p>如果 SQL 语句只按照 col2 或 col3 进行查询，那么查询不会使用这个联合索引。</p>
+<p>这是因为数据库在建立索引时会将索引按照列的顺序进行排序，而查询时必须按照索引声明时<strong>列的顺序</strong>依次查询。因此，只有在查询中按照<strong>索引最左边的列</strong>开始进行查询时，才能利用到这个索引。如果查询中没有按照索引最左边的列开始查询，那么即使这个索引存在，也不会被使用。</p>
+<p>如果查询时候使用的条件是 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">col2<span class="operator">=</span>&quot;1&quot; <span class="keyword">AND</span> col1<span class="operator">=</span>&quot;2&quot;</span><br></pre></td></tr></table></figure>
+<p>优化器会<strong>自动优化</strong>为匹配联合索引的顺序，此时同样能命中索引。</p>
+<p>最左匹配原则的应用可以提高查询效率，特别是当数据库中有大量数据时，能减少数据库系统的负载。因此，在设计复合索引时，要考虑到查询中最常用的条件，将这些条件放在索引的最左边，可以使得查询效率更高。</p>
 <h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>采用的数据结构：B-Tree</p>
 <p>为什么不使用 Hash 搜索呢？</p>
 <p>Hash 的查询、插入、修改、删除的平均时间为 <code>O(1)</code>，而树的对应复杂度则为 <code>O(log(n))</code>。<br>对于单行查询的需求，Hash 索引更快；但 SQL 的应用场景多为排序（order by）、分组（group by）和比较大小等操作，如果仍然使用 Hash，时间会退化为 <code>O(n)</code>。<br>所以根据 SQL 的需求，索引一般设计为树的数据结构。</p>
