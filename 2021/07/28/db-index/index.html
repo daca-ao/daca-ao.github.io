@@ -28,7 +28,7 @@
 <meta property="og:description" content="数据库索引的本质是一种数据结构。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-28T15:08:51.000Z">
-<meta property="article:modified_time" content="2023-04-23T15:40:10.704Z">
+<meta property="article:modified_time" content="2023-04-26T14:16:42.264Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary">
@@ -77,7 +77,119 @@
   </style>
 </noscript>
 
-</head>
+<style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container use-motion">
@@ -235,9 +347,9 @@
       
         <p>数据库索引的本质是一种数据结构。</p>
 <span id="more"></span>
-<p>索引是定义在<strong>数据表</strong>的基础之上的，包括某个表中一列或若干列值，以及指向相对应数据页的逻辑指针。</p>
+<p>索引是定义在<strong>数据表</strong>的基础之上的，包括某个表中一列或若干列值，以及<strong>指向相对应数据页</strong>的逻辑指针。</p>
 <p>建立索引的意义，在于能够通过缩小一张表中需要查询的记录/行的数目，来加快搜索所需数据的速度。<br>相当于图书的目录，可根据目录的页码快速找到所需内容。</p>
-<p>一个好的数据库表设计，从一开始就应考虑添加索引。<br>因为索引数据的存储是有序的，通过查询索引数据去找东西，不需要遍历所有记录。<br>最极端情况也就是：索引查询的效率等于二分法查询，趋近于 <code>log2(N)</code>。</p>
+<p>一个好的数据库表设计，从一开始就应考虑添加索引。<br>因为索引数据的存储是有序的，通过查询索引数据去找东西，不需要遍历所有记录；最极端情况也就是：索引查询的效率等于二分法查询，趋近于 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="6.62ex" height="2.262ex" role="img" focusable="false" viewbox="0 -750 2926 1000"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D459" d="M117 59Q117 26 142 26Q179 26 205 131Q211 151 215 152Q217 153 225 153H229Q238 153 241 153T246 151T248 144Q247 138 245 128T234 90T214 43T183 6T137 -11Q101 -11 70 11T38 85Q38 97 39 102L104 360Q167 615 167 623Q167 626 166 628T162 632T157 634T149 635T141 636T132 637T122 637Q112 637 109 637T101 638T95 641T94 647Q94 649 96 661Q101 680 107 682T179 688Q194 689 213 690T243 693T254 694Q266 694 266 686Q266 675 193 386T118 83Q118 81 118 75T117 65V59Z"/></g><g data-mml-node="mi" transform="translate(298,0)"><path data-c="1D45C" d="M201 -11Q126 -11 80 38T34 156Q34 221 64 279T146 380Q222 441 301 441Q333 441 341 440Q354 437 367 433T402 417T438 387T464 338T476 268Q476 161 390 75T201 -11ZM121 120Q121 70 147 48T206 26Q250 26 289 58T351 142Q360 163 374 216T388 308Q388 352 370 375Q346 405 306 405Q243 405 195 347Q158 303 140 230T121 120Z"/></g><g data-mml-node="mi" transform="translate(783,0)"><path data-c="1D454" d="M311 43Q296 30 267 15T206 0Q143 0 105 45T66 160Q66 265 143 353T314 442Q361 442 401 394L404 398Q406 401 409 404T418 412T431 419T447 422Q461 422 470 413T480 394Q480 379 423 152T363 -80Q345 -134 286 -169T151 -205Q10 -205 10 -137Q10 -111 28 -91T74 -71Q89 -71 102 -80T116 -111Q116 -121 114 -130T107 -144T99 -154T92 -162L90 -164H91Q101 -167 151 -167Q189 -167 211 -155Q234 -144 254 -122T282 -75Q288 -56 298 -13Q311 35 311 43ZM384 328L380 339Q377 350 375 354T369 368T359 382T346 393T328 402T306 405Q262 405 221 352Q191 313 171 233T151 117Q151 38 213 38Q269 38 323 108L331 118L384 328Z"/></g><g data-mml-node="mo" transform="translate(1260,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="mi" transform="translate(1649,0)"><path data-c="1D441" d="M234 637Q231 637 226 637Q201 637 196 638T191 649Q191 676 202 682Q204 683 299 683Q376 683 387 683T401 677Q612 181 616 168L670 381Q723 592 723 606Q723 633 659 637Q635 637 635 648Q635 650 637 660Q641 676 643 679T653 683Q656 683 684 682T767 680Q817 680 843 681T873 682Q888 682 888 672Q888 650 880 642Q878 637 858 637Q787 633 769 597L620 7Q618 0 599 0Q585 0 582 2Q579 5 453 305L326 604L261 344Q196 88 196 79Q201 46 268 46H278Q284 41 284 38T282 19Q278 6 272 0H259Q228 2 151 2Q123 2 100 2T63 2T46 1Q31 1 31 10Q31 14 34 26T39 40Q41 46 62 46Q130 49 150 85Q154 91 221 362L289 634Q287 635 234 637Z"/></g><g data-mml-node="mo" transform="translate(2537,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g></g></g></svg></mjx-container>。</p>
 <h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>索引最大的优点，是能够大大加快数据的检索速度。这是创建索引的最主要原因。</p>
 <ul>
 <li>通过创建唯一性索引，可保证数据库表中每一行数据的唯一性</li>
@@ -245,44 +357,42 @@
 </ul>
 <p>对应的，索引的缺点也不少：</p>
 <ul>
-<li>占用物理空间，聚簇索引的空间更大</li>
+<li>每创建出来一个索引，就是一个具体的数据结构，占用磁盘的固定的物理空间，聚簇索引的空间就更大了</li>
 <li>创建索引和维护索引需要耗费时间，随着数据量增加而增加</li>
-<li>对表中的数据进行增加、删除和修改时，索引也要动态维护：降低维护速度</li>
+<li>对表中的数据进行增加、删除和修改时，索引也要动态维护：由此会降低维护速度</li>
 </ul>
-<p>因此以下情况不适合建立索引：</p>
-<ul>
-<li>表中数据太少</li>
-<li>经常插入、删除、修改的表</li>
-<li>表数据重复且分布平均的表字段</li>
-<li>…</li>
-</ul>
+<p>因此建立索引需要遵循以下原则：</p>
 <h1 id="设计原则"><a href="#设计原则" class="headerlink" title="设计原则"></a>设计原则</h1><ul>
 <li>对于经常查询的字段，建议创建索引</li>
-<li>索引不是越多越好：表如果有大量索引，不仅占用磁盘空间，而且影响 insert，delete，update 等语句的性能<ul>
-<li>所以：避免对经常更新的表进行过多的索引，因为表中数据被更改的同时，索引也会进行调整和更新，十分消耗系统资源</li>
+<li>索引不是越多越好：大量索引不仅会占用磁盘空间，而且影响对数据表 insert，delete，update 等语句的性能<ul>
+<li>所以：<strong>避免对经常增删改的表进行过多的索引</strong>，因为表中数据被更改的同时，索引也会进行调整和更新，十分消耗系统资源</li>
 </ul>
 </li>
-<li>数据量小的表建议不要创建索引：此时索引不仅起不到明显的优化效果，对于索引结构的维护反而消耗系统资源</li>
-<li>不要在区分度低的字段建立索引：如性别字段，只有“男”“女”，建索引完全起不到优化效果</li>
+<li>数据量小的表建议不要创建索引：少于万级、十万级别的就不需要建立索引了，此时索引不仅起不到明显的优化效果，对于索引结构的维护反而消耗系统资源</li>
+<li>不要在区分度低（表的数据重复，分布平均）的字段建立索引：如性别字段，只有“男”“女”，建索引完全起不到优化效果</li>
 <li>当唯一性是某字段本身的特征时，指定唯一索引能提高查询字段</li>
-<li>在频繁进行排列分组（group by / order by）的列上建立索引，如待排序有多个，可在这些列上建立组合索引</li>
+<li>在频繁进行排列分组（group by / order by）的列上建立索引，如待排序有多个，可在这些列上建立<strong>联合索引</strong></li>
 </ul>
-<h2 id="最左前缀匹配原则"><a href="#最左前缀匹配原则" class="headerlink" title="最左前缀匹配原则"></a>最左前缀匹配原则</h2><p>指的是最左优先，在搜索数据的时候从联合索引的最左边开始匹配。</p>
-<p>比如说，对列 col1、col2 和 col3 建立联合索引：</p>
+<h2 id="联合索引为什么香"><a href="#联合索引为什么香" class="headerlink" title="联合索引为什么香"></a>联合索引为什么香</h2><p>对列 col1、col2 和 col3 建立联合索引：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">KEY test_col1_col2_col3 <span class="keyword">on</span> test(col1,col2,col3);</span><br></pre></td></tr></table></figure>
-<p>如上，联合索引 <code>test_col1_col2_col3</code> 实际上建立了 <code>(col1)</code> <code>(col1,col2)</code> 和 <code>(col1,col2,col3)</code> 三个索引。</p>
-<p>如下面这个查询语句：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> test <span class="keyword">WHERE</span> col1<span class="operator">=</span>&quot;1&quot; <span class="keyword">AND</span> col2<span class="operator">=</span>&quot;2&quot; <span class="keyword">AND</span> col4<span class="operator">=</span>&quot;4&quot;;</span><br></pre></td></tr></table></figure>
+<p>如上，联合索引 <code>test_col1_col2_col3</code> 实际上建立了 <code>(col1)</code> <code>(col1,col2)</code> 和 <code>(col1,col2,col3)</code> 三个索引，对于大量数据的表，使用联合索引会大大减少开销；</p>
+<p>同时就联合索引对数据进行搜索时，数据库可以直接遍历索引获取数据，<strong>无需回表</strong>，减少了很多 IO 操作；</p>
+<p>另外，索引列越多，通过索引筛选出来的数据就越少，大大提升效率；但这并不意味着索引多就一定好，毕竟索引越多，占据的硬盘空间就越大，过多索引反而会影响 IO 性能。</p>
+<p>一般联合索引不超过 <strong>3 列</strong>，否则虽然减少回表操作，但是索引块过多，查询时遍历的开销也会加大。</p>
+<h2 id="最左前缀匹配原则"><a href="#最左前缀匹配原则" class="headerlink" title="最左前缀匹配原则"></a>最左前缀匹配原则</h2><p>指的是最左优先，在搜索数据的时候从联合索引的最左边开始匹配。</p>
+<p>再比如，就联合索引 <code>test_col1_col2_col3</code>，执行下面这个查询语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> test <span class="keyword">WHERE</span> col1<span class="operator">=</span>"1" <span class="keyword">AND</span> col2<span class="operator">=</span>"2" <span class="keyword">AND</span> col4<span class="operator">=</span>"4";</span><br></pre></td></tr></table></figure>
 <p>执行搜索的时候会根据<strong>最左前缀匹配原则</strong>（col1 在最左，col2 次之，col3 在最右），使用索引 <code>(col1,col2)</code> 进行数据匹配。</p>
 <p>如果 SQL 语句只按照 col2 或 col3 进行查询，那么查询不会使用这个联合索引。</p>
 <p>这是因为数据库在建立索引时会将索引按照列的顺序进行排序，而查询时必须按照索引声明时<strong>列的顺序</strong>依次查询。因此，只有在查询中按照<strong>索引最左边的列</strong>开始进行查询时，才能利用到这个索引。如果查询中没有按照索引最左边的列开始查询，那么即使这个索引存在，也不会被使用。</p>
 <p>如果查询时候使用的条件是 </p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">col2<span class="operator">=</span>&quot;1&quot; <span class="keyword">AND</span> col1<span class="operator">=</span>&quot;2&quot;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">col2<span class="operator">=</span>"1" <span class="keyword">AND</span> col1<span class="operator">=</span>"2"</span><br></pre></td></tr></table></figure>
 <p>优化器会<strong>自动优化</strong>为匹配联合索引的顺序，此时同样能命中索引。</p>
 <p>最左匹配原则的应用可以提高查询效率，特别是当数据库中有大量数据时，能减少数据库系统的负载。因此，在设计复合索引时，要考虑到查询中最常用的条件，将这些条件放在索引的最左边，可以使得查询效率更高。</p>
+<p><strong>注</strong>：</p>
 <h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>采用的数据结构：B-Tree</p>
 <p>为什么不使用 Hash 搜索呢？</p>
-<p>Hash 的查询、插入、修改、删除的平均时间为 <code>O(1)</code>，而树的对应复杂度则为 <code>O(log(n))</code>。<br>对于单行查询的需求，Hash 索引更快；但 SQL 的应用场景多为排序（order by）、分组（group by）和比较大小等操作，如果仍然使用 Hash，时间会退化为 <code>O(n)</code>。<br>所以根据 SQL 的需求，索引一般设计为树的数据结构。</p>
+<p>Hash 的查询、插入、修改、删除的平均时间为 <code>O(1)</code>，而树的对应复杂度则为 <code>O(log(n))</code>。<br>对于单行查询的需求，Hash 索引更快；但 SQL 的应用场景多为排序（order by）、分组（group by）和比较大小等操作，如果仍然使用 Hash，时间会退化为 <code>O(n)</code>。<br>所以根据 SQL 的需求，索引一般设计为树的数据结构；而且因为数据库存储大量数据的关系，一般使用 m 叉（m &gt; 2）自平衡二叉搜索树的实现方式。</p>
 
     </div>
 
@@ -366,7 +476,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">优缺点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99"><span class="nav-number">2.</span> <span class="nav-text">设计原则</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99"><span class="nav-number">2.1.</span> <span class="nav-text">最左前缀匹配原则</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">实现</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">优缺点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99"><span class="nav-number">2.</span> <span class="nav-text">设计原则</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E4%B8%BA%E4%BB%80%E4%B9%88%E9%A6%99"><span class="nav-number">2.1.</span> <span class="nav-text">联合索引为什么香</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99"><span class="nav-number">2.2.</span> <span class="nav-text">最左前缀匹配原则</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">实现</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -514,6 +624,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
