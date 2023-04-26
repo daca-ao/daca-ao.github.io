@@ -28,7 +28,7 @@
 <meta property="og:description" content="数据库索引的本质是一种数据结构。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-28T15:08:51.000Z">
-<meta property="article:modified_time" content="2023-04-26T14:16:42.264Z">
+<meta property="article:modified_time" content="2023-04-26T14:41:43.643Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary">
@@ -371,7 +371,7 @@ mjx-container[display="true"] + br {
 <li>数据量小的表建议不要创建索引：少于万级、十万级别的就不需要建立索引了，此时索引不仅起不到明显的优化效果，对于索引结构的维护反而消耗系统资源</li>
 <li>不要在区分度低（表的数据重复，分布平均）的字段建立索引：如性别字段，只有“男”“女”，建索引完全起不到优化效果</li>
 <li>当唯一性是某字段本身的特征时，指定唯一索引能提高查询字段</li>
-<li>在频繁进行排列分组（group by / order by）的列上建立索引，如待排序有多个，可在这些列上建立<strong>联合索引</strong></li>
+<li>在频繁进行排列分组（group by / order by）的列上建立索引，如待排序有多个，可在这些列上建立<strong>联合索引</strong>。</li>
 </ul>
 <h2 id="联合索引为什么香"><a href="#联合索引为什么香" class="headerlink" title="联合索引为什么香"></a>联合索引为什么香</h2><p>对列 col1、col2 和 col3 建立联合索引：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">KEY test_col1_col2_col3 <span class="keyword">on</span> test(col1,col2,col3);</span><br></pre></td></tr></table></figure>
@@ -390,6 +390,11 @@ mjx-container[display="true"] + br {
 <p>优化器会<strong>自动优化</strong>为匹配联合索引的顺序，此时同样能命中索引。</p>
 <p>最左匹配原则的应用可以提高查询效率，特别是当数据库中有大量数据时，能减少数据库系统的负载。因此，在设计复合索引时，要考虑到查询中最常用的条件，将这些条件放在索引的最左边，可以使得查询效率更高。</p>
 <p><strong>注</strong>：</p>
+<p>联合索引的连接类型 <code>type</code> 值的不同，会对联合索引的最终搜索结果有影响：</p>
+<ul>
+<li><code>type = ref</code>：非唯一性索引扫描，返回匹配某个单独值的所有行；</li>
+<li><code>type = index</code>：从索引第一个字段逐个查找，直到找到符合的某一个索引；连接类型为该值时，说明此时<strong>不符合最左前缀匹配原则</strong>，与其无关。</li>
+</ul>
 <h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>采用的数据结构：B-Tree</p>
 <p>为什么不使用 Hash 搜索呢？</p>
 <p>Hash 的查询、插入、修改、删除的平均时间为 <code>O(1)</code>，而树的对应复杂度则为 <code>O(log(n))</code>。<br>对于单行查询的需求，Hash 索引更快；但 SQL 的应用场景多为排序（order by）、分组（group by）和比较大小等操作，如果仍然使用 Hash，时间会退化为 <code>O(n)</code>。<br>所以根据 SQL 的需求，索引一般设计为树的数据结构；而且因为数据库存储大量数据的关系，一般使用 m 叉（m &gt; 2）自平衡二叉搜索树的实现方式。</p>
