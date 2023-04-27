@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/01/01/spring-annotation/conditional.png">
 <meta property="article:published_time" content="2022-01-01T15:47:28.000Z">
-<meta property="article:modified_time" content="2022-09-13T06:37:08.760Z">
+<meta property="article:modified_time" content="2023-04-27T12:35:36.460Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="IoC">
@@ -367,7 +367,11 @@
 <p><strong><code>@Repository</code></strong></p>
 <p>也是 @Component 注解的特化，用于标记持久层的组件（DAO 类）。</p>
 <p>被标记之后，IoC 容器会将该 DAO 导入，并使未经检查的异常有资格转换为 Spring DataAccessException。</p>
-<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p><code>@ComponentScan</code>：扫描指定包下的所有 Spring 组件。</p>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p><code>@ComponentScan</code>：扫描并装配指定包下的所有 @Component, @Controller, @Service, @Repository 注解的 Bean 到 IOC 容器中。</p>
+<ul>
+<li>默认情况下扫描入口类（XxxApplication.class）<strong>同级以及子级包</strong>下的所有文件；</li>
+<li>可通过 <code>basePackages</code> &amp; <code>value</code> / <code>basePackageClasses</code> 指定扫描路径</li>
+</ul>
 <p><code>@Primary</code>：手动创建 Spring Bean 时，如果 IoC 容器发现了多个 bean 候选者，则 <code>@Primary</code> 可以指定当前为默认注入的 bean；否则会抛出异常。</p>
 <p><code>@Lazy</code>：延迟初始化，表示延迟注入 bean。</p>
 
