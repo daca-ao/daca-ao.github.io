@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/memory-allocate.png">
 <meta property="og:image" content="http://example.com/2021/07/07/jvm-basics/object-allocate.png">
 <meta property="article:published_time" content="2021-07-07T14:44:49.000Z">
-<meta property="article:modified_time" content="2022-11-07T13:38:54.788Z">
+<meta property="article:modified_time" content="2023-04-30T02:45:41.335Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -370,8 +370,7 @@
 </ul>
 <p>正是因为方法区所存储的数据与堆有一种类比关系，而且方法区不属于堆的一部分，所以也被称为“非堆” No-Heap。<br>正因为方法区不属于堆，所以它很少会触发垃圾回收，发生内存回收的目的主要是针对<strong>常量池的回收</strong>和<strong>类的卸载</strong>。</p>
 <p><img src="/2021/07/07/jvm-basics/method-area.png" alt></p>
-<big>**随 JDK 版本变迁的方法区实现（对于 HotSpot 虚拟机而言）**</big>
-
+<p><strong><big>随 JDK 版本变迁的方法区实现（对于 HotSpot 虚拟机而言）</big></strong></p>
 <ul>
 <li>Until Java 6：PermGen 被分配在 JVM 堆中，与堆相互隔离，大小在启动 JVM 时固定</li>
 <li>Java 7：将 PermGen 中的静态变量、字符串常量池等移到堆中，其他不变<ul>

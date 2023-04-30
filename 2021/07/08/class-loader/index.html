@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2021/07/08/class-loader/context-classloader.png">
 <meta property="og:image" content="http://example.com/2021/07/08/class-loader/tomcat-classloader.png">
 <meta property="article:published_time" content="2021-07-07T16:07:22.000Z">
-<meta property="article:modified_time" content="2021-08-22T14:39:18.088Z">
+<meta property="article:modified_time" content="2023-04-30T02:58:38.065Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -254,7 +254,7 @@
 <li>其他语言是在编译时进行链接的</li>
 </ul>
 </li>
-<li>避免类被重复加载：即每个 JVM 中，只会有一个拥有同样全路径的 .class 文件；</li>
+<li>避免类被重复加载：即每个 JVM 中，<strong>只会有一个</strong>拥有<strong>同样全路径</strong>的 .class 文件；</li>
 <li>沙箱安全机制：防止核心类库的核心类被篡改。</li>
 </ul>
 <p>.class 文件被加载后，对应在 JVM 形成一份描述该类结构的元信息对象；通过该元信息对象可以获知 Class 的结构信息，如构造函数、属性、方法等。<br>Java 允许用户借由这个 Class 相关的元信息对象间接调用 Class 对象的功能，这就是我们经常能见到的 Class 类。</p>
@@ -267,9 +267,9 @@
 <li>可从磁盘上读取文件，或者根据链接请求网络文件，等</li>
 </ul>
 </li>
-<li>解析流，将该字节流代表的<strong>静态存储结构</strong>转换为方法区的运行时数据结构，将类的信息存放到方法区中</li>
+<li>解析流，将该字节流代表的<strong>静态存储结构</strong>转换为<a href="/2021/07/07/jvm-basics#2-%E6%96%B9%E6%B3%95%E5%8C%BA-Method-Area">方法区</a>的运行时数据结构，将类的信息存放到方法区中</li>
 <li>在静态区（内存）创建代表这个类的 <code>java.lang.Class</code> 实例，作为方法区该类的各种数据结构的访问入口<ul>
-<li>没有规定这个对象要在堆中：比较特殊，虽是对象，但是在方法区</li>
+<li>没有规定这个对象一定要在堆中：比较特殊，虽是对象，但是在方法区</li>
 <li>注意：这里创建的应该是<strong>实例</strong>，而不是对象。</li>
 </ul>
 </li>
@@ -318,9 +318,9 @@
 <p>注：访问类的 final 静态变量，即常量时不会触发该类的初始化</p>
 <ul>
 <li>因为：常量在被写进类的字节码之前，会被编译器优化为 value 而不是 field；</li>
-<li>所以编译器并不会对应生成字节码来从实例中载入 field 的值，而是直接把这个 value 插入到字节码中。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConstClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;ConstClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span>	String HELLOWORLD = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(ConstClass.HELLOWORLD);  <span class="comment">// 调用类常量：只会输出 &quot;hello world&quot;，不会输出 &quot;ConstClass init&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
+<li>所以编译器并不会对应生成字节码来从实例中载入 field 的值，而是直接把这个 value 插入到字节码中。</li>
 </ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConstClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;ConstClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span>	String HELLOWORLD = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(ConstClass.HELLOWORLD);  <span class="comment">// 调用类常量：只会输出 &quot;hello world&quot;，不会输出 &quot;ConstClass init&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><big><strong>二</strong></big>、使用 <code>java.lang.reflect</code> 包的方法对类进行反射调用时，如果类没有进行过初始化，则需要先触发类的初始化。</p>
 <ul>
 <li>如：<code>Class.forName()</code></li>
@@ -329,7 +329,8 @@
 <ul>
 <li>这种情形会递归加载所有之前未被加载的父类</li>
 </ul>
-<p>所以：通过子类来引用父类的静态字段（包括域和静态块），只会触发父类的初始化，不会触发子类的初始化。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SuperClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;SuperClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span>	String HELLOWORLD = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SubClass</span> <span class="keyword">extends</span> <span class="title">SuperClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;SubClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(SubClass.HELLOWORLD);  <span class="comment">// 只输出 &quot;SuperClass init&quot;，不会输出 &quot;SubClass init&quot;。</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>所以：通过子类来引用父类的静态字段（包括域和静态块），只会触发父类的初始化，不会触发子类的初始化。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SuperClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;SuperClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span>	String HELLOWORLD = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SubClass</span> <span class="keyword">extends</span> <span class="title">SuperClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;SubClass init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(SubClass.HELLOWORLD);  <span class="comment">// 只输出 &quot;SuperClass init&quot;，不会输出 &quot;SubClass init&quot;。</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>对于静态字段，只有直接定义这个字段的类才会被初始化</li>
 </ul>
@@ -357,12 +358,12 @@
 <li>如 <code>rt.jar</code>, <code>resources.jar</code>, <code>charsets.jar</code> 等</li>
 </ul>
 </li>
-<li>C++ native code 编写，没有父类，也没有对应的 ClassLoader 对象<ul>
-<li>因此无法被 Java 程序直接引用</li>
+<li>负责加载 C++ native code 编写，没有父类，也没有对应的 ClassLoader 对象<ul>
+<li>这些类库的对象无法被 Java 程序直接引用</li>
 </ul>
 </li>
-<li>在构造的时候会同时构造 <code>ExtClassLoader</code></li>
 </ul>
+<p>在构造 Bootstrap 类加载器的时候会同时构造 <code>ExtClassLoader</code>，即下面要提到的扩展类加载器。</p>
 <p>出于安全性考虑，虚拟机是<strong>按照文件名</strong>识别并加载 jar 包的，而且 Bootstrap 类加载器只加载包名以 <code>java</code>, <code>javax</code>, <code>sun</code> 等开头的类。<br>如果文件名不被 JVM 识别，即使将再多 jar 包丢到 /lib 目录下面也没用。<br>而且，即使是自己重新打了一个 <code>rt.jar</code>，也是过不了虚拟机的安全机制，加载不了的。</p>
 <p><br></p>
 <p><strong>2. 扩展（Extension）类加载器</strong></p>
@@ -372,25 +373,26 @@
 <li>默认从 <code>$JAVA_HOME/lib/ext</code> 目录加载“标准的扩展”</li>
 <li>还包括 java.ext.dirs 系统变量（<code>-Djava.ext.dirs</code>）所指定的路径中的所有类库</li>
 <li>开发者可以直接使用该加载器</li>
-<li>在构造的时候同时构造 <code>AppClassLoader</code></li>
 </ul>
+<p>在构造 Extension 类加载器的时候同时构造 <code>AppClassLoader</code>，即下面要提到的应用类加载器。</p>
 <p><br></p>
 <p><strong>3. 应用（Application）类加载器</strong></p>
-<p>由 Sun 实现的 <strong><code>sun.misc.Launcher$AppClassLoader</code></strong> 类，通过 Java 实现，继承自 <code>URLClassLoader</code>。<br>因为 <code>AppClassLoader</code> 又是 <code>ClassLoader.getSystemClassLoader()</code> 的返回值，所以又称之为<strong>系统类加载器 System ClassLoader</strong>）</p>
+<p>由 Sun 实现的 <strong><code>sun.misc.Launcher$AppClassLoader</code></strong> 类，通过 Java 实现，同样继承自 <code>URLClassLoader</code>。<br>因为 <code>AppClassLoader</code> 又是 <code>ClassLoader.getSystemClassLoader()</code> 的返回值，所以又称之为<strong>系统类加载器 System ClassLoader</strong>）</p>
 <ul>
-<li>用于加载应用程序的类路径 classpath 目录（<code>java -classpath</code> / <code>-Djava.class.path</code>）下所有 jar 和 .class 文件</li>
+<li>用于加载<strong>应用程序</strong>的类路径 classpath 目录（<code>java -classpath</code> / <code>-Djava.class.path</code>）下所有 jar 和 .class 文件</li>
 <li>开发者可以直接使用该加载器（<code>ClassLoader.getSystemClassLoader()</code>）</li>
 <li>如应用没有自定义类加载器，那：它就是程序中<strong>默认</strong>的类加载器。</li>
 </ul>
 <p>另：还可从 <code>/jre/lib/endorsed</code> 目录加载 —— 将某个标准 Java 类库替换为更新的版本。</p>
 <p><br></p>
-<p>除了上述三类必备的类加载器之外，用户还可以自定义类加载器：<br><strong>4. Custom Class Loader</strong></p>
+<p>除了上述三类必备的类加载器之外，用户还可以自定义类加载器： </p>
+<p><strong>4. Custom Class Loader</strong></p>
 <ul>
 <li>用户自定义的类加载器，父类为 <code>AppClassLoader</code></li>
 </ul>
 <p>自定义类加载器的原因：像刚刚所说的，JVM 比较认生，只识别指定文件名和路径下的资源文件，因此 Java 提供的默认 ClassLoader 只会加载指定目录下的 jar 和 .class。</p>
 <h2 id="基类源码浅析"><a href="#基类源码浅析" class="headerlink" title="基类源码浅析"></a>基类源码浅析</h2><p>除了 Bootstrap 类加载器，所有的类加载器，包括自定义的类加载器，均需继承 <code>ClassLoader</code> 类：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassLoader</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ClassLoader parent;</span><br><span class="line"></span><br><span class="line">    <span class="function">ClassLoader <span class="title">getParent</span><span class="params">()</span>    <span class="comment">// 返回父类加载器，如为 Bootstrap ClassLoader 则返回 null</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="keyword">static</span> ClassLoader <span class="title">getSystemClassLoader</span><span class="params">()</span>  <span class="comment">// 获取系统的类加载器，即应用类加载器</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="keyword">protected</span> Class <span class="title">findClass</span><span class="params">(String name)</span>  <span class="comment">// 类加载器应覆盖此方法，以查找类的字节码</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="keyword">protected</span> Class&lt;?&gt; <span class="title">loadClass</span><span class="params">(String name, <span class="keyword">boolean</span> resolve)</span>  <span class="comment">// 加载类</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    Class <span class="title">defineClass</span><span class="params">(String name, <span class="keyword">byte</span>[] byteCodeData, <span class="keyword">int</span> offset, <span class="keyword">int</span> length)</span></span></span><br><span class="line"><span class="function">    <span class="comment">// 将新的类添加到虚拟机中，其字节码在给定的数据范围（offset, length）中</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    ...</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassLoader</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ClassLoader parent;</span><br><span class="line"></span><br><span class="line">    <span class="function">ClassLoader <span class="title">getParent</span><span class="params">()</span>    <span class="comment">// 返回父类加载器，如为 Bootstrap ClassLoader 则返回 null</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="keyword">static</span> ClassLoader <span class="title">getSystemClassLoader</span><span class="params">()</span>  <span class="comment">// 获取系统的类加载器，即返回应用类加载器</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="keyword">protected</span> Class <span class="title">findClass</span><span class="params">(String name)</span>  <span class="comment">// 类加载器应覆盖此方法，以查找类的字节码</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    <span class="keyword">protected</span> Class&lt;?&gt; <span class="title">loadClass</span><span class="params">(String name, <span class="keyword">boolean</span> resolve)</span>  <span class="comment">// 加载某个类</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    Class <span class="title">defineClass</span><span class="params">(String name, <span class="keyword">byte</span>[] byteCodeData, <span class="keyword">int</span> offset, <span class="keyword">int</span> length)</span></span></span><br><span class="line"><span class="function">    <span class="comment">// 将新的类添加到虚拟机中，其字节码在给定的数据范围（offset, length）中</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    ...</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
 <p><br></p>
 <h1 id="类加载层次：双亲委派模型"><a href="#类加载层次：双亲委派模型" class="headerlink" title="类加载层次：双亲委派模型"></a>类加载层次：双亲委派模型</h1><p>类加载器有一种“父/子关系”，它们是<strong>组合</strong>而非继承关系：</p>
 <ul>
@@ -403,7 +405,7 @@
 <p>好处：</p>
 <ul>
 <li>安全：避免用户自己编写的类动态替换了 Java 的一些核心类，如 <code>String</code> 等</li>
-<li>避免重复加载某个类带来的混乱；加载分层次</li>
+<li>加载分层次，避免重复加载某个类带来的混乱</li>
 </ul>
 <p>举个例子：某自定义 ClassLoader 在亲自搜索需要加载的某个类之前，首先不会自己尝试去加载，而是将加载任务<strong>委托</strong>至父类加载器</p>
 <ul>
