@@ -44,7 +44,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/pv-pvc-storageclass.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/pv-pvc-creation.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2023-05-09T13:16:42.025Z">
+<meta property="article:modified_time" content="2023-05-09T16:30:50.783Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -322,7 +322,7 @@
 <p>etcd 组件可内置于 Kubernetes，也可于集群外部搭建供 Kubernetes 使用。</p>
 <p>etcd 的增删改查也是统一通过 kube-apiserver 进行调用的。</p>
 <h3 id="Flannel"><a href="#Flannel" class="headerlink" title="Flannel"></a>Flannel</h3><p>Flannel 是由 CoreOS 团队针对 Kubernetes 设计的一个网络规划服务。</p>
-<p>由 Pod 的<a href="/2022/05/28/kubernetes-pod-management#网络通信">内部结构</a>可知，Pod 内部的各个容器如应用程序在宿主机的通信一样，能够通过 localhost:port 的方式通信。</p>
+<p>由 Pod 的<a href="/2023/05/09/kubernetes-pod#网络通信">内部结构</a>可知，Pod 内部的各个容器如应用程序在宿主机的通信一样，能够通过 <code>localhost:port</code> 的方式通信。</p>
 <p>至于 Pod 和 Pod 之间的通信，有以下原则：</p>
 <ul>
 <li>一个 Node 上的 Pod 和其它 Node 的 Pod 通信不需要通过网络地址转换（NAT）；</li>
