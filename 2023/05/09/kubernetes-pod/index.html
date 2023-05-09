@@ -20,12 +20,12 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Pod 是可以创建和管理 Kubernetes 计算的最小可部署单元。">
+  <meta name="description" content="Pod 是 Kubernetes 工作节点中最基本的操作单元，是集群中运行的一个进程，能够实现可管理性，通用和资源共享。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Kubernetes 容器管理 - Pod">
 <meta property="og:url" content="http://example.com/2023/05/09/kubernetes-pod/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="Pod 是可以创建和管理 Kubernetes 计算的最小可部署单元。">
+<meta property="og:description" content="Pod 是 Kubernetes 工作节点中最基本的操作单元，是集群中运行的一个进程，能够实现可管理性，通用和资源共享。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/05/09/kubernetes-pod/pod-status.png">
 <meta property="og:image" content="http://example.com/2023/05/09/kubernetes-pod/pod-machine.png">
@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2023/05/09/kubernetes-pod/pod-lifecycle.png">
 <meta property="og:image" content="http://example.com/2023/05/09/kubernetes-pod/pod-booming.png">
 <meta property="article:published_time" content="2023-05-09T11:54:07.000Z">
-<meta property="article:modified_time" content="2023-05-09T12:01:03.251Z">
+<meta property="article:modified_time" content="2023-05-09T13:31:55.933Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -352,11 +352,9 @@ mjx-container[display="true"] + br {
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Pod 是可以创建和管理 Kubernetes 计算的最小可部署单元。</p>
+        <p>Pod 是 Kubernetes 工作节点中最基本的操作单元，是集群中运行的一个进程，能够实现可管理性，通用和资源共享。</p>
 <span id="more"></span>
-<p>在介绍容器编排的具体组件之前，我们先来了解一下容器编排的基本单元 —— Pod。</p>
-<p>Pod 是 Kubernetes 工作节点中最基本的操作单元，是集群中运行的一个进程，能够实现可管理性，通用和资源共享。</p>
-<p>一个 Pod 可能包含一个或多个容器（可以是 docker 容器）：</p>
+<h1 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h1><p>作为 Kubernetes 计算的最小可部署单元，一个 Pod 可能包含一个或多个容器（可以是 docker 容器）：</p>
 <ul>
 <li>运行单一容器（one-container-per-Pod）：最常见模型，Kubernetes 通过管理 pod 直接管理容器</li>
 <li>运行多个容器：将应用程序的不同模块分离并分别部署到单独的容器中，加载时将所有容器视为一个容器加载，一起启动，一起停止；<ul>
@@ -491,7 +489,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1"><span class="nav-number">1.</span> <span class="nav-text">网络通信</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">2.</span> <span class="nav-text">生命周期</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Namespace"><span class="nav-number">3.</span> <span class="nav-text">Namespace</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E5%86%B5"><span class="nav-number">1.</span> <span class="nav-text">概况</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1"><span class="nav-number">2.</span> <span class="nav-text">网络通信</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">3.</span> <span class="nav-text">生命周期</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Namespace"><span class="nav-number">4.</span> <span class="nav-text">Namespace</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
