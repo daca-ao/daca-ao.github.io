@@ -44,7 +44,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/pv-pvc-storageclass.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/pv-pvc-creation.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2023-05-09T16:30:50.783Z">
+<meta property="article:modified_time" content="2023-05-09T16:48:36.569Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -330,7 +330,7 @@
 <li>Node 主机网络中的 Pod 可以与其它所有 Node 上的所有 Pod 通信，无需 NAT。</li>
 </ul>
 <p>而 Flannel 通过覆盖网络（overlay network），将数据包封装在另外一个网络再转发，让集群中不同 Pod（包括其容器）<strong>具有全集群唯一的 IP</strong>。</p>
-<h3 id="CoreDNS"><a href="#CoreDNS" class="headerlink" title="CoreDNS"></a>CoreDNS</h3><p>CoreDNS 是“一个灵活可扩展的 DNS 服务器”，可以作为 Kubernetes 集群的 DNS。</p>
+<h3 id="CoreDNS"><a href="#CoreDNS" class="headerlink" title="CoreDNS"></a>CoreDNS</h3><p>CoreDNS 是“一个灵活可扩展的 DNS 服务器”，可以作为 Kubernetes 集群的 DNS，为集群提供<strong>服务发现</strong>的功能。</p>
 <h2 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h2><p>承载运行中的容器，负责监控和汇报容器状态。可以按照主从概念中的 slave / worker 来理解。</p>
 <p>Node 包含以下状态信息：</p>
 <ul>
@@ -390,7 +390,7 @@
 </ul>
 <p><img src="/2022/05/18/kubernetes-overview/kubeproxy.png" alt></p>
 <p>kube-proxy 的实现模式主要有三种：</p>
-<p><code>userspace</code>：最早的默认负载均衡方案（before Kubernetes v1.1）</p>
+<p><code>userspace</code>：最早的默认负载均衡方案（Kubernetes v1.0）</p>
 <ol>
 <li>Client pod 发起访问服务 service 的请求</li>
 <li>请求到达 node 后，通过 service 的 IP 先进入<strong>本地内核</strong>的 iptables</li>
@@ -399,7 +399,7 @@
 </ol>
 <p><img src="/2022/05/18/kubernetes-overview/node-userspace.png" alt></p>
 <p>不过，流量从 userspace 进出内核带来的性能损耗是不可接受的。</p>
-<p><code>iptables</code>：基于 netfilter 实现，是目前默认的代理模式。</p>
+<p><code>iptables</code>：基于 netfilter 实现，是目前默认的代理模式（Default since Kubernetes v1.2）。</p>
 <p>当客户端请求 service IP 时，本地内核的 iptables 会根据规则，将请求直接路由到各个 service pod 上。</p>
 <p><img src="/2022/05/18/kubernetes-overview/node-iptables.png" alt></p>
 <p>与 userspace 模式最大区别是：</p>
