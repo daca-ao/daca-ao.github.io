@@ -35,8 +35,8 @@ tags:
 
 
 ## 工具类的选型：使用单例模式还是静态方法
-* 如果没有配置信息的工具类：使用静态类，随处调用，不需引用；
-* 如果有配置信息的工具类：单例模式优先，比如有多个数据源的情况就可以用单例模式。
+* 如果是没有配置信息的工具类：使用静态类，随处调用，不需引用；
+* 如果是有配置信息的工具类：（考虑到配置信息的不同带来的对象**状态的改变**）单例模式优先，比如有多个数据源的情况就可以用单例模式。
 
 <br/>
 
@@ -53,7 +53,8 @@ tags:
 <br/>
 
 # 协作
-* 客户只能通过 Singleton 的 `instance()` 操作访问一个 Singleton 实例
+
+客户只能通过 Singleton 的 `instance()` 操作访问一个 Singleton 实例
 
 <br/>
 
@@ -140,7 +141,7 @@ public static ClazzName getInstance2() {
     return Holder.SINGLE_TON;
 }
 
-// 静态内部类的加载不需要依附外部类，其在使用时才会被加载
+// 注：静态内部类的加载不需要依附外部类，其在使用时才会被加载
 private static class Holder {
     // 初次：在运行时常量池将符号引用替换为直接引用，此时静态变量被创建
     // JVM 执行类的加载并随后初始化的时候，在多线程环境中有自动加锁和同步机制
@@ -152,7 +153,7 @@ private static class Holder {
 ![](singleton/singleton-new-instance.png)
 
 
-虽然简单，但是缺点：并发高的情况下会阻塞；仅能实现静态变量的延迟初始化；不能传递参数
+虽然简单，但是缺点是：并发高的情况下会阻塞；仅能实现静态变量的延迟初始化；不能传递参数
 
 
 ### 双重检查锁（Double-checked Locking）
@@ -180,7 +181,7 @@ public class Singleton {
 
 解析：
 
-**1. 使用 `volatile` 限制指令重排序：**  
+**1. 使用 [`volatile`](/2021/07/14/keywords/#volatile) 限制指令重排序：**  
 背景：执行程序时为了提高性能，处理器和编译器常会对指令重排序  
 重排序的准则：
 1. 单线程环境下不能改变程序运行的结果（不影响数据的结果）
@@ -259,7 +260,8 @@ Singleton* Singleton::Instance() {
 <br/>
 
 # 相关模式
-* 很多的设计模式都可用 Singleton 实现，如 Abstract Factory，Builder，Prototype 等
+
+很多的设计模式都可用 Singleton 实现，如 Abstract Factory，Builder，Prototype 等
 
 <br/>
 
@@ -284,7 +286,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     /**
      * 充当了 Bean 实例的缓存，实现方式和单例注册表相同
      */
-    private final Map singletonCache=new HashMap<>();
+    private final Map singletonCache = new HashMap<>();
 
     public Object getBean(String name) throws BeansException {
         return getBean(name, null, null);
@@ -349,7 +351,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 ```
 
 
-## Controller 默认是单例的
+## **Controller 默认是单例的**
 
 因此不要在 Controller 中使用非静态的成员变量，否则会发生数据逻辑混乱。
 

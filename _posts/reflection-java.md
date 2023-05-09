@@ -14,15 +14,14 @@ tags:
 
 在计算机科学中，[反射式编程](https://zh.wikipedia.org/wiki/反射式编程)（reflective programming），或反射（reflection），指的是计算机程序运行时“访问、检测和修改它本身状态或行为的能力”：
 * 它可以把一个类，类的成员变量（函数、属性等）当成一个对象来操作；
-* 在程序运行的时候，开发者还可以动态地进行以下操作：
+* 在程序运行的时候，开发者还可以动态地对类进行以下操作：
     * 构造任意一个类的对象；
     * 了解任意一个对象所属的类；
     * 了解任意一个类的成员变量和方法；
     * 调用任意一个对象的属性和方法。
 
-最早的计算机在它们的原生汇编语言里编程：本质为反射
-* 由定义编程指令作为数据
-* 在面向对象的编程语言中，反射允许在编译期无法确认接口的名称、字段、方法的情况下，在运行时检查类、接口、字段和方法。
+最早的计算机在它们的原生汇编语言里编程，其本质上就是反射：由定义编程指令作为数据；  
+而在面向对象的编程语言中，反射允许在编译期无法确认接口的名称、字段、方法的情况下，在**运行时检查类、接口、字段和方法**。
 
 为什么有反射？因为它“**灵活**”。  
 在运行期根据某种条件才能确定使用哪个类的对象时，就可使用反射。
@@ -31,14 +30,23 @@ tags:
 ```java
 /**
  * 可在运行时根据不同条件创建不同的类，实现不同的 Strategy 实例
+ * 
  * 例：构造时传进不同的 String 代表某个子类以初始化不同的实例
  * 能避免很多的 if-else
  */
+
+// 抽象类
 abstract class BaseStrategy {
 
     public void execute() {
         // 执行某种策略
     }
+}
+
+...
+
+public BaseStrategy select(String type) {
+    ... // 根据 type 进行不同实例的初始化
 }
 ```
 
@@ -84,17 +92,13 @@ Java 中的反射机制，指的是直接操作编译后的 `.class` 文件，�
 
 ![](reflection-java/class-diagram.png)
 
-重要的实体类：
-* `Class`：类相关
-* `Constructor`：构造函数相关
-* `Field`：属性相关
-* `Method`：其他方法相关
+我们可知，Java 反射体系里面重要的实体类有：
 
 ```java
-java.lang.Class
-java.lang.reflect.Constructor
-java.lang.reflect.Field
-java.lang.reflect.Method
+java.lang.Class  // 类相关
+java.lang.reflect.Constructor  // 构造函数相关
+java.lang.reflect.Field  // 属性相关
+java.lang.reflect.Method  // 其他方法相关
 ```
 
 相同的 class 全路径下只会有一个相对应的 .class 文件
@@ -125,11 +129,15 @@ Class personClazz2 = Class.forName("com.example.Person");
 
 ### Class 类常用方法
 ```java
-// 静态方法
+/*
+ * 静态方法
+ */
 Class.forName("com.example.Person")     // 根据全路径动态加载类
 
 
-// 非静态方法
+/*
+ * 非静态方法
+ */
 newInstance()       // 根据对象的 class 新建一个对象
 
 getSuperclass()         // 获取继承的父类
@@ -143,7 +151,6 @@ getField(String name)   // 获得某个 public 域，包括从父类继承过来
 getFields()             // 获得所有 public 域
 getMethods()            // 获得所有 public 方法
 
-
 isAnnotation()      // 判断是否为注解类型
 isPrimitive()       // 判断是否为基本类型
 isArray()           // 判断是否为数组类型
@@ -153,7 +160,7 @@ getClassLoader()    // 获得类的类加载器
 ```
 
 `Class.forName()` 和 `ClassLoader.loadClass()` 的区别：
-* `Class.forName()` 是将类的 .class 文件加载到 JVM 中，并且已经将类初始化完成了的；
+* `Class.forName()` 是将类的 .class 文件加载到 JVM 中，并且该类已经被初始化完成了；
 * `ClassLoader.loadClass()` 只是将 .class 文件加载到 JVM 中，还没经过链接，更不用说初始化了。
 
 <br/>
@@ -222,8 +229,8 @@ nameField.setAccessible(true);
 可通过反射调用私有方法
 
 ```java
-clazz.getDeclaredMethod(String name, Class[] parameterTypes)
-clazz.getDeclaredMethods()
+clazz.getDeclaredMethod(String name, Class[] parameterTypes);
+clazz.getDeclaredMethods();
 ```
 
 然后调用
@@ -237,7 +244,7 @@ method.setAccessible(true);
 # 应用
 
 可以应用于服务的水平分割，如 MVC 框架：每一层都存在着能承载结果的实体类
-* 视图层：VO (V-view) / UO
+* 视图层：VO (V:view) / UO
 * 应用层：DTO / Entity
 * 领域层 Domain：Entity / VO (V-value)
 * 基础设施层：PO (Persistent)
@@ -254,11 +261,11 @@ BeanUtils.convert(objectFrom, objectTo);
 
 // 示例代码：
 public static void convert(Object srcObj, Object targetObj) throws Throwable {
-    // 第一步，获得class对象
+    // 第一步，获得 class 对象
     Class srcClazz = srcObj.getClass();
     Class targetClazz = targetObj.getClass();
 
-    // 第二步，获得Field
+    // 第二步，获得 Field
     Field[] srcFields =  srcClazz.getDeclaredFields();
     Field[] targetFields =  targetClazz.getDeclaredFields();
 
@@ -273,8 +280,7 @@ public static void convert(Object srcObj, Object targetObj) throws Throwable {
         }
     }
 }
-
 ```
 
 会有一部分的性能损耗，但并不大：因为服务器并没有那么脆弱。  
-如果“反模式”：所有层次从上到下都用同一个实体类，只要有一点变化的话，从上到下都会有影响。
+如果使用“反模式”：所有层次从上到下都用同一个实体类，只要有一点变化的话，从上到下都会有影响。

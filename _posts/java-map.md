@@ -336,7 +336,9 @@ public interface NavigableMap<K,V> extends SortedMap<K,V> {
 TreeMap 键值有序排列的映射表，元素整体以红黑树形式排序。  
 TreeMap 实现了 NavigableMap 接口，内部 Entry 为静态类 TreeMap.Entry。
 
-**`LinkedHashMap`**：可记住 k-v 项添加次序（有序）的映射表
+**`LinkedHashMap`**
+
+可记住 k-v 项添加次序（有序）的映射表。
 
 LinkedHashMap 使用**访问顺序**对映射表条目进行迭代，而非插入顺序。
 
@@ -359,7 +361,9 @@ LinkedHashMap<K, V>(initialCapacity,  // 给定的初始容量
 * 每当方法返回 true 时，添加一个新条目，从而删除 eldest 条目
 * 另还可对 eldest 进行评估，以此决定是否应该将它删除
 
-**`EnumMap`**：键值属于枚举类型的映射表，底层是数组，直接且高效。
+**`EnumMap`**
+
+键值属于枚举类型的映射表，底层是数组，直接且高效。
 
 **`WeakHashMap`**
 

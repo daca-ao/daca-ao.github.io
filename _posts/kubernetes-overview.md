@@ -14,6 +14,22 @@ Kubernetes 源于 Google 开发的 Borg，最初用于调度公司内部近 20 �
 
 云原生其它内容还包括 **ConfigMap**（配置中心）、**etcd**（发现中心，负责存储和通知）、**service mesh**（网格服务，别称 **sidecar**，为每个服务提供非业务的逻辑，如网关、鉴权等，是*去中心化*的象征）、CI/CD。
 
+在介绍 Kubernetes 本身之前，先来了解一下它赖以生存的 CNCF。
+
+
+# [CNCF](https://www.cncf.io/)
+
+全称 Cloud Native Computing Foundation（云原生计算基金会），口号是“坚持和整合开源技术来编排容器作为微服务架构的一部分”。
+
+CNCF 作为一个厂商中立的基金会，其致力于 Github 上的快速成长的云原生应用推广和普及，如Kubernetes、Prometheus、Envoy 等，帮助开发人员更快更好的构建出色的产品。
+
+
+# CoreOS
+
+CoreOS 是一个基于 Linux 内核的轻量级操作系统，为计算机集群的基础设施建设而生，专注于自动化，轻松部署，安全，可靠，规模化。作为一个操作系统，CoreOS 提供了在应用容器内部署应用所需要的基础功能环境以及一系列用于服务发现和配置共享的内建工具。
+
+CoreOS 已被 Redhat 收购，并基于此推出了自己的 PaaS 方案：OpenShift
+
 
 # 主要构成
 
@@ -49,11 +65,13 @@ Master 各系统组件都被划分到 `kube-system` 的 namespace 中。
 
 ### **kube-apiserver 进程**
 
-为一基于 HTTP/HTTPS RESTful 服务器，是集群内各个功能模块之间数据交互和通信的中心枢纽
-* 提供了集群管理的 API 接口，也即 Kubernetes 的统一接口
-* 提供了完备的集群安全机制（验证，授权）
-* 同时也对集群外部暴露服务
-* 用户可通过 REST 接口或 kubectl 命令行工具进行集群管理；因此 kubectl 本质上也是与 kube-apiserver 进行通信。
+为一基于 HTTP/HTTPS 的 RESTful 服务器，是集群内各个功能模块之间数据交互和通信的中心枢纽
+
+* 提供了集群管理各类资源对象（Pod、service 等）的 API 接口，也即 Kubernetes 的统一接口
+* 所有模块之前并不会之间互相调用，而是通过和 kube-apiserver 打交道来完成自己那部分的工作
+* 提供了完备的集群安全机制（验证，授权），同时也对集群外部暴露服务
+* 用户可通过 REST 接口或 kubectl 命令行工具进行集群管理；因此 kubectl 本质上也是与 kube-apiserver 进行通信
+* 每一个 Node 都有对应的一个 kube-apiserver 进程（[Pod](/2023/05/09/kubernetes-pod)）。
 
 Master 和 Node 中几乎所有的组件都需要和 apiserver 通信，以执行所需要的职责。  
 这样模块之间不会直接互相调用，而是统一通过 apiserver 打交道完成通信；并且屏蔽了与 etcd 的直接交互。
@@ -61,15 +79,22 @@ Master 和 Node 中几乎所有的组件都需要和 apiserver 通信，以执�
 
 ### **kube-scheduler 调度程序**
 
-调度程序通过执行一系列复杂的算法（比如轮询调度 RR），为**每个 [pod](/2022/05/28/kubernetes-pod-management#Pod) 匹配到一个最佳的目标 node**，然后分发任务。
+调度程序通过执行一系列复杂的算法（比如轮询调度 RR），为**每个 Pod 匹配到一个最佳的目标 node**，然后分发任务。
+* 将 Pod 调度到指定的 node 上，这一过程也叫绑定（bind）：
+    * 输入为需要调度的 Pod 和可以被调度的节点 node 的信息
+    * 输出为调度算法选择的 node，并将该 pod bind 到这个 node
+* 每一个 Node 都有对应的一个 kube-scheduler 进程（Pod）。
 
 
 ### **kube-controller-manager**
 
-守护进程。顾名思义，是 Kubernetes 管理各个 service controller 的控制中心。
+顾名思义，是 Kubernetes 管理各个 service controller 的控制中心。
 
 Controller 管理着集群中的各种资源。  
-每个 controller 本质上是一个控制循环，它通过 apiserver 监视集群的共享状态，对服务进行监控和恢复，尝试改变某个服务与期望不符的实际情况。
+每个 controller 本质上是一个控制循环，它通过 apiserver 监视集群的共享状态，对服务进行监控和恢复，尝试改变某个服务与期望不符的实际情况。  
+当某个 Node 意外宕机时，Controller Manager 会及时发现并执行自动化修复流程，确保集群始终处于预期的工作状态。
+
+![](kubernetes-overview/controller.png)
 
 Kubernetes 内部的 service controller 包括：
 * `Cronjob Controller`
@@ -89,14 +114,18 @@ Kubernetes 内部的 service controller 包括：
 * `StatefulSet Controller`
 * `Token Controller`：对 API server 访问进行认证
 
+每一个 Node 都有对应的一个 kube-controller-manager 进程（Pod）。
+
 
 ### **etcd** 组件
 
-作为高可用强一致性的存储仓库，etcd 存储集群上包括 Kubernetes 对象，node, pod, service, replicaset, namespace 等**所有集群配置信息和状态信息**。
+作为高可用强一致性的存储仓库，[etcd](https://etcd.io) 存储集群上包括 Kubernetes 对象，node, pod, service, replicaset, namespace 等**集群所有的网络配置信息**和**对象的状态信息**。
 
-如果数据发生了变化，etcd 会快速通知相关的组件做出调整。
+简单说，etcd 集群是一个分布式系统，由多个节点相互通信构成整体对外服务，每个节点都存储了完整的数据，并且通过 Raft 协议保证每个节点维护的数据是一致的。
 
 ![交互简单](kubernetes-overview/simple-interface.png) ![键值存储](kubernetes-overview/kv-storage.png) ![监测变化](kubernetes-overview/watch-changes.png)
+
+如果数据发生了变化，etcd 会快速通知相关的组件做出调整。
 
 etcd 组件可内置于 Kubernetes，也可于集群外部搭建供 Kubernetes 使用。
 
@@ -105,9 +134,22 @@ etcd 的增删改查也是统一通过 kube-apiserver 进行调用的。
 
 ### Flannel
 
-由 CoreOS 团队针对 Kubernetes 设计的一个网络规划服务，让集群中不同 pod 各自创建的容器**具有全集群唯一的 IP**。
+Flannel 是由 CoreOS 团队针对 Kubernetes 设计的一个网络规划服务。
 
-在集群中以 `coredns-********-*****` 的实体显示。
+由 Pod 的[内部结构](/2023/05/09/kubernetes-pod#网络通信)可知，Pod 内部的各个容器如应用程序在宿主机的通信一样，能够通过 `localhost:port` 的方式通信。
+
+至于 Pod 和 Pod 之间的通信，有以下原则：
+
+* 一个 Node 上的 Pod 和其它 Node 的 Pod 通信不需要通过网络地址转换（NAT）；
+* 一个 Node 上所有的 agent 控制程序（如 deamon 和 kubelet）可以和该 Node 的 Pod 通信；
+* Node 主机网络中的 Pod 可以与其它所有 Node 上的所有 Pod 通信，无需 NAT。
+
+而 Flannel 通过覆盖网络（overlay network），将数据包封装在另外一个网络再转发，让集群中不同 Pod（包括其容器）**具有全集群唯一的 IP**。
+
+
+### CoreDNS
+
+CoreDNS 是“一个灵活可扩展的 DNS 服务器”，可以作为 Kubernetes 集群的 DNS。
 
 
 ## Node
@@ -141,6 +183,8 @@ Node 各组件如图：
 
 除 kubelet（**唯一没有以容器形式运行的组件**）外，Node 各系统组件都被划分到 `kube-system` 的 namespace 中。
 
+![](kubernetes-overview/kube-system.png)
+
 
 ### **kubelet**
 
@@ -158,7 +202,7 @@ kubelet 组件是 Node 的心脏，用于管理容器生命周期（创建、修
 * 使用 IP 表（iptables）/ IPVS 将对 pod 的网络请求重定向到本地端口
 * 为每个 service 建立服务代理对象（VIP），完成服务地址到 Pod 地址的代理
 * 维护 node 上的防火墙规则和路由规则等信息，监听 apiserver 中 service / endpoints 的变化，并刷新对应规则，实现负载均衡
-* 实现了集群内部从 pod 到 service，以及集群外部从 nodePort 到 service 的访问
+* 实现了集群内部从 Pod 到 Service，以及集群外部从 NodePort 到 Service 的访问
 
 ![](kubernetes-overview/kubeproxy.png)
 
@@ -205,6 +249,11 @@ ipvs（基于哈希表）的性能优于 iptables（基于链表），其支持�
 * SH: source hashing / 源哈希
 * SED: shortest expected delay / 预计延迟时间最短
 * NQ: never queue / 从不排队
+
+
+### Fluentd
+
+日志收集功能。
 
 
 ### Failover

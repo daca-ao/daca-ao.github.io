@@ -20,7 +20,7 @@ Java 程序的基本单元，就是一个个的类（Class）及类实例（Clas
 好处：
 * 类的加载、连接和初始化过程都在程序的运行时完成，令 Java 具备高度的灵活性；
     * 其他语言是在编译时进行链接的
-* 避免类被重复加载：即每个 JVM 中，只会有一个拥有同样全路径的 .class 文件；
+* 避免类被重复加载：即每个 JVM 中，**只会有一个**拥有**同样全路径**的 .class 文件；
 * 沙箱安全机制：防止核心类库的核心类被篡改。
 
 .class 文件被加载后，对应在 JVM 形成一份描述该类结构的元信息对象；通过该元信息对象可以获知 Class 的结构信息，如构造函数、属性、方法等。  
@@ -36,9 +36,9 @@ JVM 只会加载程序执行时所需要的 .class 文件，**暂时不使用的
 **1. 加载 Load**：加载类数据到内存，在堆区建立一个 Class 对象
 1. 通过类的全限定名（com.xxx.xxxx.xxxx）获取该类的二进制字节流（.class 文件）
     * 可从磁盘上读取文件，或者根据链接请求网络文件，等
-2. 解析流，将该字节流代表的**静态存储结构**转换为方法区的运行时数据结构，将类的信息存放到方法区中
+2. 解析流，将该字节流代表的**静态存储结构**转换为[方法区](/2021/07/07/jvm-basics#2-%E6%96%B9%E6%B3%95%E5%8C%BA-Method-Area)的运行时数据结构，将类的信息存放到方法区中
 3. 在静态区（内存）创建代表这个类的 `java.lang.Class` 实例，作为方法区该类的各种数据结构的访问入口
-    * 没有规定这个对象要在堆中：比较特殊，虽是对象，但是在方法区
+    * 没有规定这个对象一定要在堆中：比较特殊，虽是对象，但是在方法区
     * 注意：这里创建的应该是**实例**，而不是对象。
 
 **2. 链接 Link**：把 Class 的二进制数据合并到 JRE，具体包括**验证**、**准备**和**解析**三步：
@@ -76,6 +76,7 @@ JVM 规范中，严格规定了**有且只有** **`5`** 种情况**必须对类�
 注：访问类的 final 静态变量，即常量时不会触发该类的初始化
 * 因为：常量在被写进类的字节码之前，会被编译器优化为 value 而不是 field；
 * 所以编译器并不会对应生成字节码来从实例中载入 field 的值，而是直接把这个 value 插入到字节码中。
+
 ```java
 class ConstClass {
     static {
@@ -99,6 +100,7 @@ public class Test {
 * 这种情形会递归加载所有之前未被加载的父类
 
 所以：通过子类来引用父类的静态字段（包括域和静态块），只会触发父类的初始化，不会触发子类的初始化。
+
 ```java
 class SuperClass {
     static {
@@ -146,6 +148,7 @@ JVM 判断两个类是否相同：不仅要判定类的全限定名是否相同�
 <br/>
 
 # 类加载器类型
+
 每个 Java 程序至少拥有三类加载器。
 
 **1. 引导（启动，Bootstrap）类加载器**
@@ -155,9 +158,10 @@ JVM 判断两个类是否相同：不仅要判定类的全限定名是否相同�
     * `$JAVA_HOME/lib` 路径下的核心类库
     * JVM `-Xbootclasspath` 参数指定路径下的 jar 包
     * 如 `rt.jar`, `resources.jar`, `charsets.jar` 等
-* C++ native code 编写，没有父类，也没有对应的 ClassLoader 对象
-    * 因此无法被 Java 程序直接引用
-* 在构造的时候会同时构造 `ExtClassLoader`
+* 负责加载 C++ native code 编写，没有父类，也没有对应的 ClassLoader 对象
+    * 这些类库的对象无法被 Java 程序直接引用
+
+在构造 Bootstrap 类加载器的时候会同时构造 `ExtClassLoader`，即下面要提到的扩展类加载器。
 
 出于安全性考虑，虚拟机是**按照文件名**识别并加载 jar 包的，而且 Bootstrap 类加载器只加载包名以 `java`, `javax`, `sun` 等开头的类。  
 如果文件名不被 JVM 识别，即使将再多 jar 包丢到 /lib 目录下面也没用。  
@@ -172,15 +176,17 @@ JVM 判断两个类是否相同：不仅要判定类的全限定名是否相同�
 * 默认从 `$JAVA_HOME/lib/ext` 目录加载“标准的扩展”
 * 还包括 java.ext.dirs 系统变量（`-Djava.ext.dirs`）所指定的路径中的所有类库
 * 开发者可以直接使用该加载器
-* 在构造的时候同时构造 `AppClassLoader`
+
+在构造 Extension 类加载器的时候同时构造 `AppClassLoader`，即下面要提到的应用类加载器。
 
 <br/>
 
 **3. 应用（Application）类加载器**
 
-由 Sun 实现的 **`sun.misc.Launcher$AppClassLoader`** 类，通过 Java 实现，继承自 `URLClassLoader`。  
+由 Sun 实现的 **`sun.misc.Launcher$AppClassLoader`** 类，通过 Java 实现，同样继承自 `URLClassLoader`。  
 因为 `AppClassLoader` 又是 `ClassLoader.getSystemClassLoader()` 的返回值，所以又称之为**系统类加载器 System ClassLoader**）
-* 用于加载应用程序的类路径 classpath 目录（`java -classpath` / `-Djava.class.path`）下所有 jar 和 .class 文件
+
+* 用于加载**应用程序**的类路径 classpath 目录（`java -classpath` / `-Djava.class.path`）下所有 jar 和 .class 文件
 * 开发者可以直接使用该加载器（`ClassLoader.getSystemClassLoader()`）
 * 如应用没有自定义类加载器，那：它就是程序中**默认**的类加载器。
 
@@ -188,7 +194,8 @@ JVM 判断两个类是否相同：不仅要判定类的全限定名是否相同�
 
 <br/>
 
-除了上述三类必备的类加载器之外，用户还可以自定义类加载器：  
+除了上述三类必备的类加载器之外，用户还可以自定义类加载器： 
+
 **4. Custom Class Loader**
 * 用户自定义的类加载器，父类为 `AppClassLoader`
 
@@ -208,11 +215,11 @@ abstract class ClassLoader {
 
     ClassLoader getParent()    // 返回父类加载器，如为 Bootstrap ClassLoader 则返回 null
 
-    static ClassLoader getSystemClassLoader()  // 获取系统的类加载器，即应用类加载器
+    static ClassLoader getSystemClassLoader()  // 获取系统的类加载器，即返回应用类加载器
 
     protected Class findClass(String name)  // 类加载器应覆盖此方法，以查找类的字节码
 
-    protected Class<?> loadClass(String name, boolean resolve)  // 加载类
+    protected Class<?> loadClass(String name, boolean resolve)  // 加载某个类
 
     Class defineClass(String name, byte[] byteCodeData, int offset, int length)
     // 将新的类添加到虚拟机中，其字节码在给定的数据范围（offset, length）中
@@ -224,7 +231,9 @@ abstract class ClassLoader {
 <br/>
 
 # 类加载层次：双亲委派模型
+
 类加载器有一种“父/子关系”，它们是**组合**而非继承关系：
+
 * 子类保存对父类的引用；
 * 当某个类加载器收到类加载请求，首先将请求递归地委派给“父类”；
 * 父类在自己的加载路径中搜索目标类；当父类找不到，无法完成加载时，加载工作才交还子类，由子类自身完成
@@ -234,7 +243,7 @@ abstract class ClassLoader {
 
 好处：
 * 安全：避免用户自己编写的类动态替换了 Java 的一些核心类，如 `String` 等
-* 避免重复加载某个类带来的混乱；加载分层次
+* 加载分层次，避免重复加载某个类带来的混乱
 
 举个例子：某自定义 ClassLoader 在亲自搜索需要加载的某个类之前，首先不会自己尝试去加载，而是将加载任务**委托**至父类加载器
 * 检查这个类是否已被加载，没有则委派 `AppClassLoader` 加载
@@ -282,7 +291,7 @@ protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundE
                 } else {  // 没有父类加载器：委托引导类加载器
                     c = findBootstrapClassOrNull(name); 
                 }
-            } catch (ClassNotFoundException	e) {
+            } catch (ClassNotFoundException e) {
                 // ClassNotFoundException thrown if class not found
                 // from the non-null parent class loader
             }
@@ -341,6 +350,7 @@ protected Class<?> findClass(String name) throws ClassNotFoundException {
 <br/>
 
 # 自定义类加载器
+
 应用场景：
 1. 常用于代码的加解密：想要让自己的 Java 不那么容易被反编译，可以先将编译后的代码使用某种算法加密；
     * 加密之后的代码就不能用 Java 的 ClassLoader 加载了，需要自定义类加载器在加载类时先解密，再加载；

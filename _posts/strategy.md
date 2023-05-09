@@ -19,7 +19,7 @@ tags:
     “定义一系列算法，将他们一一封装，并使他们可以相互替换”
     “本模式使得算法能独立于使用它的客户而变化”
 
-把不同组的算法封装在不同的类里。
+实现的时候把不同组的算法封装在不同的类里。
 
 <br/>
 
@@ -85,7 +85,7 @@ public interface Strategy {
 
 ```java
 // 具体策略角色类
-public class ConcreteStrategyA implements Strategy{
+public class ConcreteStrategyA implements Strategy {
 
     @Override
     public void algorithmLogic(int value1, int value2) {
@@ -247,7 +247,8 @@ System.out.println(result);  // 240
 
 <br/>
 
-另：策略的高级玩法：
+策略的高级玩法：**反射实现**
+
 ```java
 public class CashContextReflect {
 

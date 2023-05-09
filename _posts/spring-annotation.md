@@ -670,7 +670,10 @@ Spring 组件扫描机制能将标记了 @Component 的类拉入应用程序中�
 
 ## 其它
 
-`@ComponentScan`：扫描指定包下的所有 Spring 组件。
+`@ComponentScan`：扫描并装配指定包下的所有 @Component, @Controller, @Service, @Repository 注解的 Bean 到 IOC 容器中。
+
+* 默认情况下扫描入口类（XxxApplication.class）**同级以及子级包**下的所有文件；
+* 可通过 `basePackages` & `value` / `basePackageClasses` 指定扫描路径
 
 `@Primary`：手动创建 Spring Bean 时，如果 IoC 容器发现了多个 bean 候选者，则 `@Primary` 可以指定当前为默认注入的 bean；否则会抛出异常。
 

@@ -1,5 +1,6 @@
 ---
 title: Redis 入门
+mathjax: true
 date: 2021-07-29 00:35:16
 tags:
 - 数据库
@@ -65,7 +66,7 @@ typedef struct redisObject {
 一个 redisObject 占用 **16** 字节的空间。
 
 
-<big>**1. type**</big>
+**<big>1. type</big>**
 
 redisObject 一共有 5 种数据类型：
 ```c
@@ -79,7 +80,7 @@ redisObject 一共有 5 种数据类型：
 4 位 type 字段最多能排出 15 种组合，记录 5 种数据类型足够。
 
 
-<big>**2. encoding**</big>
+**<big>2. encoding</big>**
 
 redisObject 一共有 10 种编码类型：
 ```c
@@ -128,7 +129,7 @@ redisObject 一共有 10 种编码类型：
 ![](redis-basics/redis-encoding-raw.png)
 
 
-<big>**3. lru**</big>
+**<big>3. lru</big>**
 
 通过对比 lru 的值与当前时间，可计算某个对象的空转时间（object idletime）并打印出来。
 
@@ -136,7 +137,8 @@ lru 与 Redis 内存回收关系颇为密切。
 如果 Redis 打开了 `maxmemory` 选项，且内存回收算法选择 `volatile-lru` 或 `allkeys-lru` 作为淘汰策略的话，当内存占用超过 maxmemory 阈值时，Redis 会优先选择 object idletime 最长的对象释放。
 
 
-<big>**4. refcount**</big>：主要用于对象引用计数和内存回收（计数法）
+**<big>4. refcount</big>**：主要用于对象引用计数和内存回收（计数法）
+
 * 创建新对象：refcount = 1
 * 有新程序使用该对象：refcount + 1
 * 对象不再被一个新程序使用：refcount - 1
@@ -147,7 +149,7 @@ refcount > 1，意味着该对象被多次使用，其被称为共享对象。
 
 Redis 五种类型都可以使用共享对象，但仅支持整数值的字符串对象，因为这考虑到对内存和 CPU（时间）的平衡：
 * 共享对象虽然降低了内存消耗，但判断两个对象是否相等需消耗额外时间
-* 整数值判断操作复杂度为 **O**(1)；普通字符串为 **O**(n)；列表等为 **O**(n<sup>2</sup>)
+* 整数值判断操作复杂度为 $O(1)$；普通字符串为 $O(n)$；列表等为 $O(n^2)$
 
 Redis 服务器初始化时会创建 10000 个字符串对象：0 - 9999
 * Redis 需要使用值为该范围其中的字符串对象时可直接使用。
@@ -205,7 +207,8 @@ Redis 作为 NoSQL 类型的内存数据库，在内存中主要以键值对（k
 
 其中“值”（value）的类型有：
 
-<big>**String**</big>
+**<big>String</big>**
+
 * Redis 最基本的数据类型，扩展性非常高
 * 上面已经提到过了：底层为字符数组，长度不超过 512 MB
 * Redis K-V 中的 key 只能为 String 类型
@@ -239,7 +242,8 @@ String 类型相关指令：
 
 <br/>
 
-<big>**Hash**</big>
+**<big>Hash</big>**
+
 * 键值对（key-value）集合
 * 本质为 String 类型的 field 和 value 的映射表
 * 指令以 h 开头
@@ -267,7 +271,8 @@ ziplist 编码特点：如上，所有数据内存上连续，以实现快速访
 
 <br/>
 
-<big>**List**</big>
+**<big>List</big>**
+
 * 简单的 String 列表，按照插入顺序排序
 * 可添加至列表头（左）或尾（右）
 * 相关操作指令以 l 开头
@@ -295,7 +300,8 @@ List 的编码：
 
 <br/>
 
-<big>**Set**</big>
+**<big>Set</big>**
+
 * 元素为 String 的无序不重复集合，通过哈希表实现
 * 保存数字的时候是有序的
 * 相关操作指令以 s 开头
@@ -323,7 +329,8 @@ Set 中的每个元素为 dictEntry 的 key，value 值为空。
 
 <br/>
 
-<big>**zset**</big>（Sorted Set）
+**<big>zset</big>**（Sorted Set）
+
 * String 有序不重复集合，与 Set 类似
 * 每个元素关联一个 double 类型的权重（score），Redis 根据权重从小到大排序
 * 相关操作指令以 z 开头

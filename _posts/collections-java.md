@@ -8,14 +8,13 @@ tags:
 JCF，Java Collections Framework 的简称。[官方文档](https://docs.oracle.com/javase/8/docs/technotes/guides/collections/)解释其为“统一化的表示和操作集合的架构”。
 
 <!-- more -->
-一个集合类的实例，如链表、队列、映射表等，都是若干个对象的集合，是数据结构类型的实例化结果。由于复杂的类结构，所有 Java 集合相关的接口以及类被统称为“集合框架”（JCF）。  
+通常来说，一个集合类的实例，如链表、队列、映射表等，都是若干个对象的集合，是数据结构类型的实例化结果。  
+由于复杂的类结构，所有 Java 集合相关的接口以及其实现类被统称为“集合框架”（JCF）。  
 其实理解为“**体系**”更为恰当。
 
 优势：
 * 降低代码量和复杂度：不需要由开发者再进行基础数据结构的设计，提高代码复用性，降低编码难度，增强可操作性
-* 提升代码性能
-    * 被 JDK 收录的集合类库是一系列数据结构类型的具体实现
-    * 质量和性能较高，降低底层代码的性能风险和维护成本
+* 提升代码性能：被 JDK 收录的集合类库是一系列数据结构类型的具体实现，其质量和性能较高，降低底层代码的性能风险和维护成本
 
 <br/>
 
@@ -26,31 +25,33 @@ Java 最初版本：只为最常用的数据结构提供很少的一组类：
 * `Stack`
 * `Hashtable`
 * `BitSet`
-* `Enumeration`：提供访问任意容器中各元素的抽象机制
+* `Enumeration`：“枚举”，提供访问任意容器中各元素的抽象机制
 
 
 ## 改进想法
 
 ### 全新框架
+
 * 将传统的类融入到新框架中
 * 让类库规模小且易于学习，不希望像 C++ 的 STL 那样复杂
 * 能得到 STL 的泛型算法具有的优点
 
 ### 使用**泛型**
-为集合提供一个可以容纳的对象类型
-* 如添加其它类型任何元素：编译错误
-* 使代码变得整洁
+
+为集合提供并规定一个可以容纳的对象类型
+* 如添加其它类型任何元素，将抛出编译错误
+* 可使代码变得整洁
 
 ### 实施：**接口（interface）与实现（implementation）分离**
 
-例如：队列不同的实现方法：
+比如要实现一个队列，我们有不同的实现方法：
 * 若需要实现循环数组队列，可使用 `ArrayDeque` 类
 * 若需要链表队列，可使用 `LinkedList` 类：实现了 Queue 接口
     * 循环数组为有界集合，高效；链表没有上限
-* `ArrayList` 迭代：从 0 开始添加索引
-* `HashSet`：无法预知元素被访问的顺序
+* 使用 `ArrayList` 实现可以从 0 开始添加索引并迭代
+* 使用 `HashSet` 实现，则无法预知元素被访问的顺序
 
-即：构建集合时，只有使用具体的类才有意义
+即：构建集合时，只有使用具体的实现类才有意义。
 
 如：使用接口类型存放集合的引用
 ```java
@@ -58,7 +59,7 @@ Queue<Customer> expressLane = new CircularArrayQueue<>(100);
 expressLane.add(new Customer("Harry"));
 ```
 
-如要改为另一种实现方式，则：
+如要改为另一种实现方式，直接更改它的实现类即可：
 ```java
 Queue<Customer> expressLane = new LinkedListQueue<>();
 expressLane.add(new Customer("Harry"));
@@ -66,14 +67,14 @@ expressLane.add(new Customer("Harry"));
 
 <br/>
 
-# “体系”下的集合框架（Collections Framework）
+# 集合“体系”下的集合框架（Collections Framework）
 
-构成：
+集合框架的构成：
 * 提供一系列的集合接口：如 `Set`，`List`，`Map` 等
 * 针对集合接口的基础支持，如 `Iterator`
 * 针对集合接口的抽象类实现：允许更多定制，类名通常以 `Abstract-` 开头
 * 针对集合接口的通用实现：实现了接口的基本功能：`ArrayList`，`HashMap`，`LinkedList`，...
-* 针对集合接口的包装类（Wrapper）实现，比如让接口只读
+* 针对集合接口的包装类（`-Wrapper`）实现，比如让接口只读
 * 针对集合接口的高性能且方便的功能性实现，如数组转换成 List
 * 为早期的集合类添加集合接口的实现，如 `Vector`，`Hashtable` 等
 * 针对集合接口的某些特殊实现，如特殊的 List
@@ -114,7 +115,7 @@ java.util.Deque
 java.util.concurrent.BlockingQueue
 ```
 
-## <small>Map (`java.util.Map`)</small>
+## <small>[Map](/2022/05/06/java-map) (`java.util.Map`)</small>
 
 ```java
 // 以下为子接口
@@ -124,37 +125,37 @@ java.util.concurrent.ConcurrentMap
 java.util.concurrent.ConcurrentNavigableMap
 ```
 
-<big>和基础功能：</big>
+<big>和基础功能，如：</big>
 
+<br/>
 
 ## Iterators
 
-迭代器，与 Enumeration 接口类似，但更加强大
+迭代器 `Iterator`：在实现了 Enumeration 接口的基础上，还能删除元素。
 
-`Iterator`
-* 除了实现 Enumeration 接口外，还能删除元素
+```java
+E next();  // 返回下一个元素
 
-    ```java
-    E next();  // 返回下一个元素
+boolean hasNext()  // 循环调用遍历元素
+// 到达队列末尾时，next() 抛出 NoSuchElementException
 
-    boolean hasNext()  // 循环调用遍历元素
-    // 到达队列末尾时，next() 抛出 NoSuchElementException
+/** 
+ * next() 和 remove() 的调用具有依赖性
+ * 调用 remove() 之前不调用 next()：抛出 IllegalStateException 异常
+ */
+void remove()  // 删除上次调用 next() 时返回的元素    
 
-    /* 
-     next() 和 remove() 的调用具有依赖性
-     调用 remove() 之前不调用 next()：抛出 IllegalStateException 异常
-     */
-    void remove()  // 删除上次调用 next() 时返回的元素    
+default void forEachRemaining()  // 编译器将其翻译为带有迭代器的循环
+```
 
-    default void forEachRemaining()  // 编译器将其翻译为带有迭代器的循环
-    ```
+例子：
 
-    ```java
-    for (String element : c) {
-        doSomething(element);
-    }
-    // for each 对于标准类库任何集合都可使用
-    ```
+```java
+for (String element : c) {
+    doSomething(element);
+}
+// for each 对于标准类库任何集合都可使用
+```
 
 应用：以 Map 为例
 
@@ -191,36 +192,43 @@ public static void main(String[] args) {
     });
     // 进一步简化
     map.forEach((k, v)->System.out.println(k + "=" + v));
+    // 这里用到的是 Iterable 的 forEach() 接口
 }
 
 // 使用迭代器迭代，更加线程安全
 ```
 
-注：`iterator.next()` 和 `iterator.hasNext()`，与 `Enumeration.nextElement()` 和 `Enumeration.hasMoreElements()` 一样
-* 仅因为 iterator 的接口名较短，更多人愿意使用
-
-`Enumeration` 和 `Iterator` 接口的区别：
-* Enumeration 更基础，满足基础需要
-* Enumeration 速度为 Iterator 两倍，使用更少内存
-* Iterator 更加安全：当一个集合被遍历时，会阻止其他线程修改集合
-* Iterator 允许调用者从集合中移除元素，Enumeration 做不到
-
-`ListIterator`
+子接口 `ListIterator`：
 * 支持 Iterator 的功能
 * 将一个元素添加到迭代器所处位置的前面：`void add(E element)`
 * 要想获取和删除给定位置的元素，只需调用 Iterator 接口中的 `next()` 和 `remove()` 方法即可
 * 针对 List 的迭代器，支持双向迭代，元素替换，元素插入以及索引获取。
 
+注：`iterator.next()` 和 `iterator.hasNext()`，与 `Enumeration.nextElement()` 和 `Enumeration.hasMoreElements()` 一样
+* 仅仅是因为 iterator 接口的名字较短，导致更多人愿意使用
 
-### Iterator `fail-fast` 属性
 
-* 每次尝试获取下一个元素：该属性检查当前集合结构里的任何改动
-* 如发现改动：抛出 `ConcurrentModificationException` 
-    * 多个线程对同一个集合内容操作就可能抛出此异常
-* Collection 中所有 Iterator 实现均按照 fail-fast 设计（除多线程安全集合外）
-* 与之相对：`fail-safe`，不抛出 ConcurrentModificationException
-    * 遍历时不直接在集合内容上访问
-    * 而是先复制原有集合内容，在拷贝的集合上进行遍历
+### 与 `Enumeration` 的区别
+
+* Enumeration 出自 JDK 1.0，更基础，能满足基础需要；Iterator 出自 JDK 1.2；
+* Iterator 天生 `fail-fast`，面对集合编辑的时候更加安全；而 Enumeration 天然 `fail-safe`；
+* Iterator 允许调用者从集合中移除元素，Enumeration 则没有相关接口，其只能遍历元素。
+
+
+### `fail-fast` 属性
+
+* 每次尝试获取下一个元素时：该属性会检查当前集合的 `modCount` 变量
+* 如发现 `modCount` 与当前不一致：抛出 `ConcurrentModificationException` 
+    * 如果存在多个线程对同一个集合内容进行操作，很容易会抛出此异常；
+    * 在调用 `iterator.hasNext()` 的过程中调用 `iterator.remove()`，不会抛出异常；而调用 `collection.remove()` 则会抛出异常
+* Collection 中所有非线程安全的 Iterator 实现均按照 fail-fast 设计
+
+与之相对的就是：`fail-safe`
+* 不抛出 ConcurrentModificationException
+* 线程安全的集合的 iterator 就是 `fail-safe` 的
+* 遍历时不直接在集合内容上访问，而是先复制原有集合内容，在拷贝的集合上进行遍历
+
+其实 fail-safe 的 iterator 由于自身的 weakly consistent，**并不强保证遍历得到的元素一定正确**。
 
 <big>注：</big>
 
@@ -232,10 +240,39 @@ Java 集合类库中的迭代器不同于其他类库的迭代器
 
 ![](collections-java/next.png)
 
-即：可将 `Iterator.next()` 和 `InputStream.read(`) 等效
+即：可将 `Iterator.next()` 和 `InputStream.read()` 等效
 * 从数据流中读取一个字节，自动“消耗掉”该字节
 * 下次调用 `read()` 将会消耗并返回输入的下一个字节
 * 同样方式，反复调用 `next()` 可读取集合中所有元素
+
+
+<big>说到 Iterator，就不可避免地提到 Collection 的父接口：</big>
+
+## <small>`Iterable`</small>
+* 实现 Iterable 接口的类**需要实现** `iterator.iterator()`，用于生成一个 Iterator 迭代器；
+* 实现了 Iterable 接口的类，可以使用 `for(:)` 循环遍历
+    * Since JDK 1.8：新的 `forEach()`，提供了默认实现，用于使用 lambda 表达式进行遍历（详情可参照[源码](https://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/java/lang/Iterable.java)）。
+
+
+```java
+List<String> list = Arrays.asList(new String[]{"Hello", " ", "World!"});
+
+// lambda 表达式遍历
+list.forEach(s -> System.out.println(s));
+
+// lambda 表达式遍历简化版
+list.forEach(System.out::println);
+```
+
+**Iterable 和 Iterator 接口的区别**
+
+* Iterable 描述的是一组可以迭代的元素，而每个元素在 Iterable 接口的实现里是无状态的；
+* 而 Iterator 对象对于每一个元素是有状态描述的：因为 `next` 指针的存在，调用 `next()` `hasNext()` 方法会改变 next 的引用；
+* Iterable 实现了 iterator() 方法来获取 Iterator；
+* Iterable 遍历时不允许删除；而 Iterator 遍历时允许删除
+
+正因此，Iterable 的 forEach() 在无状态的情况下，每一次调用都遍历集合里面的**所有元素**；  
+而 Iterator.forEachRemaining() 同样有个 "forEach"，返回的则是所有**未被遍历过的元素**。 
 
 
 ## Ordering
@@ -270,6 +307,7 @@ public class MyComparator implements Comparator<Student> {
 
 
 ## Runtime exceptions
+
 * `UnsupportedOperationException`
     * 集合进行不被支持的操作时抛出
 * `ConcurrentModificationException`
@@ -278,6 +316,7 @@ public class MyComparator implements Comparator<Student> {
 
 
 ## Performance
+
 `RandomAccess`
 * 为避免执行成本较高的随机访问操作而引入的标记接口
 * 该接口无任何方法，但可用来检测一个特定集合是否支持高效的随机访问
@@ -288,23 +327,6 @@ public class MyComparator implements Comparator<Student> {
     * `HashMap`
     * `TreeMap`
     * `Hashtable`
-
-<big>另：说说 Collection 的父接口：</big>
-
-## <small>`Iterable`</small>
-* 实现了 iterator 方法 `iterator()`，用于生成一个 Iterator 迭代器
-* Since JDK 1.8：提供新的 `forEach()`，详情可参照[源码](https://hg.openjdk.java.net/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/classes/java/lang/Iterable.java)。
-    * 提供了默认实现，用于使用 lambda 表达式进行遍历
-
-```java
-List<String> list = Arrays.asList(new String[]{"Hello", " ", "World!"});
-
-// lambda 表达式遍历
-list.forEach(s -> System.out.println(s));
-
-// lambda 表达式遍历简化版
-list.forEach(System.out::println);
-```
 
 <br/>
 
@@ -401,7 +423,7 @@ java.util.Properties
 
 `Hashtable`：与 HashMap 作用一样
 * 实现 Map 接口
-* 与 HashMap 有区别
+* 与 HashMap [有区别](/2022/05/08/java-hashmap/#HashMap%20v.s.%20Hashtable)
 
 `Enumeration`：枚举类
 * 类似于 Iterator 的 hasNext() 和 next()，其也有 `hasMoreElements()` 和 `nextElement()`

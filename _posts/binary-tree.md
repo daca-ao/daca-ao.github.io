@@ -378,7 +378,7 @@ public class BinaryTree {
     // 返回二叉树高度
     // 时间复杂度为 Θ(n)
     public int height(BinaryTreeNode node) {
-        return root == null ? 0 :
+        return node == null ? 0 :
             1 + Math.max(height(node.getLeftChild()), height(node.getRightChild()));
     }
 
@@ -389,7 +389,7 @@ public class BinaryTree {
     // 确定二叉树元素数目
     // 此处实现基于前序遍历
     public int count(BinaryTreeNode node) {
-        return root == null ? 0 :
+        return node == null ? 0 :
             1 + Math.addExtract(count(node.getLeftChild()), count(node.getRightChild()));
     }
 

@@ -68,7 +68,7 @@ private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 public ArrayList(Collection<? extends E> c);
 
 /*
- JDK 1.7-: 直接调用 ArrayList(10)
+ JDK 1.7-: 直接调用 ArrayList(DEFAULT_CAPACITY)，即 ArrayList(10)
  JDK 1.8: 直接将 DEFAULTCAPACITY_EMPTY_ELEMENTDATA 赋给数组，实际上是一个空的 Object 数组
  */
 public ArrayList() {
@@ -107,12 +107,13 @@ ArrayList 添加元素前会确保容量足够，如不足则会进行扩容，�
 /**
  * 新增元素操作
  */
-// eg1：第一次新增元素 e="a1"，list.add("a1");
+// eg1：第一次新增元素 e = "a1"，list.add("a1");
 public boolean add(E e) {
    /* 确定是否需要扩容，如果需要，则进行扩容操作 */
    ensureCapacityInternal(size + 1);  // Increments modCount!!
+   // 动态扩容的重点
 
-   // eg1：size=0，elementData[0]="a1"，然后 a 自增为 1
+   // eg1：size = 0，elementData[0] = "a1"，然后 size 自增为 1
    elementData[size++] = e;
    return true;
 }
@@ -120,13 +121,14 @@ public boolean add(E e) {
 
 
 ## 动态扩容
+
 ```java
 /**
  * 扩容代码
  */
-// eg1：第一次新增元素：size=0，minCapacity=size+1=1
+// eg1：第一次新增元素：size = 0，minCapacity = size + 1 = 1
 private void ensureCapacityInternal(int minCapacity) {
-   // eg1：第一次新增元素，calculateCapacity 方法返回 DEFAULT_CAPACITY=10
+   // eg1：第一次新增元素，calculateCapacity 方法返回 DEFAULT_CAPACITY = 10
    ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
 }
 
@@ -140,10 +142,10 @@ private void ensureCapacityInternal(int minCapacity) {
  * @param minCapacity  ArrayList 中的元素个数
  * @return
  */
-// eg1：第一次新增元素，elementData={} minCapacity=1
+// eg1：第一次新增元素，elementData = {}, minCapacity = 1
 private static int calculateCapacity(Object[] elementData, int minCapacity) {
    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
-      // eg1：满足 if 判断，DEFAULT_CAPACITY=10
+      // eg1：满足 if 判断，DEFAULT_CAPACITY = 10
       return Math.max(DEFAULT_CAPACITY, minCapacity);  // 即：数组元素少于 10 的，容量都设定为 10
    }
    return minCapacity;
@@ -154,16 +156,16 @@ private static int calculateCapacity(Object[] elementData, int minCapacity) {
  *
  * @param minCapacity  ArrayList 所需的最小容量
  */
-// eg1：第一次新增元素，minCapacity=10
+// eg1：第一次新增元素，minCapacity = 10
 private void ensureExplicitCapacity(int minCapacity) {
-   // eg1: modCount++ 后，modCount=1
+   // eg1: modCount++ 后，modCount = 1
    modCount++;
 
    /* 如果所需的最小容量大于 elementData 数组容量，则进行扩容操作 */
    
-   if (minCapacity - elementData.length > 0) { // eg1：10-0=10，满足扩容需求
-      // eg1：minCapacity=10
-      // 所需最小容量大于 elementData 容量：ArrayList 目前容量不满足最小容量
+   if (minCapacity - elementData.length > 0) { // eg1：10 - 0 = 10，满足扩容需求
+      // eg1：minCapacity = 10
+      // 如果所需最小容量大于 elementData 容量，则 ArrayList 目前容量不满足最小容量
       grow(minCapacity);  // 扩容
    }
 }
@@ -178,11 +180,11 @@ private void ensureExplicitCapacity(int minCapacity) {
  *
  * @param minCapacity  所需要的最小扩容量
  */
-// eg1：第一次新增元素，minCapacity=10，即：需要将 elementData 的 0 长度扩容为 10 长度。
+// eg1：第一次新增元素，minCapacity = 10，即：需要将 elementData 长度从 0 扩容为 10。
 private void grow(int minCapacity) {
 
    /* 1. 确定原有数组 elementData 的长度 */
-   int oldCapacity = elementData.length;  // eg1：oldCapacity=0
+   int oldCapacity = elementData.length;  // eg1：oldCapacity = 0
 
    /**
     * A >> 1 右移，等于 A/2
@@ -197,7 +199,7 @@ private void grow(int minCapacity) {
     * 000100 << 1 = 001000
     */
    /* 2. 新增 oldCapacity 的一半整数长度作为 newCapacity 的额外增长长度，即扩容为原来 1.5 倍 */
-   int newCapacity = oldCapacity + (oldCapacity >> 1);  // eg1：newCapacity=0+(0>>1)=0
+   int newCapacity = oldCapacity + (oldCapacity >> 1);  // eg1：newCapacity = 0 + (0 >> 1) = 0
 
    /* 3. 增加之后，新的长度 newCapacity 依然无法满足所需最小扩容量 minCapacity，则新的扩容长度为 minCapacity */
    if (newCapacity - minCapacity < 0) {
@@ -212,7 +214,7 @@ private void grow(int minCapacity) {
    }
 
    /* 扩展数组长度为 newCapacity，并且将旧数组中的元素赋值到新的数组中 */
-   // eg1：newCapacity=10， 扩容 elementData 的 length=10
+   // eg1：newCapacity = 10， 扩容 elementData 的 length = 10
    elementData = Arrays.copyOf(elementData, newCapacity);
 }
 ```
@@ -234,7 +236,8 @@ int newCapacity = (oldCapacity * 3)/2 + 1;
 ```
 * 新容量为旧的 1.5 倍加 1
 
-扩容方法是通过将**整个数组拷贝**的方式完成的，因此对于大对象数组需考虑性能问题，提前规划容量，降低扩容频率。
+可以看到的是，扩容方法是通过将**整个数组拷贝**的方式完成的。  
+因此要注意的是，对于大对象数组需考虑性能问题，提前规划容量，降低扩容频率。
 
 总结如下：
 
@@ -260,19 +263,19 @@ public E get(int index) {
 /**
  * 删除元素
  */
-// eg1：elementData 保存了 {"a1","a2","a3","a4"}，删除第一个元素，即：index=0
+// eg1：elementData 保存了 {"a1","a2","a3","a4"}，删除第一个元素，即：index = 0
 public E remove(int index) {
-   /* 校验传入的参数 index 是否超出了数组下标，如果超出，则抛出IndexOutOfBoundsException 异常 */
+   /* 校验传入的参数 index 是否超出了数组下标，如果超出，则抛出 IndexOutOfBoundsException 异常 */
    rangeCheck(index);
 
    /* 集合的修改次数加 1 */
    modCount++;
 
-   // eg1：String oldValue="a1"
+   // eg1：String oldValue = "a1"
    /* 获得index下标对应的旧值 oldValue */
    E oldValue = elementData(index);
 
-   // eg1：numMoved=4-0-1=3
+   // eg1：numMoved = 4 - 0 - 1 = 3
    /* 获得需要移动元素的个数 */
    int numMoved = size - index - 1;
    if (numMoved > 0) {
@@ -292,7 +295,7 @@ public E remove(int index) {
    }
    /* 通知 jvm 将之前的最后一位元素进行垃圾回收 */
    // eg1：回收最后一个 a4
-   elementData[--size] = null; // clear to let GC do its work
+   elementData[--size] = null;  // clear to let GC do its work
 
    /* 返回已被删除的元素 */
    return oldValue;
@@ -300,7 +303,7 @@ public E remove(int index) {
 
 ```
 
-关键点：删除某元素后的元素移动
+删除节点的**关键**在于：删除某元素后，索引后**元素的整体移动**
 
 ```java
 System.arraycopy(elementData, index + 1, elementData, index, numMoved);

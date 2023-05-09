@@ -64,7 +64,7 @@ AOP 的实现主要有两个方向：
 1. 使用特殊的编译器，将这些功能代码在编译阶段“织入”源代码，运行时代码会被切入到类的指定方法、指定位置。
 2. 利用**动态代理**在运行时将这些功能代码切入。
 
-Java 提供了两种动态代理的方法：
+动态代理能够解决静态代理中代理类接口过多的问题。Java 提供了两种动态代理的方法：
 
 **JDK 代理**
 * 通过**反射**接收被代理的类
@@ -73,8 +73,10 @@ Java 提供了两种动态代理的方法：
 * 只有被代理的类没有实现接口时：才会被切换到 CGLib 代理
 
 **CGLib**（**C**ode **G**eneration **Lib**rary）代理
-* 需要 CGLib 支持
-* 相当于运行时动态创建一个被代理的类的非继承子类（组合）
+
+一个强大的高性能的代码生成包，底层使用一个小而快的字节码处理框架 **ASM**
+* 需要 CGLib 支持，`Enhancer` 是 CGLib 的字节码增强器，可以很方便的对类进行拓展
+* 相当于运行时扩展 Java 类与实现 Java 接口，动态创建一个被代理的类的非继承子类（组合）
 * 也称为子类代理
 * final 类无法使用 CGLib 作为动态代理
 
@@ -170,6 +172,31 @@ Spring AOP 使用纯 Java 实现，不需要专门的编译过程和类加载器
 
 ![](spring-aop/spring-aop-process.jpg)
 
+
+## 选择
+
+* 如果目标对象实现了接口，默认情况下会采用 JDK 的动态代理实现 AOP。
+* 如果目标对象实现了接口，可以强制使用 CGLib 实现 AOP。
+* 如果目标对象没有实现了接口，必须采用 CGLib 库，Spring 会自动在 JDK 动态代理和 CGLib 之间转换。
+
+
+## 区别
+
+JDK 动态代理：通过**接口**实现
+* 通过继承 `InvocationHanlder` 实现**拦截器**，结合**反射**机制实现一个代理接口
+* 再通过 `Proxy.newProxyInstance()` 方法，由传入的 classloader 生成接口**代理类**的字节码文件
+* 根据字节码文件创建代理类的实例对象
+* 只能对**实现了接口**的类生成代理，否则抛出异常
+
+CGLib：通过**继承**覆盖
+* 利用 ASM 开源包，加载被代理对象（真实对象）类的 `.class` 文件，通过**修改其字节码**生成**子类**
+* 主要是对指定的类生成一个子类，覆盖其中的方法，并覆盖其中方法实现增强
+* 因为采用的是**继承**，对于 final 类或方法，是无法起效果的
+
+<br/>
+
+Spring 2.0+ 之后引入了对 AspectJ 的支持。
+
 Spring AOP 和 AspectJ 两种 AOP 方向的比较：
 
 | Spring AOP | AspectJ  |
@@ -184,17 +211,15 @@ Spring AOP 和 AspectJ 两种 AOP 方向的比较：
 | 比 AspectJ 慢多了       | 更好的性能    |
 | 易于学习和应用           | 相对于 Spring AOP 更复杂 |
 
-Spring 2.0+ 之后引入了对 AspectJ 的支持。
-
 下面说一下几种不同的 AOP 实现方式：
 
 <br/>
 
 ## 手动方式（原理代码）
 
-下面基于 Spring AOP 实现原理手动实现**JDK 动态代理**和 **CGLib** 两种方式的 AOP，这是没有 Spring 侵入的实现方式。
+下面基于 Spring AOP 实现原理手动实现 **JDK 动态代理**和 **CGLib** 两种方式的 AOP，这是没有 Spring 侵入的实现方式。
 
-有目标类 Target：
+现有目标类 Target：
 
 ```java
 public interface UserService {
@@ -225,6 +250,8 @@ public class MyAspect {  // 该切面类属于环绕通知
 **1**. JDK 动态代理。要求目标类为接口 + 实现类
 
 ```java
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;  // 实现方式的核心
 ...
 
@@ -314,6 +341,9 @@ public class MyBeanFactory {
     }
 }
 ```
+
+注：MethodInterceptor.intercept() 能够代理某个对象所有**非 final 方法**的调用。  
+因此 getClass(), wait() 等 final 方法不能被代理。
 
 
 ## 半自动

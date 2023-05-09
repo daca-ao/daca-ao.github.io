@@ -98,7 +98,7 @@ public final synchronized void join() throws InterruptedException {
 
 概述：
 * 当前线程的 wait() 被调用后，当前线程的同步锁会被释放；调用当前线程 join() 的线程会被阻塞；
-* 比如说 main() 方法调用 thread1.join()，阻塞的是 main() 方法所在的线程，即主线程，而不是 thread1。
+* 比如说 main() 方法调用 thread1.join()，阻塞的是 main() 方法所在的线程，即**主线程**，而不是 thread1。
 
 既然 wait() 被调用了，那么 notify() / notifyAll() 是在哪里被调用的？  
 答案在 JVM 里。底层代码在 `thread.cpp` 中，通过调用 native 方法 `notify()` 实现。
@@ -289,9 +289,9 @@ void setPriority(int newPriority)    // 设置线程优先级
 
 static void yield()    // 使当前线程处于让步状态
 /**
- * 如有其它与当前线程同样优先级的可运行线程，则那些线程接下来会被调度。
- * 线程依旧是可执行（runnable）状态
- * 
+ * 如果其它与当前线程同样优先级的可运行线程存在，则那些线程接下来会被调度。
+
+ * 当前线程依旧是可执行（runnable）状态，具体来说是 runnable 中的 running 状态
  * 其它线程会以竞争关系抢占资源
  */
 
@@ -406,8 +406,8 @@ wait(millis) 和 sleep(millis)：
 * 调用 wait(millis) 的当前线程释放该同步监视器的锁定（释放锁）之后，可以不用 notify() 或 notifyAll() 方法把它唤醒。
 
 `wait()` / `sleep()` v.s. `yield()`：
-* 调用 sleep() 或 wait() 后，线程即进入 blocked 状态
-* 调用 yield() 后，线程进入 runnable 状态
+* 调用 sleep() 或 wait() 后，线程被阻塞，进入 blocked 状态
+* 调用 yield() 后，线程进入 runnable 中的 running 状态
 
 `wait()`  v.s. `join()`：
 * wait() 体现线程互斥，join() 体现线程同步

@@ -38,7 +38,7 @@ public LinkedList(Collection<? extends E> c) {
 
 # 链表节点的数据结构
 
-Java 中所有链表实现均为双向链接：每个节点还存放着指向前驱节点的引用。
+Java 中所有链表的实现均为双向链接：每个节点还存放着指向前驱节点的引用。
 
 ```java
 private static class Node<E> {
@@ -67,7 +67,8 @@ package java.util;
 
 public interface ListIterator<E> extends Iterator<E> {
 
-    void add(E e);    // 与 Collection.add 不同：该方法不返回 boolean 值，其假定总能添加成功
+    void add(E e);    // 其假定总能添加成功
+    // 该方法不返回 boolean 值，与 Collection.add() 不同
 
     // 以下为反向遍历链表的方法
     E previous();    // 返回越过的对象
@@ -89,27 +90,27 @@ public interface ListIterator<E> extends Iterator<E> {
 /**
  * 新增元素（尾插）
  */
-// eg1: e="a1"
+// eg1: e = "a1"
 public boolean add(E e) {
-    linkLast(e);  // 链接至最后一个：链表尾插入
+    linkLast(e);  // 尾插法
     return true;
 }
 
 /**
  * 添加元素 e 至链表尾部，作为其最后一个元素
  */
-// eg1: e="a1"
+// eg1: e = "a1"
 void linkLast(E e) {
     final Node<E> l = last;
 
-    // eg1: newNode    null<--"a1"-->null
+    // eg1: newNode     null<--"a1"-->null
     /* 创建一个值为 e 的 Node 节点，前置节点（prev）指向原 last 节点，后置节点（next）指向 null */
     final Node<E> newNode = new Node<>(l, e, null);
 
     /* 将 LinkedList 维护的 last 节点指针指向至 newNode 节点 */
     last = newNode;
 
-    // eg1: l=null
+    // eg1: l = null
     if (l == null) {
         /* 如果是第一个添加的元素，则 first 指针指向该节点 */
         first = newNode; // eg1: first 指向 newNode
@@ -129,9 +130,9 @@ void linkLast(E e) {
 /**
  * 删除元素
  */
-// eg1：elementData 中保存了 {"a1","a2","a3","a4"}，删除第一个元素，即：index=0
+// eg1：elementData 中保存了 {"a1","a2","a3","a4"}，删除第一个元素，即：index = 0
 public E remove(int index) {
-    /* 校验传入的参数 index 是否超出数组最大下标，且下标不为负数，如超出则抛出 IndexOutOfBoundsException异常 */
+    /* 校验传入的参数 index 是否超出数组最大下标，且下标不为负数，如超出则抛出 IndexOutOfBoundsException 异常 */
     checkElementIndex(index);
     // eg1：node(index) 返回需要删除的节点，即："a1"
     return unlink(node(index)); /* 断开与待删除节点的链接 */
@@ -143,7 +144,7 @@ public E remove(int index) {
  *
  * 从链表中删除 x 节点的链接，并返回被删除的节点的值。
  */
-// eg1：x  null<--"a1"-->"a2"
+// eg1：x   null<--"a1"-->"a2"
 E unlink(Node<E> x) {
     // assert x != null;
     final E element = x.item;
@@ -201,7 +202,7 @@ public E get(int index) {
  *
  * 根据传入的 index 值，返回对应节点 node
  */
-// eg1：index=0
+// eg1：index = 0
 Node<E> node(int index) {
     // assert isElementIndex(index);
 
@@ -209,38 +210,31 @@ Node<E> node(int index) {
     if (index < (size >> 1)) {
         Node<E> x = first;
         for (int i = 0; i < index; i++) {
-            x = x.next; // 从 first 节点向后（next）查找，直到 index，返回 node
+            x = x.next;  // 从 first 节点向后（next）查找，直到 index，返回 node
         }
         return x;
     } else { /* 大于总长度一半：从尾部开始向前遍历查找 */
         Node<E> x = last;
         for (int i = size - 1; i > index; i--) {
-            x = x.prev; // 从 last 节点向前（prev）查找，直到 index，返回 node
+            x = x.prev;  // 从 last 节点向前（prev）查找，直到 index，返回 node
         }
         return x;
+        // 效率相对低下
     }
 }
 ```
 
-由此可知 LinkedList 继承了链表获取元素方法的缺点：
-
-* 链表**不支持快速随机访问**，查询需要从头查起；
-* `get()` 可访问某个特定元素（如索引大于 n/2 从尾部开始搜索）:
-    ```java
-    for (int i = 0; i < list.size(); i++) {
-        doSomething(list.get(i));
-    }
-    ```
-    但底层调用的是 `node(int)` 方法，效率相对低下。
+由此可知 LinkedList 继承了链表获取元素方法的缺点：**不支持快速随机访问**，查询需要从头查起。
 
 <br/>
 
 ## 迭代元素
 
 ```java
-// 返回一个实现了 ListIterator 接口的迭代器对象
-linkedList.listIterator(int index);
+// 调用：
+linkedList.listIterator(int index);  // 返回一个实现了 ListIterator 接口的迭代器对象
 
+// 实现：
 public ListIterator<E> listIterator(int index) {
     checkPositionIndex(index);
     return new ListItr(index);
@@ -272,7 +266,7 @@ public ListIterator<E> listIterator(int index) {
 
 ### 注：
 
-1. 调用 next() 之后，再调用 remove() 会删除迭代器左侧元素，调用 previous() 会删除右侧元素
+1. 调用 next() 之后，再调用 remove() 会删除迭代器左侧元素，调用 previous() 会删除其右侧元素（改变迭代器中 next 的状态）
 
 ```java
 public E next() {
@@ -294,9 +288,9 @@ public E previous() {
         throw new NoSuchElementException();
     }
 
-    // next 指针不会指向前一个元素
+    // 注意：next 指针不会指向前一个元素
     lastReturned = next = (next == null) ? last : next.prev;
-    nextIndex--;  // nextIndex 对应减1
+    nextIndex--;  // nextIndex 对应减 1
     return lastReturned.item;
 }
 
@@ -331,9 +325,8 @@ public void set(E e) {
 }
 ```
 
-1. 但：链表只负责跟踪对链表的结构性修改，如添加元素、删除元素；set() 不被视为结构性修改
-2. 故：可将多个迭代器附加给一个链表，所有迭代器都调用 set() 对现有结点内容进行修改
-
+但链表只负责跟踪对链表的结构性修改，如添加元素、删除元素；set() 不被视为结构性修改。  
+故可以将多个迭代器附加给一个链表，所有迭代器都调用 set() 对现有结点内容进行修改。
 
 不过，依据原理，列表迭代器可返回迭代器所在位置前后两元素的索引
 * `nextIndex()` 返回下一次调用 next() 时返回的元素索引
@@ -355,13 +348,13 @@ LinkedList 插入数据时只需要记录本项的前后项即可，所以插入
 
 ## 操作对比
 
-查找操作 indexOf()，lastIndexOf()，contains() 的性能，两者差不多；  
-对于随机访问 get 和 set，ArrayList 优于 LinkedList，因为 LinkedList 操作时要移动指针；  
-而对于新增和删除操作 add 和 remove，LinkedList 比较占优势，因为 ArrayList 操作时要移动数据
-* 若只对单条数据插入或删除，ArrayList 的速度反而优于 LinkedList；
-* 若随机插入批量数据，LinkedList 的速度大大优于 ArrayList：因为ArrayList 每插入一条数据，要移动插入点及以后的所有数据。
+1. 查找操作 indexOf()，lastIndexOf()，contains() 的性能，两者差不多；
+2. 对于随机访问 get 和 set，ArrayList 优于 LinkedList，因为 LinkedList 操作时要移动指针；
+3. 而对于新增和删除操作 add 和 remove，LinkedList 比较占优势，因为 ArrayList 操作时要移动数据
+    * 若只对单条数据插入或删除，ArrayList 的速度反而优于 LinkedList；
+    * 若随机插入批量数据，LinkedList 的速度则大大优于 ArrayList：因为ArrayList 每插入一条数据，要移动插入点及以后的所有数据。
 
 实际应用中怎么选？
-* 如链表仅含几个元素，完全没必要为 set() 和 get() 开销而烦恼，则完全可使用 ArrayList
-* 优先使用链表的情况，应该是尽可能减少在列表中间插入或删除元素的开销下使用
+* 如链表仅含几个元素，完全没必要为 set() 和 get() 开销而烦恼，完全可使用 ArrayList
+* 优先使用链表的情况，应该是尽可能减少在列表中间插入或删除元素开销的场景中
 * 注：动态数组中可能使用 Vector 类，但该类所有方法均为同步，开销大
