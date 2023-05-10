@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/2023/05/10/kubernetes-service/service.png">
 <meta property="og:image" content="http://example.com/2023/05/10/kubernetes-service/nodeport.png">
 <meta property="article:published_time" content="2023-05-09T16:05:29.000Z">
-<meta property="article:modified_time" content="2023-05-09T16:50:35.295Z">
+<meta property="article:modified_time" content="2023-05-10T03:42:49.236Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Kubernetes">
 <meta name="twitter:card" content="summary">
@@ -356,7 +356,7 @@ mjx-container[display="true"] + br {
 <h1 id="Service-概况"><a href="#Service-概况" class="headerlink" title="Service 概况"></a>Service 概况</h1><p>Pod 是不稳定的，但是服务可以保证稳定。<br>区别于 service controller / endpoints controller 负责容器运行和编排，service 负责 Kubernetes 集群中<strong>容器的访问</strong>。</p>
 <p>Service 的定义：</p>
 <pre><code>An abstract way to expose an application running on a set of Pods as a network service.
-</code></pre><p>Service 的职责：与每个 node 的 kube-proxy 进程相结合，<strong>提供固定的 IP 和端口</strong>，在将数据包分发到相应服务节点时充当代理，进行负载均衡。</p>
+</code></pre><p>Service 的职责：与每个 node 的 <a href="/2022/05/18/kubernetes-overview#kube-proxy">kube-proxy</a> 进程相结合，<strong>提供固定的 IP 和端口</strong>，在将数据包分发到相应服务节点时充当代理，进行负载均衡。</p>
 <p>工作原理：根据 service 的每个 pod 所设置的标签 label</p>
 <ul>
 <li>比如某些 pod 被打上了 “app=xxx” 的标签</li>
@@ -368,9 +368,9 @@ mjx-container[display="true"] + br {
 <li>如 serviceSelector 匹配到新的 pod，则 pod 的 IP 会自动加入各自对应的 endpoints 对象中</li>
 </ul>
 </li>
-<li>kube-proxy 通过 iptables / ipvs 为每一个 service 对象实现固定的 IP，称之为 VIP 或者 <code>cluster IP</code></li>
 <li>Service 的信息会通过 apiserver 存入 etcd 中</li>
 </ul>
+<p>kube-proxy 通过 iptables / ipvs 为每一个 service 对象实现固定的 IP，称之为 VIP 或者 <code>cluster IP</code>。</p>
 <p>在 Kubernetes v1.0 版本，Service 是 <strong>4 层</strong>（TCP / UDP over IP）概念，从 Kubernetes v1.1 新增 Ingress API，用来表示 7 层服务。</p>
 <p><small>注：<code>iptables-save</code> 指令可以查看 iptables。</small></p>
 <p>因此每一个 service 都有固定的 IP 和一些 endpoints。即使 pod 因为不稳定导致 ip 发生变化，但是面向客户端的是 service 的<strong>固定 IP 和端口</strong>。</p>
