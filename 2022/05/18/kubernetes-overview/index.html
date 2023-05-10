@@ -44,7 +44,7 @@
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/pv-pvc-storageclass.png">
 <meta property="og:image" content="http://example.com/2022/05/18/kubernetes-overview/pv-pvc-creation.png">
 <meta property="article:published_time" content="2022-05-18T13:35:55.000Z">
-<meta property="article:modified_time" content="2023-05-09T16:48:36.569Z">
+<meta property="article:modified_time" content="2023-05-10T02:46:39.972Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="容器化">
 <meta property="article:tag" content="Kubernetes">
@@ -399,7 +399,7 @@
 </ol>
 <p><img src="/2022/05/18/kubernetes-overview/node-userspace.png" alt></p>
 <p>不过，流量从 userspace 进出内核带来的性能损耗是不可接受的。</p>
-<p><code>iptables</code>：基于 netfilter 实现，是目前默认的代理模式（Default since Kubernetes v1.2）。</p>
+<p><code>iptables</code>：happen since Kubernetes v1.1，基于 netfilter 实现，是目前默认的代理模式（Default since Kubernetes v1.2）。</p>
 <p>当客户端请求 service IP 时，本地内核的 iptables 会根据规则，将请求直接路由到各个 service pod 上。</p>
 <p><img src="/2022/05/18/kubernetes-overview/node-iptables.png" alt></p>
 <p>与 userspace 模式最大区别是：</p>
