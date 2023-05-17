@@ -28,7 +28,7 @@
 <meta property="og:description" content="我们常说到的数据库事务（Transaction），指的是访问并可能更新数据库中各种数据项的一个程序执行单元。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-07-25T14:15:36.000Z">
-<meta property="article:modified_time" content="2021-09-28T14:58:09.931Z">
+<meta property="article:modified_time" content="2023-05-17T10:53:41.406Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary">
@@ -290,6 +290,9 @@
 <td style="text-align:left">事务覆盖了其它事务对数据的已提交修改</td>
 </tr>
 <tr>
+<td style="text-align:left">(以下为最常见的并发问题)</td>
+</tr>
+<tr>
 <td style="text-align:left">脏读 Dirty Read</td>
 <td style="text-align:left">一个事务读取了另一个<strong>未提交</strong>的事务中的数据</td>
 </tr>
@@ -352,7 +355,7 @@
 </tbody>
 </table>
 </div>
-<p>会话 A rollback 后，car 记录会被回滚到 “mazda”，而不是已经被 B 会话提交的 “honda”，这就造成了脏写。</p>
+<p>会话 A rollback 后，car 记录是 “mazda”，而不是已经被 B 会话提交的 “honda”，这就造成了脏写。</p>
 <p><br></p>
 <h2 id="丢失更新"><a href="#丢失更新" class="headerlink" title="丢失更新"></a>丢失更新</h2><div class="table-container">
 <table>
@@ -592,11 +595,11 @@
 <li>幻读针对的是不确定的<strong>多行</strong>数据（Result Set）</li>
 </ul>
 <p><br></p>
-<p>因此我们才设定了事务之间的隔离级别：</p>
+<p>因为以上原因，我们才设定了事务之间的：</p>
 <h1 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h1><p>逐级提高：</p>
-<p><big><strong>读未提交</strong></big>（<strong>Read Uncommitted</strong>）：所有事务都可看到其它事务修改过但未提交的内容数据。</p>
+<p><strong><big>读未提交</big></strong>（<strong>Read Uncommitted</strong>）：所有事务都可看到其它事务修改过但未提交的内容数据。</p>
 <ul>
-<li>可能发生脏读、不可重复读和幻读问题</li>
+<li>仍可能发生脏读、不可重复读和幻读问题</li>
 <li>没有解决任何并发问题，不常用</li>
 </ul>
 <div class="table-container">
@@ -653,7 +656,7 @@
 </table>
 </div>
 <p><br></p>
-<p><big><strong>读已提交</strong></big>（<strong>Read Committed</strong>）：一个事务只能读取其它事务已经提交的内容数据</p>
+<p><strong><big>读已提交</big></strong>（<strong>Read Committed</strong>）：一个事务只能读取其它事务已经提交的内容数据</p>
 <ul>
 <li>如：事务 B 只能在事务 A 修改过并且提交之后，才能读取到事务 B 修改的数据</li>
 <li>解决了脏读问题，但没有解决不可重复读和幻读，也不常用</li>
@@ -713,10 +716,11 @@
 </table>
 </div>
 <p><br></p>
-<p><big><strong>可重复读</strong></big>（<strong>Repeatable Read</strong>）：保证一个事务之间的多个实例在<strong>并发</strong>下能读取同一数据</p>
+<p><strong><big>可重复读</big></strong>（<strong>Repeatable Read</strong>）：保证一个事务之间的多个实例在<strong>并发</strong>下能读取同一数据</p>
 <ul>
 <li>对同一字段的多次读取结果是一样的，除非数据被自身事务修改</li>
 <li>MySQL InnoDB 的默认级别</li>
+<li>能解决脏读和不可重复读的问题；在 MySQL InnoDB 的实现中，一定程度上能够解决幻读问题</li>
 </ul>
 <div class="table-container">
 <table>
@@ -785,7 +789,7 @@
 </table>
 </div>
 <p><br></p>
-<p><big><strong>串行化</strong></big>（<strong>Serializable</strong>）：事务之间只能顺序执行，使之没有任何冲突</p>
+<p><strong><big>串行化</big></strong>（<strong>Serializable</strong>）：事务之间只能顺序执行，使之没有任何冲突</p>
 <ul>
 <li>最高级别</li>
 <li>通过加锁实现（读锁和写锁）</li>
