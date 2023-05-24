@@ -38,7 +38,7 @@
 <meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/decoupling.png">
 <meta property="og:image" content="http://example.com/2021/07/21/rabbitmq/flow-cut.png">
 <meta property="article:published_time" content="2021-07-21T05:43:29.000Z">
-<meta property="article:modified_time" content="2022-08-04T16:52:57.507Z">
+<meta property="article:modified_time" content="2023-05-24T10:23:12.896Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -371,7 +371,8 @@
 <li>设置集群镜像模式</li>
 <li>消息补偿机制</li>
 </ul>
-<h2 id="消息持久化"><a href="#消息持久化" class="headerlink" title="消息持久化"></a>消息持久化</h2><p>RabbitMQ 消息有以下状态：</p>
+<h2 id="消息持久化"><a href="#消息持久化" class="headerlink" title="消息持久化"></a>消息持久化</h2><p>RabbitMQ 消息默认是放在内存的，如果不特别声明消息持久到磁盘，当节点关掉或者 crash 掉，消息就会丢失。</p>
+<p>消息有以下状态：</p>
 <ol>
 <li><code>alpha</code>：消息内容（包括消息体、属性和 headers）和消息索引都存储在内存</li>
 <li><code>beta</code>：消息内容保存在磁盘，消息索引保存在内存</li>
@@ -410,17 +411,24 @@
 <ul>
 <li>此时消息时自动消费确认，RabbitMQ 直接将消息从队列中擦除，即使后面事务回滚也不能起到任何作用</li>
 </ul>
-<h2 id="集群化"><a href="#集群化" class="headerlink" title="集群化"></a>集群化</h2><p>要将 RabbitMQ 集群化，集群中应有以下的节点类型：</p>
+<h2 id="集群化"><a href="#集群化" class="headerlink" title="集群化"></a>集群化</h2><p>RabbitMQ 的三种部署模式如下：</p>
 <ul>
-<li>内存节点：ram，将变更写入内存</li>
-<li>磁盘节点：disc，磁盘写入操作</li>
+<li>单点模式：最简单的模式，非集群模式。当节点挂了或者消息不可用了，业务会瘫痪，只能等待；</li>
+<li>普通模式：消息需要持久化，默认是集群模式；当某个节点挂了获消息不可用了造成业务瘫痪，此时只能等待节点恢复重启使用；</li>
+<li>镜像模式：把队列做成镜像需要的队列，存放于多个节点中。</li>
+</ul>
+<p>要将 RabbitMQ 集群化，集群中应有以下的节点类型：</p>
+<ul>
+<li>内存节点 ram：将变更写入内存</li>
+<li>磁盘节点 disc：磁盘写入操作</li>
 </ul>
 <p>RabbitMQ 集群要求最少有一个磁盘节点。</p>
+<h2 id="消息补偿机制"><a href="#消息补偿机制" class="headerlink" title="消息补偿机制"></a>消息补偿机制</h2><p>消息补偿机制需要建立在消息要写入 DB 日志，发送日志，接收日志中，两者的状态必须做记录，然后根据 DB 日志记录 check 消息发送消费是否成功。<br>如果不成功，需要进行消息补偿措施，重新发送消息处理。</p>
 <p><br></p>
 <h2 id="为啥不直接基于-TCP"><a href="#为啥不直接基于-TCP" class="headerlink" title="为啥不直接基于 TCP"></a>为啥不直接基于 TCP</h2><p>RabbitMQ 是基于信道 Channel 传输消息的。Channel 通过建立真实 TCP 连接建立虚拟连接。</p>
 <p>因为对于 OS 来说，建立和关闭 TCP 连接是有代价的，频繁建立和关闭 TCP 连接对于系统的性能有很大影响，且 TCP 的连接数也有限制，从而限制了系统处理高并发的能力；<br>但是在一个 TCP 连接中建立一个或多个 channel 的成本就低很多了。</p>
 <p><br></p>
-<h1 id="死信队列"><a href="#死信队列" class="headerlink" title="死信队列"></a>死信队列</h1><p>先说说什么叫死信。</p>
+<h1 id="消息唯一性"><a href="#消息唯一性" class="headerlink" title="消息唯一性"></a>消息唯一性</h1><h1 id="死信队列"><a href="#死信队列" class="headerlink" title="死信队列"></a>死信队列</h1><p>先说说什么叫死信。</p>
 <p>当一个消息遇到以下之一的情况：</p>
 <ul>
 <li>被拒（Basic.Reject / Basic.Nack），而且达到了 retry 上限，或者 requeue = false，不能重新进入队列；</li>
@@ -592,7 +600,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">运行机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E8%BF%90%E8%BD%AC"><span class="nav-number">2.1.</span> <span class="nav-text">生产者消息运转</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E6%8E%A5%E6%94%B6%E6%B6%88%E6%81%AF%E6%B5%81%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">消费者接收消息流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">消息稳定性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">消息持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">3.2.</span> <span class="nav-text">消息确认机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">集群化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E5%9F%BA%E4%BA%8E-TCP"><span class="nav-number">3.4.</span> <span class="nav-text">为啥不直接基于 TCP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97"><span class="nav-number">4.</span> <span class="nav-text">死信队列</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.1.</span> <span class="nav-text">应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97"><span class="nav-number">5.1.1.</span> <span class="nav-text">延迟队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E9%98%9F%E5%88%97"><span class="nav-number">5.1.2.</span> <span class="nav-text">优先级队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86"><span class="nav-number">5.1.3.</span> <span class="nav-text">异步处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E8%A7%A3%E8%80%A6"><span class="nav-number">5.1.4.</span> <span class="nav-text">应用解耦</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E5%89%8A%E5%B3%B0"><span class="nav-number">5.1.5.</span> <span class="nav-text">流量削峰</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">运行机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E6%81%AF%E8%BF%90%E8%BD%AC"><span class="nav-number">2.1.</span> <span class="nav-text">生产者消息运转</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E6%8E%A5%E6%94%B6%E6%B6%88%E6%81%AF%E6%B5%81%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">消费者接收消息流程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">消息稳定性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">消息持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">3.2.</span> <span class="nav-text">消息确认机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">集群化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E8%A1%A5%E5%81%BF%E6%9C%BA%E5%88%B6"><span class="nav-number">3.4.</span> <span class="nav-text">消息补偿机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E5%95%A5%E4%B8%8D%E7%9B%B4%E6%8E%A5%E5%9F%BA%E4%BA%8E-TCP"><span class="nav-number">3.5.</span> <span class="nav-text">为啥不直接基于 TCP</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E5%94%AF%E4%B8%80%E6%80%A7"><span class="nav-number">4.</span> <span class="nav-text">消息唯一性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97"><span class="nav-number">5.</span> <span class="nav-text">死信队列</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">6.1.</span> <span class="nav-text">应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97"><span class="nav-number">6.1.1.</span> <span class="nav-text">延迟队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%85%88%E7%BA%A7%E9%98%9F%E5%88%97"><span class="nav-number">6.1.2.</span> <span class="nav-text">优先级队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86"><span class="nav-number">6.1.3.</span> <span class="nav-text">异步处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E8%A7%A3%E8%80%A6"><span class="nav-number">6.1.4.</span> <span class="nav-text">应用解耦</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E5%89%8A%E5%B3%B0"><span class="nav-number">6.1.5.</span> <span class="nav-text">流量削峰</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
