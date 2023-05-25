@@ -49,7 +49,7 @@
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/aof-rewrite.png">
 <meta property="og:image" content="http://example.com/2021/07/29/redis-basics/redis-cluster.png">
 <meta property="article:published_time" content="2021-07-28T16:35:16.000Z">
-<meta property="article:modified_time" content="2023-04-19T14:29:04.867Z">
+<meta property="article:modified_time" content="2023-05-25T08:24:21.584Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据库">
 <meta property="article:tag" content="Redis">
@@ -377,7 +377,7 @@ mjx-container[display="true"] + br {
 <li>列表 list</li>
 <li>hash</li>
 <li>集合 set</li>
-<li>带范围查询的有序集合 sorted set(zset)</li>
+<li>带范围查询的有序集合 sorted set (zset)</li>
 <li>位图 bitmap</li>
 <li>hyperloglog</li>
 </ul>
@@ -495,7 +495,7 @@ mjx-container[display="true"] + br {
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之前）</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sdshdr</span> {</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> len;  <span class="comment">// buf 已使用的长度</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> <span class="built_in">free</span>;  <span class="comment">// buf 未使用长度</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字节数组，len(buf)=len+free+1</span></span><br><span class="line">};</span><br></pre></td></tr></table></figure>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sds.h（Redis 3.2 之后，关于 SDS 有了多种结构：sdshdr5，sdshdr8，sdshdr16，sdshdr32，sdshdr64）</span></span><br><span class="line"><span class="comment">// sdshdr8：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> {</span></span><br><span class="line">    <span class="keyword">uint8_t</span> len;  <span class="comment">// 字符数组长度</span></span><br><span class="line">    <span class="keyword">uint8_t</span> alloc;  <span class="comment">// 字符数组总共分配内存大小</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> flags;  <span class="comment">// 标记字符数组属性</span></span><br><span class="line">    <span class="keyword">char</span> buf[];  <span class="comment">// 字符数组，字符串真正的值</span></span><br><span class="line">};</span><br><span class="line"><span class="comment">// 相比于 Redis 3.2 之前的 sdshdr 优化了 5 个字节的空间，使 embstr 数据空间多了 5 字节</span></span><br></pre></td></tr></table></figure>
 <p>SDS 在 C 字符串基础上加入了 <code>len</code> 和 <code>free</code>（<code>alloc</code>） 字段，是为了杜绝缓冲区溢出（C 字符串在没有进行足够的内存分配时，会存在缓冲区溢出的情况），并且能存储二进制数据；</p>
-<p>同时 <code>len</code> 字段降低了原本 C 字符串读取字符长度的复杂度（从 <strong>O</strong>(n) 降为 <strong>O</strong>(1)）；</p>
+<p>同时 <code>len</code> 字段降低了原本 C 字符串读取字符长度的复杂度（从 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="4.844ex" height="2.262ex" role="img" focusable="false" viewbox="0 -750 2141 1000"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D442" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"/></g><g data-mml-node="mo" transform="translate(763,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="mi" transform="translate(1152,0)"><path data-c="1D45B" d="M21 287Q22 293 24 303T36 341T56 388T89 425T135 442Q171 442 195 424T225 390T231 369Q231 367 232 367L243 378Q304 442 382 442Q436 442 469 415T503 336T465 179T427 52Q427 26 444 26Q450 26 453 27Q482 32 505 65T540 145Q542 153 560 153Q580 153 580 145Q580 144 576 130Q568 101 554 73T508 17T439 -10Q392 -10 371 17T350 73Q350 92 386 193T423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 180T152 343Q153 348 153 366Q153 405 129 405Q91 405 66 305Q60 285 60 284Q58 278 41 278H27Q21 284 21 287Z"/></g><g data-mml-node="mo" transform="translate(1752,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g></g></g></svg></mjx-container> 降为 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.566ex;" xmlns="http://www.w3.org/2000/svg" width="4.618ex" height="2.262ex" role="img" focusable="false" viewbox="0 -750 2041 1000"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D442" d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"/></g><g data-mml-node="mo" transform="translate(763,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/></g><g data-mml-node="mn" transform="translate(1152,0)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g><g data-mml-node="mo" transform="translate(1652,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/></g></g></g></svg></mjx-container>）；</p>
 <p>另外，SDS 通过<strong>空间预分配</strong>和<strong>惰性空间释放</strong>来解决内存重新分配带来的性能问题：</p>
 <ul>
 <li>对 SDS 的值进行修改之后，如 SDS 的长度小于 1 M，此时分配的 len = free</li>
@@ -808,6 +808,7 @@ mjx-container[display="true"] + br {
 <li>可根据不同应用场景切换内部编码，提高效率</li>
 </ol>
 <p><img src="/2021/07/29/redis-basics/redis-type-encoding-mapping.png" alt></p>
+<p>小结：</p>
 <table>
     <tr>
         <th>类型</th>
@@ -1004,7 +1005,39 @@ mjx-container[display="true"] + br {
 <li>使用非阻塞 IO</li>
 </ul>
 <p><br></p>
-<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><p>可以使用 list 实现消息队列。基本操作与模型的对应如下：</p>
+<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><p>Redis 最大的用途就是缓存系统。而缓存系统需要关注以下三个问题：</p>
+<ul>
+<li>缓存击穿（失效）</li>
+<li>缓存穿透</li>
+<li>缓存雪崩</li>
+</ul>
+<h3 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h3><p>指的是流量访问数据的地点应该是缓存系统，然而缓存系统中的<strong>某些缓存数据失效</strong>（过期），导致缓存系统被“击穿”，流量直接打到数据库访问数据。</p>
+<p>此时数据库可能因为高并发导致反应缓慢，甚至不可用。</p>
+<p>解决方案：</p>
+<ul>
+<li>对于某些缓存数据，如热点数据，不设置过期时间，或者给过期时间添加随机值，避免大量缓存数据集中在一个时间点过期，给数据库造成压力；</li>
+<li>预热：预先将重要缓存数据保存到 Redis 中；</li>
+<li>锁：缓存失效时先获取分布式锁，获取成功后才执行数据库操作</li>
+</ul>
+<h3 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h3><p>比击穿还彻底：请求缓存和数据库<strong>均不存在</strong>的数据。这样的并发请求会很大程度上影响数据库运行。</p>
+<p>解决方案：</p>
+<ul>
+<li>缓存空值</li>
+<li>BloomFilter 布隆过滤器：在数据写入数据库的同时，将 id 同步到布隆过滤器中；当请求的 id 不存在于布隆过滤器里面，则说明该请求查询的数据一定没有在数据库中保存，就不要去数据库查询了。</li>
+</ul>
+<h3 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h3><p>指的是大量的请求无法在缓存系统中处理，从而请求全部打到数据库，导致数据库压力激增，甚至宕机。</p>
+<p>原因主要有两种：</p>
+<ul>
+<li>大量缓存同时过期，导致大量请求需要查询数据库并写到缓存；</li>
+<li>缓存服务出现异常导致故障宕机。</li>
+</ul>
+<p>解决方案：</p>
+<ul>
+<li>对于某些缓存数据，如热点数据，不设置过期时间，或者给过期时间添加随机值，避免大量缓存数据集中在一个时间点过期，给数据库造成压力；</li>
+<li>接口限流：在业务系统的请求入口控制单位时间请求数，避免过多的请求被发送到数据库；</li>
+<li>对缓存服务采取服务熔断和接口限流措施；有必要时构建高可用缓存集群系统</li>
+</ul>
+<h2 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h2><p>可以使用 list 实现消息队列。基本操作与模型的对应如下：</p>
 <p><img src="/2021/07/29/redis-basics/list-message-queue.png" alt></p>
 <p>基于主流配置，结合生产者与消费者的模型如下：</p>
 <p><img src="/2021/07/29/redis-basics/list-message-queue-model.png" alt></p>
@@ -1028,8 +1061,8 @@ mjx-container[display="true"] + br {
 <li>加锁和解锁的 key 一定要一致，要不然无法解锁，再多的 <code>setnx</code> 指令都是白费。</li>
 <li>不能永久加锁，一定要加上过期时间；越来越多永久的锁存在于内存中，系统会受不了的。</li>
 <li>一定要保证加锁和设置过期时间的<strong>原子性</strong>。</li>
-<li>要支持过期<strong>续租</strong> / <strong>可重入</strong>分布式锁。</li>
 </ol>
+<p>有必要的话，分布式锁要支持过期<strong>续租</strong>（协程实现 watchdog） / <strong>可重入</strong>分布式锁（Redisson 客户端，原理与 ReentrantLock 类似）。</p>
 <h3 id="雷区"><a href="#雷区" class="headerlink" title="雷区"></a>雷区</h3><p><strong>1. 锁过期</strong>：获得锁的线程因为各种原因还没操作完，锁就过期释放了。</p>
 <p>解决方法：根据业务设定合适的加锁时间。</p>
 <p><strong>2. 重叠解锁</strong>：基于锁过期引发的另一个严重问题</p>
@@ -1116,7 +1149,7 @@ mjx-container[display="true"] + br {
 <p><br></p>
 <h1 id="集群搭建"><a href="#集群搭建" class="headerlink" title="集群搭建"></a>集群搭建</h1><p><img src="/2021/07/29/redis-basics/redis-cluster.png" alt></p>
 <p>master 支持数据的更新和修改，slave 只支持数据的查看。</p>
-<p>同时，Redis 的主从切换，需要 Sentinel 的支持。</p>
+<p>同时，Redis 的主从切换，需要 Redis Sentinel 的支持。</p>
 
     </div>
 
@@ -1201,7 +1234,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">基本对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#redisObject"><span class="nav-number">2.1.</span> <span class="nav-text">redisObject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SDS"><span class="nav-number">2.2.</span> <span class="nav-text">SDS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%9A%84%E7%BB%86%E8%8A%82"><span class="nav-number">4.1.</span> <span class="nav-text">数据存储的细节</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">6.1.</span> <span class="nav-text">消息队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">6.2.</span> <span class="nav-text">分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%B7%E5%8C%BA"><span class="nav-number">6.2.1.</span> <span class="nav-text">雷区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">7.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB"><span class="nav-number">7.1.</span> <span class="nav-text">RDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF"><span class="nav-number">7.2.</span> <span class="nav-text">AOF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%B9%E8%BF%9B%EF%BC%9AAOF-%E9%87%8D%E5%86%99"><span class="nav-number">7.2.1.</span> <span class="nav-text">改进：AOF 重写</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%BA"><span class="nav-number">8.</span> <span class="nav-text">数据分区</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-number">9.</span> <span class="nav-text">集群搭建</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">基本对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#redisObject"><span class="nav-number">2.1.</span> <span class="nav-text">redisObject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SDS"><span class="nav-number">2.2.</span> <span class="nav-text">SDS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">数据类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%9A%84%E7%BB%86%E8%8A%82"><span class="nav-number">4.1.</span> <span class="nav-text">数据存储的细节</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%93%E5%AD%98"><span class="nav-number">6.1.</span> <span class="nav-text">缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF"><span class="nav-number">6.1.1.</span> <span class="nav-text">缓存击穿</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F"><span class="nav-number">6.1.2.</span> <span class="nav-text">缓存穿透</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9"><span class="nav-number">6.1.3.</span> <span class="nav-text">缓存雪崩</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">6.2.</span> <span class="nav-text">消息队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">6.3.</span> <span class="nav-text">分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%B7%E5%8C%BA"><span class="nav-number">6.3.1.</span> <span class="nav-text">雷区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">7.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB"><span class="nav-number">7.1.</span> <span class="nav-text">RDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF"><span class="nav-number">7.2.</span> <span class="nav-text">AOF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%B9%E8%BF%9B%EF%BC%9AAOF-%E9%87%8D%E5%86%99"><span class="nav-number">7.2.1.</span> <span class="nav-text">改进：AOF 重写</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%BA"><span class="nav-number">8.</span> <span class="nav-text">数据分区</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="nav-number">9.</span> <span class="nav-text">集群搭建</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
