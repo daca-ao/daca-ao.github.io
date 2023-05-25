@@ -36,7 +36,7 @@
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-psg.png">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-api.png">
 <meta property="article:published_time" content="2021-07-19T17:12:34.000Z">
-<meta property="article:modified_time" content="2023-05-22T13:49:04.309Z">
+<meta property="article:modified_time" content="2023-05-25T04:24:48.721Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -494,12 +494,26 @@
 <td style="text-align:center">MQ 功能较为完善，还是分布式的，扩展性好</td>
 <td style="text-align:center">功能较为简单，主要支持简单的 MQ 功能，在大数据领域实时计算以及日志采集被大规模采用</td>
 </tr>
+<tr>
+<td style="text-align:center">优点</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">轻量，迅捷，容易部署和使用，拥有灵活的路由配置</td>
+<td style="text-align:center">性能好，稳定可靠，有活跃的中文社区，特点响应快</td>
+<td style="text-align:center">拥有强大的性能及吞吐量，兼容性很好</td>
+</tr>
+<tr>
+<td style="text-align:center">缺点</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">性能和吞吐量较差，不易进行二次开发</td>
+<td style="text-align:center">兼容性较差；但随意影响力的扩大，该问题会有改善</td>
+<td style="text-align:center">延迟较高</td>
+</tr>
 </tbody>
 </table>
 </div>
 <p><br></p>
-<h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>消息队列的<strong>优点</strong>在于能够实现异步、解耦、流量削峰填谷，能解决相关特殊业务场景的问题。</p>
-<p>而<strong>缺点</strong>在于其系统可用性较为敏感，万一 MQ 崩溃了，系统相当一部分的功能会无法响应。<br>而且，消息队列提高了系统复杂性，需要考虑一些消息队列的常见问题和解决方案。<br>此外，消息队列还会带来一些一致性问题：</p>
+<h1 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h1><p>消息队列的<strong>优点</strong>在于能够实现<strong>异步</strong>、<strong>解耦</strong>、流量<strong>削峰填谷</strong>，能解决相关特殊业务场景的问题。</p>
+<p>而<strong>缺点</strong>在于其系统<strong>可用性</strong>较为敏感，万一 MQ 崩溃了，系统依靠它的相当一部分的功能会无法响应。<br>而且，消息队列提高了系统<strong>复杂性</strong>，需要考虑一些消息队列的常见问题和解决方案。<br>此外，消息队列还会带来一些<strong>一致性</strong>问题：</p>
 <ul>
 <li>多个消费者中，如果其中一个消费失败，会导致数据不一致的情况</li>
 <li>带来消息重复消费、消息积压、消息顺序和消息事务的问题</li>
@@ -517,42 +531,55 @@
 <li>因此 MQ 会再次发送该消息给其他消费者，造成重复消费</li>
 </ol>
 <p><strong>解决方法</strong>：根据去重的原理，保证消费端幂等性</p>
-<p>方法1：</p>
+<p>方法 1：</p>
 <ul>
 <li>每个消息生成一个 id</li>
-<li>在第三方介质（如 Redis set）中准备类似于键值对的组合 &lt;消息 id, 消息&gt;</li>
+<li>在第三方介质（如 Redis set）中准备类似于键值对的组合 <code>&lt;消息 id, 消息&gt;</code></li>
 <li>开始消费前，在介质中查询有无该记录；如果存在该记录，说明已经发送过该消息，发送端就不再发送了</li>
 </ul>
-<p>方法2：针对数据库的插入操作</p>
+<p>方法 2 是方法 1 的升级，也是更常用的方法:</p>
 <ul>
-<li>以消息作为唯一主键，如果发生了重复消费，插入数据的时候会主键冲突</li>
-<li>下游业务在接收到消息，执行业务之后保存 message ID，便可作为其唯一标识</li>
+<li>生产消息时生成<strong>描述消息的 id</strong></li>
+<li>组建消息体时针对业务，生成唯一的<strong>业务标识 buzId</strong></li>
+<li>传输的时候判定两者是否均是唯一</li>
+</ul>
+<p>方法 3：针对数据库的插入操作</p>
+<ul>
+<li>以消息 id 等标识作为<strong>唯一主键</strong>或其它的<strong>唯一性约束</strong>，如果发生了重复消费，插入数据的时候会主键冲突</li>
+</ul>
+<h3 id="如何处理消费过程中的重复消息"><a href="#如何处理消费过程中的重复消息" class="headerlink" title="如何处理消费过程中的重复消息"></a>如何处理消费过程中的重复消息</h3><p>MQTT 协议给出了三种传递消息时能够提供的服务质量标准，从低到高依次是：</p>
+<ul>
+<li><strong>At most once</strong>: 消息在传递时，最多会被送达一次。也就是说没什么消息可靠性保证，允许丢消息。一般都是一些对消息可靠性要求不太高的监控场景使用，比如每分钟上报一次机房温度数据，可以接受数据少量丢失。</li>
+<li><strong>At least once</strong>: 消息在传递时，至少会被送达一次。也就是说，不允许丢消息，但是允许有少量重复消息出现。</li>
+<li><strong>Exactly once</strong>：消息在传递时，只会被送达一次，不允许丢失也不允许重复，这个是最高的等级。</li>
 </ul>
 <h2 id="消息丢失问题"><a href="#消息丢失问题" class="headerlink" title="消息丢失问题"></a>消息丢失问题</h2><p>根据队列结构来看，无非就是三种情况：</p>
 <ol>
-<li>生产者弄丢数据</li>
-<li>消息队列弄丢数据</li>
-<li>消费者弄丢数据</li>
-</ol>
-<p><strong>解决方法</strong>：</p>
-<ol>
-<li>主流 MQ 都有确认机制或事务机制，可保证生产者将消息送达 MQ。如：RabbitMQ 就有事务模式和 confirm 模式</li>
-<li>只要开启 MQ 的持久化磁盘配置就能解决 MQ 弄丢数据的问题</li>
-<li>消费者弄丢数据，一般是因为采用了自动确认消息模式，在这个模式下，MQ 收到确认消息后会删除消息；<ul>
-<li>如果发送确认信息之后消费者发生异常，导致消息操作没执行完，想再次消费消息就没了</li>
-<li>改用手动确认就能解决</li>
+<li>生产者弄丢数据<ul>
+<li>主流 MQ 都有确认机制或事务机制，可保证生产者将消息送达 MQ。如：<a href="/2021/07/21/rabbitmq/#消息确认机制">RabbitMQ</a> 就有事务模式和 confirm 模式；</li>
+</ul>
+</li>
+<li>消息队列弄丢数据<ul>
+<li>开启 MQ 的持久化磁盘配置；</li>
+</ul>
+</li>
+<li>消费者弄丢数据<ul>
+<li>一般是因为采用了自动确认消息模式，此时 MQ 收到消费者的确认消息后会删除消息；</li>
+<li>如果发送确认信息之后消费者发生异常，导致消息操作没执行完，想再次消费消息就没了。</li>
+<li>改用<strong>手动确认</strong>就能解决</li>
 </ul>
 </li>
 </ol>
+<h3 id="检测消息丢失的方法"><a href="#检测消息丢失的方法" class="headerlink" title="检测消息丢失的方法"></a>检测消息丢失的方法</h3><p>可以利用消息队列的<strong>有序性</strong>来验证是否有消息丢失：<br>在 Producer 端给每个发出的消息附加一个<strong>连续递增的序号</strong>，然后在 Consumer 端来检查这个序号的连续性。</p>
 <h2 id="消息顺序问题"><a href="#消息顺序问题" class="headerlink" title="消息顺序问题"></a>消息顺序问题</h2><p>常见的场景：电商平台的下单操作，下单后先减库存，然后生成订单</p>
 <ul>
-<li>首先生产者需要保证入队的顺序</li>
+<li>首先生产者需要保证入队的顺序，比如<strong>一个 queue 只对应一个消费者</strong>；</li>
 <li>另外，发送消息时对消息通过 hash 取模，确保同一操作的消息发送到同一个队列中<ul>
 <li>一般的 MQ 中同一个队列都能保证 FIFO，由此确保出队时是顺序的</li>
 </ul>
 </li>
 </ul>
-<p>不过，如果多个消费者同时消费一个队列，一样可能出现顺序错乱的情况</p>
+<p>不过，如果多个消费者同时消费一个队列，一样可能出现顺序错乱的情况；<br>这时需要使用重试机制，根据期望的顺序，如果所期望的消息还未被消费，就重试等待。</p>
 <h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>消息队列广泛应用于应用程序之间的通信方法，其应用场景包括：解耦、异步消息、流量削锋等问题。</p>
 <p>消息延迟推送应用：</p>
 <p><strong>1</strong>. 淘宝七天自动确认收货</p>
@@ -565,6 +592,9 @@
 <li>如 30 分钟内订单不确认将自动取消订单</li>
 <li>如 30 分钟内完成订单，则根据逻辑代码确定忽略接收到的延时信息。</li>
 </ul>
+<p><br></p>
+<hr>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7100506153137897480">八股文之MQ</a></p>
 
     </div>
 
@@ -648,7 +678,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9A%84%E6%B6%88%E6%81%AF%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">消息队列的消息传播模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AMQP"><span class="nav-number">2.1.</span> <span class="nav-text">AMQP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Exchange-%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.1.1.</span> <span class="nav-text">Exchange 的类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS"><span class="nav-number">2.2.</span> <span class="nav-text">JMS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AF%94%E8%BE%83"><span class="nav-number">2.3.</span> <span class="nav-text">比较</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%89%E5%9E%8B%E4%BE%9D%E6%8D%AE"><span class="nav-number">3.</span> <span class="nav-text">选型依据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E9%97%AE%E9%A2%98"><span class="nav-number">4.1.</span> <span class="nav-text">重复消费问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.</span> <span class="nav-text">消息丢失问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%A1%BA%E5%BA%8F%E9%97%AE%E9%A2%98"><span class="nav-number">4.3.</span> <span class="nav-text">消息顺序问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">应用场景</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E7%9A%84%E6%B6%88%E6%81%AF%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">消息队列的消息传播模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AMQP"><span class="nav-number">2.1.</span> <span class="nav-text">AMQP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Exchange-%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.1.1.</span> <span class="nav-text">Exchange 的类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS"><span class="nav-number">2.2.</span> <span class="nav-text">JMS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AF%94%E8%BE%83"><span class="nav-number">2.3.</span> <span class="nav-text">比较</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%89%E5%9E%8B%E4%BE%9D%E6%8D%AE"><span class="nav-number">3.</span> <span class="nav-text">选型依据</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E9%97%AE%E9%A2%98"><span class="nav-number">4.1.</span> <span class="nav-text">重复消费问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E6%B6%88%E8%B4%B9%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E6%B6%88%E6%81%AF"><span class="nav-number">4.1.1.</span> <span class="nav-text">如何处理消费过程中的重复消息</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1%E9%97%AE%E9%A2%98"><span class="nav-number">4.2.</span> <span class="nav-text">消息丢失问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">4.2.1.</span> <span class="nav-text">检测消息丢失的方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%A1%BA%E5%BA%8F%E9%97%AE%E9%A2%98"><span class="nav-number">4.3.</span> <span class="nav-text">消息顺序问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">应用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
