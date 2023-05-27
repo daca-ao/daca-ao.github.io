@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2023/05/26/avl/r1.png">
 <meta property="og:image" content="http://example.com/2023/05/26/avl/r-1.png">
 <meta property="article:published_time" content="2023-05-26T02:54:24.000Z">
-<meta property="article:modified_time" content="2023-05-26T10:06:31.352Z">
+<meta property="article:modified_time" content="2023-05-27T02:22:25.778Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据结构">
 <meta property="article:tag" content="树">
@@ -375,8 +375,8 @@ mjx-container[display="true"] + br {
 </ul>
 </li>
 </ul>
-<h2 id="衍生定义"><a href="#衍生定义" class="headerlink" title="衍生定义"></a>衍生定义</h2><p><strong>AVL 搜索树</strong>：既是二叉搜索树，也是 AVL 树的一种数据结构</p>
-<p><strong>带索引的 AVL 搜索树</strong>：顾名思义</p>
+<h2 id="衍生定义"><a href="#衍生定义" class="headerlink" title="衍生定义"></a>衍生定义</h2><p><strong>AVL 搜索树</strong>：既是二叉搜索树，也是 AVL 树的一种数据结构。</p>
+<p><strong>带索引的 AVL 搜索树</strong>：顾名思义。</p>
 <ul>
 <li>图 1 <code>a)</code> <code>b)</code> 和 图 2 是 AVL 树，<code>c)</code> 不是</li>
 <li>图 1 <code>a)</code> 不是 AVL 搜索树</li>
@@ -428,7 +428,7 @@ mjx-container[display="true"] + br {
 <li>不平衡树中的平衡因子的值限于 -2，-1，0，1，2；</li>
 <li>平衡因子为 2 的节点在插入前的平衡因子为 1；与此类似，平衡因子为 -2 的，插入前为 -1；</li>
 <li>从根到新插入节点的路径上，只有途径的节点的平衡因子在插入后会被改变；</li>
-<li>设 A 是新插入节点最近的祖先，平衡因子为 -2 或 2，那插入前在从 A 到新插入节点的路径上，所有节点的平衡因子为 0</li>
+<li>设 A 是新插入节点最近的祖先，平衡因子为 -2 或 2，那插入前在从 A 到新插入节点的路径上，所有节点的平衡因子为 0。</li>
 </ol>
 <p><img src="/2023/05/26/avl/avl-insert.png" alt></p>
 <p>如上图所示：往图 3 <code>b)</code> 插入节点 32 得到图 4 <code>a)</code> 。观察节点 40，其平衡因子 <code>bf</code> 在插入前为 1，插入后为 2，即 A 为值为 40 的节点。</p>
@@ -487,45 +487,45 @@ mjx-container[display="true"] + br {
 <p>证明其仍为二叉搜索树：</p>
 <ul>
 <li>旋转前 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.05ex;" xmlns="http://www.w3.org/2000/svg" width="1.719ex" height="1.645ex" role="img" focusable="false" viewbox="0 -705 760 727"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D436" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/></g></g></g></svg></mjx-container> 肯定比节点 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="1.717ex" height="1.545ex" role="img" focusable="false" viewbox="0 -683 759 683"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D435" d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"/></g></g></g></svg></mjx-container> 大，比 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="1.697ex" height="1.62ex" role="img" focusable="false" viewbox="0 -716 750 716"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D434" d="M208 74Q208 50 254 46Q272 46 272 35Q272 34 270 22Q267 8 264 4T251 0Q249 0 239 0T205 1T141 2Q70 2 50 0H42Q35 7 35 11Q37 38 48 46H62Q132 49 164 96Q170 102 345 401T523 704Q530 716 547 716H555H572Q578 707 578 706L606 383Q634 60 636 57Q641 46 701 46Q726 46 726 36Q726 34 723 22Q720 7 718 4T704 0Q701 0 690 0T651 1T578 2Q484 2 455 0H443Q437 6 437 9T439 27Q443 40 445 43L449 46H469Q523 49 533 63L521 213H283L249 155Q208 86 208 74ZM516 260Q516 271 504 416T490 562L463 519Q447 492 400 412L310 260L413 259Q516 259 516 260Z"/></g></g></g></svg></mjx-container> 小，因此旋转后形成的根节点和根节点下一层的排列，符合要求</li>
-<li>旋转前 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.339ex;" xmlns="http://www.w3.org/2000/svg" width="2.895ex" height="1.934ex" role="img" focusable="false" viewbox="0 -705 1279.5 855"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msub"><g data-mml-node="mi"><path data-c="1D436" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/></g><g data-mml-node="mi" transform="translate(748,-150) scale(0.707)"><path data-c="1D43F" d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 217 683Q271 680 344 680Q485 680 506 683H518Q524 677 524 674T522 656Q517 641 513 637H475Q406 636 394 628Q387 624 380 600T313 336Q297 271 279 198T252 88L243 52Q243 48 252 48T311 46H328Q360 46 379 47T428 54T478 72T522 106T564 161Q580 191 594 228T611 270Q616 273 628 273H641Q647 264 647 262T627 203T583 83T557 9Q555 4 553 3T537 0T494 -1Q483 -1 418 -1T294 0H116Q32 0 32 10Q32 17 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"/></g></g></g></g></svg></mjx-container> 根节点肯定比 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="1.717ex" height="1.545ex" role="img" focusable="false" viewbox="0 -683 759 683"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D435" d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"/></g></g></g></svg></mjx-container> 大，<mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.373ex;" xmlns="http://www.w3.org/2000/svg" width="3.02ex" height="1.968ex" role="img" focusable="false" viewbox="0 -705 1334.7 869.8"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msub"><g data-mml-node="mi"><path data-c="1D436" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/></g><g data-mml-node="mi" transform="translate(748,-150) scale(0.707)"><path data-c="1D445" d="M230 637Q203 637 198 638T193 649Q193 676 204 682Q206 683 378 683Q550 682 564 680Q620 672 658 652T712 606T733 563T739 529Q739 484 710 445T643 385T576 351T538 338L545 333Q612 295 612 223Q612 212 607 162T602 80V71Q602 53 603 43T614 25T640 16Q668 16 686 38T712 85Q717 99 720 102T735 105Q755 105 755 93Q755 75 731 36Q693 -21 641 -21H632Q571 -21 531 4T487 82Q487 109 502 166T517 239Q517 290 474 313Q459 320 449 321T378 323H309L277 193Q244 61 244 59Q244 55 245 54T252 50T269 48T302 46H333Q339 38 339 37T336 19Q332 6 326 0H311Q275 2 180 2Q146 2 117 2T71 2T50 1Q33 1 33 10Q33 12 36 24Q41 43 46 45Q50 46 61 46H67Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628Q287 635 230 637ZM630 554Q630 586 609 608T523 636Q521 636 500 636T462 637H440Q393 637 386 627Q385 624 352 494T319 361Q319 360 388 360Q466 361 492 367Q556 377 592 426Q608 449 619 486T630 554Z"/></g></g></g></g></svg></mjx-container> 根节点肯定比 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="1.697ex" height="1.62ex" role="img" focusable="false" viewbox="0 -716 750 716"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D434" d="M208 74Q208 50 254 46Q272 46 272 35Q272 34 270 22Q267 8 264 4T251 0Q249 0 239 0T205 1T141 2Q70 2 50 0H42Q35 7 35 11Q37 38 48 46H62Q132 49 164 96Q170 102 345 401T523 704Q530 716 547 716H555H572Q578 707 578 706L606 383Q634 60 636 57Q641 46 701 46Q726 46 726 36Q726 34 723 22Q720 7 718 4T704 0Q701 0 690 0T651 1T578 2Q484 2 455 0H443Q437 6 437 9T439 27Q443 40 445 43L449 46H469Q523 49 533 63L521 213H283L249 155Q208 86 208 74ZM516 260Q516 271 504 416T490 562L463 519Q447 492 400 412L310 260L413 259Q516 259 516 260Z"/></g></g></g></svg></mjx-container> 小，符合要求</li>
+<li>旋转前 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.339ex;" xmlns="http://www.w3.org/2000/svg" width="2.895ex" height="1.934ex" role="img" focusable="false" viewbox="0 -705 1279.5 855"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msub"><g data-mml-node="mi"><path data-c="1D436" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/></g><g data-mml-node="mi" transform="translate(748,-150) scale(0.707)"><path data-c="1D43F" d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 217 683Q271 680 344 680Q485 680 506 683H518Q524 677 524 674T522 656Q517 641 513 637H475Q406 636 394 628Q387 624 380 600T313 336Q297 271 279 198T252 88L243 52Q243 48 252 48T311 46H328Q360 46 379 47T428 54T478 72T522 106T564 161Q580 191 594 228T611 270Q616 273 628 273H641Q647 264 647 262T627 203T583 83T557 9Q555 4 553 3T537 0T494 -1Q483 -1 418 -1T294 0H116Q32 0 32 10Q32 17 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"/></g></g></g></g></svg></mjx-container> 根节点肯定比 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="1.717ex" height="1.545ex" role="img" focusable="false" viewbox="0 -683 759 683"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D435" d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"/></g></g></g></svg></mjx-container> 大，<mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.373ex;" xmlns="http://www.w3.org/2000/svg" width="3.02ex" height="1.968ex" role="img" focusable="false" viewbox="0 -705 1334.7 869.8"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msub"><g data-mml-node="mi"><path data-c="1D436" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/></g><g data-mml-node="mi" transform="translate(748,-150) scale(0.707)"><path data-c="1D445" d="M230 637Q203 637 198 638T193 649Q193 676 204 682Q206 683 378 683Q550 682 564 680Q620 672 658 652T712 606T733 563T739 529Q739 484 710 445T643 385T576 351T538 338L545 333Q612 295 612 223Q612 212 607 162T602 80V71Q602 53 603 43T614 25T640 16Q668 16 686 38T712 85Q717 99 720 102T735 105Q755 105 755 93Q755 75 731 36Q693 -21 641 -21H632Q571 -21 531 4T487 82Q487 109 502 166T517 239Q517 290 474 313Q459 320 449 321T378 323H309L277 193Q244 61 244 59Q244 55 245 54T252 50T269 48T302 46H333Q339 38 339 37T336 19Q332 6 326 0H311Q275 2 180 2Q146 2 117 2T71 2T50 1Q33 1 33 10Q33 12 36 24Q41 43 46 45Q50 46 61 46H67Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628Q287 635 230 637ZM630 554Q630 586 609 608T523 636Q521 636 500 636T462 637H440Q393 637 386 627Q385 624 352 494T319 361Q319 360 388 360Q466 361 492 367Q556 377 592 426Q608 449 619 486T630 554Z"/></g></g></g></g></svg></mjx-container> 根节点肯定比 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: 0;" xmlns="http://www.w3.org/2000/svg" width="1.697ex" height="1.62ex" role="img" focusable="false" viewbox="0 -716 750 716"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><path data-c="1D434" d="M208 74Q208 50 254 46Q272 46 272 35Q272 34 270 22Q267 8 264 4T251 0Q249 0 239 0T205 1T141 2Q70 2 50 0H42Q35 7 35 11Q37 38 48 46H62Q132 49 164 96Q170 102 345 401T523 704Q530 716 547 716H555H572Q578 707 578 706L606 383Q634 60 636 57Q641 46 701 46Q726 46 726 36Q726 34 723 22Q720 7 718 4T704 0Q701 0 690 0T651 1T578 2Q484 2 455 0H443Q437 6 437 9T439 27Q443 40 445 43L449 46H469Q523 49 533 63L521 213H283L249 155Q208 86 208 74ZM516 260Q516 271 504 416T490 562L463 519Q447 492 400 412L310 260L413 259Q516 259 516 260Z"/></g></g></g></svg></mjx-container> 小，符合要求。</li>
 </ul>
 <h2 id="小结："><a href="#小结：" class="headerlink" title="小结："></a>小结：</h2><p>通过观察上述的旋转过程，我们可以得出：</p>
 <ul>
 <li>LL 和 RR 只需旋转一次，我们称之为<strong>单旋转</strong></li>
 <li>LR 和 RL 需要旋转两次，我们称之为<strong>双旋转</strong></li>
-<li>可将 LR 看作是 RR 旋转后的 LL 旋转</li>
+<li>可将 LR 看作是 RR 旋转后的 LL 旋转。</li>
 </ul>
 <p><img src="/2023/05/26/avl/rotate-sum.png" alt></p>
 <h2 id="插入算法思路"><a href="#插入算法思路" class="headerlink" title="插入算法思路"></a>插入算法思路</h2><ol>
-<li>沿着从根节点开始的路径对具有相同键值的元素进行搜索，以找到插入新元素的位置。在此过程中寻找最近的，且平衡因子为 -1 或 1 的节点，令其为 A 节点。如找到相同关键值的元素，则插入失败，以下步骤无需执行</li>
-<li>如没有这样的 A 节点：从根节点开始再遍历一次，并修改平衡因子，然后终止</li>
-<li>如 bf(A) = 1 并且新节点插入到 A 的右子树中，或 bf(A) = -1 且插入在左子树进行：A 新的平衡因子为 0。此时修改从 A 到新节点途中的平衡因子，然后终止。</li>
-<li>确定 A 的不平衡类型并执行相应的旋转，在从新子树根节点至新插入节点途中，根据旋转需要修改相应的平衡因子</li>
+<li>沿着从根节点开始的路径对具有相同键值的元素进行搜索，以找到插入新元素的位置。在此过程中寻找最近的，且平衡因子为 -1 或 1 的节点，令其为 A 节点。如找到相同关键值的元素，则插入失败，以下步骤无需执行；</li>
+<li>如没有这样的 A 节点：从根节点开始再遍历一次，并修改平衡因子，然后终止；</li>
+<li>如 bf(A) = 1 并且新节点插入到 A 的右子树中，或 bf(A) = -1 且插入在左子树进行：A 新的平衡因子为 0。此时修改从 A 到新节点途中的平衡因子，然后终止；</li>
+<li>确定 A 的不平衡类型并执行相应的旋转，在从新子树根节点至新插入节点途中，根据旋转需要修改相应的平衡因子。</li>
 </ol>
-<h1 id="删除"><a href="#删除" class="headerlink" title="删除"></a><a target="_blank" rel="noopener" href="https://github.com/daca-ao/Algos/blob/master/com/raymond/structures/AVLTree.java#L13">删除</a></h1><p>同理：直接使用<a href="/2022/07/19/binary-search-tree/#删除节点">二叉搜索树</a>的删除算法，得到的可能不是 AVL 树</p>
+<h1 id="删除"><a href="#删除" class="headerlink" title="删除"></a><a target="_blank" rel="noopener" href="https://github.com/daca-ao/Algos/blob/master/com/raymond/structures/AVLTree.java#L13">删除</a></h1><p>同理：直接使用<a href="/2022/07/19/binary-search-tree/#删除节点">二叉搜索树</a>的删除算法，得到的可能不是 AVL 树。</p>
 <p>设被删除的节点的父节点为 q</p>
 <ul>
-<li>如删除发生在左子树：bf(q) 减 1</li>
-<li>如删除发生在右子树：bf(q) 加 1</li>
-<li>则有：<ul>
-<li>q 的新的平衡因子是 0：高度减 1，且需要改变它的父节点（如有）和其他某些祖先节点的平衡因子</li>
+<li>如删除发生在左子树，则 bf(q) 减 1 或者不变；</li>
+<li>如删除发生在右子树，则 bf(q) 加 1 或者不变。</li>
+</ul>
+<p>删除节点之后，如果：</p>
+<ul>
+<li>q 的新的平衡因子是 0，说明 q 子树的高度已减 1，且需要改变它的父节点（如有）和其他某些祖先节点的平衡因子</li>
 <li>q 的新的平衡因子是 -1 或 1：高度与删除前相同，无需改变其祖先的平衡因子值</li>
 <li>q 的新的平衡因子是 -2 或 2：树在 q 节点不平衡</li>
 </ul>
-</li>
-</ul>
-<p>设从 q 到根节点的路径中平衡因子第一个发生改变的节点为 A：其平衡因子是 2 或者 -2</p>
+<p>设从 q 到根节点的路径中平衡因子第一个发生改变的节点为 A，此时 A 的平衡因子是 2 或者 -2。</p>
 <ul>
 <li>如删除在 A 的左子树：L 型不平衡</li>
-<li>如删除在 A 的右子树：R 型不平衡</li>
-<li>如删除后 bf(A) = 2：删除前 bf(A) = 1，即为 R 型不平衡<ul>
-<li>A 有一棵根节点为 B 的左子树<ul>
+<li>如删除在 A 的右子树：R 型不平衡<ul>
+<li>删除前 bf(A) = 1，删除后 bf(A) = 2，即为 R 型不平衡</li>
+</ul>
+</li>
+</ul>
+<p>将 A 的左子树的根节点记为 B</p>
+<ul>
 <li>如 bf(B) = -1：定义为 R-1 型不平衡</li>
 <li>删除了右子树的节点，左子树平衡因子被改变，左子树需要变化</li>
-</ul>
-</li>
-</ul>
-</li>
 </ul>
 <p>由此可知删除节点后，可能会有六种不同的不平衡状态：</p>
 <ul>
