@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2023/05/27/red-black/rr1.png">
 <meta property="og:image" content="http://example.com/2023/05/27/red-black/rr2.png">
 <meta property="article:published_time" content="2023-05-27T02:36:11.000Z">
-<meta property="article:modified_time" content="2023-05-29T13:48:45.855Z">
+<meta property="article:modified_time" content="2023-05-30T04:10:43.546Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据结构">
 <meta property="article:tag" content="树">
@@ -499,32 +499,33 @@ mjx-container[display="true"] + br {
 <li>XYb 类型则需要旋转</li>
 </ul>
 <h1 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h1><p>使用<a href="/2022/07/19/binary-search-tree/#删除节点">二叉搜索树</a>的删除算法，再进行矫正；<br>如需要还要做一次单旋转。</p>
-<p>设 y 是替代被删除节点的节点</p>
+<p>设 <code>y</code> 是替代被删除节点的节点</p>
 <ul>
-<li>仅当被删除节点是黑色的且 y 不是所得树的根时，执行二叉搜索树的删除算法会违反要求 5</li>
+<li>当且仅当被删除节点是黑色，且 <code>y</code> 不是所得树的根的时候，执行二叉搜索树的删除算法会违反要求 5；</li>
 <li>不会出现违反其他特征的情况</li>
 </ul>
-<p>此时：以 y 为根的子树缺少一个黑色节点（指针）</p>
+<p>此时以 <code>y</code> 为根的子树缺少一个黑色节点（指针）；也就是说，从根到 <code>y</code> 子树外部节点路径上的黑色节点数，比从根到其他外部节点路径上的黑色节点数少一个，这就导致树<strong>不平衡</strong>。</p>
+<p>通过识别 <strong><code>y</code> 的父节点 <code>py</code></strong> 和<strong>同胞（兄弟）节点 <code>v</code></strong> 来区分不平衡类型。</p>
+<p>首先，如果 y 缺少一个黑色节点，则 v 肯定不是一个外部节点：</p>
 <ul>
-<li>即：从根到 y 子树外部节点路径上的黑色节点数，比从根到其他外部节点路径上的黑色节点数少一个</li>
-<li>不平衡</li>
-</ul>
-<p>通过识别 y 的父节点 py 和同胞（兄弟）节点 v 来区分不平衡类型<br>如 y 缺少一个黑色节点，则 v 肯定不是一个外部节点</p>
-<ul>
-<li>如 v 是外部节点：v 一支的黑色节点数为 1，y 缺少一个黑色节点，则 y 为红色叶子，不会不平衡</li>
+<li>因为如果 v 是外部节点的话，它那一分支的黑色节点数为 1，y 缺少一个黑色节点，则 y 为红色叶子，不会不平衡。</li>
 </ul>
 <ol>
 <li>y 为 py 右孩子：R 型不平衡</li>
 <li>y 为 py 左孩子：L 型不平衡</li>
-<li>如 v 黑色：不平衡为 Rb 或 Lb</li>
-<li>如 v 红色：不平衡为 Rr 或 Lr</li>
+<li>如 v 黑色：不平衡为 <strong>Rb</strong> 或 <strong>Lb</strong></li>
+<li>如 v 红色：不平衡为 <strong>Rr</strong> 或 <strong>Lr</strong></li>
 </ol>
 <p>以 Rb 型为例，Rb 型根据 v 红色子节点数量分为：Rb0, Rb1, Rb2</p>
-<p>Rb0：（兄弟节点是黑色，侄子节点都是黑色）<br>改变颜色<br>py 为黑节点：将兄弟 v 改为红节点，py 不变</p>
+<p>Rb0：（兄弟节点是黑色，侄子节点都是黑色）</p>
+<p>改变颜色<br>py 为黑节点：将兄弟 v 改为红节点，py 不变</p>
 <ul>
 <li>即：无论 py 通过 v 到达外部节点的路径，还是通过 y 的路径，都缺少了一个黑色节点</li>
 <li>如 py 为整棵树的根：无需调整，已经平衡</li>
-<li>否则：py 为新的 y，再次调整以达到平衡<br>py 为红节点：py 改黑，v 改为红节点</li>
+<li>否则：py 为新的 y，再次调整以达到平衡</li>
+</ul>
+<p>py 为红节点：py 改黑，v 改为红节点</p>
+<ul>
 <li>即：从 v 到外部节点路径上的黑色节点数减一，子树达到平衡</li>
 <li>py 为新的 y，再次调整以达到平衡</li>
 </ul>
@@ -533,7 +534,10 @@ mjx-container[display="true"] + br {
 <ol>
 <li>做 LL 旋转</li>
 <li>v 变成 py 原来的颜色，v 左孩子变成黑色</li>
-<li>py 变成黑色<br>兄弟 v 的左孩子为黑色节点，右孩子（w）为<font color="red"><strong>红色</strong></font>节点</li>
+<li>py 变成黑色</li>
+</ol>
+<p>兄弟 v 的左孩子为黑色节点，右孩子（w）为<font color="red"><strong>红色</strong></font>节点</p>
+<ol>
 <li>做 LR 旋转</li>
 <li>w 变成 py 原来的颜色</li>
 <li>py 变成黑色</li>
