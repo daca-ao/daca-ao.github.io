@@ -34,10 +34,11 @@
 <meta property="og:image" content="http://example.com/2023/05/27/red-black/llb-lrb.png">
 <meta property="og:image" content="http://example.com/2023/05/27/red-black/rrr-rlr.png">
 <meta property="og:image" content="http://example.com/2023/05/27/red-black/rrb-rlb.png">
+<meta property="og:image" content="http://example.com/2023/05/27/red-black/rb0.png">
 <meta property="og:image" content="http://example.com/2023/05/27/red-black/rr1.png">
 <meta property="og:image" content="http://example.com/2023/05/27/red-black/rr2.png">
 <meta property="article:published_time" content="2023-05-27T02:36:11.000Z">
-<meta property="article:modified_time" content="2023-05-30T10:56:23.858Z">
+<meta property="article:modified_time" content="2023-05-30T12:28:59.301Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="数据结构">
 <meta property="article:tag" content="树">
@@ -502,7 +503,7 @@ mjx-container[display="true"] + br {
 <h1 id="删除"><a href="#删除" class="headerlink" title="删除"></a>删除</h1><p>使用<a href="/2022/07/19/binary-search-tree/#删除节点">二叉搜索树</a>的删除算法，再进行矫正；<br>如需要还要做一次单旋转。</p>
 <p>设 <code>y</code> 是替代被删除节点的节点</p>
 <ul>
-<li>当且仅当被删除节点是黑色，且 <code>y</code> 不是所得树的根的时候，执行二叉搜索树的删除算法会违反要求 5；</li>
+<li>当且仅当被删除节点是<strong>黑色</strong>，且 <code>y</code> 不是所得树的根的时候，执行二叉搜索树的删除算法会违反要求 5；</li>
 <li>不会出现违反其他特征的情况</li>
 </ul>
 <p>此时以 <code>y</code> 为根的子树缺少一个黑色节点（指针）；也就是说，从根到 <code>y</code> 子树外部节点路径上的黑色节点数，比从根到其他外部节点路径上的黑色节点数少一个，这就导致树<strong>不平衡</strong>。</p>
@@ -519,20 +520,25 @@ mjx-container[display="true"] + br {
 </ol>
 <h2 id="Rb-型不平衡"><a href="#Rb-型不平衡" class="headerlink" title="Rb 型不平衡"></a>Rb 型不平衡</h2><p>Lb 型不平衡与 Rb 型互为镜像，因此在这里我们介绍 Rb 型不平衡的解决方法。</p>
 <p>Rb 型根据 <code>v</code> 的红色子节点数量分为三种不平衡类型。</p>
-<h3 id="Rb0"><a href="#Rb0" class="headerlink" title="Rb0"></a>Rb0</h3><p>兄弟节点是黑色，侄子节点没有红色节点（0 个红色节点），都是黑色。</p>
-<p>通过改变颜色可以改变不平衡。</p>
+<h3 id="Rb0"><a href="#Rb0" class="headerlink" title="Rb0"></a>Rb0</h3><p>即：</p>
+<ul>
+<li><code>y</code> 是右孩子；</li>
+<li>它的兄弟节点（左孩子）<code>v</code> 是黑色；</li>
+<li><code>y</code> 的侄子节点（<code>v</code> 的子节点）没有红色节点（0 个红色节点），都是黑色。</li>
+</ul>
+<p>回顾：此时删除的节点是 <code>y</code> 路径上的<strong>黑</strong>节点，通过改变颜色可以改变不平衡。</p>
 <p>当 <code>py</code> 为<strong>黑</strong>节点：将兄弟 <code>v</code> 改为<font color="red"><strong>红</strong></font>节点，<code>py</code> 不变</p>
 <ul>
-<li>即：无论 <code>py</code> 通过 <code>v</code> 到达外部节点的路径，还是通过 <code>y</code> 的路径，都缺少了一个黑色节点</li>
-<li>如 py 为整棵树的根：无需调整，已经平衡</li>
-<li>否则：py 为新的 y，再次调整以达到平衡</li>
+<li>此时无论 <code>py</code> 通过 <code>v</code> 到达外部节点的路径，还是通过 <code>y</code> 的路径，都缺少了一个黑色节点</li>
+<li>如 <code>py</code> 为整棵树的根：无需调整，已经平衡</li>
+<li>否则：<code>py</code> 为新的 <code>y</code>，如有必要，再次调整以达到平衡。</li>
 </ul>
-<p>当 <code>py</code> 为<font color="red"><strong>红</strong></font>节点：py 改黑，v 改为<font color="red"><strong>红</strong></font>节点</p>
+<p>当 <code>py</code> 为<font color="red"><strong>红</strong></font>节点：<code>py</code> 改为<strong>黑色</strong>，<code>v</code> 改为<font color="red"><strong>红</strong></font>节点</p>
 <ul>
-<li>即：从 v 到外部节点路径上的黑色节点数减一，子树达到平衡</li>
-<li>py 为新的 y，再次调整以达到平衡</li>
+<li>此时从 <code>v</code> 到外部节点路径上的黑色节点数减一，子树达到平衡</li>
+<li><code>py</code> 为新的 <code>y</code>，如有必要，再次调整以达到平衡。</li>
 </ul>
-<p>![]</p>
+<p><img src="/2023/05/27/red-black/rb0.png" alt></p>
 <p>Rb1 或 Rb2：需要旋转<br>看上去白色的节点：旋转前后颜色不变</p>
 <p>Rb1（兄弟节点是黑色，侄子节点有一个是红色）<br>兄弟 v 的左孩子为<font color="red"><strong>红色</strong></font>节点，右孩子为黑色节点</p>
 <ol>
@@ -555,14 +561,14 @@ mjx-container[display="true"] + br {
 <ul>
 <li>旋转后的 y 从根节点至外部节点路径上的黑色节点数加一：恢复平衡</li>
 </ul>
-<p>Rr 型不平衡：根据 v 右孩子的<font color="red"><strong>红色</strong></font>子节点数量分为：Rr0, Rr1, Rr2<br>此时 vL 和 vR 中至少有一个黑色节点不是外部节点：v 的孩子都是内部节点</p>
-<p>Rr0</p>
-<ol>
+<h2 id="Rr-型不平衡"><a href="#Rr-型不平衡" class="headerlink" title="Rr 型不平衡"></a>Rr 型不平衡</h2><p>与 Rb 型类似，Rr 型根据 v 右孩子的<font color="red"><strong>红色</strong></font>子节点数量分为三种不平衡类型。</p>
+<p>此时 vL 和 vR 中至少有一个黑色节点不是外部节点：v 的孩子都是内部节点</p>
+<h3 id="Rr0"><a href="#Rr0" class="headerlink" title="Rr0"></a>Rr0</h3><ol>
 <li>做 LL 旋转</li>
 <li>v 变成<font color="red"><strong>红色</strong></font></li>
 <li>vR 变成<font color="red"><strong>红色</strong></font>，并成为 py 的左孩子</li>
 </ol>
-<p>Rr1<br>v 右孩子（w）的左孩子为<font color="red"><strong>红色</strong></font>节点，右孩子为黑色节点</p>
+<h3 id="Rr1"><a href="#Rr1" class="headerlink" title="Rr1"></a>Rr1</h3><p>v 右孩子（w）的左孩子为<font color="red"><strong>红色</strong></font>节点，右孩子为黑色节点</p>
 <ol>
 <li>做 LR 旋转</li>
 <li>w 的左孩子变成黑色，成为 v 的右孩子</li>
@@ -573,8 +579,7 @@ mjx-container[display="true"] + br {
 <li>py 成为新根节点的右孩子</li>
 </ol>
 <p><img src="/2023/05/27/red-black/rr1.png" alt></p>
-<p>Rr2</p>
-<ol>
+<h3 id="Rr2"><a href="#Rr2" class="headerlink" title="Rr2"></a>Rr2</h3><ol>
 <li>通过旋转，w 的右孩子成为根节点，并变成黑色</li>
 <li>py 成为新根节点的右孩子</li>
 </ol>
@@ -706,7 +711,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%8F%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%AE%9A%E4%B9%89"><span class="nav-number">3.</span> <span class="nav-text">相关定义</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%90%86-1"><span class="nav-number">3.1.</span> <span class="nav-text">定理 1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%90%86-2"><span class="nav-number">3.2.</span> <span class="nav-text">定理 2</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%90%9C%E7%B4%A2"><span class="nav-number">4.</span> <span class="nav-text">搜索</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%92%E5%85%A5"><span class="nav-number">5.</span> <span class="nav-text">插入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LLr-%E4%B8%8E-LRr"><span class="nav-number">5.1.</span> <span class="nav-text">LLr 与 LRr</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LLb-%E4%B8%8E-LRb"><span class="nav-number">5.2.</span> <span class="nav-text">LLb 与 LRb</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RRr-%E4%B8%8E-RLr"><span class="nav-number">5.3.</span> <span class="nav-text">RRr 与 RLr</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RRB-%E4%B8%8E-RLb"><span class="nav-number">5.4.</span> <span class="nav-text">RRB 与 RLb</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95%E5%B0%8F%E7%BB%93"><span class="nav-number">5.5.</span> <span class="nav-text">处理方法小结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%A0%E9%99%A4"><span class="nav-number">6.</span> <span class="nav-text">删除</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Rb-%E5%9E%8B%E4%B8%8D%E5%B9%B3%E8%A1%A1"><span class="nav-number">6.1.</span> <span class="nav-text">Rb 型不平衡</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Rb0"><span class="nav-number">6.1.1.</span> <span class="nav-text">Rb0</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%A2%E9%BB%91%E6%A0%91-v-s-AVL-%E6%A0%91"><span class="nav-number">7.</span> <span class="nav-text">红黑树 v.s. AVL 树</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">8.</span> <span class="nav-text">References</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%8F%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%AE%9A%E4%B9%89"><span class="nav-number">3.</span> <span class="nav-text">相关定义</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%90%86-1"><span class="nav-number">3.1.</span> <span class="nav-text">定理 1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%90%86-2"><span class="nav-number">3.2.</span> <span class="nav-text">定理 2</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%90%9C%E7%B4%A2"><span class="nav-number">4.</span> <span class="nav-text">搜索</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%92%E5%85%A5"><span class="nav-number">5.</span> <span class="nav-text">插入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LLr-%E4%B8%8E-LRr"><span class="nav-number">5.1.</span> <span class="nav-text">LLr 与 LRr</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LLb-%E4%B8%8E-LRb"><span class="nav-number">5.2.</span> <span class="nav-text">LLb 与 LRb</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RRr-%E4%B8%8E-RLr"><span class="nav-number">5.3.</span> <span class="nav-text">RRr 与 RLr</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RRB-%E4%B8%8E-RLb"><span class="nav-number">5.4.</span> <span class="nav-text">RRB 与 RLb</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95%E5%B0%8F%E7%BB%93"><span class="nav-number">5.5.</span> <span class="nav-text">处理方法小结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%A0%E9%99%A4"><span class="nav-number">6.</span> <span class="nav-text">删除</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Rb-%E5%9E%8B%E4%B8%8D%E5%B9%B3%E8%A1%A1"><span class="nav-number">6.1.</span> <span class="nav-text">Rb 型不平衡</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Rb0"><span class="nav-number">6.1.1.</span> <span class="nav-text">Rb0</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Rr-%E5%9E%8B%E4%B8%8D%E5%B9%B3%E8%A1%A1"><span class="nav-number">6.2.</span> <span class="nav-text">Rr 型不平衡</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Rr0"><span class="nav-number">6.2.1.</span> <span class="nav-text">Rr0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rr1"><span class="nav-number">6.2.2.</span> <span class="nav-text">Rr1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rr2"><span class="nav-number">6.2.3.</span> <span class="nav-text">Rr2</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%A2%E9%BB%91%E6%A0%91-v-s-AVL-%E6%A0%91"><span class="nav-number">7.</span> <span class="nav-text">红黑树 v.s. AVL 树</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">8.</span> <span class="nav-text">References</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
