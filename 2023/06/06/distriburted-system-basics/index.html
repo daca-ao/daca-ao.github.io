@@ -28,7 +28,7 @@
 <meta property="og:description" content="先给结论：能不用分布式事务就不用，但是 ——">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-06-06T08:54:52.000Z">
-<meta property="article:modified_time" content="2023-06-07T09:52:57.832Z">
+<meta property="article:modified_time" content="2023-06-07T10:03:53.241Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="架构">
 <meta name="twitter:card" content="summary">
@@ -351,14 +351,15 @@ mjx-container[display="true"] + br {
 <p>在此先捋一下分布式事务的基础理论。</p>
 <h1 id="CAP"><a href="#CAP" class="headerlink" title="CAP"></a>CAP</h1><p>CAP 定理，或者叫 CAP 原则，指的是在一个分布式系统中，对于<strong>一致性（Consistency）</strong>、<strong>可用性（Availability）</strong>、<strong>分区容错性（Partition tolerance）</strong> 这三个基本需求，最多只能<strong>同时满足其中的两个</strong>。</p>
 <p>CAP 是基于<strong>瞬态</strong>的描述性理论。</p>
-<p>一致性（C）：在分布式系统中，不同的节点都是有数据的，每个节点的数据相同。所有访问到不同的节点上，访问到的必须是同样的一份最新的数据副本。</p>
-<p>可用性（A）：可用在服务上。集群中部分节点存在故障，集群服务还能相应客户端请求。</p>
-<p>分区容错性（P）：对通信时限性存在要求。将数据项复制到不同节点上，以便集群发生网络问题不能联通的时候，服务访问不了对应的数据</p>
+<p>一致性（<strong>C</strong>）：在分布式系统中，不同的节点分别保存着数据副本，每个节点的数据副本之间能够保持一致。</p>
+<p>可用性（<strong>A</strong>）：系统提供的服务一直处于可用的状态，每次请求都能获得正确的响应；即使集群中部分节点存在故障，整体服务还能响应客户端请求。</p>
+<p>分区容错性（<strong>P</strong>）：对通信时限性存在要求。分布式系统在遇到任何网络分区故障的时候，仍然能够对外提供满足一致性和可用性的服务。</p>
 <h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p>CA without P：节点之间通信网络一定会有问题，放弃系统扩展性<br>最早期单体服务，比如传统关系型数据库</p>
 <p>CP without A：数据同步无限延长，影响用户体验<br>分布式数据库</p>
 <p>AP without C：不能保证数据一致性<br>高峰值订单，秒杀系统，暂时放弃数据一致性</p>
 <p>ACID CA without P</p>
-<h1 id="BASE"><a href="#BASE" class="headerlink" title="BASE"></a>BASE</h1><p>BASE：basically available, soft state, eventually consistent<br>先保证基本可用（保证核心功能的能力），各节点出现软状态（中间状态），最终达到一致性</p>
+<h1 id="BASE"><a href="#BASE" class="headerlink" title="BASE"></a>BASE</h1><p>BASE 理论包含的是 <strong>Basically Available</strong>（基本可用）, <strong>Soft state</strong>（软状态）, <strong>Eventually consistent</strong>（最终一致性）。</p>
+<p>简单来说，先保证系统的基本可用（保证核心功能的能力），各节点的数据允许出现软状态（中间状态），最终达到一致性。</p>
 <p>属于 CP without A，基于 C 和 A 的权衡。即使无法做到强一致性，但是每个应用可根据自身特点，采用适当方式使系统达到最终统一</p>
 <hr>
 <h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://xiaomi-info.github.io/2020/01/02/distributed-transaction/">小米信息部技术团队 - 分布式事务，这一篇就够了</a></p>
