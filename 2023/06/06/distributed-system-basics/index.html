@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/06/06/distributed-system-basics/cap.png">
 <meta property="article:published_time" content="2023-06-06T08:54:52.000Z">
-<meta property="article:modified_time" content="2023-06-08T04:02:38.189Z">
+<meta property="article:modified_time" content="2023-06-08T04:59:15.057Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="架构">
 <meta name="twitter:card" content="summary">
@@ -387,7 +387,13 @@ mjx-container[display="true"] + br {
 <p>BASE 理论是基于 CAP，综合了大规模分布式系统的实践，而得到的对 C 和 A 做权衡的结果。<br>其核心思想是：</p>
 <pre><code>即使无法做到强一致性，但是每个应用可根据自身特点，采用适当方式使系统达到最终统一。
 </code></pre><h2 id="基本可用"><a href="#基本可用" class="headerlink" title="基本可用"></a>基本可用</h2><p>分布式系统出现故障时，能够保证核心服务可用，<strong>允许损失部分可用性</strong>。</p>
-<h2 id="软状态"><a href="#软状态" class="headerlink" title="软状态"></a>软状态</h2><p>允许系统出现中间状态，这样的中间状态不影响系统的整体可用性。</p>
+<p>损失掉的部分可用性包括：</p>
+<ul>
+<li><strong>响应时间上的损失</strong>：响应时间会从毫秒级增加到秒级；</li>
+<li><strong>功能上的缺失</strong>：部分用户会被引导到降级之后的服务；</li>
+<li>…</li>
+</ul>
+<h2 id="软状态"><a href="#软状态" class="headerlink" title="软状态"></a>软状态</h2><p>允许系统出现中间状态，这样的中间状态不影响系统的整体可用性。<br>即允许系统在不同节点的数据副本之间进行数据同步的过程存在延时。</p>
 <h2 id="最终一致性"><a href="#最终一致性" class="headerlink" title="最终一致性"></a>最终一致性</h2><p>系统中的所有数据副本，在经过一定时间的同步后，最终能够达到一致的状态。</p>
 <p>与刚性事务 ACID 不同，基于分布式系统的 BASE 理论属于<strong>柔性事务</strong>。</p>
 <hr>
