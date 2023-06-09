@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/06/06/distributed-system-basics/cap.png">
 <meta property="article:published_time" content="2023-06-06T08:54:52.000Z">
-<meta property="article:modified_time" content="2023-06-08T08:26:09.002Z">
+<meta property="article:modified_time" content="2023-06-08T08:51:35.507Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="架构">
 <meta name="twitter:card" content="summary">
@@ -380,7 +380,7 @@ mjx-container[display="true"] + br {
 <ul>
 <li>ZooKeeper 保证的是 CP：数据强一致性，但是不保证每次请求的可用性；选举过程中过半数机器不可用时，服务不可用</li>
 <li>Eureka 保证的是 AP：每个节点都是平等的，这种设计方式就是为了先保证可用性，因此即使大部分节点挂掉也不会影响服务，只要一个节点可用就行</li>
-<li>Nacos 既支持 CP 也支持 AP</li>
+<li>Nacos 既支持 CP 也支持 AP（注册临时节点）</li>
 </ul>
 <h1 id="BASE"><a href="#BASE" class="headerlink" title="BASE"></a>BASE</h1><p>BASE 理论包含的是 <strong>Basically Available</strong>（基本可用）, <strong>Soft state</strong>（软状态）, <strong>Eventually consistent</strong>（最终一致性）。</p>
 <p>一句话概括：先保证系统的基本可用（保证核心功能的能力），各节点的数据允许出现软状态（中间状态），最终达到一致性。</p>
