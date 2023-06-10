@@ -20,22 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="先给结论：能不用分布式事务就不用，但是 ——">
+  <meta name="description" content="微服务是单体服务（SOA）演变至今，对于分布式、可维护性，解耦等思想的新的应用组织模式。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="分布式理论初探">
-<meta property="og:url" content="http://example.com/2023/06/06/distributed-system-basics/index.html">
+<meta property="og:title" content="微服务">
+<meta property="og:url" content="http://example.com/2023/06/10/micro-service/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="先给结论：能不用分布式事务就不用，但是 ——">
+<meta property="og:description" content="微服务是单体服务（SOA）演变至今，对于分布式、可维护性，解耦等思想的新的应用组织模式。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2023/06/06/distributed-system-basics/cap.png">
-<meta property="article:published_time" content="2023-06-06T08:54:52.000Z">
-<meta property="article:modified_time" content="2023-06-08T08:51:35.507Z">
+<meta property="article:published_time" content="2023-06-10T07:54:24.000Z">
+<meta property="article:modified_time" content="2023-06-10T08:10:58.217Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="架构">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/06/06/distributed-system-basics/cap.png">
 
-<link rel="canonical" href="http://example.com/2023/06/06/distributed-system-basics/">
+<link rel="canonical" href="http://example.com/2023/06/10/micro-service/">
 
 
 <script id="page-configurations">
@@ -48,7 +46,7 @@
   };
 </script>
 
-  <title>分布式理论初探 | Raymond's Cabin</title>
+  <title>微服务 | Raymond's Cabin</title>
   
 
 
@@ -303,7 +301,7 @@ mjx-container[display="true"] + br {
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/06/distributed-system-basics/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/10/micro-service/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -316,7 +314,7 @@ mjx-container[display="true"] + br {
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          分布式理论初探
+          微服务
         </h1>
 
         <div class="post-meta">
@@ -326,7 +324,7 @@ mjx-container[display="true"] + br {
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2023-06-06 16:54:52" itemprop="dateCreated datePublished" datetime="2023-06-06T16:54:52+08:00">2023-06-06</time>
+              <time title="Created: 2023-06-10 15:54:24" itemprop="dateCreated datePublished" datetime="2023-06-10T15:54:24+08:00">2023-06-10</time>
             </span>
 
           
@@ -347,64 +345,97 @@ mjx-container[display="true"] + br {
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>先给结论：能不用分布式事务就不用，但是 ——</p>
+        <p>微服务是单体服务（SOA）演变至今，对于分布式、可维护性，解耦等思想的新的应用组织模式。</p>
 <span id="more"></span>
-<p>随着互联网技术和社会业务需求的不断发展，系统日益复杂，分布式架构逐渐流行，因此分布式事务是避不开的话题。</p>
-<p>在此先捋一下分布式事务的基础理论。</p>
-<h1 id="CAP"><a href="#CAP" class="headerlink" title="CAP"></a>CAP</h1><p>CAP 定理，或者叫 CAP 原则，指的是在一个分布式系统中，对于<strong>一致性（Consistency）</strong>、<strong>可用性（Availability）</strong>、<strong>分区容错性（Partition tolerance）</strong> 这三个基本需求，最多只能<strong>同时满足其中的两个</strong>。</p>
-<p>CAP 是基于<strong>瞬态</strong>的描述性理论。</p>
-<p>一致性（<strong>C</strong>）：在分布式系统中，不同的节点分别保存着数据副本，每个节点的数据副本之间能够保持一致。</p>
-<p>可用性（<strong>A</strong>）：系统提供的服务一直处于可用的状态，每次请求都能获得正确的响应；即使集群中部分节点存在故障，整体服务还能响应客户端请求。</p>
-<p>分区容错性（<strong>P</strong>）：对通信时限性存在要求。分布式系统在遇到任何网络分区故障的时候，仍然能够正常对外提供服务。</p>
-<p><img src="/2023/06/06/distributed-system-basics/cap.png" alt></p>
-<h2 id="为什么三者不可兼得"><a href="#为什么三者不可兼得" class="headerlink" title="为什么三者不可兼得"></a>为什么三者不可兼得</h2><p>首先分布式系统，是避免不了分区的。<br>何为分区？分布式系统的不同节点分布在不同子网中，这些相对孤立的子网络我们称之为分区。</p>
-<p>分布式系统是避免不了分区的，因此分区容错性（P）一定要满足。<br>在此基础上，<strong>当网络故障或者其它原因，导致某个分区出现故障</strong>的时候，某个用户请求修改数据：</p>
+<h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><p>微服务除了服务们本身之外，要想维护整个应用的运行，以下组件必不可少：</p>
 <ul>
-<li>如果允许其中一个副本更新，则分区故障副本无法被更新，导致数据不一致，即<strong>一致性（C）无法满足</strong>；</li>
-<li>如果为了保证一致性，将分区故障副本设置为不可用，那么<strong>可用性（A）无法满足</strong>。</li>
-</ul>
-<p>举个例子：假设存在两个分区 P1 和 P2，P1 包括服务 S1 和数据 D1，P2 包括服务 S2 和数据 D2。<br>此时网络发生了故障，导致 D2 网络不通。</p>
-<p>用户访问 S1 修改了 D1 的数据，再次访问时请求落在了 P2：此时 D1 和 D2 的数据是不一致的。</p>
-<ul>
-<li>如果要保证一致性（C）：D1 和 D2 的数据不一致，就不能返回，导致服务 S2 无法响应，<strong>可用性（A）无法满足</strong>；</li>
-<li>如果要保证可用性（A）：S2 响应请求，返回了与 D1 不一致的数据，<strong>一致性（C）无法满足</strong>。</li>
-</ul>
-<h2 id="权衡"><a href="#权衡" class="headerlink" title="权衡"></a>权衡</h2><p>三者不可兼得，在 CAP 的框架范围内，我们需要做一些权衡。<br>根据排列组合，我们有三种权衡方案（如上图）：</p>
-<h3 id="CA-without-P"><a href="#CA-without-P" class="headerlink" title="CA without P"></a>CA without P</h3><p>单机系统的性质，节点之间通信网络一定会有问题，即放弃了系统的扩展性。<br>因此分布式系统理论上是不可选 CA 的。</p>
-<p>应用于早期的单体服务，比如 MySQL 的 InnoDB 等传统关系型数据库，满足 ACID 的刚性事务。</p>
-<h3 id="CP-without-A"><a href="#CP-without-A" class="headerlink" title="CP without A"></a>CP without A</h3><p>牺牲了可用性（A），相当于每个请求需要在服务之间强一致；由于分区的存在，会导致数据同步时间无限延长，影响用户体验。</p>
-<p>分布式数据库采用的是 CP 方案。</p>
-<h3 id="AP-without-C"><a href="#AP-without-C" class="headerlink" title="AP without C"></a>AP without C</h3><p>保证可用性的话，就不能保证数据一致性。因此每个节点只能用本地数据提供服务。</p>
-<p>市面上很多 NoSQL都采用此方案；在业务应用中的高峰值订单、秒杀系统等都暂时放弃数据一致性。</p>
-<h2 id="实际应用"><a href="#实际应用" class="headerlink" title="实际应用"></a>实际应用</h2><p>在微服务的常用组件中：</p>
-<ul>
-<li>ZooKeeper 保证的是 CP：数据强一致性，但是不保证每次请求的可用性；选举过程中过半数机器不可用时，服务不可用</li>
-<li>Eureka 保证的是 AP：每个节点都是平等的，这种设计方式就是为了先保证可用性，因此即使大部分节点挂掉也不会影响服务，只要一个节点可用就行</li>
-<li>Nacos 既支持 CP 也支持 AP（注册临时节点）</li>
-</ul>
-<h1 id="BASE"><a href="#BASE" class="headerlink" title="BASE"></a>BASE</h1><p>BASE 理论包含的是 <strong>Basically Available</strong>（基本可用）, <strong>Soft state</strong>（软状态）, <strong>Eventually consistent</strong>（最终一致性）。</p>
-<p>一句话概括：先保证系统的基本可用（保证核心功能的能力），各节点的数据允许出现软状态（中间状态），最终达到一致性。</p>
-<p>BASE 理论是基于 CAP，综合了大规模分布式系统的实践，而得到的对 C 和 A 做权衡的结果。<br>其核心思想是：</p>
-<pre><code>即使无法做到强一致性，但是每个应用可根据自身特点，采用适当方式使系统达到最终统一。
-</code></pre><h2 id="基本可用"><a href="#基本可用" class="headerlink" title="基本可用"></a>基本可用</h2><p>分布式系统出现故障时，能够保证核心服务可用，<strong>允许损失部分可用性</strong>。</p>
-<p>损失掉的部分可用性包括：</p>
-<ul>
-<li><strong>响应时间上的损失</strong>：响应时间会从毫秒级增加到秒级；</li>
-<li><strong>功能上的缺失</strong>：部分用户会被引导到降级之后的服务；</li>
+<li>网关</li>
+<li>服务注册与发现</li>
+<li>服务治理，包括限流、熔断与降级</li>
+<li>负载均衡</li>
+<li>链路追踪</li>
+<li>配置中心</li>
 <li>…</li>
 </ul>
-<h2 id="软状态"><a href="#软状态" class="headerlink" title="软状态"></a>软状态</h2><p>允许系统出现中间状态，这样的中间状态不影响系统的整体可用性。<br>即允许系统在不同节点的数据副本之间进行数据同步的过程存在延时。</p>
-<h2 id="最终一致性"><a href="#最终一致性" class="headerlink" title="最终一致性"></a>最终一致性</h2><p>系统中的所有数据副本，在经过一定时间的同步后，最终能够达到一致的状态。</p>
-<p>与刚性事务 ACID 不同，基于分布式系统的 BASE 理论属于<strong>柔性事务</strong>。</p>
-<p>如何保证最终一致性？</p>
+<p>微服务之间的通信方式一般有 HTTP 和 RPC 两种。</p>
+<p>一般来讲会偏向于采用 HTTP：因为在生态中各个微服务独立开发的原因，对开发语言无强要求，所以倾向于对语言更解耦的 HTTP，而不是对服务之间通信格式有强要求的 RPC。</p>
+<p>接下来简单介绍一下重要的一些组件需要注意的地方。</p>
+<p><br></p>
+<h1 id="网关"><a href="#网关" class="headerlink" title="网关"></a>网关</h1><p>网关在微服务中不显山不露水。</p>
+<p>没网关，也能访问服务，但是问题在于：</p>
 <ul>
-<li>读取数据时检测到数据不一致，进行修复</li>
-<li>写入数据时检测到数据不一致，进行修复</li>
-<li>异步修复</li>
+<li>如果服务多起来了，客户端需要实现访问不同服务的逻辑，增加客户端复杂度；</li>
+<li>另外如果服务需要鉴权，则每个服务的鉴权处理都需要分别实现和维护；</li>
+<li>而且流量控制不好做</li>
 </ul>
-<hr>
-<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="https://xiaomi-info.github.io/2020/01/02/distributed-transaction/">小米信息部技术团队 - 分布式事务，这一篇就够了</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/three-fighter/p/15293310.html">分布式必备理论基础：CAP和BASE</a></p>
+<p>另外，如果服务想同时支持 HTTP 和 RPC 或另外的多种通信方式，client 要分别维护不同语言的 SDK</p>
+<p>网关的好处，即网关功能：<br>针对所有请求进行统一鉴权、限流、缓存、日志（打点）<br>协议转化。针对后端多种不同的协议，在网关层统一处理之后，以 HTTP 对外提供服务<br>提供统一的错误码<br>请求转发，且可以基于网关实现内网和外网的隔离</p>
+<p>网关鉴权：与统一的认证中心进行交互，实现身份认证和访问权限控制<br>灰度发布：网关与分流引擎交互，将不同比例的流量分发到新/旧不同的服务中；前期切小部分（如 10%）流量至新服务，如效果不好/存在 bug 就回退，否则就会增大流量比例</p>
+<h1 id="服务注册"><a href="#服务注册" class="headerlink" title="服务注册"></a>服务注册</h1><h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>在 Spring Cloud 中，各种类型的微服务组件实现服务注册的原理是一样的：</p>
+<ul>
+<li>实现 <code>spring-cloud-commons</code> 包的 <code>ServiceRegistry</code> 接口方法；</li>
+<li>加载自动配置类的时候（在 <code>spring-cloud-commons</code> 的 <code>spring.factories</code> 中加载）：<ul>
+<li><code>AutoServiceRegistrationAutoConfiguration</code> 实现了接口 <code>AutoConfiguration</code>；</li>
+<li><code>AbstractAutoServiceRegistration</code> 又实现了 <code>AutoServiceRegistrationAutoConfiguration</code>；</li>
+<li><code>AbstractAutoServiceRegistration</code> 同时还实现了 <code>ApplicationListener</code> 接口，接收到 WebServiceInitializedEvent 后，对 event 进行绑定（被废弃的方法）；</li>
+<li>通过以上继承关系加载具体的自动配置类。</li>
+</ul>
+</li>
+<li>“绑定”服务：调用 ServiceRegistry 的 <code>register()</code> 接口方法</li>
+</ul>
+<h1 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h1><p>在传统系统部署中，服务运行在一个固定的已知 IP 和端口上。如果一个服务需要调用另一个服务，可以通过地址直接调用。<br>但在虚拟化或容器化环境中，服务实例的启动和销毁非常频繁，因此服务地址也在动态变化。<br>这种情况就需要服务发现机制。</p>
+<p>此时服务间的调用不是通过直接调用具体的实例地址，而是通过服务名发起调用。调用方需要向服务注册中心咨询服务，获取服务的实例清单，从而访问具体的服务实例。</p>
+<p>调用流程：</p>
+<ul>
+<li>各个服务将自己的 ip 和端口发送至注册中心，注册中心维护服务注册表；</li>
+<li>某个服务要调用另外的服务的时候，从注册中心获取服务列表并查询，最终执行想要的服务调用；</li>
+<li>同时每个服务会保留一份服务注册表的本地缓存，定期更新；</li>
+<li>下次访问的时候会先请求本地缓存，没有的话才会请求注册中心。</li>
+</ul>
+<p>服务发现有两种实现方式：</p>
+<p><strong>基于客户端的服务发现</strong>：由客户端提供负载均衡算法，根据获得的注册表进行服务访问</p>
+<ul>
+<li>优点：客户端知道所有可用服务的实际网络地址，可非常方便地实现负载均衡，从而请求对应的服务；</li>
+<li>缺点：耦合性强，针对不同语言，每个服务的客户端都得实现一套服务发现的功能</li>
+</ul>
+<p><strong>基于服务端的服务发现</strong>：由服务端的负载均衡组件提供负载均衡算法，负载均衡组件查询注册表并进行负载均衡的访问</p>
+<ul>
+<li>优点：服务发现逻辑对客户端不透明。客户端不需要知道服务列表，只需向负载均衡组件发送请求即可；</li>
+<li>缺点：必须要关心负载均衡组件的高可用性</li>
+</ul>
+<h1 id="服务治理"><a href="#服务治理" class="headerlink" title="服务治理"></a>服务治理</h1><p>服务控制</p>
+<p>服务雪崩：大量请求突然涌入。一个服务失败，导致整条服务链路的服务都失败</p>
+<p>服务熔断和服务降级可视为解决服务雪崩的手段</p>
+<h2 id="服务熔断"><a href="#服务熔断" class="headerlink" title="服务熔断"></a>服务熔断</h2><p>当某个服务提供者无法正常为服务调用者提供服务时，为防止服务雪崩，暂时将出现故障的接口隔离开来，后续一段时间内该服务调用者的请求会直接失败，直到目标服务恢复正常<br>如何知道恢复正常？设定 reset timeout，过后进入半开合状态并放行部分流量以便重新检测服务，如果不成功则保持链接断开，直到下一次 timeout</p>
+<p>熔断是框架级别的处理，基本会采用断路器模式实现，达到熔断阈值才会触发熔断</p>
+<h2 id="服务降级"><a href="#服务降级" class="headerlink" title="服务降级"></a>服务降级</h2><p>服务降级多是业务级别的处理</p>
+<ul>
+<li>下游服务因某些原因响应过慢：下游停掉不重要业务，释放服务器资源，提高响应速度</li>
+<li>下游服务因某些原因不可用：上游主动调用本地降级逻辑，避免卡顿，迅速反馈给用户<br>多数是在配置中心给非核心业务配上开关，一旦系统扛不住则关闭开关，结束次要进程</li>
+</ul>
+<p>熔断降级常见方案：<br>平均响应时间：设定响应时间阈值，如果连续 N 个请求对应时刻的平均响应时间均超过阈值，那在往后一个固定时间窗口内，访问会被熔断<br>异常比例：每秒调用所获得的异常总数比例超过设定阈值：资源自动降级，往后一个固定时间窗口，方法调用会自动返回<br>异常数量：每秒调用所获得的异常总数超过设定阈值：资源自动降级，往后一个固定时间窗口，方法调用会自动返回</p>
+<h2 id="服务限流"><a href="#服务限流" class="headerlink" title="服务限流"></a>服务限流</h2><p>通过限制并发访问数或限制一个时间窗口内允许处理的请求数量来保护系统；一旦达到限制流量，则对当前请求进行处理采取对应拒绝策略，如跳转错误页面、排队、服务降级等。</p>
+<p>限流算法<br>计数器算法：指定周期内（如 3 秒）的累计访问次数达到设定阈值（如 150）时，触发限流策略。进入下一个时间周期后，访问次数清零<br>缺陷：临界问题：2 -3 秒进入 150 个请求，3 - 4 秒进入 150 个请求，相当于两秒内进入 300 个请求</p>
+<p>滑动窗口：固定窗口改良版，解决固定窗口在窗口切换时会受到两倍于阈值数量的请求<br>将一个窗口分为若干等分的小窗口，每个小窗口对应不同时间点，拥有独立计数器<br>当请求时间点大于当前窗口最大时间点时，则向前平移一个小窗口，第一个小窗口数据舍弃，整个窗口所有请求数相加不能大于阈值</p>
+<p>令牌桶限流：网络流量整形（traffic shaping）和速率控制（rate limiting）中最常用的方法<br>匀速往桶里面扔令牌，桶大小固定的话，桶满了就会丢弃多余的令牌<br>请求速度大于令牌生成速度：令牌被取空后，会被限流<br>请求速度等于令牌生成速度：流量趋于平稳<br>请求速度小于令牌生成速度，请求可被正常处理</p>
+<p>漏桶限流：不管来的请求数量和并发有多快，请求到达服务的速度是一致的<br>就像是不管水龙头来的水有多猛，漏桶水滴的速度是恒定的<br>应用：消息中间件<br>主要作用：控制数据注入网络的速度，平滑网络的突发流量</p>
+<h1 id="配置中心"><a href="#配置中心" class="headerlink" title="配置中心"></a>配置中心</h1><p>在没有配置中心的时候：</p>
+<p>在微服务架构中，当系统从一个单体应用被拆分成为分布式系统上的一个个服务节点之后，配置文件（application.yml / application.properties）也必须跟着迁移甚至切割。<br>因此，多个微服务拆分后产生多份配置文件，容易造成配置分散，不好管理，还会伴随着冗余。</p>
+<p>我们需要这么一个组件，能够：</p>
+<ul>
+<li>发布、修改、删除配置，实现不改动代码就能实现新需求；</li>
+<li>中心化，服务从配置中心获得配置信息，应用就没有配置信息了：实现无状态</li>
+<li>当配置信息发生变更，可发起通知服务：实现热加载</li>
+</ul>
+<p>甚至，我们还希望在配置中心中配置 bean，应用可以通过获取 bean 定义创建不同的服务。</p>
+<p>因此配置中心应运而生。</p>
+<p>另外，我们还希望配置中心能够满足：</p>
+<ul>
+<li>隔离性：配置对于程序来说是只读的，独立于程序存在</li>
+<li>配置中心应该能够影响整个服务的生命周期</li>
+<li>配置中心的配置应该能支持多种加载方式（SDK、编码、配置文件）</li>
+<li>实现环境治理，不同类型环境有不同的配置集</li>
+</ul>
 
     </div>
 
@@ -423,13 +454,10 @@ mjx-container[display="true"] + br {
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/06/04/b-tree/" rel="prev" title="B 树">
-      <i class="fa fa-chevron-left"></i> B 树
+    <a href="/2023/06/09/spring-cloud-overview/" rel="prev" title="Spring Cloud 初探">
+      <i class="fa fa-chevron-left"></i> Spring Cloud 初探
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/06/09/spring-cloud-overview/" rel="next" title="Spring Cloud 初探">
-      Spring Cloud 初探 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -488,7 +516,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CAP"><span class="nav-number">1.</span> <span class="nav-text">CAP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%89%E8%80%85%E4%B8%8D%E5%8F%AF%E5%85%BC%E5%BE%97"><span class="nav-number">1.1.</span> <span class="nav-text">为什么三者不可兼得</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%83%E8%A1%A1"><span class="nav-number">1.2.</span> <span class="nav-text">权衡</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CA-without-P"><span class="nav-number">1.2.1.</span> <span class="nav-text">CA without P</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CP-without-A"><span class="nav-number">1.2.2.</span> <span class="nav-text">CP without A</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AP-without-C"><span class="nav-number">1.2.3.</span> <span class="nav-text">AP without C</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">实际应用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BASE"><span class="nav-number">2.</span> <span class="nav-text">BASE</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8F%AF%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">基本可用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%AF%E7%8A%B6%E6%80%81"><span class="nav-number">2.2.</span> <span class="nav-text">软状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-number">2.3.</span> <span class="nav-text">最终一致性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">3.</span> <span class="nav-text">References</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E8%A7%88"><span class="nav-number">1.</span> <span class="nav-text">总览</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text">网关</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C"><span class="nav-number">3.</span> <span class="nav-text">服务注册</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">3.1.</span> <span class="nav-text">实现原理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">服务发现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">服务治理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%86%94%E6%96%AD"><span class="nav-number">5.1.</span> <span class="nav-text">服务熔断</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E9%99%8D%E7%BA%A7"><span class="nav-number">5.2.</span> <span class="nav-text">服务降级</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E9%99%90%E6%B5%81"><span class="nav-number">5.3.</span> <span class="nav-text">服务限流</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-number">6.</span> <span class="nav-text">配置中心</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
