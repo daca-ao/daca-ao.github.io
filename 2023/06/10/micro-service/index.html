@@ -28,7 +28,7 @@
 <meta property="og:description" content="微服务是单体服务（SOA）演变至今，对于分布式、可维护性，解耦等思想的新的应用组织模式。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-06-10T07:54:24.000Z">
-<meta property="article:modified_time" content="2023-06-10T10:16:00.427Z">
+<meta property="article:modified_time" content="2023-06-10T10:32:15.921Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="架构">
 <meta name="twitter:card" content="summary">
@@ -447,7 +447,7 @@ mjx-container[display="true"] + br {
 <p>主要作用：控制数据注入网络的速度，平滑网络的突发流量。</p>
 <p>应用：消息中间件。</p>
 <h1 id="配置中心"><a href="#配置中心" class="headerlink" title="配置中心"></a>配置中心</h1><p>在没有配置中心的时候：</p>
-<p>在微服务架构中，当系统从一个单体应用被拆分成为分布式系统上的一个个服务节点之后，配置文件（application.yml / application.properties）也必须跟着迁移甚至切割。<br>因此，多个微服务拆分后产生多份配置文件，容易造成配置分散，不好管理，还会伴随着冗余。</p>
+<p>在微服务架构中，当系统从一个单体应用被拆分成为分布式系统上的一个个服务节点之后，配置文件（<code>application.yml</code> / <code>application.properties</code>）也必须跟着迁移甚至切割。<br>因此，多个微服务拆分后产生多份配置文件，容易造成配置分散，不好管理，还会伴随着冗余。</p>
 <p>我们需要这么一个组件，能够：</p>
 <ul>
 <li>发布、修改、删除配置，实现不改动代码就能实现新需求；</li>
