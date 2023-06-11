@@ -28,7 +28,7 @@
 <meta property="og:description" content="微服务是单体服务（SOA）演变至今，对于分布式、可维护性，解耦等思想的新的应用组织模式。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-06-10T07:54:24.000Z">
-<meta property="article:modified_time" content="2023-06-10T10:32:15.921Z">
+<meta property="article:modified_time" content="2023-06-11T06:11:52.085Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="架构">
 <meta name="twitter:card" content="summary">
@@ -347,6 +347,7 @@ mjx-container[display="true"] + br {
       
         <p>微服务是单体服务（SOA）演变至今，对于分布式、可维护性，解耦等思想的新的应用组织模式。</p>
 <span id="more"></span>
+<p>微服务的“微”，指的是业务功能小。</p>
 <h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><p>微服务除了服务们本身之外，要想维护整个应用的运行，以下组件必不可少：</p>
 <ul>
 <li>网关</li>
@@ -383,7 +384,7 @@ mjx-container[display="true"] + br {
 <li>实现 <code>spring-cloud-commons</code> 包的 <code>ServiceRegistry</code> 接口方法；</li>
 <li>加载自动配置类的时候（在 <code>spring-cloud-commons</code> 的 <code>spring.factories</code> 中加载）：<ul>
 <li><code>AutoServiceRegistrationAutoConfiguration</code> 实现了接口 <code>AutoConfiguration</code>；</li>
-<li><code>AbstractAutoServiceRegistration</code> 又实现了 <code>AutoServiceRegistrationAutoConfiguration</code>；</li>
+<li>另一个抽象类 <code>AbstractAutoServiceRegistration</code> 又实现了 <code>AutoServiceRegistrationAutoConfiguration</code>；</li>
 <li><code>AbstractAutoServiceRegistration</code> 同时还实现了 <code>ApplicationListener</code> 接口，接收到 WebServiceInitializedEvent 后，对 event 进行绑定（被废弃的方法）；</li>
 <li>通过以上继承关系加载具体的自动配置类。</li>
 </ul>
@@ -424,8 +425,8 @@ mjx-container[display="true"] + br {
 <p>熔断降级常见方案：</p>
 <ul>
 <li><strong>平均响应时间</strong>：设定响应时间阈值，如果连续 N 个请求对应时刻的平均响应时间均超过阈值，那在往后一个固定时间窗口内，访问会被熔断</li>
-<li>异常比例：每秒调用所获得的异常总数比例超过设定阈值：资源自动降级，往后一个固定时间窗口，方法调用会自动返回</li>
-<li>异常数量：每秒调用所获得的异常总数超过设定阈值：资源自动降级，往后一个固定时间窗口，方法调用会自动返回</li>
+<li><strong>异常比例</strong>：每秒调用所获得的异常总数比例超过设定阈值：资源自动降级，往后一个固定时间窗口，方法调用会自动返回</li>
+<li><strong>异常数量</strong>：每秒调用所获得的异常总数超过设定阈值：资源自动降级，往后一个固定时间窗口，方法调用会自动返回</li>
 </ul>
 <h2 id="服务限流"><a href="#服务限流" class="headerlink" title="服务限流"></a>服务限流</h2><p>通过限制并发访问数或限制一个时间窗口内允许处理的请求数量来保护系统。<br>一旦达到限制流量，则对当前请求进行处理采取对应拒绝策略，如跳转错误页面、排队、服务降级等。</p>
 <h3 id="限流算法"><a href="#限流算法" class="headerlink" title="限流算法"></a>限流算法</h3><p>主流的限流算法如下：</p>
