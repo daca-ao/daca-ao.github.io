@@ -36,7 +36,7 @@
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-psg.png">
 <meta property="og:image" content="http://example.com/2021/07/20/mq/jms-api.png">
 <meta property="article:published_time" content="2021-07-19T17:12:34.000Z">
-<meta property="article:modified_time" content="2023-06-15T14:05:57.025Z">
+<meta property="article:modified_time" content="2023-06-16T09:23:32.825Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
@@ -570,7 +570,21 @@
 <li><strong>At least once</strong>: 消息在传递时，至少会被送达一次。也就是说，不允许丢消息，但是允许有少量重复消息出现。</li>
 <li><strong>Exactly once</strong>：消息在传递时，只会被送达一次，不允许丢失也不允许重复，这个是最高的等级。</li>
 </ul>
-<h2 id="消息积压问题"><a href="#消息积压问题" class="headerlink" title="消息积压问题"></a>消息积压问题</h2><p>灰度发布<br>多活<br>增强消费能力<br>熔断与隔离</p>
+<h2 id="消息积压问题"><a href="#消息积压问题" class="headerlink" title="消息积压问题"></a>消息积压问题</h2><p>有的时候，消息在 Broker 上大量堆积，无法被消费者及时消费，产生堆积的情况。</p>
+<p>常见于以下几种情况：</p>
+<ol>
+<li>消费者功能存在 bug，消息无法被消费；</li>
+<li>消费者实例宕机或因网络问题暂时无法与 Broker 建立连接；</li>
+<li>生产者短时间内推送大量消息到 Broker，消费能力不足；</li>
+<li>生产者未感知 Broker 消费堆积，而持续向 Broker 推送消息</li>
+</ol>
+<p>避免和解决问题的思路：</p>
+<ol>
+<li><strong>灰度发布</strong>。选取一定比例的消费实例做灰度，若出现问题，及时回滚；若消费者消费正常，平稳运行一段时间后，再升级其它实例。</li>
+<li><strong>多活</strong>。</li>
+<li><strong>增强消费能力</strong>。增加消费者线程数或者增加消费者实例个数。</li>
+<li>一旦积压情况发生，要做好<strong>熔断与隔离</strong>，将新消息发送到其它队列。</li>
+</ol>
 <h3 id="检测消息丢失的方法"><a href="#检测消息丢失的方法" class="headerlink" title="检测消息丢失的方法"></a>检测消息丢失的方法</h3><p>可以利用消息队列的<strong>有序性</strong>来验证是否有消息丢失：<br>在 Producer 端给每个发出的消息附加一个<strong>连续递增的序号</strong>，然后在 Consumer 端来检查这个序号的连续性。</p>
 <h2 id="消息顺序问题"><a href="#消息顺序问题" class="headerlink" title="消息顺序问题"></a>消息顺序问题</h2><p>常见的场景：电商平台的下单操作，下单后先减库存，然后生成订单</p>
 <ul>
