@@ -20,24 +20,23 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"hide","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="Service 是 Kubernetes 里面另一种非常常见的容器编排方式。">
+  <meta name="description" content="作为一名 Java 开发者，今天唠一唠 Java 开发平台的一点基本情况。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Kubernetes 服务 Service">
-<meta property="og:url" content="http://example.com/2023/05/10/kubernetes-service/index.html">
+<meta property="og:title" content="Java 与其平台体系">
+<meta property="og:url" content="http://example.com/2023/06/21/java/index.html">
 <meta property="og:site_name" content="Raymond&#39;s Cabin">
-<meta property="og:description" content="Service 是 Kubernetes 里面另一种非常常见的容器编排方式。">
+<meta property="og:description" content="作为一名 Java 开发者，今天唠一唠 Java 开发平台的一点基本情况。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2023/05/10/kubernetes-service/service.gif">
-<meta property="og:image" content="http://example.com/2023/05/10/kubernetes-service/service.png">
-<meta property="og:image" content="http://example.com/2023/05/10/kubernetes-service/nodeport.png">
-<meta property="article:published_time" content="2023-05-09T16:05:29.000Z">
-<meta property="article:modified_time" content="2023-05-10T03:42:49.236Z">
+<meta property="og:image" content="http://example.com/2023/06/21/java/j2se.png">
+<meta property="article:published_time" content="2023-06-21T04:15:28.000Z">
+<meta property="article:modified_time" content="2023-06-21T08:50:08.765Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
-<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/05/10/kubernetes-service/service.gif">
+<meta name="twitter:image" content="http://example.com/2023/06/21/java/j2se.png">
 
-<link rel="canonical" href="http://example.com/2023/05/10/kubernetes-service/">
+<link rel="canonical" href="http://example.com/2023/06/21/java/">
 
 
 <script id="page-configurations">
@@ -50,7 +49,7 @@
   };
 </script>
 
-  <title>Kubernetes 服务 Service | Raymond's Cabin</title>
+  <title>Java 与其平台体系 | Raymond's Cabin</title>
   
 
 
@@ -305,7 +304,7 @@ mjx-container[display="true"] + br {
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/05/10/kubernetes-service/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/21/java/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -318,7 +317,7 @@ mjx-container[display="true"] + br {
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Kubernetes 服务 Service
+          Java 与其平台体系
         </h1>
 
         <div class="post-meta">
@@ -328,7 +327,7 @@ mjx-container[display="true"] + br {
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2023-05-10 00:05:29" itemprop="dateCreated datePublished" datetime="2023-05-10T00:05:29+08:00">2023-05-10</time>
+              <time title="Created: 2023-06-21 12:15:28" itemprop="dateCreated datePublished" datetime="2023-06-21T12:15:28+08:00">2023-06-21</time>
             </span>
 
           
@@ -349,113 +348,231 @@ mjx-container[display="true"] + br {
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>Service 是 Kubernetes 里面另一种非常常见的容器编排方式。</p>
+        <p>作为一名 Java 开发者，今天唠一唠 Java 开发平台的一点基本情况。</p>
 <span id="more"></span>
-<p>每个 pod 的 IP 地址是不稳定的，会随着 pod 销毁和创建发生变化；然而服务调用需要对不同 pod 进行负载均衡，利用非固定的 IP 进行网络调用并不现实。</p>
-<p>Kubernetes 专门<strong>抽象</strong>了一组 pod 的<strong>逻辑定义</strong>来解决这个问题。</p>
-<h1 id="Service-概况"><a href="#Service-概况" class="headerlink" title="Service 概况"></a>Service 概况</h1><p>Pod 是不稳定的，但是服务可以保证稳定。<br>区别于 service controller / endpoints controller 负责容器运行和编排，service 负责 Kubernetes 集群中<strong>容器的访问</strong>。</p>
-<p>Service 的定义：</p>
-<pre><code>An abstract way to expose an application running on a set of Pods as a network service.
-</code></pre><p>Service 的职责：与每个 node 的 <a href="/2022/05/18/kubernetes-overview#kube-proxy">kube-proxy</a> 进程相结合，<strong>提供固定的 IP 和端口</strong>，在将数据包分发到相应服务节点时充当代理，进行负载均衡。</p>
-<p>工作原理：根据 service 的每个 pod 所设置的标签 label</p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>根据创始公司 Sun Microsystems 的描述，Java 是一门：</p>
+<pre><code>简单、完全面向对象、分布式、解释性、健壮、安全与系统无关、可移植、高性能、多线程和动态的编程语言。
+
+我们关心的是，减少开发健壮代码所需的时间以及困难。
+</code></pre><p>Java 最初被称为 Oak，是 1991 年为消费类电子产品的嵌入型芯片而设计的开发平台。1995 年 5 月更名，并重新应用于开发 Internet 应用程序。</p>
+<p>2010 年，Sun 被甲骨文（Oracle）收购，Java 随即归于 Oracle 旗下。</p>
+<p>Java 除了我们熟知的 Java 程序设计语言之外，还有一块大头是 Java 平台。</p>
+<h2 id="Java-开发平台"><a href="#Java-开发平台" class="headerlink" title="Java 开发平台"></a>Java 开发平台</h2><p>Java 平台（software platform）是由 Java 程序语言编写的软件赖以开发的平台，是 Java 软件和电脑系统的中介。<br>最初被设计用在 Applet 等桌面端程序开发，不过后来逐渐转移到服务端的运用。<br>主要分三类：</p>
 <ul>
-<li>比如某些 pod 被打上了 “app=xxx” 的标签</li>
-<li>Service controller 通过 <code>serviceSelector</code> 选择 label 同样为 “app=xxx” 的 pod</li>
-<li>列举所有被选中的 pod 的 IP，构建出一个负载均衡列表 <strong>endpoints</strong><ul>
-<li>这些 endpoints 可被包装成一个完整的 service 对外提供服务</li>
-<li>endpoints 所有 IP 和 pod 的端口通过 service controller 和 endpoints controller 共同选择并配置完成</li>
-<li>如果某个 pod 出现故障，脱离服务集群，它的 IP 会自动在 endpoints 中被移除</li>
-<li>如 serviceSelector 匹配到新的 pod，则 pod 的 IP 会自动加入各自对应的 endpoints 对象中</li>
+<li>Java SE（<strong>J2SE</strong>, Java 2 Platform Standard Edition）：Java 平台标准【基础】版，即 Java 桌面版</li>
+<li>Java EE（<strong>J2EE</strong>, Java 2 Platform Enterprise Edition）：Java 平台企业版，基于 J2SE 打造，用于构建大型网站；后来重命名为 Jakarta EE </li>
+<li>Java ME（<strong>J2ME</strong>, Java 2 Platform Micro Edition）：Java 平台微型版，基于 J2SE 打造，用于构建手机移动终端。</li>
+</ul>
+<p>当今最流行的 Java 开发环境：</p>
+<ul>
+<li>Eclipse</li>
+<li>IntelliJ IDEA</li>
+<li>Jbuilder</li>
+<li>JCreator</li>
+<li>Jdeveloper</li>
+<li>MyEclipse</li>
+<li>Netbeans</li>
+</ul>
+<p>就拿 Eclipse 来说：Eclipse 是一款开放源代码的、基于 Java 的可扩展开发平台，其实是 Visual Age for Java</p>
+<ul>
+<li>Eclipse 本身只是一个框架和一组服务</li>
+<li>Eclipse 中每一样东西都是插件，用户通过不同的插件组件来构建开发环境；所以可以通过添加插件实现强大的功能</li>
+<li>同时还附带了一个标准的插件集，包括 Java 开发工具</li>
+</ul>
+<p>因此 Eclipse 可以支持多种语言的开发，如 C/C++，PHP 等；而许多软件开发商也以 Eclipse 为框架开发自己的 IDE。</p>
+<p>IBM 提供了最初的 Eclipse 代码基础，包括 Platform、JDT 和 PDE。</p>
+<p>Eclipse 分支（Eclipse 标准版 + 功能插件）如下：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:left"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Eclipse Standard</td>
+<td style="text-align:left">标准版</td>
+</tr>
+<tr>
+<td style="text-align:left">Eclipse IDE for Java EE Developers</td>
+<td style="text-align:left">面向 J2EE</td>
+</tr>
+<tr>
+<td style="text-align:left">Eclipse IDE for Java Developers</td>
+<td style="text-align:left">面向 J2SE</td>
+</tr>
+<tr>
+<td style="text-align:left">Eclipse IDE for C/C++ Developers</td>
+<td style="text-align:left">面向 C/C++</td>
+</tr>
+<tr>
+<td style="text-align:left">Eclipse for PHP Developers</td>
+<td style="text-align:left">面向 PHP</td>
+</tr>
+<tr>
+<td style="text-align:left">Eclipse for RCP and RAP Developers</td>
+<td style="text-align:left">面向 Eclipse 插件开发</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="Java-特性"><a href="#Java-特性" class="headerlink" title="Java 特性"></a>Java 特性</h1><p><strong>Object Oriented</strong></p>
+<p>以对象为基本粒度，对象的属性定义了这个对象，对象的方法可用来操作对象</p>
+<ul>
+<li>使代码 human-being-like，利于代码扩展和复用</li>
+</ul>
+<p><strong>Platform Independent</strong></p>
+<p>Java 源代码编译后的字节码与平台无关，与底层应用打交道的事情都交给了 JVM，真正做到 write / compile once, run everywhere</p>
+<p><strong>Safe</strong></p>
+<p>包括：</p>
+<ul>
+<li>语言级安全性（对象的封装）</li>
+<li>编译时安全性（语法意义检查）</li>
+<li>运行时安全性（类装载器装载及字节码校验器校验）</li>
+<li>可执行代码安全性（网络访问类的时候进行了权限设置）</li>
+<li>当然，总有安全漏洞躺在人们意想不到的地方</li>
+</ul>
+<p><strong>Threading</strong></p>
+<p>多线程提高了程序对硬件的利用率。</p>
+<p>由此，Java 技术具有卓越的通用性、高效性、平台移植性和安全性。</p>
+<p>Java 不同于一般的编译语言和直译语言：它首先将源代码编译成<strong>字节码</strong>，然后依赖各种不同平台上的虚拟机来解释执行字节码，从而实现 write / compile once, run everywhere。</p>
+<p>至于语法糖更是数不胜数了：</p>
+<ul>
+<li>泛型和类型擦除</li>
+<li>自动装箱与拆箱</li>
+<li>变长参数</li>
+<li>增强 for 循环</li>
+<li>内部类</li>
+<li>枚举类</li>
+<li>…</li>
+</ul>
+<h2 id="Java-v-s-C"><a href="#Java-v-s-C" class="headerlink" title="Java v.s. C++"></a>Java v.s. C++</h2><p>Java 很大程度上沿袭了 C++ 的一些实用结构，因此风格十分接近 C++，继承了 C++ 语言面向对象技术的核心。</p>
+<p>Java 与 C++ 的区别在于：</p>
+<ol>
+<li>Java 运行于 <a href="/2021/07/07/jvm-basics">JVM</a> 上面，可移植性强，且 JVM 几乎可以安装到任何的系统；C++ 如果要在不同的系统中运行，需要不同的编码；<ul>
+<li>也正因如此，Java 在桌面程序应用上面不如 C++ 实用，因为 C++ 可以直接编译成 .exe 文件；</li>
 </ul>
 </li>
-<li>Service 的信息会通过 apiserver 存入 etcd 中</li>
-</ul>
-<p>kube-proxy 通过 iptables / ipvs 为每一个 service 对象实现固定的 IP，称之为 VIP 或者 <code>cluster IP</code>。</p>
-<p>在 Kubernetes v1.0 版本，Service 是 <strong>4 层</strong>（TCP / UDP over IP）概念，从 Kubernetes v1.1 新增 Ingress API，用来表示 7 层服务。</p>
-<p><small>注：<code>iptables-save</code> 指令可以查看 iptables。</small></p>
-<p>因此每一个 service 都有固定的 IP 和一些 endpoints。即使 pod 因为不稳定导致 ip 发生变化，但是面向客户端的是 service 的<strong>固定 IP 和端口</strong>。</p>
-<p><img src="/2023/05/10/kubernetes-service/service.gif" alt></p>
-<p><img src="/2023/05/10/kubernetes-service/service.png" alt></p>
-<p>值得注意的是，并不是所有的 service pod 都带有 selector，也不是只有带着 selector 的才能组建 service。</p>
-<p>对于那些带 selector 的 service，endpoints controller 根据 selector 筛选出属于该 service 的所有 pod，依此创建出 endpoints 记录，并修改 DNS 配置，返回指向这些 pod 的记录（地址）；</p>
-<p>对于那些不带 selector 的 service，它们无法直接创建出 endpoints，只能通过以下方式配置 DNS：</p>
-<ul>
-<li>手动添加 endpoints</li>
-<li>其他 service 的共享 endpoints</li>
-<li>ExternalName 类型的 service 提供的 CNAME</li>
-</ul>
-<h1 id="端口和-IP"><a href="#端口和-IP" class="headerlink" title="端口和 IP"></a>端口和 IP</h1><p>Service 配置如下：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">my-service</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">MyApp</span>    <span class="comment"># 会自动生成对应的 endpoint 对象，如不配置则不会自动生成，需要手动指定</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">      <span class="attr">port:</span> <span class="number">80</span></span><br><span class="line">      <span class="attr">targetPort:</span> <span class="number">9376</span></span><br><span class="line">      <span class="attr">nodePort:</span> <span class="number">30036</span></span><br></pre></td></tr></table></figure>
-<p>对应的 Endpoints 对象：</p>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Endpoints</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">my-service</span></span><br><span class="line"><span class="attr">subsets:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">addresses:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">ip:</span> <span class="number">192.0</span><span class="number">.2</span><span class="number">.42</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">port:</span> <span class="number">9376</span>    <span class="comment"># 配置相对应的 port，使其能对应上相应的 service</span></span><br></pre></td></tr></table></figure>
-<p>可以看到，service 的配置 yaml 文件中定义了很多种端口：</p>
-<p><strong>port</strong>：service 暴露在 clusterIP 上的接口</p>
-<ul>
-<li><code>clusterIP:port</code> 是提供给<strong>集群内部</strong>访问 Kubernetes 服务的入口。</li>
-</ul>
-<p><strong>nodePort</strong></p>
-<ul>
-<li><code>nodeIP:nodePort</code> 是提供给<strong>集群外部</strong>访问 Kubernetes 服务的入口</li>
-<li>一般来说从 30000-32767 中选择一个端口赋给 nodePort。</li>
-</ul>
-<p><strong>targetPort</strong>：与 containerPort 一样是 pod 上的端口</p>
-<ul>
-<li>从 port 和 nodePort 过来的数据，经过 kube-proxy 从后端 pod 的 targetPort 进入容器</li>
-</ul>
-<p>也就是说，port 和 nodePort 都是 service 的端口，前者暴露给从集群内访问服务的方式，后者则暴露给集群外访问服务的方式；<br>这两个端口的流入数据均需经过反向代理 kube-proxy 流入后端具体 pod 的 targetPort，从而进入到 pod 上的 container 内。<br>一般来说，在同一个集群中的 port 和 targetPort 会配置相同的端口。</p>
-<p>再来说说不同 IP 的概念：</p>
-<p><strong>Pod IP</strong>：顾名思义，是 Pod 的 IP，其实就是 pause 容器的 IP，通常是一个虚拟的二层网络。</p>
-<p><strong>Cluster IP</strong>：service 对象的 IP。</p>
-<p>不同于 Pod IP 地址实际存在于某个网卡（或虚拟设备）上，Cluster IP 并没有一个网络设备去承载它：它其实是一个虚拟地址。</p>
-<p><strong>Node IP</strong>：节点的 IP，即物理网卡（虚拟网卡）的 IP。</p>
-<p>结合直接指定的或者 Kubernetes 分配的 nodePort，外部可以通过 <code>nodeIP:nodePort</code> 直接访问该服务。</p>
-<h1 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h1><p>Kubernetes 的 service 主要有四种不同类型：</p>
-<h2 id="ClusterIP"><a href="#ClusterIP" class="headerlink" title="ClusterIP"></a><strong>ClusterIP</strong></h2><p>默认的 Service 类型，只用于集群内部通信。service 之间只需通过访问 VIP 即可负载均衡地访问到对方 service 中的 pod。</p>
-<p>根据 service 是否生成 Cluster IP，又可细分为：</p>
-<ul>
-<li>普通 service：最常见的 service。通过 kube-proxy 实现的 Cluster IP 实现集群内的访问</li>
-<li>Headless Service：为该 service 在集群内部的每个成员提供一个唯一的 <strong>DNS 域名</strong>作为每个成员的网络标识</li>
-</ul>
-<p>普通的 service 必须要与 kube-proxy 相结合。</p>
-<p>Headless Service 在集群内部各成员之间使用域名通信，其创建取决于 service 的 selector 配置。</p>
-<p>可应用于直接访问某个 pod 提供的服务，比如 StatefulSet。具有以下特征：</p>
-<ul>
-<li>Kubernetes 不会为其分配 Cluster IP（<code>.spec.clusterIP: None</code>）</li>
-<li>不通过 kube-proxy 做反向代理和负载均衡，而是通过 DNS 提供稳定的网络 ID 访问</li>
-<li>DNS 将 headless service 的后端直接解析为 pod IP 列表</li>
-</ul>
-<h2 id="NodePort"><a href="#NodePort" class="headerlink" title="NodePort"></a><strong>NodePort</strong></h2><p>可由集群外部通过 <code>nodeIP:nodePort</code> 访问的服务。</p>
-<p>指定 service 类型为 NodePort 后，Kubernetes 控制台默认会从 30000-32767 中分配一个端口来代理服务</p>
-<ul>
-<li>或：在 yaml 配置文件的 <code>.spec.ports[*].nodePort</code> 配置指定的端口值</li>
-<li>从 Kubernetes v1.10 开始，亦可调整 kube-proxy 中的 <code>--nodeport-addresses</code> 来配置指定的代理 IP</li>
-</ul>
-<h2 id="LoadBalancer"><a href="#LoadBalancer" class="headerlink" title="LoadBalancer"></a><strong>LoadBalancer</strong></h2><p>与 NodePort 类似，不过实现起来需要结合外部公有云（GCP / Azure / …）。</p>
-<p>除了使用一个 Cluster IP 和 nodePort 外，还通过所使用的公有云申请一个负载均衡器，实现从集群外通过 LoadBalancer 访问对应的服务。<br>负载均衡器后端映射到各节点的 nodePort，流量会直接到后端的 pod 中。</p>
-<h2 id="ExternalName"><a href="#ExternalName" class="headerlink" title="ExternalName"></a><strong>ExternalName</strong></h2><p>Service 的特例，主要面向集群外部的服务。</p>
-<p>ExternalName 可将外部独立服务映射进 Kubernetes 集群，且具备 Kubernetes 内服务的一些特征（如 namespace 等），为集群提供服务。</p>
-<p>不像上述三种类型服务通过 kube-proxy 路由，该种映射依赖于 DNS 实现（kube-dns version &gt;= 1.7）</p>
-<p><img src="/2023/05/10/kubernetes-service/nodeport.png" alt></p>
-<p>小结：</p>
-<ul>
-<li>前三种类型的 service 通过 selector 指定服务对应的 pod，根据所有 pod 地址创建出 endpoints 对象作为服务后端<ul>
-<li>Endpoint Controller 监测 service 和 pod 的状态，维护对应 endpoints 信息</li>
-<li>kube-proxy 根据 service 和 endpoints 维护本地路由规则</li>
-<li>pod 发生变化 <code>-&gt;</code> service 发生变化 <code>-&gt;</code> endpoints 发生变化 <code>-&gt;</code> kube-proxy 在每个 node 上更新 iptables / ipvs，实现一层负载均衡</li>
+<li>指针是 C++ 的优势，可直接对内存操作，因此 C++ 利用于<strong>底层程序的编程</strong>以及控制方面的编程<strong>更灵活</strong>；<ul>
+<li>但指针编程同时具有危险性；Java 舍弃了 C++ 中容易引起错误的指针，改用<strong>引用</strong>取代；</li>
 </ul>
 </li>
-<li>而 ExternalName 不通过 kube-proxy 重定向，也不指定 selector，因此没有 port 和 endpoints 的概念</li>
-</ul>
-<p>ExternalName 与 ClusterIP 的 Headless Service <strong>同属 Headless Service</strong>，Kubernetes 不给它们分配 service IP，且不通过 kube-proxy 给它们做反向代理和负载均衡。</p>
-<h1 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h1><p>Kubernetes 支持两种基本的服务发现模式：</p>
-<p>DNS：默认形式</p>
+<li>关于垃圾回收：C++ 利用析构函数，Java 是<strong>自动启动垃圾回收</strong>机制；因此相比起 C++，java 运行速度会<strong>慢</strong>一些；</li>
+<li>Java 移除原 C++ 的操作符重载，也移除了多重继承特性，改用<strong>接口</strong>取代；</li>
+<li>Java 在 web 前端的应用上具有 C++ 无法比拟的优势；</li>
+<li>Java 具有异常处理机制</li>
+</ol>
+<h2 id="Java-v-s-C-1"><a href="#Java-v-s-C-1" class="headerlink" title="Java v.s. C"></a>Java v.s. C</h2><ol>
+<li>Java 不允许操作符重载</li>
+<li>Java 没有类似于 LINQ 的特性</li>
+<li>Java 内部类可以直接访问外部类的实例成员，C# 不行</li>
+<li>C# 能被重写的方法必须添加 <code>virtual</code> 关键字声明为虚方法；Java 对于方法的默认行为都可以被重写</li>
+<li>C# 没有匿名内部类</li>
+</ol>
+<h1 id="Java-程序生命周期"><a href="#Java-程序生命周期" class="headerlink" title="Java 程序生命周期"></a>Java 程序生命周期</h1><ol>
+<li><p>编译：源文件（<code>.java</code>） -&gt; 编译器（javac） -&gt; 字节码 byte code（<code>.class</code>）</p>
 <ul>
-<li>可在集群中部署 <a href="/2022/05/18/kubernetes-overview#CoreDNS">CoreDNS</a> 服务（旧版本 Kubernetes 使用的是 kubeDNS），让集群内部的 pod 通过 DNS 方式实现集群内部各个服务之间的通信</li>
+<li>注：<strong>JVM 只能运行字节码文件</strong></li>
 </ul>
-<p>环境变量</p>
+</li>
+<li><p>装载：字节码（<code>.class</code>） -&gt; JVM <a href="/2021/07/08/class-loader/#类加载过程">类加载器</a> -&gt; JVM 中装载的类</p>
+</li>
+<li><p>校验：JVM 中装载的类 -&gt; JVM 字节码校验器 -&gt; 进行校验</p>
+</li>
+<li><p>解释：JVM 中装载的类 -&gt; JVM 解释器（根据 OS 解释） -&gt; 机器码</p>
+</li>
+<li><p>运行：机器码 -&gt; OS -&gt; 运行的程序</p>
+</li>
+<li><p>回收：内存垃圾 -&gt; JVM <a href="/2021/07/09/garbage-collection">垃圾回收器</a> -&gt; 不定期垃圾回收</p>
+</li>
+<li><p>终止：JVM 卸载程序</p>
+</li>
+</ol>
+<p>注意：编写好的 Java 程序不能够直接在操作系统中运行，而是运行在 <strong>JVM</strong> 中。</p>
+<p>每一种 Java 平台的解释器可能有不同，但实现的 JVM 是一样的：这也是 Java 为何能跨平台的重要原因之一原因。</p>
+<h1 id="编码风格"><a href="#编码风格" class="headerlink" title="编码风格"></a>编码风格</h1><p>Java 的注释风格有单行注释、多行注释、类和方法注释：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 单行注释</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> 看看，</span></span><br><span class="line"><span class="comment"> 这是多行注释</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 文档/类/方法的注释</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+<p>Java 的工程包 packages 命名一般遵循以下层次：<code>com.公司名.项目名.模块名</code>。</p>
+<p>Java 变量和方法的命名有以下要求：</p>
 <ul>
-<li>pod 创建完成后，kubelet 会在该 pod 中注册该集群已创建的所有 service 相关的环境变量</li>
-<li>注意：service 创建之前的所有 pod 并不会注册该环境变量</li>
+<li>不与 Java 关键字冲突</li>
+<li>不以数字开头</li>
+<li>可包含 <code>$</code> 和 <code>_</code>，此外不能有其他符号</li>
+<li>可以用 <code>$</code> 和 <code>_</code> 开头</li>
+<li>一般遵循伪驼峰命名习惯：userName, myAccount</li>
+</ul>
+<p>常量命名：建议全大写，final 修饰，常配以 static 修饰符：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">double</span> PI = <span class="number">3.141593</span>;</span><br></pre></td></tr></table></figure>
+<p>对于项目 / 类 / 接口的命名，除了使用驼峰命名（MyClass, MyInterface）之外，其它基本与变量 / 方法名相同。</p>
+<h1 id="JRE"><a href="#JRE" class="headerlink" title="JRE"></a>JRE</h1><p><a href="/2021/07/07/jvm-basics">JVM</a> 是 Java 运行环境（Java Runtime Environment, <strong>JRE</strong>）的一部分。</p>
+<p>JRE 是运行 Java 程序所<strong>必需的环境集合</strong>，包含 JVM 的标准实现及 Java 核心类库</p>
+<ul>
+<li>JRE 仅仅能够完成 Java 的运行，无法对 Java 进行编译、调试</li>
+<li>它面向的是 Java 程序使用者，而非开发者</li>
+<li>JRE 有独立版本，如果只需要运行 Java 程序，安装 JRE 即可。</li>
+</ul>
+<p>JRE 的组成：</p>
+<ul>
+<li>Java 的类库，包含了编译 Java 程序所需要的最核心文件<ul>
+<li>核心库文件，其中有<ul>
+<li>数据结构的库，包括列表、字典和树等</li>
+<li>XML 分析库</li>
+<li>安全方面应用库</li>
+<li>国际化和本地化应用库</li>
+</ul>
+</li>
+<li>综合库文件，包含了程序员和其他系统通信的功能文件<ul>
+<li>JDBC，即 Java 数据库联通的 API</li>
+<li>JNDI，即 Java 命名和目录接口</li>
+<li>RMI 和 CORBA，用于重新分发软件</li>
+</ul>
+</li>
+<li>用户界面库文件，包含：<ul>
+<li>AWT，即抽象窗口开发包，提供了产生图形用户界面所需要的功能</li>
+<li>Swing 库</li>
+<li>其他用于回访媒体文件、录音、截图的库</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>一个用于执行软件的 JVM 实现</li>
+<li>插件，可以在浏览器里面使用</li>
+<li>JWS（Java Web Service），可以让终端用户连接到互联网</li>
+<li>许可文件和文档</li>
+</ul>
+<p>如果要进行 Java 开发，需要安装 JDK。</p>
+<h2 id="JDK"><a href="#JDK" class="headerlink" title="JDK"></a>JDK</h2><p><strong>JDK</strong>（Java Development Kit）是 Java 语言的开发包，包含了 JRE，可以将 <code>.java</code> 文件编译为可执行 Java 程序，通过加载到 JVM 然后运行。</p>
+<p>完整的 JDK 包括以下基本组件：</p>
+<ul>
+<li><code>/bin</code> 目录，包括<ul>
+<li>编译器（javac）</li>
+<li>解释器（java）</li>
+<li>jdb 调试器（java debugger）</li>
+<li>文档生成器（javadoc）</li>
+</ul>
+</li>
+<li><code>/demo</code> 目录，包括一些代码的演示</li>
+<li><code>/include</code> 目录：用于编译本地方法的文件，如 JNI 调用时所需的 C 语言头文件</li>
+<li><code>/JRE</code> 目录，包含JVM 运行环境，JDK 类库，与所在平台相关</li>
+<li><code>/lib</code> 目录，包含除 <code>/JRE</code> 下之外 JDK 额外所需的类库</li>
+<li><code>src.zip</code>，里面是 JDK 的源代码</li>
+<li>jar 打包工具</li>
+<li>头文件生成器</li>
+<li>javap 反汇编器</li>
+<li>监控工具</li>
+<li>…</li>
+</ul>
+<p><img src="/2023/06/21/java/j2se.png" alt></p>
+<p>JDK 中常用的 package：</p>
+<ul>
+<li><code>java.lang</code>：系统基础类，如 String；该 package 是唯一不需要 <code>import</code> 的 package</li>
+<li><code>java.io</code>：所有与输入输出有关的类</li>
+<li><code>java.net</code>：所有与网络连接有关的类</li>
+<li><code>java.util</code>：系统辅助类，包括 <a href="/2022/04/30/java-collection">Collection</a>, <a href="2022/04/30/java-collection/#List-接口">List</a>, <a href="/2022/05/06/java-map">Map</a> 等</li>
+<li><code>java.sql</code>：数据库操作类，Connection, Statement, ResultSet 等</li>
+<li><code>java.servlet</code>：JSP、Servlet 等使用到的类</li>
 </ul>
 
     </div>
@@ -466,7 +583,8 @@ mjx-container[display="true"] + br {
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Kubernetes/" rel="tag"># Kubernetes</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/JVM/" rel="tag"># JVM</a>
           </div>
 
         
@@ -475,13 +593,10 @@ mjx-container[display="true"] + br {
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/05/09/kubernetes-pod/" rel="prev" title="Kubernetes 容器管理 - Pod">
-      <i class="fa fa-chevron-left"></i> Kubernetes 容器管理 - Pod
+    <a href="/2023/06/10/micro-service/" rel="prev" title="微服务">
+      <i class="fa fa-chevron-left"></i> 微服务
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/05/26/avl/" rel="next" title="AVL 树">
-      AVL 树 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -540,7 +655,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Service-%E6%A6%82%E5%86%B5"><span class="nav-number">1.</span> <span class="nav-text">Service 概况</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E5%92%8C-IP"><span class="nav-number">2.</span> <span class="nav-text">端口和 IP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ClusterIP"><span class="nav-number">3.1.</span> <span class="nav-text">ClusterIP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NodePort"><span class="nav-number">3.2.</span> <span class="nav-text">NodePort</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LoadBalancer"><span class="nav-number">3.3.</span> <span class="nav-text">LoadBalancer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ExternalName"><span class="nav-number">3.4.</span> <span class="nav-text">ExternalName</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">服务发现</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-%E5%BC%80%E5%8F%91%E5%B9%B3%E5%8F%B0"><span class="nav-number">1.1.</span> <span class="nav-text">Java 开发平台</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E7%89%B9%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">Java 特性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-v-s-C"><span class="nav-number">2.1.</span> <span class="nav-text">Java v.s. C++</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-v-s-C-1"><span class="nav-number">2.2.</span> <span class="nav-text">Java v.s. C</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E7%A8%8B%E5%BA%8F%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">3.</span> <span class="nav-text">Java 程序生命周期</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E9%A3%8E%E6%A0%BC"><span class="nav-number">4.</span> <span class="nav-text">编码风格</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JRE"><span class="nav-number">5.</span> <span class="nav-text">JRE</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK"><span class="nav-number">5.1.</span> <span class="nav-text">JDK</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
