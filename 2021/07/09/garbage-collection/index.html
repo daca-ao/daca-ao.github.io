@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/g1-gc.jpg">
 <meta property="og:image" content="http://example.com/2021/07/09/garbage-collection/g1-mix-gc.png">
 <meta property="article:published_time" content="2021-07-09T14:44:14.000Z">
-<meta property="article:modified_time" content="2022-11-07T12:43:31.016Z">
+<meta property="article:modified_time" content="2023-07-06T08:35:29.512Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -614,8 +614,40 @@
 <ul>
 <li>以获取最短回收停顿时间为目标</li>
 <li>使用于老年代的垃圾收集</li>
-<li>JDK 9 已经被 <code>@Deprecated</code> 了</li>
+<li>因为配置参数太多，给 GC 代码库带来了很多复杂性，从 JDK 9 已经被 <code>@Deprecated</code> 了</li>
 </ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>GC 算法</th>
+<th>JVM 参数（约数）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Common</td>
+<td>50</td>
+</tr>
+<tr>
+<td>Parallel</td>
+<td>6</td>
+</tr>
+<tr>
+<td>CMS</td>
+<td>72</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>26</td>
+</tr>
+<tr>
+<td>ZGC</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>步骤：</p>
 <ol>
 <li><strong>初始标记</strong>（initial-mark）：标记作为 GC Roots 的对象（STOP THE WORLD）</li>

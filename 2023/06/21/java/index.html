@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/06/21/java/j2se.png">
 <meta property="article:published_time" content="2023-06-21T04:15:28.000Z">
-<meta property="article:modified_time" content="2023-06-25T10:23:57.558Z">
+<meta property="article:modified_time" content="2023-07-06T08:47:13.022Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="JVM">
@@ -575,6 +575,14 @@ mjx-container[display="true"] + br {
 <li><code>java.servlet</code>：JSP、Servlet 等使用到的类</li>
 </ul>
 <p>下面介绍几个长期支持（LTS）的 JDK 版本。</p>
+<h2 id="JDK-1-5"><a href="#JDK-1-5" class="headerlink" title="JDK 1.5"></a>JDK 1.5</h2><p>Java 5 最重要的一个支持是泛型（generics），为了参数化类型，或者说可以将类型当作参数传递给一个类或者方法。</p>
+<ol>
+<li>与普通的 Object 代替一切类型这样简单粗暴而言，泛型使得数据的类别可以像参数一样由外部传递进来。它提供了一种扩展能力。它更符合面向抽象开发的软件编程宗旨。</li>
+<li>当具体的类型确定后，泛型又提供了一种类型检测的机制，只有相匹配的数据才能正常的赋值，否则编译器就不通过。所以说，它是一种类型安全检测机制，一定程度上提高了软件的安全性防止出现低级的失误。</li>
+<li>泛型提高了程序代码的可读性，不必要等到运行的时候才去强制转换，在定义或者实例化阶段，因为 <code>Cache&lt;String&gt;</code> 这个类型显化的效果，程序员能够一目了然猜测出代码要操作的数据类型。</li>
+</ol>
+<p>泛型信息只存在于代码编译阶段，在进入 JVM 之前，与泛型相关的信息会被擦除掉，这叫做<strong>类型擦除</strong>。</p>
+<p>类型擦除容易带来强制类型转换和引用传递的问题。</p>
 <h2 id="JDK-1-7"><a href="#JDK-1-7" class="headerlink" title="JDK 1.7"></a>JDK 1.7</h2><p>Java 7（JDK 1.7）于 2011 年 7 月推出，是 Java 史上最大的一次更新。主要更新内容有：</p>
 <ol>
 <li>定义二进制（<code>byte</code>）为基本类型变量</li>
@@ -721,7 +729,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-%E5%BC%80%E5%8F%91%E5%B9%B3%E5%8F%B0"><span class="nav-number">1.1.</span> <span class="nav-text">Java 开发平台</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E7%89%B9%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">Java 特性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-v-s-C"><span class="nav-number">2.1.</span> <span class="nav-text">Java v.s. C++</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-v-s-C-1"><span class="nav-number">2.2.</span> <span class="nav-text">Java v.s. C#</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E7%A8%8B%E5%BA%8F%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">3.</span> <span class="nav-text">Java 程序生命周期</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E9%A3%8E%E6%A0%BC"><span class="nav-number">4.</span> <span class="nav-text">编码风格</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JRE"><span class="nav-number">5.</span> <span class="nav-text">JRE</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JDK"><span class="nav-number">6.</span> <span class="nav-text">JDK</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-1-7"><span class="nav-number">6.1.</span> <span class="nav-text">JDK 1.7</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-1-8"><span class="nav-number">6.2.</span> <span class="nav-text">JDK 1.8</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-1-11"><span class="nav-number">6.3.</span> <span class="nav-text">JDK 1.11</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-%E5%BC%80%E5%8F%91%E5%B9%B3%E5%8F%B0"><span class="nav-number">1.1.</span> <span class="nav-text">Java 开发平台</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E7%89%B9%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">Java 特性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-v-s-C"><span class="nav-number">2.1.</span> <span class="nav-text">Java v.s. C++</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-v-s-C-1"><span class="nav-number">2.2.</span> <span class="nav-text">Java v.s. C#</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java-%E7%A8%8B%E5%BA%8F%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">3.</span> <span class="nav-text">Java 程序生命周期</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E9%A3%8E%E6%A0%BC"><span class="nav-number">4.</span> <span class="nav-text">编码风格</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JRE"><span class="nav-number">5.</span> <span class="nav-text">JRE</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JDK"><span class="nav-number">6.</span> <span class="nav-text">JDK</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-1-5"><span class="nav-number">6.1.</span> <span class="nav-text">JDK 1.5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-1-7"><span class="nav-number">6.2.</span> <span class="nav-text">JDK 1.7</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-1-8"><span class="nav-number">6.3.</span> <span class="nav-text">JDK 1.8</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK-1-11"><span class="nav-number">6.4.</span> <span class="nav-text">JDK 1.11</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
