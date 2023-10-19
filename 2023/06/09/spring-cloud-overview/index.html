@@ -28,7 +28,7 @@
 <meta property="og:description" content="Spring Cloud 和 Dubbo 都是目前主流的微服务框架。这篇主要聊聊 Spring Cloud 的一些组成情况。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-06-09T08:18:14.000Z">
-<meta property="article:modified_time" content="2023-07-19T08:28:58.000Z">
+<meta property="article:modified_time" content="2023-10-19T16:01:21.476Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="架构">
 <meta property="article:tag" content="Spring">
@@ -354,7 +354,7 @@ mjx-container[display="true"] + br {
 <li><strong>Spring Cloud Config</strong>：分布式系统中统一的外部集中配置管理工具，默认使用 Git 存储；支持客户端配置信息的刷新、加密、解密操作。</li>
 <li><strong>Spring Cloud Netflix</strong>：核心组件，对多个 Netflix OSS 开源套件进行整合<ul>
 <li>Eureka：负责服务治理，包括服务注册与发现，已停止维护</li>
-<li>Zuul：服务网关，提供智能路由、访问过滤等功能；其替代品是 Gateway</li>
+<li><a href="/2023/10/05/spring-cloud-gateway/#Zuul">Zuul</a>：服务网关，提供智能路由、访问过滤等功能；其替代品是 <a href="/2023/10/05/spring-cloud-gateway/#Gateway">Gateway</a></li>
 <li>Ribbon：负载均衡</li>
 <li>Hystrix：容错管理组件，实现断路器模式，提供服务熔断和限流</li>
 <li>Feign：基于 Ribbon 和 Hystix 的声明式服务调用组件，负责远程服务的客户端代理</li>
@@ -382,123 +382,7 @@ mjx-container[display="true"] + br {
 <li>Dubbo：结合到 Spring Cloud 中，便是以 RPC 为框架的远程调用组件</li>
 </ul>
 <p>相对于 Spring Cloud Netflix，优点是产品能够持续迭代，配置相对简单；而缺点是欠缺稳定性。</p>
-<p>接下来介绍几个常用的，也是使用过程中要注意的点比较多的组件。</p>
 <p><br></p>
-<h1 id="Eureka"><a href="#Eureka" class="headerlink" title="Eureka"></a>Eureka</h1><p>Netflix Eureka 是 Netflex 的核心服务，其为基于 REST 的用于定位的服务，以实现云端中间层的服务治理，包括服务注册、服务发现和故障转移。</p>
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>Eureka 的设计为经典的 C-S 架构，包括 client 端，用于处理服务的注册和发现；以及 server 端的服务注册中心。</p>
-<ul>
-<li>客户端服务通过<strong>注解</strong>和<strong>参数配置</strong>的方式嵌入应用代码</li>
-<li>应用运行时，Eureka 客户端向注册中心注册自身提供的服务，并周期性发送心跳来更新服务租约<ul>
-<li>因此 Eureka 的保护机制就是心跳机制：心跳超时的服务不再注册回注册中心</li>
-</ul>
-</li>
-<li>客户端可从服务端查询当前服务信息并<strong>缓存</strong>到本地，周期性刷新状态。</li>
-</ul>
-<p>Eureka 包括 <code>Region</code> 和 <code>Zone</code> 两个概念。<br>一个 <code>Region</code> 可以对应上多个 <code>Zone</code>，<code>Zone</code> 为对应服务的分区，相当于 Nacos 的 group。</p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>启动类中添加 <code>@EnableEurekaServer</code> 注解：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableEurekaServer</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EurekaServerApplication</span> </span>{</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>{</span><br><span class="line">        SpringApplication.run(EurekaServerApplication.class, args);</span><br><span class="line">    }</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><code>@EnableEurekaServer</code> 注解原理：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import(EurekaServerMarkerConfiguration)</span></span><br></pre></td></tr></table></figure>
-<p>Eureka 唯一的自动配置类 <code>EurekaServerAutoConfiguration</code> 的条件：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import(EurekaServerInitializerConfiguration.class)</span>  <span class="comment">// 初始化</span></span><br><span class="line"><span class="meta">@ConditionalOnBean(EurekaServerMarkerConfiguration.Marker.class)</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties({EurekaDashboardProperties.class})</span>  <span class="comment">// 控制台类，默认路径 path = "/"</span></span><br></pre></td></tr></table></figure>
-<p>注册集群：</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">--</span> <span class="string">application-cluster1.yml</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">instance:</span></span><br><span class="line">    <span class="attr">hostname:</span> <span class="string">cluster1</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">serviceUrl:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://cluster2:8003/eureka/</span>  <span class="comment"># 注册到另一个 Eureka 注册中心</span></span><br><span class="line">    <span class="attr">fetch-registry:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">register-with-eureka:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="string">--</span> <span class="string">application-cluster2.yml</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line">  <span class="attr">instance:</span></span><br><span class="line">    <span class="attr">hostname:</span> <span class="string">cluster2</span></span><br><span class="line">  <span class="attr">client:</span></span><br><span class="line">    <span class="attr">serviceUrl:</span></span><br><span class="line">      <span class="attr">defaultZone:</span> <span class="string">http://cluster1:8003/eureka/</span>  <span class="comment"># 注册到另一个 Eureka 注册中心</span></span><br><span class="line">    <span class="attr">fetch-registry:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">register-with-eureka:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
-<h1 id="Nacos"><a href="#Nacos" class="headerlink" title="Nacos"></a>Nacos</h1><p>阿里巴巴推出的王牌组件，能够充当配置中心 + 服务发现组件，实现动态配置服务、服务发现及管理、动态 DNS 等功能。</p>
-<p>Nacos 的大体架构如下：</p>
-<ul>
-<li><strong>Provider APP</strong>：服务提供者，可通过 nacos client / sidecar 实现访问 Nacos Server；</li>
-<li><strong>Consumer APP</strong>：服务消费者</li>
-<li><strong>Name</strong>：通过 vip / dns / address-server 实现 Nacos 的高可用服务路由</li>
-<li>Nacos Server，包括：<ul>
-<li><strong>OpenAPI</strong>：服务访问入口</li>
-<li><strong>Config Service</strong>：配置服务模块</li>
-<li><strong>Naming Service</strong>：命名服务模块，建立分布式系统中所有对象、实体之间的域名与 ip 的映射关系，实现服务发现的能力</li>
-<li><strong>Nacos core</strong></li>
-<li>最底层的 <strong>Consistency Protocol</strong>：数据一致性协议，基于 priv-raft / sync renew / rdbms based 等</li>
-</ul>
-</li>
-</ul>
-<p>使用 Nacos 需要手动配置数据库：创建 <code>plugins/mysql/</code> 目录，并放入下载好的 mysql-connector。<br>随后执行 sql 创建 <code>nacos_config</code> 数据库。</p>
-<h2 id="Nacos-服务注册与发现"><a href="#Nacos-服务注册与发现" class="headerlink" title="Nacos 服务注册与发现"></a>Nacos 服务注册与发现</h2><p>分别基于 HTTP 和 RPC 的通信方式，有两种实现：</p>
-<p><strong>一是</strong>基于 Nacos + <a href="#Ribbon-amp-OpenFeign">Feign + Ribbon</a> 实现：</p>
-<p>Feign 对 HTTP 进行封装，充当 provider 服务的代理；Ribbon 实现 consumer 调用 provider 服务时的负载均衡，调用 Feign Client 完成通信</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FeignClient(name="nacos-provider")</span></span><br></pre></td></tr></table></figure>
-<p>其底层实现的原理<a href="/2023/06/10/micro-service/#实现原理">大同小异</a>：</p>
-<ul>
-<li><code>NacosServiceRegistry</code> 实现了 <code>spring-cloud-commons</code> 包 <code>ServiceRegistry</code> 的接口方法；</li>
-<li><code>NacosAutoServiceRegistration</code> 实现了 <code>AutoServiceRegistrationAutoConfiguration</code> -&gt; <code>AbstractAutoServiceRegistration</code> 以完成自动服务注册;</li>
-<li>在 <code>AbstractAutoServiceRegistration</code> 的 <code>bind()</code> 中完成注册。</li>
-</ul>
-<p><strong>二是</strong>基于 Dubbo + Nacos：</p>
-<p>Consumer 调用 provider 服务时，通过 Dubbo RPC 服务调用。</p>
-<p>这种实现方式也是基于差不多的底层原理：最终也是调用 <code>NacosAutoServiceRegistration</code> 的 <code>register()</code> -&gt; <code>namingService.registerInstance()</code> 建立调用链。<br>通过 <code>registerInstance()</code> 调用中建立心跳机制（<code>ExecutorService.schedule()</code>），随后注册服务</p>
-<p>通过 Nacos 的 OpenAPI 调用 Nacos Server 完成注册；<br>调用服务时，有服务就取出来，没有的话就调用 <code>createServiceIfAbsent()</code>，完了保存到变量 <code>concurrentHashMap</code> 中做缓存；  </p>
-<p>同时会保持集群中服务的一致性：通过调用 <code>list()</code> 接口完成服务地址查询，获得指定服务的所有健康实例的 ip。</p>
-<h2 id="Nacos-配置中心"><a href="#Nacos-配置中心" class="headerlink" title="Nacos 配置中心"></a>Nacos 配置中心</h2><p>与之对标的是 Netflix 的 Spring Cloud Config。</p>
-<p>为了配置管理，Nacos 有一个新的概念 <code>namespace</code>：</p>
-<ul>
-<li>包括最外层 namespace（默认为 public），中间的配置分组 group，及最里层的配置集 data id，都是为了配置的隔离；</li>
-<li>每一份配置集里面有对应的配置项。</li>
-</ul>
-<p>因此常用 namespace 来区分不同的测试环境（dev，test，…）。</p>
-<p>通过注解获取配置项（<code>@Value("${xxx.xxx}")</code>）的值时，需要在 controller 类层面添加注解 <code>@RefreshScope</code> 保证配置能实时更新。</p>
-<p>配置集群：在 <code>cluster.conf</code> 中配置集群机器的 ip 和端口，同时配置每一台机器的 <code>application.properties</code> 中的 ip 和端口。</p>
-<p>注：nacos UI 可以生成访问示例代码。</p>
-<h1 id="Dubbo-Zookeeper"><a href="#Dubbo-Zookeeper" class="headerlink" title="Dubbo + Zookeeper"></a>Dubbo + Zookeeper</h1><p>Dubbo + Zookeeper 也可以实现服务注册与发现。</p>
-<h1 id="Ribbon-amp-OpenFeign"><a href="#Ribbon-amp-OpenFeign" class="headerlink" title="Ribbon & OpenFeign"></a>Ribbon &amp; OpenFeign</h1><p>两者结合，实现微服务之间的通信和负载均衡。</p>
-<p>Spring Cloud Ribbon 基于 Netflix Ribbon 实现，需要配合 RestTemplate, Feign 等通信组件共同完成请求负载均衡</p>
-<h2 id="RestTemplate"><a href="#RestTemplate" class="headerlink" title="RestTemplate"></a>RestTemplate</h2><p>RestTemplate 是 Spring 3.0 支持的 HTTP 请求工具。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RestTemplate</span> <span class="keyword">extends</span> <span class="title">InterceptingHttpAccessor</span> <span class="keyword">implements</span> <span class="title">RestOperations</span></span></span><br></pre></td></tr></table></figure>
-<p>提供常见的 REST 请求方案的模板，以及一些通用的请求执行方法 <code>exchange()</code> 和 <code>execute()</code>，可以平替比较繁琐的 Apache HttpClient。</p>
-<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><ol>
-<li><code>DiscoveryClient</code>（Nacos 实现的 <code>NacosDiscoveryClient</code>） + 自实现负载均衡</li>
-<li><code>LoadBalancerClient</code>（Ribbon 实现的 <code>RibbonLoadBalancerClient</code>）</li>
-<li><code>@LoadBalanced</code></li>
-</ol>
-<p>Ribbon 负载均衡策略：</p>
-<ul>
-<li>RoundRobin</li>
-<li>Random</li>
-<li>AvailabilityFiltering</li>
-<li>WeightedResponse</li>
-<li>Retry</li>
-<li>BestAvailable</li>
-</ul>
-<p><code>OpenFeign</code> 组件 = Feign，是声明式的伪 http 客户端，底层使用的是 RestTemplate，默认实现了负载均衡。</p>
-<p>Feign 与 Dubbo 的调用区别：</p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Dubbo</th>
-<th>Feign</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>传输协议</td>
-<td>TCP</td>
-<td>TCP</td>
-</tr>
-<tr>
-<td>开发语言</td>
-<td>Java</td>
-<td>不限</td>
-</tr>
-<tr>
-<td>性能</td>
-<td>好</td>
-<td>一般</td>
-</tr>
-<tr>
-<td>灵活性</td>
-<td>一般</td>
-<td>好</td>
-</tr>
-</tbody>
-</table>
-</div>
 <h1 id="Sentinel"><a href="#Sentinel" class="headerlink" title="Sentinel"></a>Sentinel</h1><p>面向分布式服务架构的轻量级流量控制组件，主要以流量为切入点，从限流、流量整形、服务降级、系统负载保护等多个维度保障微服务稳定。</p>
 <p>主要特征：实时监控、机器发现、规则配置</p>
 <ul>
@@ -507,7 +391,7 @@ mjx-container[display="true"] + br {
 <li>配置简单</li>
 </ul>
 <p>其组成为 Java 类库 + Dashboard，将配置中心/数据库作为动态规则源并与之结合。</p>
-<h2 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h2><p>使用 <code>SphU</code> 或 <code>SphO</code> 进行限流：引入 maven 依赖之后，定义资源 <code>SphU.entry()</code> / <code>SphO.entry()</code>，定义规则，查看执行结果</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>使用 <code>SphU</code> 或 <code>SphO</code> 进行限流：引入 maven 依赖之后，定义资源 <code>SphU.entry()</code> / <code>SphO.entry()</code>，定义规则，查看执行结果</p>
 <p>除此之外，还可以引入注解 <code>@SentinelResource</code> 标记在服务类的业务方法上：</p>
 <ul>
 <li>引入依赖后，编写 <code>Configuration</code> 配置类，再编写服务类</li>
@@ -667,7 +551,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Cloud-Netflix"><span class="nav-number">1.1.</span> <span class="nav-text">Spring Cloud Netflix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Cloud-Alibaba"><span class="nav-number">1.2.</span> <span class="nav-text">Spring Cloud Alibaba</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Eureka"><span class="nav-number">2.</span> <span class="nav-text">Eureka</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">2.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">2.2.</span> <span class="nav-text">使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Nacos"><span class="nav-number">3.</span> <span class="nav-text">Nacos</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Nacos-%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0"><span class="nav-number">3.1.</span> <span class="nav-text">Nacos 服务注册与发现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nacos-%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-number">3.2.</span> <span class="nav-text">Nacos 配置中心</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Dubbo-Zookeeper"><span class="nav-number">4.</span> <span class="nav-text">Dubbo + Zookeeper</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ribbon-amp-OpenFeign"><span class="nav-number">5.</span> <span class="nav-text">Ribbon &amp; OpenFeign</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RestTemplate"><span class="nav-number">5.1.</span> <span class="nav-text">RestTemplate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.2.</span> <span class="nav-text">实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sentinel"><span class="nav-number">6.</span> <span class="nav-text">Sentinel</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-1"><span class="nav-number">6.1.</span> <span class="nav-text">使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Cloud-v-s-Dubbo"><span class="nav-number">7.</span> <span class="nav-text">Spring Cloud v.s. Dubbo</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Cloud-Netflix"><span class="nav-number">1.1.</span> <span class="nav-text">Spring Cloud Netflix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Cloud-Alibaba"><span class="nav-number">1.2.</span> <span class="nav-text">Spring Cloud Alibaba</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sentinel"><span class="nav-number">2.</span> <span class="nav-text">Sentinel</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Cloud-v-s-Dubbo"><span class="nav-number">3.</span> <span class="nav-text">Spring Cloud v.s. Dubbo</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -681,14 +565,14 @@ mjx-container[display="true"] + br {
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-count">28</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
