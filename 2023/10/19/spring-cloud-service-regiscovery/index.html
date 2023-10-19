@@ -28,7 +28,7 @@
 <meta property="og:description" content="服务注册和服务发现，是微服务能立足的根本。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-10-19T14:29:19.000Z">
-<meta property="article:modified_time" content="2023-10-19T15:58:59.880Z">
+<meta property="article:modified_time" content="2023-10-19T16:50:26.907Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="架构">
 <meta property="article:tag" content="Spring">
@@ -350,7 +350,9 @@ mjx-container[display="true"] + br {
       
         <p>服务注册和服务发现，是微服务能立足的根本。</p>
 <span id="more"></span>
-<p>没有服务注册和发现的功能，何来的微服务实现呢？</p>
+<p>没有服务注册和发现的功能，何来的微服务实现呢？由此服务注册和发现是微服务的重中之重，市面上也推出了大大小小很多的解决方案。</p>
+<p>下面来介绍两款最著名的方案。</p>
+<p><br></p>
 <h1 id="Eureka"><a href="#Eureka" class="headerlink" title="Eureka"></a>Eureka</h1><p>Netflix Eureka 是 Netflex 的核心服务，其为基于 REST 的用于定位的服务，以实现云端中间层的服务治理，包括服务注册、服务发现和故障转移。</p>
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>Eureka 的设计为经典的 C-S 架构，包括 client 端，用于处理服务的注册和发现；以及 server 端的服务注册中心。</p>
 <ul>
@@ -411,7 +413,7 @@ mjx-container[display="true"] + br {
 <p>通过注解获取配置项（<code>@Value("${xxx.xxx}")</code>）的值时，需要在 controller 类层面添加注解 <code>@RefreshScope</code> 保证配置能实时更新。</p>
 <p>配置集群：在 <code>cluster.conf</code> 中配置集群机器的 ip 和端口，同时配置每一台机器的 <code>application.properties</code> 中的 ip 和端口。</p>
 <p>注：nacos UI 可以生成访问示例代码。</p>
-<h1 id="Dubbo-Zookeeper"><a href="#Dubbo-Zookeeper" class="headerlink" title="Dubbo + Zookeeper"></a>Dubbo + Zookeeper</h1><p>Dubbo + Zookeeper 也可以实现服务注册与发现。</p>
+<h1 id="Dubbo-Zookeeper"><a href="#Dubbo-Zookeeper" class="headerlink" title="Dubbo + Zookeeper"></a>Dubbo + Zookeeper</h1><p>除了上述提到的 Nacos 和 Eureka，Dubbo + Zookeeper 也可以实现服务注册与发现。</p>
 
     </div>
 

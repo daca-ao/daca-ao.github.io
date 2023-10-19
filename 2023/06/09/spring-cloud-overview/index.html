@@ -28,7 +28,7 @@
 <meta property="og:description" content="Spring Cloud 和 Dubbo 都是目前主流的微服务框架。这篇主要聊聊 Spring Cloud 的一些组成情况。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-06-09T08:18:14.000Z">
-<meta property="article:modified_time" content="2023-10-19T16:01:21.476Z">
+<meta property="article:modified_time" content="2023-10-19T16:41:00.927Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="架构">
 <meta property="article:tag" content="Spring">
@@ -353,7 +353,7 @@ mjx-container[display="true"] + br {
 <ul>
 <li><strong>Spring Cloud Config</strong>：分布式系统中统一的外部集中配置管理工具，默认使用 Git 存储；支持客户端配置信息的刷新、加密、解密操作。</li>
 <li><strong>Spring Cloud Netflix</strong>：核心组件，对多个 Netflix OSS 开源套件进行整合<ul>
-<li>Eureka：负责服务治理，包括服务注册与发现，已停止维护</li>
+<li><a href="/2023/10/19/spring-cloud-service-regiscovery/#Eureka">Eureka</a>：负责服务治理，包括服务注册与发现，已停止维护</li>
 <li><a href="/2023/10/05/spring-cloud-gateway/#Zuul">Zuul</a>：服务网关，提供智能路由、访问过滤等功能；其替代品是 <a href="/2023/10/05/spring-cloud-gateway/#Gateway">Gateway</a></li>
 <li>Ribbon：负载均衡</li>
 <li>Hystrix：容错管理组件，实现断路器模式，提供服务熔断和限流</li>
@@ -375,7 +375,7 @@ mjx-container[display="true"] + br {
 <h2 id="Spring-Cloud-Alibaba"><a href="#Spring-Cloud-Alibaba" class="headerlink" title="Spring Cloud Alibaba"></a>Spring Cloud Alibaba</h2><p>从 2018 开始推出并迅速发展和成熟，已经在多个组织里面得到了广泛的应用。</p>
 <p>包括以下组件：</p>
 <ul>
-<li>Nacos：分布式配置中心、服务注册与发现</li>
+<li><a href="/2023/10/19/spring-cloud-service-regiscovery/#Nacos">Nacos</a>：分布式配置中心、服务注册与发现</li>
 <li>RocketMQ：消息驱动组件</li>
 <li>Sentinel：服务容错组件，包括流量控制与服务降级</li>
 <li>Seate：分布式事务</li>
