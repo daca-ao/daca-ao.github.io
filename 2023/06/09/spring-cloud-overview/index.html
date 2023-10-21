@@ -28,10 +28,11 @@
 <meta property="og:description" content="Spring Cloud 和 Dubbo 都是目前主流的微服务框架。这篇主要聊聊 Spring Cloud 的一些组成情况。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-06-09T08:18:14.000Z">
-<meta property="article:modified_time" content="2023-10-19T16:41:00.927Z">
+<meta property="article:modified_time" content="2023-10-20T13:44:10.075Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="架构">
 <meta property="article:tag" content="Spring">
+<meta property="article:tag" content="Spring Cloud">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://example.com/2023/06/09/spring-cloud-overview/">
@@ -377,33 +378,11 @@ mjx-container[display="true"] + br {
 <ul>
 <li><a href="/2023/10/19/spring-cloud-service-regiscovery/#Nacos">Nacos</a>：分布式配置中心、服务注册与发现</li>
 <li>RocketMQ：消息驱动组件</li>
-<li>Sentinel：服务容错组件，包括流量控制与服务降级</li>
+<li><a href="//#Sentinel">Sentinel</a>：服务容错组件，包括流量控制与服务降级</li>
 <li>Seate：分布式事务</li>
 <li>Dubbo：结合到 Spring Cloud 中，便是以 RPC 为框架的远程调用组件</li>
 </ul>
 <p>相对于 Spring Cloud Netflix，优点是产品能够持续迭代，配置相对简单；而缺点是欠缺稳定性。</p>
-<p><br></p>
-<h1 id="Sentinel"><a href="#Sentinel" class="headerlink" title="Sentinel"></a>Sentinel</h1><p>面向分布式服务架构的轻量级流量控制组件，主要以流量为切入点，从限流、流量整形、服务降级、系统负载保护等多个维度保障微服务稳定。</p>
-<p>主要特征：实时监控、机器发现、规则配置</p>
-<ul>
-<li>提供实时监控功能，包括查看单机秒级数据，设置 500 台以下规模的集群汇总运行情况</li>
-<li>适用场景丰富</li>
-<li>配置简单</li>
-</ul>
-<p>其组成为 Java 类库 + Dashboard，将配置中心/数据库作为动态规则源并与之结合。</p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>使用 <code>SphU</code> 或 <code>SphO</code> 进行限流：引入 maven 依赖之后，定义资源 <code>SphU.entry()</code> / <code>SphO.entry()</code>，定义规则，查看执行结果</p>
-<p>除此之外，还可以引入注解 <code>@SentinelResource</code> 标记在服务类的业务方法上：</p>
-<ul>
-<li>引入依赖后，编写 <code>Configuration</code> 配置类，再编写服务类</li>
-<li>需要另外添加 <code>processBlockHandler</code> 和 <code>fallbackHandler</code></li>
-</ul>
-<p>限流异常和资源清洗：</p>
-<ul>
-<li>通过实现 <code>UrlBlockHandler</code> 接口重写 <code>blocked()</code> 方法，从而自定义 URL 限流异常</li>
-<li>通过实现 <code>UrlCleaner</code> 接口重写 <code>clean()</code> 方法，进行 URL 资源清洗</li>
-</ul>
-<p>集成 Spring Cloud 后可以通过 dashboard 方式启动。</p>
-<p>可集成 Nacos 保存流控规则，以免每次重启 Sentinel 后流控规则会被清空。</p>
 <h1 id="Spring-Cloud-v-s-Dubbo"><a href="#Spring-Cloud-v-s-Dubbo" class="headerlink" title="Spring Cloud v.s. Dubbo"></a>Spring Cloud v.s. Dubbo</h1><div class="table-container">
 <table>
 <thead>
@@ -478,6 +457,7 @@ mjx-container[display="true"] + br {
           <div class="post-tags">
               <a href="/tags/%E6%9E%B6%E6%9E%84/" rel="tag"># 架构</a>
               <a href="/tags/Spring/" rel="tag"># Spring</a>
+              <a href="/tags/Spring-Cloud/" rel="tag"># Spring Cloud</a>
           </div>
 
         
@@ -551,7 +531,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Cloud-Netflix"><span class="nav-number">1.1.</span> <span class="nav-text">Spring Cloud Netflix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Cloud-Alibaba"><span class="nav-number">1.2.</span> <span class="nav-text">Spring Cloud Alibaba</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sentinel"><span class="nav-number">2.</span> <span class="nav-text">Sentinel</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Cloud-v-s-Dubbo"><span class="nav-number">3.</span> <span class="nav-text">Spring Cloud v.s. Dubbo</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Cloud-Netflix"><span class="nav-number">1.1.</span> <span class="nav-text">Spring Cloud Netflix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-Cloud-Alibaba"><span class="nav-number">1.2.</span> <span class="nav-text">Spring Cloud Alibaba</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spring-Cloud-v-s-Dubbo"><span class="nav-number">2.</span> <span class="nav-text">Spring Cloud v.s. Dubbo</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -565,14 +545,14 @@ mjx-container[display="true"] + br {
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">30</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
