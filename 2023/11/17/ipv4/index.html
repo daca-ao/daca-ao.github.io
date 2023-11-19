@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/11/17/ipv4/ipv4_header.png">
 <meta property="article:published_time" content="2023-11-17T14:19:39.000Z">
-<meta property="article:modified_time" content="2023-11-19T06:21:19.022Z">
+<meta property="article:modified_time" content="2023-11-19T13:57:10.964Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta name="twitter:card" content="summary">
@@ -413,17 +413,17 @@ mjx-container[display="true"] + br {
 <li><code>R</code>（Reliability，可靠性）</li>
 <li><code>C</code>（Cost，成本）</li>
 </ul>
-<p>每位的取值为0或1，0在每一位都表示正常级（normal）<br>每个组合的服务类型参数的4位中，最多只能有一位的值为1，其他三位的值则为0</p>
+<p>每位的取值为 0 或 1；TOS 中最多只能有一位为 1，此时其他三位均为 0，代表基本配置：即只能有 <code>0000</code> <code>0001</code> <code>0010</code> <code>0100</code> <code>1000</code> 五种取值。</p>
 <ul>
-<li>延迟位 D = 1 表示 low delay；D = 0 表示 normal</li>
-<li>吞吐量位 T = 1 表示 high throughput；T = 0 表示 normal</li>
-<li>可靠性为 R = 1 表示 high reliability；R = 0 表示 normal</li>
-<li>成本为 C = 1 表示 low cost；C = 0 表示 normal</li>
+<li>延迟位 D = 1 表示低延迟 low delay；D = 0 表示 normal</li>
+<li>吞吐量位 T = 1 表示高吞吐量 high throughput；T = 0 表示 normal</li>
+<li>可靠性为 R = 1 表示高可用 high reliability；R = 0 表示 normal</li>
+<li>成本为 C = 1 表示低成本 low cost；C = 0 表示 normal</li>
 </ul>
-<p>每种网络传输技术都不可能同时在延迟、吞吐量、可靠性和成本4个方面达到最优——必须寻求折中方案，保证最基本性能</p>
+<p>这个字段说明：每种服务类型都不可能同时在延迟、吞吐量、可靠性和成本 4 个方面达到最优，因此必须寻求折中方案，保证最基本性能。</p>
 <p><strong>2</strong>. 3 位优先级（<code>precedence</code>）</p>
 <ul>
-<li>分组在网络间传输时：有的应用需要网络提供优先服务，重要服务信息的处理等级比一般服务信息的处理等级高</li>
+<li>分组在网络间传输的时候，有的应用需要网络提供优先服务，重要服务信息的处理等级比一般服务信息的处理等级高</li>
 <li>当网络高负荷，路由器发生拥塞必须丢弃一些分组时：路由器将只接收某优先级以上的分组</li>
 <li>路由器根据四个参数的组合来确定选择的标准</li>
 </ul>
@@ -431,11 +431,12 @@ mjx-container[display="true"] + br {
 <h3 id="总长度-total-length"><a href="#总长度-total-length" class="headerlink" title="总长度 total length"></a>总长度 <code>total length</code></h3><p>16 位，定义以字节位单位的分组总长度</p>
 <ul>
 <li>分组头长度与数据长度之和</li>
-<li>能表示IP分组最大长度为65535（216-1）字节，其中包括分组头长度</li>
-<li>IP分组中高层协议的数据长度等于分组的总长度减去分组头长度</li>
+<li>能表示 IP 分组最大长度为 65535（216 - 1）字节，其中包括分组头长度</li>
+<li>IP 分组中高层协议的数据长度等于分组的总长度减去分组头长度</li>
 </ul>
-<h3 id="标识字段（identification）：16-位"><a href="#标识字段（identification）：16-位" class="headerlink" title="标识字段（identification）：16 位"></a>标识字段（<code>identification</code>）：16 位</h3><ul>
-<li>最多可分配 65535 个ID</li>
+<h3 id="标识字段-identification"><a href="#标识字段-identification" class="headerlink" title="标识字段 identification"></a>标识字段 <code>identification</code></h3><p>16 位</p>
+<ul>
+<li>最多可分配 65535 个 ID</li>
 <li>是 IP 分组的片（fragment）识别的标识</li>
 <li>应用场景：<ul>
 <li>属于同一分组的不同片到达时会出现乱序，或与属于其他分组的片混在一起</li>
@@ -443,9 +444,7 @@ mjx-container[display="true"] + br {
 </ul>
 </li>
 </ul>
-<ol>
-<li>标志（<code>flags</code>）：3位</li>
-</ol>
+<h3 id="标志-flags"><a href="#标志-flags" class="headerlink" title="标志 flags"></a>标志 <code>flags</code></h3><p>3位</p>
 <ul>
 <li>最高位是0，该值必须复制到所有分组中</li>
 <li>不分片（Do not Fragment, DF）值：必须复制<ul>
@@ -462,9 +461,7 @@ mjx-container[display="true"] + br {
 </ul>
 </li>
 </ul>
-<ol>
-<li>片偏移（fragment offset）：13位</li>
-</ol>
+<h3 id="片偏移-fragment-offset"><a href="#片偏移-fragment-offset" class="headerlink" title="片偏移 fragment offset"></a>片偏移 <code>fragment offset</code></h3><p>13位</p>
 <ul>
 <li>表示分片在整个分组中的相对位置</li>
 <li><p>以 8 字节为单位计数：选择的分片长度应为 8 字节的整数倍<br>例：</p>
@@ -491,9 +488,7 @@ mjx-container[display="true"] + br {
 <ul>
 <li>分片1、分片2中 MF = 1；分片3中 MF = 0<br>因标识、标志与片偏移均发生变化，分组头校验和需重新计算</li>
 </ul>
-<ol>
-<li>生存时间（time-to-live, <code>TTL</code>）：8位</li>
-</ol>
+<h3 id="生存时间-time-to-live-TTL"><a href="#生存时间-time-to-live-TTL" class="headerlink" title="生存时间 time-to-live, TTL"></a>生存时间 time-to-live, <code>TTL</code></h3><p>8位</p>
 <ul>
 <li>IP 分组从源主机到目的主机的传输延迟不确定：如出现路由器的路由表错误，会造成分组在网络中循环、无休止流动</li>
 <li>IPv4 设计该字段，用来设定分组在 Internet 中的“寿命”</li>
@@ -503,9 +498,7 @@ mjx-container[display="true"] + br {
 </ul>
 </li>
 </ul>
-<ol>
-<li>协议（<code>protocol</code>）字段：8位，指使用 IP 的更高一层（传输层）协议类型</li>
-</ol>
+<h3 id="协议-protocol"><a href="#协议-protocol" class="headerlink" title="协议 protocol"></a>协议 <code>protocol</code></h3><p>8位，指使用 IP 的更高一层（传输层）协议类型</p>
 <p>常见协议类型如下：</p>
 <div class="table-container">
 <table>
@@ -547,9 +540,7 @@ mjx-container[display="true"] + br {
 </tbody>
 </table>
 </div>
-<ol>
-<li>头部校验和（<code>header checksum</code>）：16位</li>
-</ol>
+<h3 id="头部校验和-header-checksum"><a href="#头部校验和-header-checksum" class="headerlink" title="头部校验和 header checksum"></a>头部校验和 <code>header checksum</code></h3><p>16位</p>
 <ul>
 <li>保证分组头部的数据完整性</li>
 <li>IP 分组只对分组头进行校验而不包括分组数据<ul>
@@ -572,10 +563,7 @@ mjx-container[display="true"] + br {
 <li>均为32位</li>
 <li>最简单部分，分组整个传输过程中保持不变</li>
 </ul>
-<ol>
-<li>分组头选项（<code>options</code>）</li>
-</ol>
-<ul>
+<h3 id="分组头选项-options"><a href="#分组头选项-options" class="headerlink" title="分组头选项 options"></a>分组头选项 <code>options</code></h3><ul>
 <li>主要目的：用于控制和测试</li>
 <li><p>注意：</p>
 <ul>
@@ -757,7 +745,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4"><span class="nav-number">1.</span> <span class="nav-text">IPv4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4-%E5%88%86%E7%BB%84%EF%BC%88IPv4-%E6%95%B0%E6%8D%AE%E6%8A%A5%EF%BC%89%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">IPv4 分组（IPv4 数据报）格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">分组头格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC-version"><span class="nav-number">2.1.1.</span> <span class="nav-text">版本 version</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%95%BF%E5%BA%A6-header-length"><span class="nav-number">2.1.2.</span> <span class="nav-text">分组头长度 header length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%B1%BB%E5%9E%8B-differentiated-services"><span class="nav-number">2.1.3.</span> <span class="nav-text">服务类型 differentiated services</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E9%95%BF%E5%BA%A6-total-length"><span class="nav-number">2.1.4.</span> <span class="nav-text">总长度 total length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E8%AF%86%E5%AD%97%E6%AE%B5%EF%BC%88identification%EF%BC%89%EF%BC%9A16-%E4%BD%8D"><span class="nav-number">2.1.5.</span> <span class="nav-text">标识字段（identification）：16 位</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP-%E5%88%86%E7%BB%84%E7%9A%84%E5%88%86%E7%89%87%E4%B8%8E%E7%BB%84%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">IP 分组的分片与组装</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%94%E8%BF%9B%EF%BC%9AIPv6"><span class="nav-number">3.</span> <span class="nav-text">演进：IPv6</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4"><span class="nav-number">1.</span> <span class="nav-text">IPv4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4-%E5%88%86%E7%BB%84%EF%BC%88IPv4-%E6%95%B0%E6%8D%AE%E6%8A%A5%EF%BC%89%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">IPv4 分组（IPv4 数据报）格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">分组头格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC-version"><span class="nav-number">2.1.1.</span> <span class="nav-text">版本 version</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%95%BF%E5%BA%A6-header-length"><span class="nav-number">2.1.2.</span> <span class="nav-text">分组头长度 header length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%B1%BB%E5%9E%8B-differentiated-services"><span class="nav-number">2.1.3.</span> <span class="nav-text">服务类型 differentiated services</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E9%95%BF%E5%BA%A6-total-length"><span class="nav-number">2.1.4.</span> <span class="nav-text">总长度 total length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E8%AF%86%E5%AD%97%E6%AE%B5-identification"><span class="nav-number">2.1.5.</span> <span class="nav-text">标识字段 identification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E5%BF%97-flags"><span class="nav-number">2.1.6.</span> <span class="nav-text">标志 flags</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%87%E5%81%8F%E7%A7%BB-fragment-offset"><span class="nav-number">2.1.7.</span> <span class="nav-text">片偏移 fragment offset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E5%AD%98%E6%97%B6%E9%97%B4-time-to-live-TTL"><span class="nav-number">2.1.8.</span> <span class="nav-text">生存时间 time-to-live, TTL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-protocol"><span class="nav-number">2.1.9.</span> <span class="nav-text">协议 protocol</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E9%83%A8%E6%A0%A1%E9%AA%8C%E5%92%8C-header-checksum"><span class="nav-number">2.1.10.</span> <span class="nav-text">头部校验和 header checksum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%80%89%E9%A1%B9-options"><span class="nav-number">2.1.11.</span> <span class="nav-text">分组头选项 options</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP-%E5%88%86%E7%BB%84%E7%9A%84%E5%88%86%E7%89%87%E4%B8%8E%E7%BB%84%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">IP 分组的分片与组装</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%94%E8%BF%9B%EF%BC%9AIPv6"><span class="nav-number">3.</span> <span class="nav-text">演进：IPv6</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
