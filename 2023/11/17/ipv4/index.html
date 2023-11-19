@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2023/11/17/ipv4/ipv4_header.png">
 <meta property="article:published_time" content="2023-11-17T14:19:39.000Z">
-<meta property="article:modified_time" content="2023-11-18T04:48:15.773Z">
+<meta property="article:modified_time" content="2023-11-18T14:57:05.441Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta name="twitter:card" content="summary">
@@ -365,27 +365,28 @@ mjx-container[display="true"] + br {
 <ul>
 <li>不提供对分组传输过程的跟踪，意为“尽力而为（best-effort）”；</li>
 <li>无连接：指的是 IP 协议并不维护 IP 分组发送后的任何状态信息，每个分组在各自的传输过程中相互独立；</li>
-<li>不可靠：指的是 IP 协议不能保证每个 IP 分组都能正确地、不丢失和顺序地到达目的主机；</li>
-<li>IP 协议设计重点应放在系统适应性、可扩展性与可操作性上，在分组交付可靠性上只能做一定牺牲。</li>
+<li>不可靠：指的是 IP 协议不能保证每个 IP 分组都能正确地、不丢失和按顺序地到达目的主机；</li>
 </ul>
+<p>IP 协议设计重点应放在系统适应性、可扩展性与可操作性上，在分组交付可靠性上只能做一定牺牲。</p>
 <p><strong>2</strong>. IP 协议是点-点（<strong>Peer-to-Peer</strong>）的网络层通信协议</p>
 <ul>
-<li>网络层需要在 Internet 中为通信的两个主机之间寻找一条路径，该路径通常由多个路由器、点-点链路组成。</li>
-<li>IP 协议要保证数据分组从一个到另一个路由器，通过多条路径从源主机到目的主机。</li>
-<li>因此，IP 协议是针对源主机-路由器、路由器-路由器、路由器-目的主机之间的数据传输的点-点线路的网络层通信协议。</li>
+<li>网络层需要在 Internet 中为通信的两个主机之间寻找一条路径，该路径通常由多个路由器、点-点链路组成；</li>
+<li>IP 协议要保证数据分组从一个到另一个路由器，能通过多条路径从源主机到目的主机。</li>
 </ul>
+<p>因此，IP 协议是针对源主机-路由器、路由器-路由器、路由器-目的主机之间的数据传输的点-点线路的网络层通信协议。</p>
 <p><strong>3</strong>. IP 协议屏蔽了互联的网络往下在数据链路层、物理层协议与实现技术上的差异</p>
 <ul>
-<li>面对各种异构的网络和协议：如广域网、城域网或局域网；即使都是局域网，其物理层、数据链路层协议也可能不同</li>
+<li>各种网络和协议，如广域网、城域网或局域网，都有可能是异构的；</li>
+<li>即使都是局域网，其物理层、数据链路层协议也可能不同；</li>
 <li>通过 IP 协议，网络层向传输层提供统一的 IP 分组，传输层不需要考虑互联网络在数据链路层、物理层协议与实现技术的差异。</li>
 </ul>
-<h1 id="IPv4-分组（IPv4-数据报）格式"><a href="#IPv4-分组（IPv4-数据报）格式" class="headerlink" title="IPv4 分组（IPv4 数据报）格式"></a>IPv4 分组（IPv4 数据报）格式</h1><p>回答上面的问题：</p>
+<h1 id="IPv4-分组（IPv4-数据报）格式"><a href="#IPv4-分组（IPv4-数据报）格式" class="headerlink" title="IPv4 分组（IPv4 数据报）格式"></a>IPv4 分组（IPv4 数据报）格式</h1><p>回答上面的问题：一份 IP 分组，就是一次 IP 报文的发送。</p>
 <p>一份 IPv4 的报文由两个部分组成：</p>
 <ul>
 <li>分组头：也称“首部”，长度可变。习惯用 4 字节（8 位）为基本单元表示分组头字段<ul>
 <li>前 5 行（共 20 字节）为每个字节头中必须有的字段</li>
 <li>第 6 行开始为选项字段</li>
-<li>因此 IPv4 分组头基本长度是 20 字节 —— 如加上最长 40 字节（10 行）选项，则 IP 分组头最大为 60 字节</li>
+<li>因此 IPv4 分组头基本长度是 20 字节 —— 如加上最长 40 字节（10 行）的选项（<code>options</code>），则 IP 分组头最大可达 60 字节</li>
 </ul>
 </li>
 <li>数据</li>
