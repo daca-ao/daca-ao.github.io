@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2023/11/17/ipv4/ipv4_header.png">
 <meta property="og:image" content="http://example.com/2023/11/17/ipv4/fragment_offset.png">
 <meta property="article:published_time" content="2023-11-17T14:19:39.000Z">
-<meta property="article:modified_time" content="2023-11-27T15:23:08.924Z">
+<meta property="article:modified_time" content="2023-11-29T13:58:49.078Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta name="twitter:card" content="summary">
@@ -598,6 +598,285 @@ mjx-container[display="true"] + br {
 <p>![]</p>
 <p>相关字段：标识（<code>identification</code>）、标志（<code>flags</code>）与片偏移（<code>fragment offset</code>）</p>
 <h1 id="IPv4-地址及分段"><a href="#IPv4-地址及分段" class="headerlink" title="IPv4 地址及分段"></a>IPv4 地址及分段</h1><p>IPv4 地址类型经过多年的发展，主要分成以下几个阶段：</p>
+<h2 id="第一阶段：标准分类的-IP-地址"><a href="#第一阶段：标准分类的-IP-地址" class="headerlink" title="第一阶段：标准分类的 IP 地址"></a>第一阶段：标准分类的 IP 地址</h2><ul>
+<li>地址有效利用率低</li>
+</ul>
+<p>在这个阶段中，IP 地址有三种分配方法：</p>
+<ol>
+<li>为每一个网络接口分配一个 IP 地址：IP 地址与 MAC 地址一一对应，且在 Internet 中是唯一的；</li>
+<li>为多归属主机的每一个网络接口分配相应的 IP 地址<ul>
+<li>一台路由器或计算机通过多个 Ethernet 网卡分别连接到多个网络</li>
+<li>具有多个接口的主机：多归属主机 / 多穴主机——可拥有多个 IP 地址</li>
+</ul>
+</li>
+<li>可以为一个网络接口分配多个 IP 地址</li>
+</ol>
+<ul>
+<li>多网化/二级地址管理</li>
+</ul>
+<p>总结：</p>
+<ol>
+<li>连接到 Internet 每一个主机（计算机或路由器）至少有一个 IP 地址</li>
+<li>IP 地址是分配给网络接口的</li>
+<li>多归属主机可以有多个 IP 地址</li>
+<li>一个网络接口也可以分配多个 IP 地址</li>
+<li>网桥、Ethernet 交换机、集线器 Hub属于数据链路层设备，不属于网络层设备<ol>
+<li>故使用 MAC 地址，不分配 IP 地址</li>
+</ol>
+</li>
+</ol>
+<p>IP 地址的点分十进制表示方法</p>
+<p>![]</p>
+<p>![]</p>
+<p>说明：</p>
+<ul>
+<li>点分十进制（dotted decimal，即 x.x.x.x）</li>
+<li>每个 x 为 8 位，取值范围为 0-255</li>
+<li>IPv4 地址总长度为 32 位<ul>
+<li>网络号：netID</li>
+<li>主机号：hostID</li>
+</ul>
+</li>
+<li>IP 寻址：先找到 IP 所属的网络，再从 IP 中找到主机在网络的位置</li>
+</ul>
+<h3 id="标准-IP-地址分类"><a href="#标准-IP-地址分类" class="headerlink" title="标准 IP 地址分类"></a>标准 IP 地址分类</h3><p>分为 5 大类：</p>
+<p><strong>A 类地址</strong>：首位为 0，其余 7 位为网络号，可进行分配</p>
+<ul>
+<li>共分为大小相同的 128 块，每块的 netID 不同<ul>
+<li>第一块：0.0.0.0 - 0.255.255.255（netID = 0，保留做特殊用途）</li>
+<li>第二块：1.0.0.0 - 1.255.255.255（netID = 1）</li>
+<li>…</li>
+<li>第十块：10.0.0.0 - 10.255.255.255（netID = 10，用于专用 IP 地址）</li>
+<li>…</li>
+<li>最后一块：127.0.0.0 - 127.255.255.255（netID = 127，保留做特殊用途）</li>
+</ul>
+</li>
+<li>能得到的 A 类地址的机构只有 125 （27-3）个<ul>
+<li>每个 A 类网络可分配的主机号 ID：224 - 2 = 16,777,214 个</li>
+</ul>
+</li>
+<li>覆盖范围：1.0.0.0 - 127.255.255.255</li>
+</ul>
+<p><strong>B 类地址</strong>：前两位为 10，其余 14 位为网络号，可进行分配</p>
+<ul>
+<li>可分配网络号为 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.439ex;" xmlns="http://www.w3.org/2000/svg" width="12.598ex" height="2.343ex" role="img" focusable="false" viewbox="0 -841.7 5568.3 1035.7"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msup"><g data-mml-node="mn"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g><g data-mml-node="TeXAtom" transform="translate(533,363) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mn"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/><path data-c="34" d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z" transform="translate(500,0)"/></g></g></g><g data-mml-node="mo" transform="translate(1567.9,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g><g data-mml-node="mn" transform="translate(2623.7,0)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/><path data-c="36" d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z" transform="translate(500,0)"/></g><g data-mml-node="mo" transform="translate(3623.7,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/></g><g data-mml-node="mn" transform="translate(4068.3,0)"><path data-c="33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/><path data-c="38" d="M70 417T70 494T124 618T248 666Q319 666 374 624T429 515Q429 485 418 459T392 417T361 389T335 371T324 363L338 354Q352 344 366 334T382 323Q457 264 457 174Q457 95 399 37T249 -22Q159 -22 101 29T43 155Q43 263 172 335L154 348Q133 361 127 368Q70 417 70 494ZM286 386L292 390Q298 394 301 396T311 403T323 413T334 425T345 438T355 454T364 471T369 491T371 513Q371 556 342 586T275 624Q268 625 242 625Q201 625 165 599T128 534Q128 511 141 492T167 463T217 431Q224 426 228 424L286 386ZM250 21Q308 21 350 55T392 137Q392 154 387 169T375 194T353 216T330 234T301 253T274 270Q260 279 244 289T218 306L210 311Q204 311 181 294T133 239T107 157Q107 98 150 60T250 21Z" transform="translate(500,0)"/><path data-c="34" d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z" transform="translate(1000,0)"/></g></g></g></svg></mjx-container></li>
+<li>每个网络号（IP 地址）可有 <mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.439ex;" xmlns="http://www.w3.org/2000/svg" width="16.495ex" height="2.326ex" role="img" focusable="false" viewbox="0 -833.9 7290.8 1027.9"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msup"><g data-mml-node="mn"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g><g data-mml-node="TeXAtom" transform="translate(533,363) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mn"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/><path data-c="36" d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z" transform="translate(500,0)"/></g></g></g><g data-mml-node="mo" transform="translate(1512.3,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/></g><g data-mml-node="mn" transform="translate(2512.6,0)"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g><g data-mml-node="mo" transform="translate(3290.3,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/></g><g data-mml-node="mn" transform="translate(4346.1,0)"><path data-c="36" d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z"/><path data-c="35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z" transform="translate(500,0)"/></g><g data-mml-node="mo" transform="translate(5346.1,0)"><path data-c="2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/></g><g data-mml-node="mn" transform="translate(5790.8,0)"><path data-c="35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z"/><path data-c="33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z" transform="translate(500,0)"/><path data-c="34" d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z" transform="translate(1000,0)"/></g></g></g></svg></mjx-container> 个主机号（主机号为全 0 和 全 1 的两个地址保留）</li>
+<li>覆盖范围：128.0.0.0 - 191.255.255.255</li>
+</ul>
+<p><strong>C 类地址</strong>：前三位为 110，其余 21 位可分配</p>
+<ul>
+<li>可分配网络号为 221 = 2,097,152</li>
+<li>每个网络号可有 28 - 2 = 254 个主机号（主机号为全 0 和 全 1 的两个地址保留）</li>
+<li>覆盖范围：192.0.0.0 - 223.255.255.255</li>
+</ul>
+<p>D 类地址：不标识网络</p>
+<ul>
+<li>覆盖范围：224.0.0.0 - 239.255.255.255</li>
+<li>用于特殊用途，如多播（multicasting）地址</li>
+</ul>
+<p>E 类地址：暂时保留</p>
+<ul>
+<li>覆盖范围：240.0.0.0 - 247.255.255.255</li>
+</ul>
+<p>为何“主机号为全 0 和 全 1 的两个地址保留”：特殊地址形式<br>“该网络特定主机”地址</p>
+<ul>
+<li>分布在 A 类、B 类和 C 类地址中<ul>
+<li>网络号全为 0 （如 0.0.0.25）</li>
+</ul>
+</li>
+<li>路由器接到分组时，不向外转发该分组：<ul>
+<li>而是直接交付给本网络中指定主机</li>
+<li>对应上例为交付至主机号为 25 的主机</li>
+</ul>
+</li>
+</ul>
+<p>受限广播（limited broadcasting）地址</p>
+<ul>
+<li>32 位网络号与主机号为全 1 的 IP 地址（255.255.255.255）</li>
+<li>用来将一个分组以广播形式发送给本网络中的所有主机</li>
+<li>路由器接到该地址的分组时，不向外转发该分组：<ul>
+<li>而是在网络内部以广播方式发送给全部主机</li>
+</ul>
+</li>
+</ul>
+<p>直接广播（direct broadcasting）地址</p>
+<ul>
+<li>分布在 A 类、B 类和 C 类地址中<ul>
+<li>主机号全为 1 （如191.1.255.255）</li>
+<li>包括 A：x.255.255.255, B：x.x.255.255, C：x.x.x.255</li>
+</ul>
+</li>
+<li>路由器将该组以广播形式发送给特定网络（对应上例为 191.1.0.0）的所有主机</li>
+</ul>
+<p>回送地址（lookback address）</p>
+<ul>
+<li>A 类的 127.0.0.0 （保留地址）</li>
+<li>用于网络软件测试和本地进程间通信</li>
+<li>TCP/IP 规定：<ul>
+<li>网络号为 127 的分组不能出现在任何网络中</li>
+<li>主机和路由器不能为该地址广播任何任何寻址信息</li>
+</ul>
+</li>
+<li>注：Ping 应用程序可发送一个将回送地址作为目的地址的分组——以测试 IP 软件能否接受或发送一个分组<ul>
+<li>测试本地进程之间的通信状况</li>
+</ul>
+</li>
+</ul>
+<p>从用途分类</p>
+<ol>
+<li>公有 IP（全局 IP）地址指在 Internet 全球唯一的地址</li>
+<li>专用（私有）IP 地址</li>
+</ol>
+<ul>
+<li>RFC1918 提出：A、B、C 各留一部分地址作为专用 IP 地址，用于不接入 Internet 的内部网络</li>
+<li>内网主机向 Internet 发送分组时，需将专用地址转换为全局 IP 地址</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>网络</th>
+<th>网络号</th>
+<th>网络总数</th>
+<th>IP 总数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>10.</td>
+<td>1</td>
+<td>16,777,214</td>
+</tr>
+<tr>
+<td>B</td>
+<td>172.16. - 172.31.</td>
+<td>16</td>
+<td>65536 * 16</td>
+</tr>
+<tr>
+<td>C</td>
+<td>192.168.0. - 192.168.255.</td>
+<td>256</td>
+<td>256 * 256</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>注意：</p>
+<ul>
+<li>如 IP 分组使用了（例：）10.1.0.1、172.16.1.12 或 192.168.0.2 ：路由器就认为这是一个内部网络使用的 IP 地址，不向 Internet 转发该分组</li>
+<li>如组建专用内部网络，不准备连接到 Internet；或转发分组到 Internet 时希望使用网络地址转换（NAT）：该组织可使用专用 IP 地址</li>
+<li>上述三个范围内的地址不会在 Internet 上被分配：可不必向ISP或注册中心申请，而在公司或者企业内部自由使用</li>
+</ul>
+<h2 id="第二阶段：划分子网的三级地址结构"><a href="#第二阶段：划分子网的三级地址结构" class="headerlink" title="第二阶段：划分子网的三级地址结构"></a>第二阶段：划分子网的三级地址结构</h2><ul>
+<li>在标准分类的 IP 地址基础上，增加子网号的三级地址结构</li>
+<li>1991年：提出子网（subnet）和掩码（mask）概念<ul>
+<li>子网：将大网络划分成若干较小网络</li>
+<li>网络结构从 “网络号-主机号” -&gt; “网络号-子网号-主机号”</li>
+</ul>
+</li>
+</ul>
+<p>第三阶段：构成超网的无类别域间路由（CIDR）技术</p>
+<ul>
+<li>无类别域间路由（Classless Inter Domain Routing, CIDR, 1993）</li>
+<li>不按照标准地址分类规则</li>
+<li>将剩余 IP 地址按照可变大小的地址块来分配</li>
+<li>同时涉及 IP 寻址与路由选择</li>
+</ul>
+<p>第四阶段：网络地址转换（Network Address Transform, NAT）技术（1996）</p>
+<ul>
+<li>短时期内快速缓解地址短缺，支持 IP 地址重用</li>
+</ul>
+<ol>
+<li>划分子网的三级地址结构<br>子网（subnet）的基本思想：</li>
+</ol>
+<ul>
+<li>借用主机号的一部分作为子网的子网号，划分出更多的子网 IP 地址</li>
+<li>对外部路由器寻址没有影响</li>
+</ul>
+<p>划分子网要点：</p>
+<ol>
+<li>三级层次：netID - subnetID - hostID</li>
+<li>同一个子网中所有主机必须使用相同网络号与子网号(netID - subnetID)</li>
+<li>子网的概念可用于 A、B、C类地址</li>
+<li>子网间距离必须很近<ul>
+<li>为了提高路由器工作效率</li>
+<li>分配子网为组织内部事务：不需向 ICANN 申请，也不需改变任何外部路由器的数据库</li>
+</ul>
+</li>
+</ol>
+<p>子网掩码（subnet mask）的概念</p>
+<ul>
+<li>又称掩码（mask）、子网屏蔽码：为了从 IP 地址中提取子网号</li>
+<li>标准地址的掩码：<ul>
+<li>标准 A 类：255.0.0.0（8 位）</li>
+<li>标准 B 类：255.255.0.0（16 位）</li>
+<li>标准 C 类：255.255.255.0（24 位）</li>
+</ul>
+</li>
+<li>背景：在包括子网号的三层结构的 IP 地址中：不能直观判断网络号和主机号（提取子网号较困难）<br>例：一个 B 类地址需要划分 64 个子网</li>
+<li>26=64，即借用原主机号的前 6 位作为子网号</li>
+<li>原有的 16 位网络号不变，则在原主机号中取6位加入网络号，主机号减作 10 位</li>
+<li>如：B 类地址 190.1.2.26 有两种表示方法<ul>
+<li>IP: 190.1.2.26 mask: 255.255.252.0</li>
+<li>190.1.2.26/22 （22 即网络号总和 16+6）</li>
+</ul>
+</li>
+</ul>
+<p>子网规划与地址空间划分的注意点：</p>
+<ul>
+<li>子网地址与主机号不能使用全 0 或全 1</li>
+<li>划分字网通常以满足基本要求，并考虑留有一定余量为原则</li>
+</ul>
+<ol>
+<li>可变长度子网掩码（Variable Length Subnet Masking, VLSM）技术</li>
+</ol>
+<ul>
+<li>划分子网时考虑不同的子网号长度<ul>
+<li>如：给分别有 100、50、50 人的部门分别组建子网</li>
+<li>某 C 类网络主机为 202.60.31.0 <ul>
+<li>则 100 人部门掩码为 /25（255.255.255.128），有 126 个可用地址</li>
+<li>50 人部门掩码为 /26 （255.255.255.192），有 61 个可用地址</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>划分关键：找到合适的可变长度子网掩码</li>
+</ul>
+<ol>
+<li>无类别区间路由（Classless Inter-Domain Routing, CIDR）</li>
+</ol>
+<ul>
+<li>Internet 的建议标准协议</li>
+<li>需要注意的问题：</li>
+</ul>
+<ol>
+<li>CIDR 将剩余的 IP 地址按可变大小的地址块来分配<ul>
+<li>与传统标准分类 IP 地址与子网地址划分的方式相比：CIDR 是以任意二进制倍数的大小来分配地址</li>
+</ul>
+</li>
+<li>CIDR 不采用传统的标准 IP 地址分类方法：无法从地址本身判定网络号的长度，因此 CIDR 地址采用“斜线记法”，即 &lt;网络前缀&gt;/&lt;主机号&gt;。<ol>
+<li>例：从 CIDR 方法给出的一个地址块中一个 IP 地址是 200.16.23.1/20，则表示在该 IP 地址中前 20 位是网络前缀，后 12 位是主机号</li>
+<li>即：200.16.23.1/20 = 11001000 00010000 00010111 00000001</li>
+<li>（粗体加下划线为网络号，剩下后12位为主机号）</li>
+</ol>
+</li>
+<li>CIDR 将网络前缀相同的连续 IP 地址组成一个 “CIDR 地址块”<ul>
+<li>上述地址主机号有 212（4096）个</li>
+</ul>
+</li>
+<li>一个 CIDR 地址块由块起始地址与前缀表示<ul>
+<li>起始地址：地址块中地址数值最小的一个（主机号全 0）</li>
+<li>上述地址块中起始地址为 200.16.16.0，前缀为 20</li>
+<li>最大地址：主机号为全 1 </li>
+</ul>
+</li>
+<li>主机号全 0 和主机号全 1 不分配主机：与标准分类 IP 地址相同<ul>
+<li>即上述地址块可分配 IP 地址：200.16.16.1/20 ~ 200.16.31.254/20</li>
+</ul>
+</li>
+</ol>
 <h2 id="网络地址转换-NAT"><a href="#网络地址转换-NAT" class="headerlink" title="网络地址转换 NAT"></a>网络地址转换 NAT</h2><p>全称 Network Address Translation</p>
 <p>并没有深层次解决 IPv4 地址严重不足的问题</p>
 <h1 id="演进：IPv6"><a href="#演进：IPv6" class="headerlink" title="演进：IPv6"></a>演进：IPv6</h1><p>早期设计的 IP 分组结构、IPv4 地址、网络层服务质量 QoS 都不能满足 Internet 大规模发展的要求</p>
@@ -691,7 +970,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4"><span class="nav-number">1.</span> <span class="nav-text">IPv4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4-%E5%88%86%E7%BB%84%EF%BC%88IPv4-%E6%95%B0%E6%8D%AE%E6%8A%A5%EF%BC%89%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">IPv4 分组（IPv4 数据报）格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">分组头格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC-version"><span class="nav-number">2.1.1.</span> <span class="nav-text">版本 version</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%95%BF%E5%BA%A6-header-length"><span class="nav-number">2.1.2.</span> <span class="nav-text">分组头长度 header length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%B1%BB%E5%9E%8B-differentiated-services"><span class="nav-number">2.1.3.</span> <span class="nav-text">服务类型 differentiated services</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E9%95%BF%E5%BA%A6-total-length"><span class="nav-number">2.1.4.</span> <span class="nav-text">总长度 total length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E8%AF%86%E5%AD%97%E6%AE%B5-identification"><span class="nav-number">2.1.5.</span> <span class="nav-text">标识字段 identification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E5%BF%97-flags"><span class="nav-number">2.1.6.</span> <span class="nav-text">标志 flags</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%87%E5%81%8F%E7%A7%BB-fragment-offset"><span class="nav-number">2.1.7.</span> <span class="nav-text">片偏移 fragment offset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E5%AD%98%E6%97%B6%E9%97%B4-time-to-live-TTL"><span class="nav-number">2.1.8.</span> <span class="nav-text">生存时间 time-to-live, TTL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-protocol"><span class="nav-number">2.1.9.</span> <span class="nav-text">协议 protocol</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E9%83%A8%E6%A0%A1%E9%AA%8C%E5%92%8C-header-checksum"><span class="nav-number">2.1.10.</span> <span class="nav-text">头部校验和 header checksum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80%E5%AD%97%E6%AE%B5"><span class="nav-number">2.1.11.</span> <span class="nav-text">地址字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%80%89%E9%A1%B9-options"><span class="nav-number">2.1.12.</span> <span class="nav-text">分组头选项 options</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP-%E5%88%86%E7%BB%84%E5%88%86%E7%89%87%E5%8F%8A%E7%BB%84%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">IP 分组分片及组装</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4-%E5%9C%B0%E5%9D%80%E5%8F%8A%E5%88%86%E6%AE%B5"><span class="nav-number">3.</span> <span class="nav-text">IPv4 地址及分段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2-NAT"><span class="nav-number">3.1.</span> <span class="nav-text">网络地址转换 NAT</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%94%E8%BF%9B%EF%BC%9AIPv6"><span class="nav-number">4.</span> <span class="nav-text">演进：IPv6</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4"><span class="nav-number">1.</span> <span class="nav-text">IPv4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4-%E5%88%86%E7%BB%84%EF%BC%88IPv4-%E6%95%B0%E6%8D%AE%E6%8A%A5%EF%BC%89%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">IPv4 分组（IPv4 数据报）格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">分组头格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC-version"><span class="nav-number">2.1.1.</span> <span class="nav-text">版本 version</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%95%BF%E5%BA%A6-header-length"><span class="nav-number">2.1.2.</span> <span class="nav-text">分组头长度 header length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%B1%BB%E5%9E%8B-differentiated-services"><span class="nav-number">2.1.3.</span> <span class="nav-text">服务类型 differentiated services</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E9%95%BF%E5%BA%A6-total-length"><span class="nav-number">2.1.4.</span> <span class="nav-text">总长度 total length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E8%AF%86%E5%AD%97%E6%AE%B5-identification"><span class="nav-number">2.1.5.</span> <span class="nav-text">标识字段 identification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E5%BF%97-flags"><span class="nav-number">2.1.6.</span> <span class="nav-text">标志 flags</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%87%E5%81%8F%E7%A7%BB-fragment-offset"><span class="nav-number">2.1.7.</span> <span class="nav-text">片偏移 fragment offset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E5%AD%98%E6%97%B6%E9%97%B4-time-to-live-TTL"><span class="nav-number">2.1.8.</span> <span class="nav-text">生存时间 time-to-live, TTL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-protocol"><span class="nav-number">2.1.9.</span> <span class="nav-text">协议 protocol</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E9%83%A8%E6%A0%A1%E9%AA%8C%E5%92%8C-header-checksum"><span class="nav-number">2.1.10.</span> <span class="nav-text">头部校验和 header checksum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80%E5%AD%97%E6%AE%B5"><span class="nav-number">2.1.11.</span> <span class="nav-text">地址字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%80%89%E9%A1%B9-options"><span class="nav-number">2.1.12.</span> <span class="nav-text">分组头选项 options</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP-%E5%88%86%E7%BB%84%E5%88%86%E7%89%87%E5%8F%8A%E7%BB%84%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">IP 分组分片及组装</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4-%E5%9C%B0%E5%9D%80%E5%8F%8A%E5%88%86%E6%AE%B5"><span class="nav-number">3.</span> <span class="nav-text">IPv4 地址及分段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%A0%87%E5%87%86%E5%88%86%E7%B1%BB%E7%9A%84-IP-%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.</span> <span class="nav-text">第一阶段：标准分类的 IP 地址</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E5%87%86-IP-%E5%9C%B0%E5%9D%80%E5%88%86%E7%B1%BB"><span class="nav-number">3.1.1.</span> <span class="nav-text">标准 IP 地址分类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%88%92%E5%88%86%E5%AD%90%E7%BD%91%E7%9A%84%E4%B8%89%E7%BA%A7%E5%9C%B0%E5%9D%80%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">第二阶段：划分子网的三级地址结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2-NAT"><span class="nav-number">3.3.</span> <span class="nav-text">网络地址转换 NAT</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%94%E8%BF%9B%EF%BC%9AIPv6"><span class="nav-number">4.</span> <span class="nav-text">演进：IPv6</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
