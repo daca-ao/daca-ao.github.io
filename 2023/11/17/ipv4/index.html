@@ -31,8 +31,9 @@
 <meta property="og:image" content="http://example.com/2023/11/17/ipv4/fragment_offset.png">
 <meta property="og:image" content="http://example.com/2023/11/17/ipv4/ip_fragment.png">
 <meta property="og:image" content="http://example.com/2023/11/17/ipv4/decimal_ip_1.png">
+<meta property="og:image" content="http://example.com/2023/11/17/ipv4/decimal_ip_2.png">
 <meta property="article:published_time" content="2023-11-17T14:19:39.000Z">
-<meta property="article:modified_time" content="2024-02-19T23:57:46.144Z">
+<meta property="article:modified_time" content="2024-02-26T13:01:19.902Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta name="twitter:card" content="summary">
@@ -636,49 +637,24 @@ mjx-container[display="true"] + br {
 <h3 id="D-类地址"><a href="#D-类地址" class="headerlink" title="D 类地址"></a>D 类地址</h3><p>地址覆盖范围为 <code>224.0.0.0</code> 至 <code>239.255.255.255</code>。</p>
 <p>不标识网络，仅用于特殊用途，如多播（multicasting）地址。</p>
 <h3 id="E-类地址"><a href="#E-类地址" class="headerlink" title="E 类地址"></a>E 类地址</h3><p>暂时保留，地址覆盖范围为 <code>240.0.0.0</code> 至 <code>247.255.255.255</code>。</p>
+<p><img src="/2023/11/17/ipv4/decimal_ip_2.png" alt></p>
 <p><br></p>
 <p>为什么“主机号为全 0 和 全 1 的两个地址保留”？因为这两种是<strong>特殊的地址形式</strong>，而且特殊的形式不止两种。</p>
-<h3 id="特定主机地址"><a href="#特定主机地址" class="headerlink" title="特定主机地址"></a>特定主机地址</h3><p>“该网络特定主机”地址</p>
+<h3 id="网络特定主机地址"><a href="#网络特定主机地址" class="headerlink" title="网络特定主机地址"></a>网络特定主机地址</h3><p>这种地址的网络号为全 0 （如 0.0.0.25），分布在 A 类、B 类和 C 类地址中。</p>
+<p>路由器接收到 IP 分组后，不会向外转发该分组，而是<strong>直接交付</strong>给本网络中指定主机；<br>对应上例为交付至主机号为 25 的主机。</p>
+<h3 id="受限广播（limited-broadcasting）地址"><a href="#受限广播（limited-broadcasting）地址" class="headerlink" title="受限广播（limited broadcasting）地址"></a>受限广播（limited broadcasting）地址</h3><p>地址唯一，为网络号 + 主机号为全 1 的 IP 地址（255.255.255.255），用来将一个分组以广播形式发送给本网络中的所有主机。</p>
+<p>路由器接收到该地址的分组时，不会向外转发该分组，而是在网络内部以广播方式发送给全部主机。</p>
+<h3 id="直接广播（direct-broadcasting）地址"><a href="#直接广播（direct-broadcasting）地址" class="headerlink" title="直接广播（direct broadcasting）地址"></a>直接广播（direct broadcasting）地址</h3><p>主机号全为 1，包括：</p>
 <ul>
-<li>分布在 A 类、B 类和 C 类地址中<ul>
-<li>网络号全为 0 （如 0.0.0.25）</li>
+<li>A 类：<code>x.255.255.255</code></li>
+<li>B 类：<code>x.x.255.255</code></li>
+<li>C 类：<code>x.x.x.255</code></li>
 </ul>
-</li>
-<li>路由器接到分组时，不向外转发该分组：<ul>
-<li>而是直接交付给本网络中指定主机</li>
-<li>对应上例为交付至主机号为 25 的主机</li>
-</ul>
-</li>
-</ul>
-<h3 id="受限广播（limited-broadcasting）地址"><a href="#受限广播（limited-broadcasting）地址" class="headerlink" title="受限广播（limited broadcasting）地址"></a>受限广播（limited broadcasting）地址</h3><ul>
-<li>32 位网络号与主机号为全 1 的 IP 地址（255.255.255.255）</li>
-<li>用来将一个分组以广播形式发送给本网络中的所有主机</li>
-<li>路由器接到该地址的分组时，不向外转发该分组：<ul>
-<li>而是在网络内部以广播方式发送给全部主机</li>
-</ul>
-</li>
-</ul>
-<h3 id="直接广播（direct-broadcasting）地址"><a href="#直接广播（direct-broadcasting）地址" class="headerlink" title="直接广播（direct broadcasting）地址"></a>直接广播（direct broadcasting）地址</h3><ul>
-<li>分布在 A 类、B 类和 C 类地址中<ul>
-<li>主机号全为 1 （如191.1.255.255）</li>
-<li>包括 A：x.255.255.255, B：x.x.255.255, C：x.x.x.255</li>
-</ul>
-</li>
-<li>路由器将该组以广播形式发送给特定网络（对应上例为 191.1.0.0）的所有主机</li>
-</ul>
-<h3 id="回送地址（lookback-address）"><a href="#回送地址（lookback-address）" class="headerlink" title="回送地址（lookback address）"></a>回送地址（lookback address）</h3><ul>
-<li>A 类的 127.0.0.0 （保留地址）</li>
-<li>用于网络软件测试和本地进程间通信</li>
-<li>TCP/IP 规定：<ul>
-<li>网络号为 127 的分组不能出现在任何网络中</li>
-<li>主机和路由器不能为该地址广播任何任何寻址信息</li>
-</ul>
-</li>
-<li>注：Ping 应用程序可发送一个将回送地址作为目的地址的分组——以测试 IP 软件能否接受或发送一个分组<ul>
-<li>测试本地进程之间的通信状况</li>
-</ul>
-</li>
-</ul>
+<p>如 191.1.255.255。</p>
+<p>路由器将接收到的分组以广播形式发送给特定网络（对应上例为 191.1.0.0）内的所有主机。</p>
+<h3 id="回送地址（lookback-address）"><a href="#回送地址（lookback-address）" class="headerlink" title="回送地址（lookback address）"></a>回送地址（lookback address）</h3><p>为 A 类地址中的 <code>127.0.0.0</code>（保留地址），用于网络软件测试和本地进程间通信。</p>
+<p>TCP/IP 规定：网络号为 127 的分组不能出现在任何网络中，主机和路由器不能为该地址广播任何任何寻址信息</p>
+<p>应用：<code>Ping</code> 应用程序可发送一个分组至将回送地址，以测试本地进程之间的通信状况，能否接受或发送一个分组。</p>
 <div class="table-container">
 <table>
 <thead>
@@ -694,6 +670,42 @@ mjx-container[display="true"] + br {
 <tr>
 <td style="text-align:center">全 0</td>
 <td>全 0</td>
+<td>可</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">全 0</td>
+<td>特定值</td>
+<td>否</td>
+<td>可</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">全 1</td>
+<td>全 1</td>
+<td>否</td>
+<td>可</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">特定值</td>
+<td>全 0</td>
+<td>否</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">特定值</td>
+<td>全 1</td>
+<td>否</td>
+<td>可</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">127</td>
+<td>非全 0 或非全 1 的任何数</td>
+<td>可</td>
 <td>可</td>
 </tr>
 </tbody>
@@ -942,7 +954,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4"><span class="nav-number">1.</span> <span class="nav-text">IPv4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4-%E5%88%86%E7%BB%84%EF%BC%88IPv4-%E6%95%B0%E6%8D%AE%E6%8A%A5%EF%BC%89%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">IPv4 分组（IPv4 数据报）格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">分组头格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC-version"><span class="nav-number">2.1.1.</span> <span class="nav-text">版本 version</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%95%BF%E5%BA%A6-header-length"><span class="nav-number">2.1.2.</span> <span class="nav-text">分组头长度 header length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%B1%BB%E5%9E%8B-differentiated-services"><span class="nav-number">2.1.3.</span> <span class="nav-text">服务类型 differentiated services</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E9%95%BF%E5%BA%A6-total-length"><span class="nav-number">2.1.4.</span> <span class="nav-text">总长度 total length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E8%AF%86%E5%AD%97%E6%AE%B5-identification"><span class="nav-number">2.1.5.</span> <span class="nav-text">标识字段 identification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E5%BF%97-flags"><span class="nav-number">2.1.6.</span> <span class="nav-text">标志 flags</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%87%E5%81%8F%E7%A7%BB-fragment-offset"><span class="nav-number">2.1.7.</span> <span class="nav-text">片偏移 fragment offset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E5%AD%98%E6%97%B6%E9%97%B4-time-to-live-TTL"><span class="nav-number">2.1.8.</span> <span class="nav-text">生存时间 time-to-live, TTL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-protocol"><span class="nav-number">2.1.9.</span> <span class="nav-text">协议 protocol</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E9%83%A8%E6%A0%A1%E9%AA%8C%E5%92%8C-header-checksum"><span class="nav-number">2.1.10.</span> <span class="nav-text">头部校验和 header checksum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80%E5%AD%97%E6%AE%B5"><span class="nav-number">2.1.11.</span> <span class="nav-text">地址字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%80%89%E9%A1%B9-options"><span class="nav-number">2.1.12.</span> <span class="nav-text">分组头选项 options</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP-%E5%88%86%E7%BB%84%E5%88%86%E7%89%87%E5%8F%8A%E7%BB%84%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">IP 分组分片及组装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E4%B8%8B"><span class="nav-number">2.2.1.</span> <span class="nav-text">向下</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E4%B8%8A"><span class="nav-number">2.2.2.</span> <span class="nav-text">向上</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4-%E5%9C%B0%E5%9D%80%E5%8F%8A%E5%88%86%E6%AE%B5"><span class="nav-number">3.</span> <span class="nav-text">IPv4 地址及分段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%A0%87%E5%87%86%E5%88%86%E7%B1%BB%E7%9A%84-IP-%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.</span> <span class="nav-text">第一阶段：标准分类的 IP 地址</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-%E7%B1%BB%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.1.</span> <span class="nav-text">A 类地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-%E7%B1%BB%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.2.</span> <span class="nav-text">B 类地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-%E7%B1%BB%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.3.</span> <span class="nav-text">C 类地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#D-%E7%B1%BB%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.4.</span> <span class="nav-text">D 类地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#E-%E7%B1%BB%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.5.</span> <span class="nav-text">E 类地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E5%AE%9A%E4%B8%BB%E6%9C%BA%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.6.</span> <span class="nav-text">特定主机地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%97%E9%99%90%E5%B9%BF%E6%92%AD%EF%BC%88limited-broadcasting%EF%BC%89%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.7.</span> <span class="nav-text">受限广播（limited broadcasting）地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E5%B9%BF%E6%92%AD%EF%BC%88direct-broadcasting%EF%BC%89%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.8.</span> <span class="nav-text">直接广播（direct broadcasting）地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9E%E9%80%81%E5%9C%B0%E5%9D%80%EF%BC%88lookback-address%EF%BC%89"><span class="nav-number">3.1.9.</span> <span class="nav-text">回送地址（lookback address）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E7%85%A7%E7%94%A8%E9%80%94%E5%88%86%E7%B1%BB"><span class="nav-number">3.1.10.</span> <span class="nav-text">按照用途分类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%88%92%E5%88%86%E5%AD%90%E7%BD%91%E7%9A%84%E4%B8%89%E7%BA%A7%E5%9C%B0%E5%9D%80%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">第二阶段：划分子网的三级地址结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%9E%84%E6%88%90%E8%B6%85%E7%BD%91%E7%9A%84%E6%97%A0%E7%B1%BB%E5%88%AB%E5%9F%9F%E9%97%B4%E8%B7%AF%E7%94%B1%EF%BC%88CIDR%EF%BC%89%E6%8A%80%E6%9C%AF"><span class="nav-number">3.3.</span> <span class="nav-text">第三阶段：构成超网的无类别域间路由（CIDR）技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E9%98%B6%E6%AE%B5%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2%EF%BC%88Network-Address-Transform-NAT%EF%BC%89%E6%8A%80%E6%9C%AF%EF%BC%881996%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">第四阶段：网络地址转换（Network Address Transform, NAT）技术（1996）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%94%E8%BF%9B%EF%BC%9AIPv6"><span class="nav-number">4.</span> <span class="nav-text">演进：IPv6</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4"><span class="nav-number">1.</span> <span class="nav-text">IPv4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4-%E5%88%86%E7%BB%84%EF%BC%88IPv4-%E6%95%B0%E6%8D%AE%E6%8A%A5%EF%BC%89%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">IPv4 分组（IPv4 数据报）格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">分组头格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC-version"><span class="nav-number">2.1.1.</span> <span class="nav-text">版本 version</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%95%BF%E5%BA%A6-header-length"><span class="nav-number">2.1.2.</span> <span class="nav-text">分组头长度 header length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%B1%BB%E5%9E%8B-differentiated-services"><span class="nav-number">2.1.3.</span> <span class="nav-text">服务类型 differentiated services</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E9%95%BF%E5%BA%A6-total-length"><span class="nav-number">2.1.4.</span> <span class="nav-text">总长度 total length</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E8%AF%86%E5%AD%97%E6%AE%B5-identification"><span class="nav-number">2.1.5.</span> <span class="nav-text">标识字段 identification</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E5%BF%97-flags"><span class="nav-number">2.1.6.</span> <span class="nav-text">标志 flags</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%87%E5%81%8F%E7%A7%BB-fragment-offset"><span class="nav-number">2.1.7.</span> <span class="nav-text">片偏移 fragment offset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E5%AD%98%E6%97%B6%E9%97%B4-time-to-live-TTL"><span class="nav-number">2.1.8.</span> <span class="nav-text">生存时间 time-to-live, TTL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-protocol"><span class="nav-number">2.1.9.</span> <span class="nav-text">协议 protocol</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E9%83%A8%E6%A0%A1%E9%AA%8C%E5%92%8C-header-checksum"><span class="nav-number">2.1.10.</span> <span class="nav-text">头部校验和 header checksum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80%E5%AD%97%E6%AE%B5"><span class="nav-number">2.1.11.</span> <span class="nav-text">地址字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%BB%84%E5%A4%B4%E9%80%89%E9%A1%B9-options"><span class="nav-number">2.1.12.</span> <span class="nav-text">分组头选项 options</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP-%E5%88%86%E7%BB%84%E5%88%86%E7%89%87%E5%8F%8A%E7%BB%84%E8%A3%85"><span class="nav-number">2.2.</span> <span class="nav-text">IP 分组分片及组装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E4%B8%8B"><span class="nav-number">2.2.1.</span> <span class="nav-text">向下</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E4%B8%8A"><span class="nav-number">2.2.2.</span> <span class="nav-text">向上</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4-%E5%9C%B0%E5%9D%80%E5%8F%8A%E5%88%86%E6%AE%B5"><span class="nav-number">3.</span> <span class="nav-text">IPv4 地址及分段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%A0%87%E5%87%86%E5%88%86%E7%B1%BB%E7%9A%84-IP-%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.</span> <span class="nav-text">第一阶段：标准分类的 IP 地址</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-%E7%B1%BB%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.1.</span> <span class="nav-text">A 类地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-%E7%B1%BB%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.2.</span> <span class="nav-text">B 类地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-%E7%B1%BB%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.3.</span> <span class="nav-text">C 类地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#D-%E7%B1%BB%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.4.</span> <span class="nav-text">D 类地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#E-%E7%B1%BB%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.5.</span> <span class="nav-text">E 类地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%89%B9%E5%AE%9A%E4%B8%BB%E6%9C%BA%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.6.</span> <span class="nav-text">网络特定主机地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%97%E9%99%90%E5%B9%BF%E6%92%AD%EF%BC%88limited-broadcasting%EF%BC%89%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.7.</span> <span class="nav-text">受限广播（limited broadcasting）地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E5%B9%BF%E6%92%AD%EF%BC%88direct-broadcasting%EF%BC%89%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.8.</span> <span class="nav-text">直接广播（direct broadcasting）地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9E%E9%80%81%E5%9C%B0%E5%9D%80%EF%BC%88lookback-address%EF%BC%89"><span class="nav-number">3.1.9.</span> <span class="nav-text">回送地址（lookback address）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E7%85%A7%E7%94%A8%E9%80%94%E5%88%86%E7%B1%BB"><span class="nav-number">3.1.10.</span> <span class="nav-text">按照用途分类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5%EF%BC%9A%E5%88%92%E5%88%86%E5%AD%90%E7%BD%91%E7%9A%84%E4%B8%89%E7%BA%A7%E5%9C%B0%E5%9D%80%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">第二阶段：划分子网的三级地址结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5%EF%BC%9A%E6%9E%84%E6%88%90%E8%B6%85%E7%BD%91%E7%9A%84%E6%97%A0%E7%B1%BB%E5%88%AB%E5%9F%9F%E9%97%B4%E8%B7%AF%E7%94%B1%EF%BC%88CIDR%EF%BC%89%E6%8A%80%E6%9C%AF"><span class="nav-number">3.3.</span> <span class="nav-text">第三阶段：构成超网的无类别域间路由（CIDR）技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E9%98%B6%E6%AE%B5%EF%BC%9A%E7%BD%91%E7%BB%9C%E5%9C%B0%E5%9D%80%E8%BD%AC%E6%8D%A2%EF%BC%88Network-Address-Transform-NAT%EF%BC%89%E6%8A%80%E6%9C%AF%EF%BC%881996%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">第四阶段：网络地址转换（Network Address Transform, NAT）技术（1996）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%94%E8%BF%9B%EF%BC%9AIPv6"><span class="nav-number">4.</span> <span class="nav-text">演进：IPv6</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
