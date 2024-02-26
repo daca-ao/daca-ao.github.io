@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2023/11/17/ipv4/decimal_ip_2.png">
 <meta property="og:image" content="http://example.com/2023/11/17/ipv4/subid.png">
 <meta property="article:published_time" content="2023-11-17T14:19:39.000Z">
-<meta property="article:modified_time" content="2024-02-26T13:28:24.246Z">
+<meta property="article:modified_time" content="2024-02-26T13:31:45.920Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta name="twitter:card" content="summary">
@@ -730,19 +730,19 @@ mjx-container[display="true"] + br {
 <tbody>
 <tr>
 <td>A</td>
-<td>10.*</td>
+<td><code>10.*</code></td>
 <td>1</td>
 <td>16,777,214</td>
 </tr>
 <tr>
 <td>B</td>
-<td>172.16.<em> - 172.31.</em></td>
+<td><code>172.16.*</code> - <code>172.31.*</code></td>
 <td>16</td>
 <td>65,536 * 16</td>
 </tr>
 <tr>
 <td>C</td>
-<td>192.168.0.<em> - 192.168.255.</em></td>
+<td><code>192.168.0.*</code> - <code>192.168.255.*</code></td>
 <td>256</td>
 <td>256 * 256</td>
 </tr>
@@ -761,7 +761,7 @@ mjx-container[display="true"] + br {
 <li>借用主机号的一部分作为子网的子网号，划分出更多的子网 IP 地址</li>
 <li>对外部路由器寻址没有影响</li>
 </ul>
-<p>由此，网络结构从 “网络号-主机号”演变成“网络号-子网号-主机号”：</p>
+<p>由此，网络结构从 “网络号 - 主机号” 演变成 “网络号 - 子网号 - 主机号”：</p>
 <p><img src="/2023/11/17/ipv4/subid.png" alt></p>
 <p>划分子网要点：</p>
 <ol>
