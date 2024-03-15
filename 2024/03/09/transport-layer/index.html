@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/pseudo-header.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/tcp-header.png">
 <meta property="article:published_time" content="2024-03-09T15:53:04.000Z">
-<meta property="article:modified_time" content="2024-03-15T16:11:47.982Z">
+<meta property="article:modified_time" content="2024-03-15T16:24:59.201Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta property="article:tag" content="TCP">
@@ -439,14 +439,14 @@ mjx-container[display="true"] + br {
 <h2 id="UDP-头结构"><a href="#UDP-头结构" class="headerlink" title="UDP 头结构"></a>UDP 头结构</h2><p>UDP 的头长度固定为 8 个字节。结构如下：</p>
 <p><img src="/2024/03/09/transport-layer/udp-header.png" alt></p>
 <p><strong>源端口号</strong>（<strong>Source Port</strong>，16 位）：表示发送端进程端口号</p>
-<p><strong>目的端口号</strong>（16 位）：表示接收端进程端口号</p>
+<p><strong>目的端口号</strong>（<strong>Destination Port</strong>，16 位）：表示接收端进程端口号</p>
 <p>如源进程为客户端，则源端口号为 UDP 软件分配的临时端口号，目的端口号为服务器的熟知端口号。</p>
-<p><strong>长度</strong>（16 位）：定义了包括报头在内的用户数据报总长度</p>
+<p><strong>长度</strong>（<strong>Length</strong>，16 位）：定义了包括报头在内的用户数据报总长度</p>
 <ul>
 <li>最大为 65535 字节，最短为 8 字节（即 UDP 头自身长度）</li>
 <li>实际数据长度最大为 65535 - 8 = 65527 字节</li>
 </ul>
-<p><strong>校验和</strong>（16 位）用于检验整个用户数据报、UDP 报头与伪报头在传输中是否出现差错（效率优先），可选。</p>
+<p><strong>校验和</strong>（<strong>Checksum</strong>，16 位）用于检验整个用户数据报、UDP 报头与伪报头在传输中是否出现差错（效率优先），可选。</p>
 <p>如应用程序对通信效率要求高于可靠性，应用程序可选择不使用校验和</p>
 <p>校验和包括伪报头（pseudo header）、UDP 报头与数据：</p>
 <ul>
@@ -497,31 +497,30 @@ mjx-container[display="true"] + br {
 </ul>
 <p><strong>3</strong>. TCP 支持全双工通信，允许通信双方在任意时候发送数据。</p>
 <p><strong>4</strong>. TCP 支持同时建立多个并发的 TCP 连接</p>
+<p>有的时候根据应用程序需要，比如一个 Web 服务器必须要同时处理多个客户端的访问，那么 TCP 协议应该支持一个服务器与多个客户端同时建立多个 TCP 连接，也支持一个客户端与多个服务器同时建立多个 TCP 连接。</p>
+<p><strong>5</strong>. TCP 支持可靠的传输服务</p>
+<p>因为 TCP 建立在不可靠的网络层 IP 协议之上，因此想要保证可靠的传输服务，TCP 需要自行解决：</p>
 <ul>
-<li>如：一个 Web 服务器必须同时处理多个客户端的访问</li>
-<li>根据应用程序需要，TCP 协议支持一个服务器与多个客户端同时建立多个 TCP 连接，也支持一个客户端与多个服务器同时建立多个 TCP 连接</li>
-<li>TCP 协议软件分别管理多个 TCP 连接</li>
+<li>使用<strong>确认机制</strong>检查数据是否安全和完整地到达，并且提供<strong>拥塞控制</strong>功能，这是 TCP 的核心；</li>
+<li>对发送和接收的数据进行跟踪、确认和重传；</li>
+<li>在相互进行通信的设备和服务之间保持一个虚拟连接；</li>
+<li>TCP 在数据包接收<strong>无序、丢失</strong>或在交付期间<strong>被破坏</strong>的时候负责数据恢复，通过为其发送的每一个数据包提供一个序号来完成此恢复</li>
+<li>一旦 IP 协议及以下层出现传输错误，需要能不断进行重传</li>
 </ul>
-<p><strong>5</strong>. TCP 支持可靠的传输服务（TCP 协议的目的）</p>
-<p>因为 TCP 建立在不可靠的网络层 IP 协议之上，因此想要保证可靠的传输服务：TCP 可靠性要自行解决</p>
-<ul>
-<li>使用确认机制检查数据是否安全和完整地到达，并且提供拥塞控制功能</li>
-<li>对发送和接收的数据进行跟踪、确认和重传</li>
-<li>在相互进行通信的设备和服务之间保持一个虚拟连接</li>
-<li>TCP 在数据包接收无序、丢失或在交付期间被破坏的时候负责数据恢复，通过为其发送的每一个数据包提供一个序号来完成此恢复</li>
-<li>一旦 IP 协议及以下层出现传输错误：不断进行重传</li>
-</ul>
-<h2 id="TCP-头结构"><a href="#TCP-头结构" class="headerlink" title="TCP 头结构"></a>TCP 头结构</h2><p>TCP 头的长度为 20-60 字节（固定长度 20 字节，TCP 选项字段最长 40 字节）</p>
+<p>这一点是 TCP 协议存在的目的。</p>
+<h2 id="TCP-头结构"><a href="#TCP-头结构" class="headerlink" title="TCP 头结构"></a>TCP 头结构</h2><p>TCP 头的长度为 20 - 60 字节（固定长度 20 字节，TCP 选项字段最长 40 字节）：</p>
 <p><img src="/2024/03/09/transport-layer/tcp-header.png" alt></p>
-<p>源端口号（16 位，2 字节）：表示发送某个报文段的应用进程的源端口号<br>目的端口号（16 位，2 字节）：表示接收某个报文段的接收进程的目的端口号<br>序号（sequence number - seq，32位，4字节）</p>
+<p><strong>源端口号</strong>（<strong>Source Port</strong>，16 位，2 字节）：表示发送某个报文段的应用进程的源端口号</p>
+<p><strong>目的端口号</strong>（<strong>Destination Port</strong>，16 位，2 字节）：表示接收某个报文段的接收进程的目的端口号</p>
+<p><strong>序号</strong>（<strong>Sequence Number</strong> - seq，32 位，4 字节）</p>
 <ul>
-<li>范围从 0 至 4 284 967 295（232-1）</li>
+<li>范围从 0 至 4,284,967,295（<mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.186ex;" xmlns="http://www.w3.org/2000/svg" width="6.816ex" height="2.072ex" role="img" focusable="false" viewbox="0 -833.9 3012.6 915.9"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msup"><g data-mml-node="mn"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g><g data-mml-node="TeXAtom" transform="translate(533,363) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mn"><path data-c="33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z" transform="translate(500,0)"/></g></g></g><g data-mml-node="mo" transform="translate(1512.3,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/></g><g data-mml-node="mn" transform="translate(2512.6,0)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g></g></g></svg></mjx-container>）</li>
 <li>解决包乱序的问题</li>
 <li>TCP 为将要发送的字节流（stream）中每个字节按照顺序编号</li>
 <li>在 TCP 建立连接时，通信双方需要使用随机数产生器产生一个初始序号（Initial Sequence Number, ISN）</li>
 <li>双方各自随机产生初始序号：即一个 TCP 连接的双方序号可以不同</li>
 </ul>
-<p>确认号（acknowledgment number - ack，32 位，4 字节）</p>
+<p><strong>确认号</strong>（<strong>Acknowledgment Number</strong> - ack，32 位，4 字节）</p>
 <ul>
 <li>表示一个进程已经正确接收到序号为 N 的字节，要求发送端接下来应该发送序号为 N+1 的字节的报文段</li>
 <li>捎带确认方法</li>
