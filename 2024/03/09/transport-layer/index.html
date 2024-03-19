@@ -36,8 +36,9 @@
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/udp-header.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/pseudo-header.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/tcp-header.png">
+<meta property="og:image" content="http://example.com/2024/03/09/transport-layer/3-shake-hands.png">
 <meta property="article:published_time" content="2024-03-09T15:53:04.000Z">
-<meta property="article:modified_time" content="2024-03-18T14:50:25.942Z">
+<meta property="article:modified_time" content="2024-03-19T13:26:48.321Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta property="article:tag" content="TCP">
@@ -446,17 +447,14 @@ mjx-container[display="true"] + br {
 <li>最大为 65535 字节，最短为 8 字节（即 UDP 头自身长度）</li>
 <li>实际数据长度最大为 65535 - 8 = 65527 字节</li>
 </ul>
-<p><strong>校验和</strong>（<strong>Checksum</strong>，16 位）用于检验整个用户数据报、UDP 报头与伪报头在传输中是否出现差错（效率优先），可选。</p>
-<p>如应用程序对通信效率要求高于可靠性，应用程序可选择不使用校验和</p>
-<p>校验和包括伪报头（pseudo header）、UDP 报头与数据：</p>
+<p><strong>校验和</strong>（<strong>Checksum</strong>，16 位）用于检验整个用户数据报、UDP 报头与伪报头在传输中是否出现差错（效率优先），可选；如应用程序对通信效率要求高于可靠性，应用程序可选择不使用校验和。</p>
+<p>校验和包括伪报头（pseudo header）、UDP 报头与数据。</p>
+<p>伪报头包括以下内容：</p>
 <ul>
-<li>伪报头，包括：<ul>
 <li>IP 分组头的源 IP 地址（16 位）</li>
 <li>目的 IP 地址（16 位）</li>
 <li>协议字段（8 位）：17，表示 UDP 报文（取 IP 分组头的一部分，其中填充域字段要补 0）</li>
 <li>UDP 长度（16 位）</li>
-</ul>
-</li>
 </ul>
 <p><img src="/2024/03/09/transport-layer/pseudo-header.png" alt></p>
 <p>UDP 的长度不包括伪报头的长度；伪报头并不是 UDP 的真实头部，只是在计算时临时加上去起作用的，它既不向低层传输，也不向高层传送。</p>
@@ -508,6 +506,7 @@ mjx-container[display="true"] + br {
 <li>一旦 IP 协议及以下层出现传输错误，需要能不断进行重传</li>
 </ul>
 <p>这一点是 TCP 协议存在的目的。</p>
+<p>![]</p>
 <h2 id="TCP-头结构"><a href="#TCP-头结构" class="headerlink" title="TCP 头结构"></a>TCP 头结构</h2><p>TCP 头的长度为 20 - 60 字节（固定长度 20 字节，TCP 选项字段最长 40 字节）：</p>
 <p><img src="/2024/03/09/transport-layer/tcp-header.png" alt></p>
 <p><strong>源端口号</strong>（<strong>Source Port</strong>，16 位，2 字节）：表示发送某个报文段的应用进程的源端口号</p>
@@ -583,14 +582,14 @@ mjx-container[display="true"] + br {
 <p><strong>选项字段</strong>（<strong>Options</strong>），包括：</p>
 <ul>
 <li>单字节选项<ul>
-<li>选项结束（Ends of Options List）</li>
-<li>无操作（No Operation, NOP, Pad）</li>
+<li>0: 选项结束（Ends of Options List）</li>
+<li>1: 无操作（No Operation, NOP, Pad）</li>
 </ul>
 </li>
 <li>多字节选项<ul>
-<li>最大报文段长度（Maximum Segment Size, MSS）：规定 TCP 报文数据的最大值，不包括报头长度</li>
-<li>窗口扩大因子（Window Scale）</li>
-<li>时间戳（Timestamp）</li>
+<li>2: 最大报文段长度（Maximum Segment Size, MSS）：规定 TCP 报文数据的最大值，不包括报头长度</li>
+<li>3: 窗口扩大因子（Window Scale）</li>
+<li>8: 时间戳（Timestamp）</li>
 </ul>
 </li>
 </ul>
@@ -601,76 +600,69 @@ mjx-container[display="true"] + br {
 </ul>
 <p>MSS 值的选择应考虑下列因素：</p>
 <ol>
-<li>协议开销</li>
-</ol>
-<ul>
+<li>协议开销<ul>
 <li>例：报头和 MSS 值均为 40 字节时 -&gt; 报文段 50% 用来传输数据</li>
 <li>MSS 值太小会增加协议开销</li>
 </ul>
-<ol>
-<li>IP 分片</li>
-</ol>
-<ul>
+</li>
+<li>IP 分片<ul>
 <li>MSS 值选得太大：受到 IP 分组长度的限制，较长报文段在 IP 层会被分片传输 -&gt; 增加网络层开销和传输出错概率</li>
 </ul>
-<ol>
-<li>发送和接收缓冲区的限制</li>
+</li>
+<li>发送和接收缓冲区的限制：直接影响到发送和接收缓冲区设置的大小和使用效率</li>
 </ol>
-<ul>
-<li>直接影响到发送和接收缓冲区设置的大小和使用效率</li>
-</ul>
 <p>MSS 的默认值：536 字节</p>
 <ul>
 <li>对于某些应用未必适用：在建立 TCP 连接时使用 SYN 报文中最大段长度选项来协商</li>
 <li>TCP 允许双方选择使用不同的 MSS 值</li>
 </ul>
-<h2 id="TCP-连接建立和释放：三次握手与四次挥手"><a href="#TCP-连接建立和释放：三次握手与四次挥手" class="headerlink" title="TCP 连接建立和释放：三次握手与四次挥手"></a>TCP 连接建立和释放：三次握手与四次挥手</h2><p>连接建立的过程俗称“<strong>三次握手</strong>”：</p>
+<h2 id="TCP-连接建立和释放：三次握手与四次挥手"><a href="#TCP-连接建立和释放：三次握手与四次挥手" class="headerlink" title="TCP 连接建立和释放：三次握手与四次挥手"></a>TCP 连接建立和释放：三次握手与四次挥手</h2><p><img src="/2024/03/09/transport-layer/3-shake-hands.png" alt></p>
+<p>连接建立的过程俗称“<strong>三次握手</strong>”：</p>
 <ol>
-<li>一开始，客户端 TCP 进程处于 <code>CLOSED</code>（关闭）状态</li>
-<li>通信开始：客户端准备发起 TCP 连接，进入 <code>SYN_SEND</code>（准备发送）状态<ul>
-<li>发送 SYN = 1 的连接建立请求报文到处于 LISTEN（收听）状态的服务器端 TCP 进程</li>
-<li>连接建立请求报文不携带数据字段，seq = x</li>
+<li>开始连接，客户端 TCP 进程处于 <code>CLOSED</code>（关闭）状态；</li>
+<li>开始连接：客户端调用 <code>connect()</code> 准备发起 TCP 连接，进入 <code>SYN_SENT</code>（准备发送）状态；<ul>
+<li>服务端 TCP 进程需为 <code>LISTEN</code>（收听）状态；</li>
+<li>客户端发送 <strong>SYN = 1</strong> 的<strong>连接建立请求报文</strong>到服务端；</li>
+<li>连接建立请求报文不携带数据字段，这次传输的报文序号 <code>seq = x</code>；</li>
 <li>x 值随机产生，但不能为 0：避免因 TCP 连接非正常断开而可能引起的混乱</li>
 </ul>
 </li>
-<li>如连接突然中断：可能有一两个进程同时等待双方确认应答<ol>
+<li>如果连接突然中断：可能有一两个进程同时等待双方确认应答<ol>
 <li>此时有一个新连接的序号也从 0 开始</li>
 <li>则接收进程有可能认为是对方重传的报文：可能造成连接错误</li>
 </ol>
 </li>
-<li>服务器端收到连接建立请求报文<ol>
-<li>同意建立连接：向客户端返回“连接建立请求确认报文”</li>
-<li>SYN = 1, ACK = 1</li>
-<li>确认号 ack = x + 1 （对上一个连接建立请求报文&lt;序号 seq = x&gt;的确认）</li>
-<li>不携带数据字段，序号 seq = y</li>
+<li>服务端收到连接建立请求报文后：<ol>
+<li>如果同意建立连接，则向客户端返回<strong>连接建立请求确认报文</strong>；</li>
+<li>报文的标识位 SYN = 1, ACK = 1；</li>
+<li>不携带数据字段，序号 <code>seq = y</code>；</li>
+<li>报文的确认号 <code>ack = x + 1</code>，意为对上一个连接建立请求报文序号 <code>seq = x</code> 的确认</li>
 </ol>
 </li>
-<li>服务器端从 LISTEN 进入 SYN_RCVD（准备接收）状态</li>
-<li>客户端收到服务器端的连接建立请求确认报文，再向服务器端发送又一个连接建立请求确认报文<ol>
-<li>ACK = 1</li>
-<li>确认号 ack = y + 1 （对前一个连接建立请求确认报文&lt;序号 seq = y&gt;的确认）</li>
-<li>不携带数据字段，序号 seq = x + 1（承接客户端发送到同一服务器端的上一报文的序号，即之前的连接建立请求报文，且响应上一个连接建立请求报文的确认号 ack = x + 1 ）</li>
+<li>服务器端从 LISTEN 进入 <code>SYN_RCVD</code>（准备接收）状态</li>
+<li>客户端收到服务端的连接建立请求确认报文，再向服务端发送又一个<strong>连接建立请求确认报文</strong>：<ol>
+<li>报文标识位 ACK = 1</li>
+<li>不携带数据字段，序号 <code>seq = x + 1</code>，意为承接客户端发送到同一服务端的上一报文的序号，即之前的连接建立请求报文；且响应上一个连接建立请求报文的确认号 <code>ack = x + 1</code>；</li>
+<li>报文确认号 <code>ack = y + 1</code>，为对前一个连接建立请求确认报文序号 <code>seq = y</code> 的确认</li>
 </ol>
 </li>
-<li>客户端发出该确认报文后进入 ESTABLISHED（连接建立）状态</li>
-<li>服务器端接收到该报文之后也进入 ESTABLISHED 状态<br>相当于试探一下对方是否遵循 TCP/IP 协议，协商完成之后就可以进行通信了。</li>
+<li>客户端发出该确认报文后进入 <code>ESTABLISHED</code>（连接建立）状态</li>
+<li>服务器端接收到该报文之后也进入 <code>ESTABLISHED</code> 状态</li>
 </ol>
+<p>总的来说，全过程相当于试探一下对方是否遵循 TCP/IP 协议，协商完成之后就可以进行通信了。</p>
 <p><strong>报文传输</strong></p>
+<p>TCP 传输连接建立后，客户端便可与服务端进行全双工字节流传输。</p>
+<p>为保证 TCP 工作正常、有序进行，TCP 会设置保持计时器（keep timer），防止 TCP 连接处于长时间空闲状态。</p>
 <ul>
-<li>TCP 传输连接建立后，客户端便可与服务器端进行全双工字节流传输</li>
-<li>为保证 TCP 工作正常、有序进行：TCP 设置保持计时器（keep timer）-&gt; 防止 TCP 连接处于长时间空闲</li>
-<li>如服务器端收到客户端的报文：将保持计时器复位</li>
-<li>如服务器端过了设定的时间没有收到客户端信息：发送探测报文</li>
-<li>如发送 10 个探测报文（每个相隔 75 秒）还没有相应：假设客户端故障，终止连接</li>
+<li>如服务端收到客户端的报文，服务端将保持计时器复位</li>
+<li>如服务端过了设定的时间没有收到客户端信息，则会发送探测报文</li>
+<li>如发送了 10 个探测报文（每个相隔 75 秒）还没有响应，服务端会认为客户端故障，终止连接</li>
 </ul>
-<p>连接释放的过程俗称“四次挥手”</p>
-<ul>
-<li>客户端和服务器端都可以主动提出连接释放请求</li>
-</ul>
-<p>下列以客户端提出释放 TCP 连接的“四次挥手”为例：</p>
+<p>连接释放的过程俗称“<strong>四次挥手</strong>”；客户端和服务器端都可以主动提出连接释放请求。</p>
+<p>以客户端提出释放 TCP 连接的“四次挥手”为例：</p>
 <ol>
-<li>客户端调用 close：执行“主动关闭”（active close）</li>
-<li>客户端进入 FIN-WAIT-1（释放等待-1）状态<ol>
+<li>客户端调用 <code>close()</code>：执行“主动关闭”（active close）</li>
+<li>客户端进入 <code>FIN-WAIT-1</code>（释放等待-1）状态<ol>
 <li>向服务器端发送 FIN = 1 的“连接释放请求报文”，停止发送数据</li>
 <li>ACK = 1</li>
 <li>连接释放请求报文不携带数据字段，报文序号 seq = u（客户端发送的最后一个字节序号 + 1）</li>
@@ -678,7 +670,7 @@ mjx-container[display="true"] + br {
 </li>
 <li>服务器端收到连接释放请求报文<ol>
 <li>向客户端返回“连接释放请求确认报文”：对接收到第一个连接释放请求报文的确认</li>
-<li>服务器端执行“被动关闭”（passive close），进入 CLOSE-WAIT（等待关闭）状态</li>
+<li>服务器端执行“被动关闭”（passive close），进入 <code>CLOSE-WAIT</code>（等待关闭）状态</li>
 <li>报文序号 seq = v，为服务器端发送的最后一个字节序号 + 1</li>
 <li>确认号 ack = u + 1</li>
 </ol>
@@ -688,7 +680,7 @@ mjx-container[display="true"] + br {
 </ol>
 </li>
 <li>客户端收到服务器端的连接释放请求确认报文<ol>
-<li>进入 FIN-WAIT-2（释放等待-2）状态</li>
+<li>进入 <code>FIN-WAIT-2</code>（释放等待-2）状态</li>
 </ol>
 </li>
 <li>服务器端将所有要发送的报文发送完毕后：向客户端发送“连接释放请求报文”<ol>
@@ -771,8 +763,9 @@ mjx-container[display="true"] + br {
 </ul>
 <p>选择重传策略</p>
 <ul>
-<li>出现接收字节流序号不连续的情况<br>处理方法：</li>
+<li>出现接收字节流序号不连续的情况</li>
 </ul>
+<p>处理方法：</p>
 <ol>
 <li>拉回方式</li>
 </ol>
@@ -833,8 +826,7 @@ mjx-container[display="true"] + br {
 <li>发送一个报文段便启动一个重传计时器</li>
 <li>测量该报文段从发送到被确认的往返时间</li>
 <li>如果出现超时，启动重传</li>
-<li>某次测量的往返时间为 M，则更新的当前最佳返回时间 RTT 估算值为<pre><code>                  RTT = α × RTT + M
-</code></pre></li>
+<li>某次测量的往返时间为 M，则更新的当前最佳返回时间 RTT 估算值为 ${RTT = α × RTT + M}</li>
 <li>α 为常数加权因子（0 ≦ α ＜ 1），决定 RTT 对延迟变化的反应速度</li>
 <li>当 α 接近 0 时，短暂的延迟变化对 RTT 影响不大；</li>
 <li>当 α 接近 1 时，RTT 将紧紧跟随往返时间变化，影响很大</li>
@@ -895,12 +887,18 @@ mjx-container[display="true"] + br {
 <ul>
 <li>发送端应用进程将数据传送到 TCP 协议的发送缓存后：控制全传输任务就由 TCP 协议承担</li>
 <li>TCP 协议必须注意解决好“何时”发送“多长报文段”</li>
-<li>问题复杂：受到应用进程产生数据的速度与接收端发送能力限制<br>极端情况：每次只发送一个字节</li>
+<li>问题复杂：受到应用进程产生数据的速度与接收端发送能力限制</li>
+</ul>
+<p>极端情况：每次只发送一个字节</p>
+<ul>
 <li>IP 分组共 41 字节——1 + 20字节 TCP 报头 + 20 字节 IP 报头</li>
 <li>接收端接收后没有数据发送，也要立即返回一个 40 字节的确认分组（20字节 TCP 报头 + 20 字节 IP 报头）</li>
 <li>接收端向发送端发出窗口更新报文，通知将窗口前移 1 个字节（40 字节）</li>
 <li>发送端发送一个字节的数据（41 字节）</li>
-<li>则：输入一个字符需要发送 162 字节的 4 个报文段——资源浪费<br>采用 Nagle 算法提高效率：</li>
+<li>则：输入一个字符需要发送 162 字节的 4 个报文段——资源浪费</li>
+</ul>
+<p>采用 Nagle 算法提高效率：</p>
+<ul>
 <li>当数据以每次 1 字节进入发送端：第一次只发送 1 字节，其它字节存入缓存区</li>
 <li>第一个报文段符合时，再将缓存中的数据（不止 1 字节）放在第二个报文段中发出去</li>
 <li>一边发送等待应答；一边缓存待发送数据</li>
@@ -969,16 +967,16 @@ mjx-container[display="true"] + br {
 <p>使用到的参数：</p>
 <ul>
 <li>拥塞窗口（cwnd）:拥塞控制的关键参数，它描述源端在拥塞控制情况下一次最多能发送的数据包的数量</li>
-<li>通告窗口（awin）:接收端给源端预设的发送窗口大小，它只在TCP连接建立的初始阶段发挥作用</li>
+<li>通告窗口（awin）:接收端给源端预设的发送窗口大小，它只在 TCP 连接建立的初始阶段发挥作用</li>
 <li>发送窗口（win）:源端每次实际发送数据的窗口大小</li>
-<li>慢启动阈值（ssthresh）:拥塞控制中慢启动阶段和拥塞避免阶段的分界点。初始值通常设为65535byte</li>
-<li>回路响应时间（RTT）:一个TCP数据包从源端发送到接收端，源端收到接收端确认的时间间隔</li>
+<li>慢启动阈值（ssthresh）:拥塞控制中慢启动阶段和拥塞避免阶段的分界点。初始值通常设为 65535byte</li>
+<li>回路响应时间（RTT）:一个 TCP 数据包从源端发送到接收端，源端收到接收端确认的时间间隔</li>
 <li>超时重传计数器（RTO）:描述数据包从发送到失效的时间间隔，是判断数据包丢失与否及网络是否拥塞的重要参数。通常设为2RTT或5RTT</li>
-<li>快速重传阈值(tcprexmtthresh):：能触发快速重传的源端收到重复确认包ACK的个数。当此个数超过tcprexmtthresh时，网络就进入快速重传阶段。tcprexmtthresh缺省值为3。</li>
+<li>快速重传阈值(tcprexmtthresh):：能触发快速重传的源端收到重复确认包 ACK 的个数。当此个数超过 tcprexmtthresh 时，网络就进入快速重传阶段。tcprexmtthresh 缺省值为3。</li>
 </ul>
 <p>拥塞控制算法通过动态调节用户对网络资源的需求来保证网络系统的稳定运行</p>
 <ul>
-<li>1999年 RFC 2581 对 TCP 协议规定了四种拥塞控制方法</li>
+<li>1999 年 RFC 2581 对 TCP 协议规定了四种拥塞控制方法</li>
 </ul>
 <ol>
 <li>慢启动</li>
