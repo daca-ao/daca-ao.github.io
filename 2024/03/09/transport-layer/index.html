@@ -37,8 +37,9 @@
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/pseudo-header.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/tcp-header.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/3-shake-hands.png">
+<meta property="og:image" content="http://example.com/2024/03/09/transport-layer/tcp-state-diagram.jpg">
 <meta property="article:published_time" content="2024-03-09T15:53:04.000Z">
-<meta property="article:modified_time" content="2024-03-19T13:26:48.321Z">
+<meta property="article:modified_time" content="2024-03-20T13:47:18.293Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta property="article:tag" content="TCP">
@@ -662,40 +663,33 @@ mjx-container[display="true"] + br {
 <p>以客户端提出释放 TCP 连接的“四次挥手”为例：</p>
 <ol>
 <li>客户端调用 <code>close()</code>：执行“主动关闭”（active close）</li>
-<li>客户端进入 <code>FIN-WAIT-1</code>（释放等待-1）状态<ol>
-<li>向服务器端发送 FIN = 1 的“连接释放请求报文”，停止发送数据</li>
-<li>ACK = 1</li>
-<li>连接释放请求报文不携带数据字段，报文序号 seq = u（客户端发送的最后一个字节序号 + 1）</li>
+<li>由此，客户端进入 <code>FIN-WAIT-1</code>（释放等待 - 1）状态：<ol>
+<li>向服务器端发送<strong>连接释放请求报文</strong>，并停止发送数据；</li>
+<li>报文的标识位 FIN = 1, ACK = 1；</li>
+<li>报文不携带数据字段，报文序号 <code>seq = u</code>（客户端发送的最后一个字节序号 + 1）</li>
 </ol>
 </li>
-<li>服务器端收到连接释放请求报文<ol>
-<li>向客户端返回“连接释放请求确认报文”：对接收到第一个连接释放请求报文的确认</li>
-<li>服务器端执行“被动关闭”（passive close），进入 <code>CLOSE-WAIT</code>（等待关闭）状态</li>
-<li>报文序号 seq = v，为服务器端发送的最后一个字节序号 + 1</li>
-<li>确认号 ack = u + 1</li>
+<li>服务端接收到连接释放请求报文后，执行“被动关闭”（passive close），进入 <code>CLOSE-WAIT</code>（等待关闭）状态<ol>
+<li>向客户端响应<strong>连接释放请求确认报文</strong>，为对接收到第一个连接释放请求报文的确认；</li>
+<li>报文序号 <code>seq = v</code>，为服务端发送的最后一个字节序号 + 1</li>
+<li>确认号 <code>ack = u + 1</code></li>
+<li>⚠️ 此时客户端到服务端的 TCP 连接已经断开，但服务端到客户端的 TCP 连接依然保持连接，服务器可继续发送未发送的数据报文，即“<strong>半关闭</strong>（half-close）”状态</li>
 </ol>
 </li>
-<li>注意：客户到服务器的 TCP 连接断开，但服务器到客户的 TCP 连接还未断开 -&gt; 服务器可继续发送未发送的数据报文<ol>
-<li>即“半关闭（half-close）”状态</li>
+<li>客户端收到服务端的连接释放请求确认报文后，进入 <code>FIN-WAIT-2</code>（释放等待 - 2）状态</li>
+<li>服务端将所有要发送的报文发送完毕后：向客户端发送<strong>连接释放请求报文</strong><ol>
+<li>服务端进入 <code>LAST-ACK</code>（最终确认）状态，通知 TCP 可以释放连接；</li>
+<li>报文的标识位 FIN = 1, ACK = 1；</li>
+<li>报文序号假定为 seq = w，这取决于从半关闭到最终确认状态之间，服务端是否发送过报文，如没有则 <code>seq = v</code>；</li>
+<li>确认号 <code>ack = u + 1</code></li>
 </ol>
 </li>
-<li>客户端收到服务器端的连接释放请求确认报文<ol>
-<li>进入 <code>FIN-WAIT-2</code>（释放等待-2）状态</li>
-</ol>
-</li>
-<li>服务器端将所有要发送的报文发送完毕后：向客户端发送“连接释放请求报文”<ol>
-<li>进入 LAST-ACK（最终确认）状态，通知 TCP 可以释放连接</li>
-<li>报文序号假定为 seq = w</li>
-<li>取决于半关闭状态时，服务器端是否发送过报文</li>
-<li>FIN = 1, ACK = 1, ack = u + 1</li>
-</ol>
-</li>
-<li>此时客户端早无数据传输，因此服务器端的确认号不变</li>
-<li>服务器端转回 LISTEN 或 CLOSED 状态</li>
-<li>客户端收到服务器端的连接释放请求报文<ol>
-<li>向服务器端返回“连接释放请求确认报文”</li>
-<li>ACK = 1, seq = u + 1, ack = w + 1</li>
-<li>等待</li>
+<li>此时客户端早无数据传输，因此服务端的确认号不变</li>
+<li>服务端转回 <code>LISTEN</code> 或 <code>CLOSED</code> 状态</li>
+<li>客户端收到服务端的连接释放请求报文后，向服务器端返回<strong>连接释放请求确认报文</strong><ol>
+<li>报文的标识位 ACK = 1；</li>
+<li>seq = u + 1, ack = w + 1</li>
+<li>客户端重新进入等待状态</li>
 </ol>
 </li>
 </ol>
@@ -710,10 +704,11 @@ mjx-container[display="true"] + br {
 <li>确保服务器端在最后阶段发送给客户端的数据，以及客户端发送给服务器的最后一个请求确认报文都能被正确接收</li>
 <li>防止因个别报文传输错误导致连接释放失败</li>
 </ul>
-<p>状态图</p>
+<p>TCP 的状态图如下：</p>
+<p><img src="/2024/03/09/transport-layer/tcp-state-diagram.jpg" alt></p>
 <h2 id="TCP-协议滑动窗口与确认重传机制"><a href="#TCP-协议滑动窗口与确认重传机制" class="headerlink" title="TCP 协议滑动窗口与确认重传机制"></a>TCP 协议滑动窗口与确认重传机制</h2><p>TCP 协议的差错控制</p>
 <ul>
-<li>TCP 协议通过滑动窗口机制来跟踪和记录发送字节的状态，实现差错控制</li>
+<li>TCP 协议通过<strong>滑动窗口机制</strong>来跟踪和记录发送字节的状态，实现差错控制</li>
 <li>TCP 协议设计思想：让应用进程将数据作为一个字节流传送给它，而不是限制应用层数据的长度</li>
 <li>应用进程无需考虑发送数据的长度：交由 TCP 协议负责将字节分段打包</li>
 <li>发送端利用已建立的 TCP 连接，将字节流传送到接收端的应用进程</li>
@@ -730,10 +725,7 @@ mjx-container[display="true"] + br {
 <li>将字节流分成段，一个段多个字节打包成一个 TCP 报文段来传送</li>
 <li>TCP 通过报头序号标识发送的字节，通过确认号表示已被正确接收的字节</li>
 </ul>
-<ol>
-<li>传输字节流状态分类</li>
-</ol>
-<p>第一类：已发送，且已得到确认的字节（#32 字节之前）<br>第二类：已发送，但并未得到确认的字节（#32 - 45 字节）<br>第三类：未发送，但接收端表示准备接收的字节（#46 - 51 字节）</p>
+<h3 id="传输字节流状态分类"><a href="#传输字节流状态分类" class="headerlink" title="传输字节流状态分类"></a>传输字节流状态分类</h3><p>第一类：已发送，且已得到确认的字节（#32 字节之前）<br>第二类：已发送，但并未得到确认的字节（#32 - 45 字节）<br>第三类：未发送，但接收端表示准备接收的字节（#46 - 51 字节）</p>
 <ul>
 <li>接收缓冲区已准备好接收该字节<br>第四类：未发送，且接收端未准备接收的字节（#51 字节之后）</li>
 </ul>
@@ -1297,7 +1289,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%B1%82%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.</span> <span class="nav-text">传输层与传输层协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%AE%9E%E4%BD%93"><span class="nav-number">1.1.</span> <span class="nav-text">传输实体</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UDP"><span class="nav-number">2.</span> <span class="nav-text">UDP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UDP-%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">UDP 头结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.2.</span> <span class="nav-text">适用的应用场景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TCP"><span class="nav-number">3.</span> <span class="nav-text">TCP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">TCP 头结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E5%92%8C%E9%87%8A%E6%94%BE%EF%BC%9A%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B"><span class="nav-number">3.3.</span> <span class="nav-text">TCP 连接建立和释放：三次握手与四次挥手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%8D%8F%E8%AE%AE%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E7%A1%AE%E8%AE%A4%E9%87%8D%E4%BC%A0%E6%9C%BA%E5%88%B6"><span class="nav-number">3.4.</span> <span class="nav-text">TCP 协议滑动窗口与确认重传机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%8D%8F%E8%AE%AE%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E3%80%81%E6%8B%A5%E5%A1%9E%E6%9C%BA%E5%88%B6"><span class="nav-number">3.5.</span> <span class="nav-text">TCP 协议滑动窗口与流量控制、拥塞机制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E5%8D%95%E5%85%83-Socket"><span class="nav-number">4.</span> <span class="nav-text">通信单元 Socket</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E6%A0%87%E8%AF%86%E6%96%B9%E6%B3%95%EF%BC%9A%E7%AB%AF%E5%8F%A3%E5%8F%B7"><span class="nav-number">5.</span> <span class="nav-text">进程标识方法：端口号</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E9%87%8D%E5%8D%8F%E8%AE%AE%E7%9A%84%E8%AF%86%E5%88%AB"><span class="nav-number">6.</span> <span class="nav-text">多重协议的识别</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%B1%82%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.</span> <span class="nav-text">传输层与传输层协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%AE%9E%E4%BD%93"><span class="nav-number">1.1.</span> <span class="nav-text">传输实体</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UDP"><span class="nav-number">2.</span> <span class="nav-text">UDP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UDP-%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">UDP 头结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.2.</span> <span class="nav-text">适用的应用场景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TCP"><span class="nav-number">3.</span> <span class="nav-text">TCP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">TCP 头结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E5%92%8C%E9%87%8A%E6%94%BE%EF%BC%9A%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B"><span class="nav-number">3.3.</span> <span class="nav-text">TCP 连接建立和释放：三次握手与四次挥手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%8D%8F%E8%AE%AE%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E7%A1%AE%E8%AE%A4%E9%87%8D%E4%BC%A0%E6%9C%BA%E5%88%B6"><span class="nav-number">3.4.</span> <span class="nav-text">TCP 协议滑动窗口与确认重传机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%AD%97%E8%8A%82%E6%B5%81%E7%8A%B6%E6%80%81%E5%88%86%E7%B1%BB"><span class="nav-number">3.4.1.</span> <span class="nav-text">传输字节流状态分类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%8D%8F%E8%AE%AE%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E3%80%81%E6%8B%A5%E5%A1%9E%E6%9C%BA%E5%88%B6"><span class="nav-number">3.5.</span> <span class="nav-text">TCP 协议滑动窗口与流量控制、拥塞机制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E5%8D%95%E5%85%83-Socket"><span class="nav-number">4.</span> <span class="nav-text">通信单元 Socket</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E6%A0%87%E8%AF%86%E6%96%B9%E6%B3%95%EF%BC%9A%E7%AB%AF%E5%8F%A3%E5%8F%B7"><span class="nav-number">5.</span> <span class="nav-text">进程标识方法：端口号</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E9%87%8D%E5%8D%8F%E8%AE%AE%E7%9A%84%E8%AF%86%E5%88%AB"><span class="nav-number">6.</span> <span class="nav-text">多重协议的识别</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
