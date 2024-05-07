@@ -38,8 +38,9 @@
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/tcp-header.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/3-shake-hands.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/tcp-state-diagram.jpg">
+<meta property="og:image" content="http://example.com/2024/03/09/transport-layer/sliding-window.png">
 <meta property="article:published_time" content="2024-03-09T15:53:04.000Z">
-<meta property="article:modified_time" content="2024-03-22T15:31:54.490Z">
+<meta property="article:modified_time" content="2024-05-07T13:35:45.094Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta property="article:tag" content="TCP">
@@ -486,25 +487,25 @@ mjx-container[display="true"] + br {
 <h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p><strong>1</strong>. TCP 是支持面向连接（Connection）的传输服务。</p>
 <p>应用程序在使用 TCP 协议传送数据时，必须在源进程端口与目的进程端口之间建立一条 TCP <strong>传输连接</strong>，每个连接用双方<strong>端口号</strong>标识，为双方的<strong>一次</strong>进程通信提供服务。</p>
 <p><strong>2</strong>. TCP 支持字节流（Stream）传输</p>
-<p>流相当于管道：从一端放入什么，就可从另一端取出什么，以此来描述不出现丢失、重复和乱序的数据传输过程。</p>
+<p>流相当于管道：从一端放入什么，就可从另一端取出什么，以此来描述不丢失、不重复和不乱序的数据传输过程。</p>
 <p>TCP 将应用程序提交的数据看成一连串、无结构的字节流；为支持字节流传输，发送端 &amp; 接收端都需要使用缓存，发送端使用缓存是因为要存储从应用程序送来的数据。</p>
-<p>TCP 不可能为发送的每个写操作创建一个报文段，而是选择将几个写操作组合成一个报文段，再提交至 IP 层：</p>
+<p>TCP 不可能为发送的每个写操作创建一个报文段，而是会选择将几个写操作组合成一个报文段，再提交至 IP 层。随后：</p>
 <ul>
-<li>IP 协议将数据封装成 IP 分组之后传送到接收端，接收端的 TCP 协议再将接收字节存储在接收缓存中；</li>
+<li>IP 协议将数据封装成 IP 分组之后传送到接收端，接收端的 TCP 协议再将接收到的字节存储在接收缓存中；</li>
 <li>应用程序随后使用读操作将接收数据从接收缓存中读出；</li>
 <li>接收端应用程序数据字节的起始与终结位置需由应用程序自行确定</li>
 </ul>
 <p><strong>3</strong>. TCP 支持全双工通信，允许通信双方在任意时候发送数据。</p>
 <p><strong>4</strong>. TCP 支持同时建立多个并发的 TCP 连接</p>
 <p>有的时候根据应用程序需要，比如一个 Web 服务器必须要同时处理多个客户端的访问，那么 TCP 协议应该支持一个服务器与多个客户端同时建立多个 TCP 连接，也支持一个客户端与多个服务器同时建立多个 TCP 连接。</p>
-<p><strong>5</strong>. TCP 支持可靠的传输服务</p>
+<p><strong>5</strong>. TCP 支持<strong>可靠</strong>的传输服务</p>
 <p>因为 TCP 建立在不可靠的网络层 IP 协议之上，因此想要保证可靠的传输服务，TCP 需要自行解决：</p>
 <ul>
-<li>使用<strong>确认机制</strong>检查数据是否安全和完整地到达，并且提供<strong>拥塞控制</strong>功能，这是 TCP 的核心；</li>
-<li>对发送和接收的数据进行跟踪、确认和重传；</li>
+<li>使用<strong>确认机制</strong>对发送和接收的数据进行跟踪、确认和重传，检查数据是否安全和完整地到达；</li>
+<li>提供<strong>拥塞控制</strong>功能，该功能是 TCP 的核心；</li>
 <li>在相互进行通信的设备和服务之间保持一个虚拟连接；</li>
-<li>TCP 在数据包接收<strong>无序、丢失</strong>或在交付期间<strong>被破坏</strong>的时候负责数据恢复，通过为其发送的每一个数据包提供一个序号来完成此恢复</li>
-<li>一旦 IP 协议及以下层出现传输错误，需要能不断进行重传</li>
+<li>TCP 为发送的每一个数据包提供一个序号，以此保证在接收<strong>无序、丢失</strong>或在数据传输期间<strong>被破坏</strong>的时候能完成数据恢复；</li>
+<li>一旦 IP 或以下协议层出现传输错误，需要能不断进行重传</li>
 </ul>
 <p>这一点是 TCP 协议存在的目的。</p>
 <p>![]</p>
@@ -512,11 +513,11 @@ mjx-container[display="true"] + br {
 <p><img src="/2024/03/09/transport-layer/tcp-header.png" alt></p>
 <p><strong>源端口号</strong>（<strong>Source Port</strong>，16 位，2 字节）：表示发送某个报文段的应用进程的源端口号</p>
 <p><strong>目的端口号</strong>（<strong>Destination Port</strong>，16 位，2 字节）：表示接收某个报文段的接收进程的目的端口号</p>
-<p><strong>序号</strong>（<strong>Sequence Number</strong>, seq，32 位，4 字节）：TCP 为将要发送的字节流（Stream）中每个字节按照顺序编号，以此解决包乱序的问题</p>
+<p><strong>序号</strong>（<strong>Sequence Number</strong>, seq，32 位，4 字节）：TCP 给将要发送的字节流（Stream）中每个字节按照顺序编号，以此解决包乱序的问题</p>
 <ul>
 <li>范围从 0 至 4,284,967,295（<mjx-container class="MathJax" jax="SVG"><svg style="vertical-align: -0.186ex;" xmlns="http://www.w3.org/2000/svg" width="6.816ex" height="2.072ex" role="img" focusable="false" viewbox="0 -833.9 3012.6 915.9"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="msup"><g data-mml-node="mn"><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/></g><g data-mml-node="TeXAtom" transform="translate(533,363) scale(0.707)" data-mjx-texclass="ORD"><g data-mml-node="mn"><path data-c="33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/><path data-c="32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z" transform="translate(500,0)"/></g></g></g><g data-mml-node="mo" transform="translate(1512.3,0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/></g><g data-mml-node="mn" transform="translate(2512.6,0)"><path data-c="31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/></g></g></g></svg></mjx-container>）</li>
 <li>在 TCP 建立连接时，通信双方需要使用随机数产生器产生一个初始序号（Initial Sequence Number, <strong>ISN</strong>）；</li>
-<li>且双方各自随机产生初始序号：因此在一个 TCP 连接中，通信双方序号可以不同</li>
+<li>并且，双方各自随机产生初始序号：因此在一个 TCP 连接中，通信双方序号可以不同</li>
 </ul>
 <p><strong>确认号</strong>（<strong>Acknowledgment Number</strong>, ack，32 位，4 字节）</p>
 <ul>
@@ -620,7 +621,7 @@ mjx-container[display="true"] + br {
 <h2 id="TCP-连接建立和释放：三次握手与四次挥手"><a href="#TCP-连接建立和释放：三次握手与四次挥手" class="headerlink" title="TCP 连接建立和释放：三次握手与四次挥手"></a>TCP 连接建立和释放：三次握手与四次挥手</h2><p><img src="/2024/03/09/transport-layer/3-shake-hands.png" alt></p>
 <p>连接建立的过程俗称“<strong>三次握手</strong>”：</p>
 <ol>
-<li>开始连接，客户端 TCP 进程处于 <code>CLOSED</code>（关闭）状态；</li>
+<li>在开始连接之前，客户端的 TCP 进程处于 <code>CLOSED</code>（关闭）状态；</li>
 <li>开始连接：客户端调用 <code>connect()</code> 准备发起 TCP 连接，进入 <code>SYN_SENT</code>（准备发送）状态；<ul>
 <li>服务端 TCP 进程需为 <code>LISTEN</code>（收听）状态；</li>
 <li>客户端发送 <strong>SYN = 1</strong> 的<strong>连接建立请求报文</strong>到服务端；</li>
@@ -629,7 +630,7 @@ mjx-container[display="true"] + br {
 </ul>
 </li>
 <li>如果连接突然中断：可能有一两个进程同时等待双方确认应答<ol>
-<li>此时有一个新连接的序号也从 0 开始</li>
+<li>此时有一个新连接的序号也从 0 开始；</li>
 <li>则接收进程有可能认为是对方重传的报文：可能造成连接错误</li>
 </ol>
 </li>
@@ -642,7 +643,7 @@ mjx-container[display="true"] + br {
 </li>
 <li>服务器端从 LISTEN 进入 <code>SYN_RCVD</code>（准备接收）状态</li>
 <li>客户端收到服务端的连接建立请求确认报文，再向服务端发送又一个<strong>连接建立请求确认报文</strong>：<ol>
-<li>报文标识位 ACK = 1</li>
+<li>报文标识位 ACK = 1；</li>
 <li>不携带数据字段，序号 <code>seq = x + 1</code>，意为承接客户端发送到同一服务端的上一报文的序号，即之前的连接建立请求报文；且响应上一个连接建立请求报文的确认号 <code>ack = x + 1</code>；</li>
 <li>报文确认号 <code>ack = y + 1</code>，为对前一个连接建立请求确认报文序号 <code>seq = y</code> 的确认</li>
 </ol>
@@ -653,34 +654,33 @@ mjx-container[display="true"] + br {
 <p>总的来说，全过程相当于试探一下对方是否遵循 TCP/IP 协议，协商完成之后就可以进行通信了。</p>
 <p><strong>报文传输</strong></p>
 <p>TCP 传输连接建立后，客户端便可与服务端进行全双工字节流传输。</p>
-<p>为保证 TCP 工作正常、有序进行，TCP 会设置保持计时器（keep timer），防止 TCP 连接处于长时间空闲状态。</p>
+<p>为保证 TCP 工作正常、有序进行，TCP 会为某一次会话设置保持计时器（keep timer），防止 TCP 连接处于长时间空闲状态。</p>
 <ul>
-<li>如服务端收到客户端的报文，服务端将保持计时器复位</li>
-<li>如服务端过了设定的时间没有收到客户端信息，则会发送探测报文</li>
-<li>如发送了 10 个探测报文（每个相隔 75 秒）还没有响应，服务端会认为客户端故障，终止连接</li>
+<li>如果服务端接收到了客户端的报文，服务端则将保持计时器复位；</li>
+<li>如果服务端超过了计时器设定的时间没有收到客户端信息，则发送探测报文；</li>
+<li>如发送了 10 个探测报文（每个相隔 75 秒）还没有响应，服务端会认为客户端故障，从而终止连接。</li>
 </ul>
-<p>连接释放的过程俗称“<strong>四次挥手</strong>”；客户端和服务器端都可以主动提出连接释放请求。</p>
+<p>连接释放的过程俗称“<strong>四次挥手</strong>”，客户端和服务端都可以主动提出连接释放请求。</p>
 <p>以客户端提出释放 TCP 连接的“四次挥手”为例：</p>
 <ol>
-<li>客户端调用 <code>close()</code>：执行“主动关闭”（active close）</li>
-<li>由此，客户端进入 <code>FIN-WAIT-1</code>（释放等待 - 1）状态：<ol>
-<li>向服务器端发送<strong>连接释放请求报文</strong>，并停止发送数据；</li>
-<li>报文的标识位 FIN = 1, ACK = 1；</li>
-<li>报文不携带数据字段，报文序号 <code>seq = u</code>（客户端发送的最后一个字节序号 + 1）</li>
+<li>客户端调用 <code>close()</code> 执行“主动关闭”（active close），随后进入 <code>FIN-WAIT-1</code>（释放等待 - 1）状态：<ol>
+<li>客户端会向服务端发送<strong>连接释放请求报文</strong>，并停止发送数据；</li>
+<li>报文的标识位 FIN = 1, ACK = 1，不携带数据字段；</li>
+<li>报文序号 <code>seq = u</code>（客户端发送的最后一个字节序号 + 1）</li>
 </ol>
 </li>
-<li>服务端接收到连接释放请求报文后，执行“被动关闭”（passive close），进入 <code>CLOSE-WAIT</code>（等待关闭）状态<ol>
-<li>向客户端响应<strong>连接释放请求确认报文</strong>，为对接收到第一个连接释放请求报文的确认；</li>
-<li>报文序号 <code>seq = v</code>，为服务端发送的最后一个字节序号 + 1</li>
+<li>服务端接收到连接释放请求报文后，执行“被动关闭”（passive close），进入 <code>CLOSE-WAIT</code>（等待关闭）状态：<ol>
+<li>服务端向客户端响应<strong>连接释放请求确认报文</strong>，为对接收到第一个连接释放请求报文的确认；</li>
+<li>报文序号 <code>seq = v</code>，为服务端发送的最后一个字节序号 + 1；</li>
 <li>确认号 <code>ack = u + 1</code></li>
-<li>⚠️ 此时客户端到服务端的 TCP 连接已经断开，但服务端到客户端的 TCP 连接依然保持连接，服务器可继续发送未发送的数据报文，即“<strong>半关闭</strong>（half-close）”状态</li>
+<li>⚠️ 此时客户端到服务端的 TCP 连接已经断开，但服务端到客户端的 TCP 连接依然保持连接，服务器可继续发送未发送的数据报文；此时为“<strong>半关闭</strong>（half-close）”状态</li>
 </ol>
 </li>
 <li>客户端收到服务端的连接释放请求确认报文后，进入 <code>FIN-WAIT-2</code>（释放等待 - 2）状态</li>
-<li>服务端将所有要发送的报文发送完毕后：向客户端发送<strong>连接释放请求报文</strong><ol>
+<li>服务端将所有要发送的报文发送完毕后，向客户端发送<strong>连接释放请求报文</strong><ol>
 <li>服务端进入 <code>LAST-ACK</code>（最终确认）状态，通知 TCP 可以释放连接；</li>
 <li>报文的标识位 FIN = 1, ACK = 1；</li>
-<li>报文序号假定为 seq = w，这取决于从半关闭到最终确认状态之间，服务端是否发送过报文，如没有则 <code>seq = v</code>；</li>
+<li>报文序号假定为 seq = w（取决于从半关闭到最终确认状态之间，服务端是否发送过报文；如没有则 <code>seq = v</code>）；</li>
 <li>确认号 <code>ack = u + 1</code></li>
 </ol>
 </li>
@@ -688,29 +688,23 @@ mjx-container[display="true"] + br {
 <li>服务端转回 <code>LISTEN</code> 或 <code>CLOSED</code> 状态</li>
 <li>客户端收到服务端的连接释放请求报文后，向服务器端返回<strong>连接释放请求确认报文</strong><ol>
 <li>报文的标识位 ACK = 1；</li>
-<li>seq = u + 1, ack = w + 1</li>
-<li>客户端重新进入等待状态</li>
+<li>seq = u + 1, ack = w + 1；</li>
+<li>随后：客户端进入 TIME-WAIT 状态</li>
 </ol>
 </li>
 </ol>
-<p>为了保证 TCP 连接释放过程能正常运行，协议设置了时间等待计时器（TIME-WAIT timer）：</p>
+<p>客户端进入 TIME-WAIT 状态的背景是：TCP 关闭一个连接时，并不认为该连接马上得到真正的关闭。</p>
+<p>为了保证 TCP 连接释放过程能正常运行，协议还设置了时间等待计时器（TIME-WAIT timer）：</p>
 <ul>
-<li>TCP 关闭一个连接时，并不认为该连接马上真正关闭；此时客户端进入 TIME-WAIT 状态</li>
-<li>再等待两个最长报文寿命（Maximum Segment Lifetime, MSL）后，客户端才进入 CLOSED 状态</li>
-<li>确保服务器端在最后阶段发送给客户端的数据，以及客户端发送给服务器的最后一个请求确认报文都能被正确接收</li>
-<li>防止因个别报文传输错误导致连接释放失败</li>
+<li>此时再等待两个最长报文寿命（Maximum Segment Lifetime, MSL）后，客户端才进入 CLOSED 状态；</li>
+<li>这种设计是为了确保服务端在最后阶段发送给客户端的数据，以及客户端发送给服务端的最后一个请求确认报文都能被正确接收，防止因个别报文传输错误导致连接释放失败。</li>
 </ul>
-<p>TCP 的状态图如下：</p>
+<p>综上，TCP 每个阶段的状态图如下：</p>
 <p><img src="/2024/03/09/transport-layer/tcp-state-diagram.jpg" alt></p>
-<h2 id="TCP-协议滑动窗口与确认重传机制"><a href="#TCP-协议滑动窗口与确认重传机制" class="headerlink" title="TCP 协议滑动窗口与确认重传机制"></a>TCP 协议滑动窗口与确认重传机制</h2><p>TCP 协议的差错控制</p>
-<ul>
-<li>TCP 协议通过<strong>滑动窗口机制</strong>来跟踪和记录发送字节的状态，实现差错控制</li>
-<li>TCP 协议设计思想：让应用进程将数据作为一个字节流传送给它，而不是限制应用层数据的长度</li>
-<li>应用进程无需考虑发送数据的长度：交由 TCP 协议负责将字节分段打包</li>
-<li>发送端利用已建立的 TCP 连接，将字节流传送到接收端的应用进程</li>
-<li>传输层下一层的 IP 分组在传输过程中出错不可避免：需要 TCP 协议提供差错控制、确认和重传功能，保证接收的字节流正确</li>
-</ul>
-<p>TCP 采用以字节为单位的<strong>滑动窗口协议</strong>（Sliding-Windows Protocol）控制字节流的发送、接收、确认与重传</p>
+<h2 id="TCP-协议滑动窗口与确认重传机制"><a href="#TCP-协议滑动窗口与确认重传机制" class="headerlink" title="TCP 协议滑动窗口与确认重传机制"></a>TCP 协议滑动窗口与确认重传机制</h2><p>TCP 协议的设计思想，是让应用进程传输给协议的数据作为一个字节流而存在，而不是从协议本身去限制应用层数据的长度。</p>
+<p>也就是说，在数据交换的过程中，应用进程无需考虑发送数据的长度；数据交由 TCP 协议负责将字节分段打包，发送端利用已建立的 TCP 连接，将字节流传送到接收端的应用进程。</p>
+<p>然而，传输层往下一层的网络层里面，IP 分组在传输过程中不可避免会出错；因此需要 TCP 协议提供差错控制、确认和重传功能，保证接收的字节流正确。</p>
+<p>TCP 采用以字节为单位的<strong>滑动窗口协议</strong>（Sliding-Windows Protocol）来跟踪和记录字节流的发送、接收、确认与重传，实现差错控制：</p>
 <ul>
 <li>发送端对缓存设置发送窗口：窗口不为 0 即可发送报文段</li>
 <li>接收端设置接收窗口：窗口值等于接收缓存可以继续接收的字节流大小</li>
@@ -721,7 +715,7 @@ mjx-container[display="true"] + br {
 <li>将字节流分成段，一个段多个字节打包成一个 TCP 报文段来传送</li>
 <li>TCP 通过报头序号标识发送的字节，通过确认号表示已被正确接收的字节</li>
 </ul>
-<h3 id="传输字节流状态分类"><a href="#传输字节流状态分类" class="headerlink" title="传输字节流状态分类"></a>传输字节流状态分类</h3><p>!</p>
+<h3 id="传输字节流状态分类"><a href="#传输字节流状态分类" class="headerlink" title="传输字节流状态分类"></a>传输字节流状态分类</h3><p><img src="/2024/03/09/transport-layer/sliding-window.png" alt></p>
 <p>第一类：已发送，且已得到确认的字节（#32 字节之前）<br>第二类：已发送，但并未得到确认的字节（#32 - 45 字节）<br>第三类：未发送，但接收端表示准备接收的字节（#46 - 51 字节）</p>
 <ul>
 <li>接收缓冲区已准备好接收该字节<br>第四类：未发送，且接收端未准备接收的字节（#51 字节之后）</li>
