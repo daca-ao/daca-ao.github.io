@@ -14,14 +14,14 @@ tags:
 
 **1**. **新建**（**New**）
 
-新创建了一个线程对象，但该线程尚未运行（因为还没被调用 start() 方法）
+新创建了一个线程对象，但该线程尚未运行（因为还没被调用 `start()` 方法）。
 
 
 **2**. **运行**（**Runnable**）
 
-当一个新创建的线程对象被调用了 start() 之后：线程便进入了可运行线程池中，进入可运行（runnable）状态，等待获取 CPU 的使用权；
+当一个新创建的线程对象被调用了 `start()` 之后：线程便进入了可运行线程池中，进入可运行（runnable）状态，等待获取 CPU 的使用权；
 * Java 线程将操作系统中的“就绪”和“运行”两种状态笼统地称作“运行中”
-* 该线程可能正在运行（running），也可能没运行（ready），取决于操作系统提供的时间片。
+* 该线程可能正在运行（running），也可能没运行（ready），取决于操作系统当前提供的时间片。
 
 
 **3**. **阻塞**（**Blocked**）
@@ -97,7 +97,7 @@ public final synchronized void join() throws InterruptedException {
 ```
 
 概述：
-* 当前线程的 wait() 被调用后，当前线程的同步锁会被释放；调用当前线程 join() 的线程会被阻塞；
+* 当前线程的 `wait()` 被调用后，当前线程的同步锁会被释放；调用当前线程 `join()` 的线程会被阻塞；
 * 比如说 main() 方法调用 thread1.join()，阻塞的是 main() 方法所在的线程，即**主线程**，而不是 thread1。
 
 既然 wait() 被调用了，那么 notify() / notifyAll() 是在哪里被调用的？  
@@ -355,12 +355,14 @@ void wait(long millis, int nanos)
 ```
 
 比下面一段伪代码好的地方：
+
 ```java
 while (value != desired) {
     Thread.sleep(1000);
 }
 doSomething();
 ```
+
 及时性（sleep 时间越长，及时性越差）比伪代码好，开销（sleep 时间越短，开销越大）比伪代码低。
 
 注：在通过条件判断是否进行等待 / 唤醒时，要注意“**虚假唤醒**”的情况：即线程从 blocked 到 ready 再到 running 没有进行判断。
@@ -377,15 +379,23 @@ doSomething();
 2. 改变条件
 3. 通知所有等待在对象上的线程
 
+
+## wait() 和 notify() 设计为 Object 方法的原因
+
+首先，wait() 和 notify() 不仅仅是普通方法或同步工具，更重要的是它们是 Java 中**两个线程之间的通信机制**。  
+在语言设计上的时候，如果不能通过 Java 关键字（例如 synchronized）实现，同时又要确保这个机制对每个对象可用, 那么 Object 类就是**最合理的声明位置**。
+
+再者，Java 基于监视器 Monitor 的思想，每一个对象都有一个监视器，即**每个对象都可上锁**，这是在 Object 类而不是 Thread 类中声明 wait() 和 notify() 的另一个原因。
+
 <br/>
 
 # 方法比较
 
 `wait()` v.s. `sleep()`：
 
-首先，wait 会释放同步锁，而 sleep 不释放同步锁。
+首先，wait() **与对象锁有关**，会释放同步锁，而 sleep() 不释放同步锁。
 
-**wait 是 Object 的方法**
+**wait() 是 Object 的方法**
 * 可对任意一个对象调用；调用时一定会释放调用线程持有的对象锁，让调用线程进入等待此对象的等待池
     * 因此其依赖于 `synchronized` 关键字（**必须在 `synchronized` 代码块中被调用**）
 * 调用 wait() 时会将线程挂起，直到其他线程调用同一个竞争对象的 notify()（或 notifyAll()）去唤醒相关等待线程
@@ -393,13 +403,13 @@ doSomething();
 * 适用范围：等待线程、数据库连接
 * 另：wait(millis) —— 加上了超时时间，等待指定时间后会自动苏醒
 
-**sleep 是 Thread 的静态方法**
+**sleep() 是 Thread 的静态方法**
 * sleep(millis)：让线程休眠指定的时间，将执行机会转让给其他线程；但监控状态依然保持，线程会在休眠时间结束时恢复
 * 即：sleep 的控制范围由当前线程决定，其并不依赖于 `synchronized` 关键字
 * sleep 不是 Object 的方法，不能改变对象的内部锁状态，只是让线程进入阻塞态
 * 给其他线程执行机会的最佳方式，通常用在不需要等待资源情况下的阻塞
 
-wait 涉及到线程之间的通信问题；而 sleep 主要是线程的运行状态控制。
+wait() 涉及到线程之间的通信问题；而 sleep() 主要是线程的运行状态控制。
 
 wait(millis) 和 sleep(millis)：
 * 都是等待指定时间后自动苏醒
@@ -420,14 +430,14 @@ wait(millis) 和 sleep(millis)：
 
 # ThreadLocal
 
-我们使用 synchronized & volatile，本质上是线程之间数据的共享：
+我们使用 [synchronized](/2021/07/14/keywords/#synchronized) & [volatile](/2021/07/14/keywords/#volatile)，本质上是线程之间数据的共享：
 * 需要严格限制变量的访问：竞争、加锁、释放锁...
 * 复杂度比较高
 
 另外，JDK 还提供了另一种处理数据同步的方式：`ThreadLocal`。顾名思义，就是线程的局部变量。
 
-ThreadLocal 关注的是线程之间数据的隔离；  
-每个 ThreadLocal 实例存储着只能被该线程访问和修改的变量，其他线程无法访问，由此避免共享变量。
+与 synchronized 相反，ThreadLocal 关注的是线程之间数据的隔离；  
+每个 ThreadLocal 实例存储着只能被该线程访问和修改的变量，其他线程无法访问，这样就隔离了多个线程对数据的共享，避免共享变量。
 
 除了 ThreadLocal 之外，Java 还提供了[锁机制](/2021/08/22/java-lock)实现数据同步。
 

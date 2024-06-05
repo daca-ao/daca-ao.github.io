@@ -436,56 +436,6 @@ class ReorderExample {
 
 首先，synchronized 加锁保证操作原子性；
 
-再者，`java.util.concurrent.atomic` 包（Since Java 1.5）中有很多类方法保证了操作的原子性，执行过程中不会被其他线程中断。包括：
-
-原子更新基本类型
-```java
-AtomicBoolean
-
-AtomicInteger
-
-AtomicLong
-
-// 常用方法：
-int addAndGet(int delta);  // 以原子方式将 delta 与实例中的值相加
-boolean compareAndSet(int expect, int update);  // 如果实例中的值为预期 expect，则以原子方式将 update 更新到实例中
-int getAndIncrement()  // 以原子方式加 1，返回自增前的值
-int getAndSet(int newValue)  // 以原子方式设置新值，返回旧的值
-```
-
-原子更新数组
-```java
-AtomicIntegerArray
-
-AtomicLongArray
-
-AtomicReferenceArray
-
-// 常用方法
-int addAndGet(int i, int delta)
-boolean compareAndSet(int i, int expect, int update)
-```
-
-原子更新引用：更新引用类型
-```java
-AtomicReference<T>
-
-AtomicStampedReference<T>  // 带版本号的引用类型
-// 将整数值和引用关联起来（Pair）
-// 用此来解决 ABA 问题
-
-AtomicMarkableReference<T>  // 带标识位的引用类型
-```
-
-原子更新属性
-```java
-AtomicIntegerFieldUpdater<T>
-
-AtomicLongFieldUpdater<T>
-
-AtomicReferenceFieldUpdater<T>
-```
-
-原子类基于 CAS 算法实现，使用方法简单，性能更高效，线程安全。
+再者，[`java.util.concurrent.atomic`](/2021/09/04/java-concurrent-utils/#原子类-Atomic*) 包中有很多类方法保证了操作的原子性，执行过程中不会被其他线程中断。
 
 什么时候使用悲观锁效率更高，什么使用使用乐观锁效率更高，要根据实际情况来判断选择。

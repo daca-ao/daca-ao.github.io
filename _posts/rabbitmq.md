@@ -157,69 +157,124 @@ RabbitMQ 默认采用 Direct Exchange。
 
 # 消息稳定性
 
-要想提高消息的稳定性，避免消息丢失，通常有以下方法：
-* 消息持久化
+要想提高消息的[稳定性](/2021/07/20/mq/#消息丢失问题)，避免消息丢失，通常有以下方法：
 * ACK 确认机制
+* 消息持久化
 * 设置集群镜像模式
 * 消息补偿机制
 
 
+## 消息确认机制（针对于 Producer，也叫生产者确认机制）
+
+**1. Confirm 模式**（常用方法，也叫生产者重试模式，发布/确认模式）
+
+1. 根据实际业务，消费者需要手动确认消息被消费（通过 `channel.basicAck()`）
+2. 生产者将 channel 设置为 `confirm` 确认模式；
+    ```java
+    channel.confirmSelect()  // channel 开启为 confirm 模式
+    ```
+    * 确认后，所有在该 channel 发布的消息都会被指定一个唯一的 ID 号（`deliveryTag`，从 1 递增）
+3. 消息发送到 queue 之后，broker 会给生产者发送消息。包括：
+    * `deliveryTag`
+    * 标志 ACK（成功发送到 queue）/ NACK（消息服务器因内部错误等原因丢失消息等）
+    * `multiple`：false 为单条确认，true 为该序号之前所有消息得到了处理
+    * 如果发送的是持久化消息，则在消息被**成功写入磁盘之后**才会发送给生产者确认消息
+4. 如果一个队列没有对应的消费者：消息会被缓存，不会被丢弃
+5. 消费者处理完数据后，需要向 MQ Server 发送确认信息（acknowledge, ACK），MQ 随后会将这个 ACK 发送给生产者（包含 ID）
+    * 如消息被某个消费者正确接收：消息会被从队列中移除
+    * 如有数据没有被 ACK，MQ Server 不会删除消息，而是进行后续操作
+
+```java
+channel.confirmSelect()  // channel 开启为 confirm 模式
+```
+
+生产者确认机制可以细分为三种：单条 confirm 模式、批量 confirm 模式，以及异步 confirm 模式。
+
+
+**2. AMQP 事务机制**：主要是对信道 channel 的设置
+
+```java
+// 与事务机制相关的方法：
+channel.txSelect();  // 用于将当前的信道设置成事务模式，开启事务
+channel.txCommit();  // 用于提交事务
+channel.txRoolback();  // 用于事务回滚
+
+// 常规调用顺序从上到下
+```
+
+缺点是会导致吞吐量下降。
+
+**注**：
+
+* 如事务提交执行前 RabbitMQ 异常崩溃或其他原因抛出异常：通过 `txRollback()` 回滚，当 `autoAck=true` 时，事务无效
+    * 此时消息时自动消费确认，RabbitMQ 直接将消息从队列中擦除，即使后面事务回滚也不能起到任何作用
+* Confirm 模式和事务机制不能共存，否则会导致 RabbitMQ 报错。
+
+
+### 应用：RabbitMQ 消息重试
+
+在 `spring-rabbit` 框架内实现的**消费者内部重试**，在业务使用 try-catch 的时候需要手动确认（`channel.basicAck()` 或 `channel.basicNack()`）。
+
+同时，如果使用 `RejectAndDontRequeueRecoverer` 类进行重试的话，消息并不会被重新发送回队列；
+* 使用 `RepublishMessageRecoverer` 或 `ImmediateRequeueMessageRecoverer` 能够实现重新发布消息和立即重新返回队列；
+* 与此同时要定义好重新发送的交换器和队列。
+
+以下是两个针对 MQ 本身的方案：
+
+<br/>
+
 ## 消息持久化
 
-RabbitMQ 消息有以下状态：
+RabbitMQ 消息默认是放在内存的，如果不特别声明消息持久到磁盘，当节点关掉或者 crash 掉，消息就会丢失。
+
+消息有以下状态：
 1. `alpha`：消息内容（包括消息体、属性和 headers）和消息索引都存储在内存
 2. `beta`：消息内容保存在磁盘，消息索引保存在内存
 3. `gamma`：消息内容保存在磁盘，消息索引分别保存在磁盘和内存
 4. `delta`：消息内容和索引都在磁盘中
 
 消息持久化的条件：
-* 投递消息时 `durable` 设置为 `true`
+
+* 队列是一个持久化的队列
+* 消息的发送模式 `deliveryMode=2`
+* 消息已经到达持久化 Exchange 上
+* 消息已经到达持久化的队列中
+
+消息持久化方法：
+
+* 投递消息时 Exchange 通过指定 `durable=true` 完成持久化
+* 同时对应的 queue 的持久化标识 `durable` 设置为 `true`
     ```java
     channel.queueDeclare(x, durable=true, false, false, null);
+    // 具有该标识的 Exchange 和 Queue 在重启之后会重新建立
+    // 此时它们之间的 binding 也是持久化的
+    // 如两者中只有一个持久化，则不允许建立 binding
     ```
 * 设置投递模式 `deliveryMode` 为 `2`：持久化
     ```java
     channel.basicPublish(x, x, MessageProperties.PERSISTENT_TEXT_PLAIN, x);  // 存储纯文本到磁盘
     ```
-* 消息已经到达持久化 Exchange 上
-* 消息已经到达持久化的队列中
-
-Exchange 和 Queue 在创建时，指定 `durable=true` 可完成持久化
-* 具有该标识的 Exchange 和 Queue 在重启之后会重新建立
-    * 如 Exchange 和 Queue 都是持久化的，则它们之间的 binding 也是持久化的
-    * 如两者中只有一个持久化，则不允许建立 binding
-
-
-## 消息确认机制
-
-**1. Confirm 模式**（也叫生产者重试模式，发布/确认模式）
-* 根据实际业务，通过 `channel.basicAck()` 手动确认消息被消费
-* 生产者将 channel 设置为 confirm 确认模式；确认后，所有在该 channel 发布的消息都会被指定一个唯一的 ID 号
-* 如一个队列没有消费者：消息会被缓存，不会被丢弃
-* 消费者处理完数据后，需要向 MQ Server 发送确认信息（acknowledge, ack），MQ 随后会将这个 ack 发送给生产者（包含 ID）
-    * 如消息被某个消费者正确接收：消息会被从队列中移除
-    * 如有数据没有被 ack，MQ Server 不会删除消息，而是将其发送给下一个消费者
-
-**2. AMQP 事务机制**：主要是对信道 channel 的设置
-
-```java
-// 与事务机制相关的方法：
-channel.txSelect();  // 用于将当前的信道设置成事务模式
-channel.txCommit();  // 用于提交事务
-channel.txRoolback();  // 用于事务回滚
-```
-
-如事务提交执行前 RabbitMQ 异常崩溃或其他原因抛出异常：通过 `txRollback()` 回滚，当 `autoAck=true` 时，事务无效
-* 此时消息时自动消费确认，RabbitMQ 直接将消息从队列中擦除，即使后面事务回滚也不能起到任何作用
 
 
 ## 集群化
 
+RabbitMQ 的三种部署模式如下：
+
+* 单点模式：最简单的模式，非集群模式。当节点挂了或者消息不可用了，业务会瘫痪，只能等待；
+* 普通模式：消息需要持久化，默认是集群模式；当某个节点挂了获消息不可用了造成业务瘫痪，此时只能等待节点恢复重启使用；
+* 镜像模式：把队列做成镜像需要的队列，存放于多个节点中。
+
 要将 RabbitMQ 集群化，集群中应有以下的节点类型：
-* 内存节点：ram，将变更写入内存
-* 磁盘节点：disc，磁盘写入操作
+* 内存节点 ram：将变更写入内存
+* 磁盘节点 disc：磁盘写入操作
 
 RabbitMQ 集群要求最少有一个磁盘节点。
+
+
+## 消息补偿机制（针对于 Consumer）
+
+消息补偿机制需要建立在消息要写入 DB 日志，发送日志，接收日志中，两者的状态必须做记录，然后根据 DB 日志记录 check 消息发送消费是否成功。  
+如果不成功，需要进行消息补偿措施，重新发送消息处理。
 
 <br/>
 
@@ -232,6 +287,15 @@ RabbitMQ 是基于信道 Channel 传输消息的。Channel 通过建立真实 TC
 
 <br/>
 
+# 消息唯一性（幂等性）
+
+以 Message ID 为幂等键对消息进行幂等处理的步骤如下：
+
+* 在数据库中创建一张 unique key 索引为唯一 Message ID 的表；
+* 在 Producer 客户端为每条消息设置唯一 Message ID；
+* 在 Consumer 客户端根据唯一 Message ID 对消息进行幂等处理。
+
+
 # 死信队列
 
 先说说什么叫死信。
@@ -243,7 +307,7 @@ RabbitMQ 是基于信道 Channel 传输消息的。Channel 通过建立真实 TC
 
 这样的消息被称为**死信**（**D**ead **L**etter）。
 
-当一个消息在队列中变为死信之后，它将被重新投递到另一个 Exchange 中，这个 Exchange 叫做死信交换器（**D**ead-**L**etter e**X**change, **DLX**）。
+当一个消息在队列中变为死信之后，如果这个消息所在的队列存在 `x-dead-letter-exchange` 参数，那么它会被发送到 `x-dead-letter-exchange` 对应的 Exchange 中，这个 Exchange 叫做死信交换器（**D**ead-**L**etter e**X**change, **DLX**）。
 
 DLX 根据 RoutingKey 所绑定的 Queue 就是**死信队列**。
 
@@ -252,10 +316,17 @@ DLX 根据 RoutingKey 所绑定的 Queue 就是**死信队列**。
 Exchange: dlx.exchange
 Queue: dlx.queue
 RoutingKey: #
-# 表示只要有消息到达了 Exchange，那么都会路由到这个 queue 上
+#  "#" 表示只要有消息到达了 Exchange，那么都会被路由到这个 queue 上
 ```
 
 死信队列接收消息后并**不消费该消息**，所以可以监听死信队列中的消息做相应的处理。
+
+## 应用：消息重试
+
+除了上面提到的[重试方法](#应用：RabbitMQ-消息重试)，我们还可以使用死信队列进行重试：  
+
+* 如果业务队列绑定了死信交换器和死信路由键，重启开始时，消息会从业务队列中删除，同时发送到死信队列中；
+* 如果是手动 ack 模式，还需手动调用 `channel.basicNack()` & `requeue=false` 才能转发到死信队列。
 
 <br/>
 

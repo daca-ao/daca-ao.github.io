@@ -67,7 +67,7 @@ Master 各系统组件都被划分到 `kube-system` 的 namespace 中。
 
 为一基于 HTTP/HTTPS 的 RESTful 服务器，是集群内各个功能模块之间数据交互和通信的中心枢纽
 
-* 提供了集群管理各类资源对象（Pod、service 等）的 API 接口，也即 Kubernetes 的统一接口
+* 提供了集群管理各类资源对象（Pod、service 等）及 watch 等的 API 接口，也即 Kubernetes 的统一接口
 * 所有模块之前并不会之间互相调用，而是通过和 kube-apiserver 打交道来完成自己那部分的工作
 * 提供了完备的集群安全机制（验证，授权），同时也对集群外部暴露服务
 * 用户可通过 REST 接口或 kubectl 命令行工具进行集群管理；因此 kubectl 本质上也是与 kube-apiserver 进行通信
@@ -149,7 +149,7 @@ Flannel 是由 CoreOS 团队针对 Kubernetes 设计的一个网络规划服务�
 
 ### CoreDNS
 
-CoreDNS 是“一个灵活可扩展的 DNS 服务器”，可以作为 Kubernetes 集群的 DNS。
+CoreDNS 是“一个灵活可扩展的 DNS 服务器”，可以作为 Kubernetes 集群的 DNS，为集群提供**服务发现**的功能。
 
 
 ## Node
@@ -208,7 +208,7 @@ kubelet 组件是 Node 的心脏，用于管理容器生命周期（创建、修
 
 kube-proxy 的实现模式主要有三种：
 
-`userspace`：最早的默认负载均衡方案（before Kubernetes v1.1）
+`userspace`：最早的默认负载均衡方案（Kubernetes v1.0）
 
 1. Client pod 发起访问服务 service 的请求
 2. 请求到达 node 后，通过 service 的 IP 先进入**本地内核**的 iptables
@@ -219,7 +219,7 @@ kube-proxy 的实现模式主要有三种：
 
 不过，流量从 userspace 进出内核带来的性能损耗是不可接受的。
 
-`iptables`：基于 netfilter 实现，是目前默认的代理模式。
+`iptables`：happen since Kubernetes v1.1，基于 netfilter 实现，是目前默认的代理模式（Default since Kubernetes v1.2）。
 
 当客户端请求 service IP 时，本地内核的 iptables 会根据规则，将请求直接路由到各个 service pod 上。
 

@@ -1,6 +1,8 @@
 ---
 title: Elasticsearch 概述
 date: 2022-02-09 22:51:01
+tags:
+- 数据库
 ---
 
 Elasticsearch（ES）是用 Java 开发的，并在 Apache 许可条款下开放源码发布，是一款非常流行的分布式、多用户能力的全文搜索引擎。

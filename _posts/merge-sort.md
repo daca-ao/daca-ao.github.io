@@ -69,11 +69,11 @@ $$
 Time(n) = 
 \begin{cases}
 d & \quad \text{$n < k$}\\
-t(n/k)+t(n-n/k)+cn & \quad n \geq k
+t(\frac{n}{k})+t(n-\frac{n}{k})+cn & \quad n \geq k
 \end{cases}
 $$
 
-可知当 $n/k$ 约等于 $n-n/k$，即 $k=2$ 的时候，时间耗费最少。  
+可知当 $\frac{n}{k}$ 约等于 $n-\frac{n}{k}$，即 $k=2$ 的时候，时间耗费最少。  
 此时的分解方法为**对半分**，平均复杂度为 $Θ(nlogn)$。
 
 ![](merge-sort/merge-sort-dynamic.gif)

@@ -179,6 +179,7 @@ public final class String implements ... {
 <br/>
 
 # finally
+
 只能被用在 `try` / `catch` 语句中
 
     The finally block always executes when the try block exits. This ensures that the finally block is executed even if an unexpected exception occurs. 
@@ -190,6 +191,7 @@ public final class String implements ... {
 <br/>
 
 # finalize
+
 `finalize()` 方法为 Object 类的方法：
 
     Before an object is garbage collected, the runtime system calls its finalize() method. 
@@ -199,6 +201,7 @@ public final class String implements ... {
 <br/>
 
 # static
+
 * 修饰静态类、类成员方法、类成员变量以及 static 静态代码块
 * 不能修饰局部变量
 

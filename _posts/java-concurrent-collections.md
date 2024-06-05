@@ -85,69 +85,74 @@ TransferQueue
 ```java
 import java.util.concurrent.BlockingQueue;
 
+// 阻塞队列
+public interface BlockingQueue<E> extends Queue<E> {
 
-BlockingQueue<E>  // 阻塞队列
+    boolean offer(E element, long time, TimeUnit unit) throws InterruptedException;
+    // 添加给定元素，成功则返回 true，队列满时返回 false
+    // 必要时阻塞，直至元素已经被添加，或添加操作超时
 
+    void put(E element);  // 添加元素，在必要时阻塞
 
-void put(E element)  // 添加元素，在必要时阻塞
+    E take()  // 移除并返回头元素，必要时阻塞
 
-boolean offer(E element, long time, TimeUnit unit)
-// 添加给定元素，成功则返回 true，队列满时返回 false
-// 必要时阻塞，直至元素已经被添加，或添加操作超时
+    E poll(long time, TimeUnit unit)
+    // 移除并返回队列头元素
+    // 必要时阻塞，直至元素可用，或移除操作超时
+    // 失败时返回 null
 
-E poll(long time, TimeUnit unit)
-// 移除并返回队列头元素
-// 必要时阻塞，直至元素可用，或移除操作超时
-// 失败时返回 null
-
-E take()  // 移除并返回头元素，必要时阻塞
+    ...
+}
 ```
 
 
 ```java
 import java.util.concurrent.BlockingDeque;
 
+// 双向阻塞队列
+public interface BlockingDeque<E> extends BlockingQueue<E>, Deque<E> {
 
-BlockingDeque<E>  // 双向阻塞队列
+    void putFirst(E element);
+    void putLast(E element);
+    // 添加元素，必要时阻塞
 
+    boolean offerFirst(E element, long time, TimeUnit unit);
+    boolean offerLast(E element, long time, TimeUnit unit);
+    // 添加给定元素，成功时返回 true，队列满时返回 false
+    // 必要时阻塞，直至元素被添加，或添加操作超时
 
-void putFirst(E element)
-void putLast(E element)
-// 添加元素，必要时阻塞
+    E pollFirst(long time, TimeUnit unit);
+    E pollLast(long time, TimeUnit unit);
+    // 移除并返回头元素或尾元素
+    // 必要时阻塞，直至元素可用，或移除操作超时
+    // 失败时返回 null
 
-boolean offerFirst(E element, long time, TimeUnit unit)
-boolean offerLast(E element, long time, TimeUnit unit)
-// 添加给定元素，成功时返回 true，队列满时返回 false
-// 必要时阻塞，直至元素被添加，或添加操作超时
+    E takeFirst();  // 移除并返回头元素，必要时阻塞
+    E takeLast();  // 移除并返回尾元素，必要时阻塞
 
-E pollFirst(long time, TimeUnit unit)
-E pollLast(long time, TimeUnit unit)
-// 移除并返回头元素或尾元素
-// 必要时阻塞，直至元素可用，或移除操作超时
-// 失败时返回 null
-
-E takeFirst()  // 移除并返回头元素，必要时阻塞
-E takeLast()  // 移除并返回尾元素，必要时阻塞
+    ...
+}
 ```
 
 ```java
 import java.util.concurrent.TransferQueue;
 
 
-TransferQueue<E>
+public interface TransferQueue<E> extends BlockingQueue<E> {
 
-/**
- * 传输一个值，或尝试在给定时间内传输这个值
- * 阻塞至另一线程将元素删除
- */
-void transfer(E element)
+    /**
+     * 传输一个值，或尝试在给定时间内传输这个值
+     * 阻塞至另一线程将元素删除
+     */
+    void transfer(E element);
 
-/**
- * 尝试在给定时间内传输这个值
- * 阻塞至另一线程将元素删除
- * 调用成功时返回 true
- */
-boolean tryTransfer(E element, long time, TimeUnit unit)
+    /**
+     * 尝试在给定时间内传输这个值
+     * 阻塞至另一线程将元素删除
+     * 调用成功时返回 true
+     */
+    boolean tryTransfer(E element, long time, TimeUnit unit);
+}
 ```
 
 
@@ -158,10 +163,14 @@ boolean tryTransfer(E element, long time, TimeUnit unit)
 ```java
 package java.util.concurrent;
 
-class ArrayBlockingQueue {
+public class ArrayBlockingQueue<E> extends AbstractQueue<E>
+        implements BlockingQueue<E>, java.io.Serializable {
 
-    Condition notEmpty;
-    Condition notFull;
+    ...
+
+    final ReentrantLock lock;
+    private final Condition notEmpty;
+    private final Condition notFull;
 
     ArrayBlockingQueue<E>(int capacity)  {  // 默认情况下不保证线程的公平（先阻塞的线程不一定先获得机会访问队列）
         this(capacity, false);
@@ -353,7 +362,7 @@ class SynchronousQueue {
 
 JDK `concurrent` 包下还有许多线程安全的集合类，使用起来跟普通的名字对应的集合类几乎没有区别。
 
-它们的使用特点是：size 操作不必在常量时间内操作
+它们的使用特点是：`size()` 不必在常量时间内操作
 * 确定集合的当前大小需要遍历
 * 集合返回弱一致性（weak consistent）的迭代器，因此不一定反映出构造后所有的修改
 * 不会抛出 ConcurrentModificationException
@@ -607,11 +616,13 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V> implements Concurre
 ![](java-concurrent-collections/concurrenthashmap-class-diagram.png)
 
 * `Segment`：继承 ReentrantLock 充当锁的角色，每个 Segment 对象通过数组维护一个键值对的链表；
-    * 一个 Segment 的结构和一个 HashMap 是差不多的
-* `HashEntry`：键值对，map 的基本存储单元。
+    * 一个 Segment 的结构和一个 HashMap 是差不多的；
+    * 因此 Segment 为**分段锁**的实现
+* `HashEntry`：键值对，map 的基本存储单元
     * 要对 HashEntry 进行修改的话，需要先获取管理它的 Segment 的同步状态
 
-每个 ConcurrentHashMap 对象维护一个 Segment 数组，每个 Segment 对象扩展一个可重入锁，分别只锁对应散列值的数据，一定程度上提高了并发效率。  
+每个 ConcurrentHashMap 对象维护一个 Segment 数组，每个 Segment 对象扩展一个可重入锁，分别只锁对应散列值的数据，一定程度上提高了并发效率。
+
 基本层级如下：
 
 ![](java-concurrent-collections/concurrenthashmap-structure.png)
@@ -793,10 +804,16 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V> implements Concurre
 
 ### Since Java 8 的实现
 
-放弃了分段锁，改用 Node + CAS + synchronized 保证并发安全。
-* 取消了 Segment，直接用原 Segment 类中的 table **数组**存储键值对。
-* 同一个桶中的 Node（键值对）的组织形式会经历从**链表**到**红黑树**的转变：
-    * 当 HashEntry 对象组成的链表长度超过 TREEIFY_THRESHOLD 时：链表转换为红黑树
+与 Java 7 最大的一点不同，是 Java 8 的 ConcurrentHashMap **放弃了分段锁的实现 Segment**，改用 Node + CAS + `synchronized` 保证并发安全：
+
+直接用原 Segment 类中的 **table 数组**存储键值对；
+
+* 如果定位到 table 数组上的 Node 为空，则采用 **CAS** 操作写入数据；
+* 如果不为空，则使用 `synchronized` 锁住**链表头节点**再写入数据。
+
+同一个桶里面 HashEntry 的 Node（键值对）的组织形式会经历从**链表**到**红黑树**的转变：
+* 当 HashEntry 对象组成的链表长度超过 TREEIFY_THRESHOLD 时：链表转换为红黑树；
+* 更像是 Java 8 中的 HashMap 实现
 
 ![](java-concurrent-collections/concurrenthashmap-new-structure.png)
 
@@ -807,7 +824,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V> implements Concurre
 首先我们要明确，插入数据的性能损耗点，在于**扩容操作**和**锁的争夺**。
 
 第一，通过配置合理的容量大小和扩容因子，尽可能减少扩容的发生；  
-第二，通过 ConcurrentHashMap 的 spread() 进行预处理，将存在 hash 冲突的数据放到一个组中，每个组使用单线程进行 put 操作，从而保证锁停留在偏向锁级别，不会升级。
+第二，通过 ConcurrentHashMap 的 `spread()` 进行预处理，将存在 hash 冲突的数据放到一个组中，每个组使用单线程 `put()`，从而保证锁停留在偏向锁级别，不会升级。
 
 <br/>
 
@@ -890,6 +907,7 @@ public E get(int index) {
 ```
 
 类似的实现：`CopyOnWriteArraySet`
+
 ```java
 // 添加元素：调用 CopyOnWriteArrayList 的 addIfAbsent()
 public boolean addIfAbsent(E e) {

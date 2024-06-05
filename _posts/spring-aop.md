@@ -89,11 +89,11 @@ AOP 的实现主要有两个方向：
 
 既然是“面向切面编程”，我们先来聊聊“切面”。
 
-<big>**切面**</big>（**Aspect**）是一个总的概念，阐述的是在什么时候（When），什么地方（Where）执行什么样的代码（What）。
+**<big>切面</big>**（**Aspect**）是一个总的概念，阐述的是在什么时候（When），什么地方（Where）执行什么样的代码（What）。
 
 切面由以下几个概念点组成：
 
-**1**. <big>**增强 Advice**</big>
+**1**. **<big>增强 Advice</big>**
 
 Advice 定义了切面当中的方法，以及声明了 Advice 方法在目标（Target）业务层的执行位置。  
 也就是说，Advice 定义好了 What（切入后进行的行为）和 When（切面切入时机）。
@@ -111,7 +111,7 @@ Advice 定义了切面当中的方法，以及声明了 Advice 方法在目标�
 
 具体到代码中的话，可以将 Join Point 理解为目标对象中的具体方法。
 
-**2**. <big>**切入点 Pointcut**</big>
+**2**. **<big>切入点 Pointcut</big>**
 
 切入点定义了 Where，即选择在某一个**确定的连接点 Join Point** —— 确定在哪些类、哪些方法上进行切入。
 
@@ -125,17 +125,17 @@ Advice 定义了切面当中的方法，以及声明了 Advice 方法在目标�
 
 除了切面的概念之外，其它概念包括：
 
-<big>**织入 Weaving**</big>
+**<big>织入 Weaving</big>**
 
 织入指的是根据切面的定义，将相应的 advice 加入到切面 pointcut 指定的 join points，并创造出代理对象的过程。
 
 织入由代理完成。
 
-<big>**目标对象 Target**</big>
+**<big>目标对象 Target</big>**
 
 被一个或多个切面增强的对象，因此也被称为“被增强对象”。它永远是一个被代理对象。
 
-<big>**引入 Introduction**</big>
+**<big>引入 Introduction</big>**
 
 相对于切面只是针对指定方向的增强，引入可以针对类进行增强，为其动态添加**新的方法或域**。
 

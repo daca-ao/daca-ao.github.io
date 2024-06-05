@@ -24,7 +24,7 @@ Service 的定义：
 
     An abstract way to expose an application running on a set of Pods as a network service.
 
-Service 的职责：与每个 node 的 kube-proxy 进程相结合，**提供固定的 IP 和端口**，在将数据包分发到相应服务节点时充当代理，进行负载均衡。
+Service 的职责：与每个 node 的 [kube-proxy](/2022/05/18/kubernetes-overview#kube-proxy) 进程相结合，**提供固定的 IP 和端口**，在将数据包分发到相应服务节点时充当代理，进行负载均衡。
 
 工作原理：根据 service 的每个 pod 所设置的标签 label
 
@@ -35,8 +35,11 @@ Service 的职责：与每个 node 的 kube-proxy 进程相结合，**提供固�
   * endpoints 所有 IP 和 pod 的端口通过 service controller 和 endpoints controller 共同选择并配置完成
   * 如果某个 pod 出现故障，脱离服务集群，它的 IP 会自动在 endpoints 中被移除
   * 如 serviceSelector 匹配到新的 pod，则 pod 的 IP 会自动加入各自对应的 endpoints 对象中
-* kube-proxy 通过 iptables / ipvs 为每一个 service 对象实现固定的 IP，称之为 VIP 或者 `cluster IP`
 * Service 的信息会通过 apiserver 存入 etcd 中
+
+kube-proxy 通过 iptables / ipvs 为每一个 service 对象实现固定的 IP，称之为 VIP 或者 `cluster IP`。
+
+在 Kubernetes v1.0 版本，Service 是 **4 层**（TCP / UDP over IP）概念，从 Kubernetes v1.1 新增 Ingress API，用来表示 7 层服务。
 
 <small>注：`iptables-save` 指令可以查看 iptables。</small>
 
@@ -181,10 +184,11 @@ ExternalName 与 ClusterIP 的 Headless Service **同属 Headless Service**，Ku
 
 # 服务发现
 
+Kubernetes 支持两种基本的服务发现模式：
+
 DNS：默认形式
-* 可在集群中部署 CoreDNS 服务（旧版本 Kubernetes 使用的是 kubeDNS），让集群内部的 pod 通过 DNS 方式实现集群内部各个服务之间的通信
+* 可在集群中部署 [CoreDNS](/2022/05/18/kubernetes-overview#CoreDNS) 服务（旧版本 Kubernetes 使用的是 kubeDNS），让集群内部的 pod 通过 DNS 方式实现集群内部各个服务之间的通信
 
 环境变量
 * pod 创建完成后，kubelet 会在该 pod 中注册该集群已创建的所有 service 相关的环境变量
 * 注意：service 创建之前的所有 pod 并不会注册该环境变量
-
