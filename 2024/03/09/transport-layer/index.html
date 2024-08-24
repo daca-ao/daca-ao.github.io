@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/flow-control.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/congestion-handling.png">
 <meta property="article:published_time" content="2024-03-09T15:53:04.000Z">
-<meta property="article:modified_time" content="2024-06-22T18:12:02.008Z">
+<meta property="article:modified_time" content="2024-08-24T11:29:57.515Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta property="article:tag" content="TCP">
@@ -815,62 +815,62 @@ mjx-container[display="true"] + br {
 <p>滑动窗口协议利用报头中<strong>窗口</strong>字段实现流量控制。</p>
 <p>在流量控制的过程中，接收窗口又称为“通知窗口（Advertised Windows）”</p>
 <ul>
-<li>接收端根据接收能力选择合适的接收窗口（<code>rwnd</code>, receiving window）值，将其写入 TCP 报头</li>
-<li>将当前接收端的接收状态通知发送端</li>
-<li>发送端的发送窗口不能超过接收窗口的数值</li>
+<li>接收端根据自身接收能力，选择合适的接收窗口（<code>rwnd</code>, receiving window）值，将其写入 TCP 报头；</li>
+<li>接收端返回时，会将当前接收端的接收状态通知发送端；</li>
+<li>确定之后，发送端的发送窗口不能超过接收窗口的数值；</li>
+<li>rwnd 数值单位为字节，而不是报文段</li>
 </ul>
-<p>rwnd 数值单位为字节，而不是报文段</p>
-<ul>
-<li>接收端应用进程从缓存中读取字节的速度 ≧ 字节到达速度：接收端需要在每个确认（ACK）中发送“非零窗口”通告（rwnd &gt; 0）</li>
-<li>发送端发送速度 &gt; 接收端消费速度：缓冲区被全部占用，后到达字节因缓冲区溢出而丢弃</li>
-<li>接收端必须发出“零窗口”通知（rwnd = 0）</li>
-<li>发送端接收到“零窗口”通知后：停止发送，直至下一次接收到接收端的“非零窗口”为止</li>
-</ul>
+<h3 id="边界情况"><a href="#边界情况" class="headerlink" title="边界情况"></a>边界情况</h3><p>如接收端应用进程从缓存中读取字节的速度 ≧ 字节到达速度：接收端需要在每个返回的确认（ACK）中发送“非零窗口”通告（rwnd &gt; 0）。</p>
+<p>如果发送端发送速度 &gt; 接收端消费速度：缓冲区被全部占用，后到达字节因缓冲区溢出而丢弃；</p>
+<p>此时接收端必须发出“<strong>零窗口</strong>”通知（rwnd = 0），发送端接收到“零窗口”通知后会停止发送，直至下一次接收到接收端的“非零窗口”为止。</p>
 <p><img src="/2024/03/09/transport-layer/flow-control.png" alt></p>
-<p>如上图，接收方确定的 rwnd = 400，假设每次发送方每次发送报文段的长度为 100 字节</p>
-<p>坚持计时器（Persistence Timer）<br>如果下一个非零窗口通告丢失：发送端无休止等待接收端通知——陷入死锁</p>
+<p>如上图，接收方确定的 rwnd = 400，假设每次发送方每次发送报文段的长度为 100 字节。</p>
+<h3 id="坚持计时器（Persistence-Timer）"><a href="#坚持计时器（Persistence-Timer）" class="headerlink" title="坚持计时器（Persistence Timer）"></a>坚持计时器（Persistence Timer）</h3><p>通信的稳定性是双向的，如果接收端不稳定，下一个非零窗口通告丢失了，则发送端会无休止等待接收端通知，从而陷入死锁。</p>
+<p>因此坚持计时器的意义在于：</p>
 <ul>
-<li>当发送端 TCP 接收到一个零窗口通知时：启动坚持计时器</li>
-<li>当计时器时间到：发送端 TCP 发送一个零窗口探测报文</li>
-<li>提示接收端：非零窗口通知丢失，需要重传</li>
+<li>当发送端 TCP 接收到一个零窗口通知时：启动坚持计时器；</li>
+<li>当计时器时间到：发送端 TCP 发送一个零窗口探测报文，提示接收端：非零窗口通知丢失，需要重传；</li>
 <li>其值设置为重传时间的数值，最大为 60 秒</li>
 <li>如发出的第一个零窗口探测报文没收到应答：继续发送，直到收到非零窗口为止</li>
 </ul>
-<p>流量控制的传输效率问题</p>
-<ul>
-<li>发送端应用进程将数据传送到 TCP 协议的发送缓存后：控制全传输任务就由 TCP 协议承担</li>
+<h3 id="流量控制的传输效率"><a href="#流量控制的传输效率" class="headerlink" title="流量控制的传输效率"></a>流量控制的传输效率</h3><ul>
+<li>发送端应用进程将数据传送到 TCP 协议的发送缓存后，控制全传输任务就由 TCP 协议承担</li>
 <li>TCP 协议必须注意解决好“何时”发送“多长报文段”</li>
-<li>问题复杂：受到应用进程产生数据的速度与接收端发送能力限制</li>
 </ul>
+<p>这是个复杂的问题：受到应用进程产生数据的速度与接收端发送能力限制。</p>
 <p>极端情况：每次只发送一个字节</p>
 <ul>
-<li>IP 分组共 41 字节——1 + 20字节 TCP 报头 + 20 字节 IP 报头</li>
-<li>接收端接收后没有数据发送，也要立即返回一个 40 字节的确认分组（20字节 TCP 报头 + 20 字节 IP 报头）</li>
+<li>IP 分组共 41 字节，包括：1 + 20 字节 TCP 报头 + 20 字节 IP 报头</li>
+<li>接收端接收后没有数据发送，也要立即返回一个 40 字节的确认分组（20 字节 TCP 报头 + 20 字节 IP 报头）</li>
 <li>接收端向发送端发出窗口更新报文，通知将窗口前移 1 个字节（40 字节）</li>
 <li>发送端发送一个字节的数据（41 字节）</li>
-<li>则：输入一个字符需要发送 162 字节的 4 个报文段——资源浪费</li>
+<li>则：输入一个字符需要发送 162 字节的 4 个报文段，这是大大的资源浪费</li>
 </ul>
 <p>采用 Nagle 算法提高效率：</p>
 <ul>
 <li>当数据以每次 1 字节进入发送端：第一次只发送 1 字节，其它字节存入缓存区</li>
-<li>第一个报文段符合时，再将缓存中的数据（不止 1 字节）放在第二个报文段中发出去</li>
-<li>一边发送等待应答；一边缓存待发送数据</li>
+<li>第一个报文段符合时，再将缓存中的数据（不止 1 字节）放在第二个报文段中发出去，一边发送等待应答；一边缓存待发送数据</li>
 <li>当缓存的数据字节数达到发送窗口的 1/2 或接近最大报文段长度 MSS 时：立即发送</li>
 </ul>
-<p>另一种情况：糊涂窗口综合征（Silly Windows Syndrome）</p>
+<p>另一种极端情况：糊涂窗口综合征（Silly Windows Syndrome）</p>
 <ul>
 <li>假设 TCP 接收缓存已满，应用进程每次只从接收缓存读取 1 字节</li>
 <li>接收端缓存腾空 1 字节，并向发送端发出确认报文，且将接收窗口设为 1</li>
 <li>发送端发送的确认报文长度为 40 字节</li>
 <li>随后发送端发送一个字节的数据（41 字节）</li>
-<li>解决方法：禁止接收端发送只有 1 字节的窗口更新报文</li>
-<li>让接收端等待一段时间至接收缓存有足够空间接收一个最大长度的报文段，或缓冲区空出一半，再发送窗口更新报文<br>即：发送端不要发送太小的报文段，接收端的 rwnd 不能太小</li>
 </ul>
-<h2 id="TCP-滑动窗口与拥塞控制"><a href="#TCP-滑动窗口与拥塞控制" class="headerlink" title="TCP 滑动窗口与拥塞控制"></a>TCP 滑动窗口与拥塞控制</h2><p>拥塞控制：用于防止过多报文进入网络而造成的路由器与链路过载<br>注意：</p>
+<p>解决方法：禁止接收端发送只有 1 字节的窗口更新报文</p>
 <ul>
-<li>流量控制：重点在点-点链路的通信量的局部控制上</li>
-<li>拥塞控制：重点在进入网络报文总量的全局控制上<br>流量控制可以很好地解决发送端与接收端之间的端-端报文发送和处理速度的协调，但无法控制进入网络的总体流量。<br>随着网络流量增加，网络通信负荷过重，引起报文传输延时增大或丢弃，报文的差错确认又会加剧网络拥塞</li>
+<li>让接收端等待一段时间至接收缓存有足够空间接收一个最大长度的报文段，或缓冲区空出一半，再发送窗口更新报文</li>
 </ul>
+<p>即：发送端不要发送太小的报文段，接收端的 rwnd 不能太小</p>
+<h2 id="TCP-滑动窗口与拥塞控制"><a href="#TCP-滑动窗口与拥塞控制" class="headerlink" title="TCP 滑动窗口与拥塞控制"></a>TCP 滑动窗口与拥塞控制</h2><p>拥塞控制用于防止过多报文进入网络，从而造成路由器与链路过载。</p>
+<p>我们在这里区分一下刚学的两个名词：</p>
+<ul>
+<li>流量控制：重点在点 - 点链路的通信量的局部控制上</li>
+<li>拥塞控制：重点在进入网络报文总量的全局控制上</li>
+</ul>
+<p>流量控制可以很好地解决发送端与接收端之间的端-端报文发送和处理速度的协调，但无法控制进入网络的总体流量。<br>随着网络流量增加，网络通信负荷过重，引起报文传输延时增大或丢弃，报文的差错确认又会加剧网络拥塞</p>
 <p>网络出现拥塞的条件：对网络资源的需求总和 &gt; 网络可用资源<br>例：某段时间用户对某类资源要求过高——造成拥塞</p>
 <ul>
 <li>链路带宽 100 M，连接在该链路上的 100 台计算机要求以 10 M 的速度发送数据</li>
@@ -1246,7 +1246,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%B1%82%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.</span> <span class="nav-text">传输层与传输层协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%AE%9E%E4%BD%93"><span class="nav-number">1.1.</span> <span class="nav-text">传输实体</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UDP"><span class="nav-number">2.</span> <span class="nav-text">UDP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UDP-%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">UDP 头结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.2.</span> <span class="nav-text">适用的应用场景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TCP"><span class="nav-number">3.</span> <span class="nav-text">TCP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">TCP 头结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E5%92%8C%E9%87%8A%E6%94%BE%EF%BC%9A%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B"><span class="nav-number">3.3.</span> <span class="nav-text">TCP 连接建立和释放：三次握手与四次挥手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%8D%8F%E8%AE%AE%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E7%A1%AE%E8%AE%A4%E9%87%8D%E4%BC%A0%E6%9C%BA%E5%88%B6"><span class="nav-number">3.4.</span> <span class="nav-text">TCP 协议滑动窗口与确认重传机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%AD%97%E8%8A%82%E6%B5%81%E7%8A%B6%E6%80%81%E5%88%86%E7%B1%BB"><span class="nav-number">3.4.1.</span> <span class="nav-text">传输字节流状态分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E7%AA%97%E5%8F%A3%E4%B8%8E%E5%8F%AF%E7%94%A8%E7%AA%97%E5%8F%A3"><span class="nav-number">3.4.2.</span> <span class="nav-text">发送窗口与可用窗口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BB%91%E5%8A%A8%E5%8F%91%E9%80%81%E7%AA%97%E5%8F%A3"><span class="nav-number">3.4.3.</span> <span class="nav-text">滑动发送窗口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E9%87%8D%E4%BC%A0%E7%AD%96%E7%95%A5"><span class="nav-number">3.4.4.</span> <span class="nav-text">选择重传策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%8D%8F%E8%AE%AE%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6"><span class="nav-number">3.5.</span> <span class="nav-text">TCP 协议滑动窗口与流量控制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6"><span class="nav-number">3.6.</span> <span class="nav-text">TCP 滑动窗口与拥塞控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%A5%E5%A1%9E%E5%A4%84%E7%90%86-congestion-handling"><span class="nav-number">3.6.1.</span> <span class="nav-text">拥塞处理(congestion handling)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95"><span class="nav-number">3.6.2.</span> <span class="nav-text">拥塞控制算法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E5%8D%95%E5%85%83-Socket"><span class="nav-number">4.</span> <span class="nav-text">通信单元 Socket</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E6%A0%87%E8%AF%86%E6%96%B9%E6%B3%95%EF%BC%9A%E7%AB%AF%E5%8F%A3%E5%8F%B7"><span class="nav-number">5.</span> <span class="nav-text">进程标识方法：端口号</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E9%87%8D%E5%8D%8F%E8%AE%AE%E7%9A%84%E8%AF%86%E5%88%AB"><span class="nav-number">6.</span> <span class="nav-text">多重协议的识别</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%B1%82%E4%B8%8E%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.</span> <span class="nav-text">传输层与传输层协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%AE%9E%E4%BD%93"><span class="nav-number">1.1.</span> <span class="nav-text">传输实体</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UDP"><span class="nav-number">2.</span> <span class="nav-text">UDP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UDP-%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">UDP 头结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.2.</span> <span class="nav-text">适用的应用场景</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TCP"><span class="nav-number">3.</span> <span class="nav-text">TCP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">TCP 头结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E5%92%8C%E9%87%8A%E6%94%BE%EF%BC%9A%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E4%B8%8E%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B"><span class="nav-number">3.3.</span> <span class="nav-text">TCP 连接建立和释放：三次握手与四次挥手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%8D%8F%E8%AE%AE%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E7%A1%AE%E8%AE%A4%E9%87%8D%E4%BC%A0%E6%9C%BA%E5%88%B6"><span class="nav-number">3.4.</span> <span class="nav-text">TCP 协议滑动窗口与确认重传机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%AD%97%E8%8A%82%E6%B5%81%E7%8A%B6%E6%80%81%E5%88%86%E7%B1%BB"><span class="nav-number">3.4.1.</span> <span class="nav-text">传输字节流状态分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E9%80%81%E7%AA%97%E5%8F%A3%E4%B8%8E%E5%8F%AF%E7%94%A8%E7%AA%97%E5%8F%A3"><span class="nav-number">3.4.2.</span> <span class="nav-text">发送窗口与可用窗口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BB%91%E5%8A%A8%E5%8F%91%E9%80%81%E7%AA%97%E5%8F%A3"><span class="nav-number">3.4.3.</span> <span class="nav-text">滑动发送窗口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E9%87%8D%E4%BC%A0%E7%AD%96%E7%95%A5"><span class="nav-number">3.4.4.</span> <span class="nav-text">选择重传策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E5%8D%8F%E8%AE%AE%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6"><span class="nav-number">3.5.</span> <span class="nav-text">TCP 协议滑动窗口与流量控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%B9%E7%95%8C%E6%83%85%E5%86%B5"><span class="nav-number">3.5.1.</span> <span class="nav-text">边界情况</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%9A%E6%8C%81%E8%AE%A1%E6%97%B6%E5%99%A8%EF%BC%88Persistence-Timer%EF%BC%89"><span class="nav-number">3.5.2.</span> <span class="nav-text">坚持计时器（Persistence Timer）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E7%9A%84%E4%BC%A0%E8%BE%93%E6%95%88%E7%8E%87"><span class="nav-number">3.5.3.</span> <span class="nav-text">流量控制的传输效率</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E4%B8%8E%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6"><span class="nav-number">3.6.</span> <span class="nav-text">TCP 滑动窗口与拥塞控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%A5%E5%A1%9E%E5%A4%84%E7%90%86-congestion-handling"><span class="nav-number">3.6.1.</span> <span class="nav-text">拥塞处理(congestion handling)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95"><span class="nav-number">3.6.2.</span> <span class="nav-text">拥塞控制算法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E5%8D%95%E5%85%83-Socket"><span class="nav-number">4.</span> <span class="nav-text">通信单元 Socket</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E6%A0%87%E8%AF%86%E6%96%B9%E6%B3%95%EF%BC%9A%E7%AB%AF%E5%8F%A3%E5%8F%B7"><span class="nav-number">5.</span> <span class="nav-text">进程标识方法：端口号</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E9%87%8D%E5%8D%8F%E8%AE%AE%E7%9A%84%E8%AF%86%E5%88%AB"><span class="nav-number">6.</span> <span class="nav-text">多重协议的识别</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
