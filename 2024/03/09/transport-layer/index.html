@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/flow-control.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/congestion-handling.png">
 <meta property="article:published_time" content="2024-03-09T15:53:04.000Z">
-<meta property="article:modified_time" content="2024-08-24T11:29:57.515Z">
+<meta property="article:modified_time" content="2024-09-01T14:33:30.521Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta property="article:tag" content="TCP">
@@ -859,27 +859,31 @@ mjx-container[display="true"] + br {
 <li>发送端发送的确认报文长度为 40 字节</li>
 <li>随后发送端发送一个字节的数据（41 字节）</li>
 </ul>
-<p>解决方法：禁止接收端发送只有 1 字节的窗口更新报文</p>
-<ul>
-<li>让接收端等待一段时间至接收缓存有足够空间接收一个最大长度的报文段，或缓冲区空出一半，再发送窗口更新报文</li>
-</ul>
-<p>即：发送端不要发送太小的报文段，接收端的 rwnd 不能太小</p>
+<p>解决方法：禁止接收端发送只有 1 字节的窗口更新报文；而是让接收端等待一段时间至接收缓存有足够空间接收一个最大长度的报文段，或缓冲区空出一半，再发送窗口更新报文。</p>
+<p>也就是说，发送端不要发送太小的报文段，接收端的 rwnd 不能太小</p>
 <h2 id="TCP-滑动窗口与拥塞控制"><a href="#TCP-滑动窗口与拥塞控制" class="headerlink" title="TCP 滑动窗口与拥塞控制"></a>TCP 滑动窗口与拥塞控制</h2><p>拥塞控制用于防止过多报文进入网络，从而造成路由器与链路过载。</p>
 <p>我们在这里区分一下刚学的两个名词：</p>
 <ul>
-<li>流量控制：重点在点 - 点链路的通信量的局部控制上</li>
-<li>拥塞控制：重点在进入网络报文总量的全局控制上</li>
+<li>流量控制：重点在<strong>点 - 点链路</strong>的通信量的局部控制上</li>
+<li>拥塞控制：重点在进入网络<strong>报文总量</strong>的全局控制上</li>
 </ul>
-<p>流量控制可以很好地解决发送端与接收端之间的端-端报文发送和处理速度的协调，但无法控制进入网络的总体流量。<br>随着网络流量增加，网络通信负荷过重，引起报文传输延时增大或丢弃，报文的差错确认又会加剧网络拥塞</p>
-<p>网络出现拥塞的条件：对网络资源的需求总和 &gt; 网络可用资源<br>例：某段时间用户对某类资源要求过高——造成拥塞</p>
+<p>流量控制可以很好地解决发送端与接收端之间的端 - 端报文发送和处理速度的协调，但无法控制进入网络的总体流量。随着网络流量增加，网络通信负荷过重，引起报文传输延时增大或丢弃，报文的差错确认又会加剧网络拥塞。</p>
+<p>当网络出现拥塞时，对网络资源的需求总和 &gt; 网络可用资源。比如说，某段时间用户对某类资源要求过高，就会造成拥塞。</p>
+<p>比如某条链路带宽 100 M，对连接在该链路上的 100 台计算机的要求是：以不高于平均 10 M 的速度发送数据</p>
 <ul>
-<li>链路带宽 100 M，连接在该链路上的 100 台计算机要求以 10 M 的速度发送数据</li>
-<li>解决：升级链路带宽至 1 G</li>
-<li>某节点缓存容量过小 / 处理速度太慢，造成进入节点的大量报文不能及时被处理，不得不丢弃报文</li>
-<li>解决：升级主机，更换大容量缓存、高速处理器<br>——以上均不能根本上解决网络拥塞问题</li>
+<li>解决方法：升级链路带宽至 1 G</li>
 </ul>
+<p>又如某节点缓存容量过小 / 处理速度太慢，造成进入节点的大量报文不能及时被处理，不得不丢弃报文</p>
+<ul>
+<li>解决方法：升级主机，更换大容量缓存、高速处理器</li>
+</ul>
+<p>然而，以上均不能根本上解决网络拥塞问题。</p>
 <h3 id="拥塞处理-congestion-handling"><a href="#拥塞处理-congestion-handling" class="headerlink" title="拥塞处理(congestion handling)"></a>拥塞处理(congestion handling)</h3><p><img src="/2024/03/09/transport-layer/congestion-handling.png" alt></p>
-<p>负载（load）：单位时间进入网络的字节数<br>吞吐量（throughput）：单位时间内通过网络输出的字节数</p>
+<p>我们先来了解两个名词：</p>
+<ol>
+<li><strong>负载</strong>（<strong>load</strong>）：单位时间进入网络的字节数</li>
+<li><strong>吞吐量</strong>（<strong>throughput</strong>）：单位时间内通过网络输出的字节数</li>
+</ol>
 <ol>
 <li>未采取拥塞控制方法时：</li>
 </ol>
