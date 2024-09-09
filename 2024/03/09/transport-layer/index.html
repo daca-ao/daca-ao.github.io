@@ -42,7 +42,7 @@
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/flow-control.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/congestion-handling.png">
 <meta property="article:published_time" content="2024-03-09T15:53:04.000Z">
-<meta property="article:modified_time" content="2024-09-09T14:13:24.194Z">
+<meta property="article:modified_time" content="2024-09-09T14:28:33.050Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta property="article:tag" content="TCP">
@@ -903,30 +903,28 @@ mjx-container[display="true"] + br {
 <li>在负载增加过程中，限制进入网络的报文或丢弃部分报文，使吞吐量逐渐增长，而不出现下降和死锁现象</li>
 </ul>
 <p>由此可知，实现拥塞控制的前提，是<strong>网络能承受现有的网络负荷</strong>。</p>
-<h3 id="最基本手段：TCP-协议滑动窗口"><a href="#最基本手段：TCP-协议滑动窗口" class="headerlink" title="最基本手段：TCP 协议滑动窗口"></a>最基本手段：TCP 协议滑动窗口</h3><ul>
-<li>拥塞窗口（Congestion Window）：发送端根据网络拥塞情况确定的窗口值</li>
+<h3 id="最基本手段：TCP-协议滑动窗口"><a href="#最基本手段：TCP-协议滑动窗口" class="headerlink" title="最基本手段：TCP 协议滑动窗口"></a>最基本手段：TCP 协议滑动窗口</h3><p>我们将其定义为<strong>拥塞窗口</strong>（<strong>Congestion Window</strong>, cwnd），为发送端根据网络拥塞情况而确定的窗口值：</p>
+<ul>
 <li>发送端真正确定发送窗口时，应取“通知窗口”与“拥塞窗口”中的较小值</li>
-<li>接收端需要根据自己的接收能力给出一个合适的接收窗口 rwnd</li>
+<li>接收端需要根据自己的接收能力给出一个合适的接收窗口（Receiving Window, rwnd）</li>
 <li>从流量控制角度：发送窗口一定不能超过接收窗口</li>
 <li>发送窗口上限值 = Min(rwnd, cwnd)</li>
 <li>rwnd &gt; cwnd：拥塞窗口限制发送窗口的最大值</li>
 <li>rwnd &lt; cwnd：接收端接收能力限制发送窗口的最大值</li>
 <li>没有发生拥塞：接收端的通知窗口和拥塞窗口一致</li>
 </ul>
-<p>使用到的参数：</p>
+<p>使用到的参数如下：</p>
 <ul>
-<li>拥塞窗口（cwnd, <u>C</u>ongestion <u>W</u>i<u>nd</u>ow）:拥塞控制的关键参数，它描述源端在拥塞控制情况下一次最多能发送的数据包的数量</li>
-<li>通告窗口（awin）:接收端给源端预设的发送窗口大小，它只在 TCP 连接建立的初始阶段发挥作用</li>
-<li>发送窗口（win）:源端每次实际发送数据的窗口大小</li>
-<li>慢启动阈值（ssthresh）:拥塞控制中慢启动阶段和拥塞避免阶段的分界点。初始值通常设为 65535byte</li>
-<li>回路响应时间（RTT）:一个 TCP 数据包从源端发送到接收端，源端收到接收端确认的时间间隔</li>
-<li>超时重传计数器（RTO）:描述数据包从发送到失效的时间间隔，是判断数据包丢失与否及网络是否拥塞的重要参数。通常设为2RTT或5RTT</li>
-<li>快速重传阈值(tcprexmtthresh):：能触发快速重传的源端收到重复确认包 ACK 的个数。当此个数超过 tcprexmtthresh 时，网络就进入快速重传阶段。tcprexmtthresh 缺省值为3。</li>
+<li>拥塞窗口（cwnd, <u>C</u>ongestion <u>W</u>i<u>nd</u>ow）：拥塞控制的关键参数，它描述源端在拥塞控制情况下一次最多能发送的数据包的数量</li>
+<li>通告窗口（awin）：接收端给源端预设的发送窗口大小，它只在 TCP 连接建立的初始阶段发挥作用</li>
+<li>发送窗口（win）：源端每次实际发送数据的窗口大小</li>
+<li>慢启动阈值（ssthresh）：拥塞控制中慢启动阶段和拥塞避免阶段的分界点。初始值通常设为 65535byte</li>
+<li>回路响应时间（RTT）：一个 TCP 数据包从源端发送到接收端，源端收到接收端确认的时间间隔</li>
+<li>超时重传计数器（RTO）：描述数据包从发送到失效的时间间隔，是判断数据包丢失与否及网络是否拥塞的重要参数。通常设为 2RTT 或 5RTT</li>
+<li>快速重传阈值(tcprexmtthresh)：能触发快速重传的源端收到重复确认包 ACK 的个数。当此个数超过 tcprexmtthresh 时，网络就进入快速重传阶段。tcprexmtthresh 默认值为 3。</li>
 </ul>
-<h3 id="拥塞控制算法"><a href="#拥塞控制算法" class="headerlink" title="拥塞控制算法"></a>拥塞控制算法</h3><p>通过动态调节用户对网络资源的需求来保证网络系统的稳定运行</p>
-<ul>
-<li>1999 年 RFC 2581 对 TCP 协议规定了四种拥塞控制方法</li>
-</ul>
+<h3 id="拥塞控制算法"><a href="#拥塞控制算法" class="headerlink" title="拥塞控制算法"></a>拥塞控制算法</h3><p>通过应用不同的拥塞控制算法，动态调节用户对网络资源的需求，来保证网络系统的稳定运行。</p>
+<p>1999 年，RFC 2581 对 TCP 协议规定了四种拥塞控制方法：</p>
 <ol>
 <li>慢启动</li>
 <li>拥塞避免</li>
@@ -1001,7 +999,10 @@ mjx-container[display="true"] + br {
 <ul>
 <li>只要出现超时就将 ssthresh 减半——“乘法减小（Multiplicative Decrease）”算法</li>
 <li>开始执行拥塞避免，缓慢加一——“加法增大（Additive Increase）”算法</li>
-<li>合称 AIMD（Additive Increase Multiplicative Decrease）算法——加性增窗，乘性减窗<br>缺点：举例说明</li>
+<li>合称 AIMD（Additive Increase Multiplicative Decrease）算法——加性增窗，乘性减窗</li>
+</ul>
+<p>缺点：举例说明</p>
+<ul>
 <li>当发送端连续发送报文 M1 - M7，只有 M3 在传输过程中丢失，M4 - M7 都能正确接收</li>
 <li>此时不能根据一个 M3 的超时而简单判断网络出现拥塞</li>
 <li>替代方法：快重传 和 快恢复</li>
