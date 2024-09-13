@@ -42,8 +42,9 @@
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/flow-control.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/congestion-handling.png">
 <meta property="og:image" content="http://example.com/2024/03/09/transport-layer/congestion-avoidance.png">
+<meta property="og:image" content="http://example.com/2024/03/09/transport-layer/fast-retramsmit.png">
 <meta property="article:published_time" content="2024-03-09T15:53:04.000Z">
-<meta property="article:modified_time" content="2024-09-11T14:07:30.651Z">
+<meta property="article:modified_time" content="2024-09-13T13:43:45.025Z">
 <meta property="article:author" content="敖惠竣｜Ao Huijun, Raymond">
 <meta property="article:tag" content="计算机网络">
 <meta property="article:tag" content="TCP">
@@ -963,9 +964,9 @@ mjx-container[display="true"] + br {
 <li>cwnd = ssthresh：两种算法均可使用</li>
 <li>如 cwnd = 32 时出现超时：发送端可将 ssthresh 设置为：ssthresh = cwnd / 2 = 16</li>
 </ul>
-<p>拥塞避免（Congestion Avoidance）</p>
+<p>我们再来说说拥塞避免（Congestion Avoidance）</p>
 <ul>
-<li>（每增加一个往返就将 cwnd 加倍）改成每增加一个往返就将 cwnd 加一</li>
+<li>将“每增加一个往返就将 cwnd 加倍”改成每增加一个往返就将 cwnd 加一</li>
 <li>cwnd 呈线性增加，缓慢增长</li>
 <li>只要发现接收端没有按时返回确认：网络拥塞，将 ssthresh 值设为 cwnd / 2，并重新进入下一轮慢启动，即此时 cwnd = 1</li>
 </ul>
@@ -991,30 +992,26 @@ mjx-container[display="true"] + br {
 <li>此时不能根据一个 M3 的超时而简单判断网络出现拥塞</li>
 <li>替代方法：快重传 和 快恢复</li>
 </ul>
-<p>快重传（Fast Retransmit）<br>例：</p>
-<ul>
-<li>如接收端在正确接收 M1、M2 报文并返回确认，没有接收到 M3 报文，而是接收到 M4：<ul>
-<li>接收端不能对 M4 进行确认（M4 为乱序报文）</li>
-</ul>
-</li>
-<li>根据“快重传”算法规定：</li>
-<li>接收端应及时向发送端连续三次发出对 M2 的“重复确认”，要求发送端尽早重传未被确认的报文</li>
-</ul>
-<p>快恢复（Fast Recovery）：与快恢复算法配合<br>规定：</p>
+<p>再说说另外两种算法：快重传（Fast Retransmit）和快恢复（Fast Recovery）</p>
+<p>举例说明快重传：如接收端在正确接收 M1、M2 报文并返回确认，没有接收到 M3 报文，而是接收到 M4：</p>
+<pre><code>* 此时接收端不能对 M4 进行确认（M4 为乱序报文）
+</code></pre><p>根据快重传的算法规定，接收端应及时向发送端连续三次发出对 M2 的“重复确认”，要求发送端尽早重传未被确认的报文。</p>
+<p>快恢复与快恢复算法配合，规定如下：</p>
 <ol>
-<li>接收端收到第一个对 M2 的“重复确认”时：发送端立即将拥塞窗口 cwnd 设置为最大拥塞窗口值的 1/2 <ol>
+<li>接收端收到第一个对 M2 的“重复确认”时：发送端立即将拥塞窗口 cwnd 设置为最大拥塞窗口值的 1/2 <ul>
 <li>执行“拥塞避免”算法，cwnd 按照线性方式增长</li>
-</ol>
+</ul>
 </li>
-<li>接收端收到第二个对 M2 的“重复确认”时：发送端立即减小 cwnd<ol>
+<li>接收端收到第二个对 M2 的“重复确认”时：发送端立即减小 cwnd<ul>
 <li>执行“拥塞避免”算法，cwnd 按照线性方式增长</li>
-</ol>
+</ul>
 </li>
-<li>接收端收到第三个对 M2 的“重复确认”时：发送端立即减小 cwnd<ol>
+<li>接收端收到第三个对 M2 的“重复确认”时：发送端立即减小 cwnd<ul>
 <li>执行“拥塞避免”算法，cwnd 按照线性方式增长</li>
-</ol>
+</ul>
 </li>
 </ol>
+<p><img src="/2024/03/09/transport-layer/fast-retramsmit.png" alt></p>
 <h1 id="通信单元-Socket"><a href="#通信单元-Socket" class="headerlink" title="通信单元 Socket"></a>通信单元 Socket</h1><p>应用进程、传输层接口与套接字（socket）</p>
 <ul>
 <li>Handler in the communication chain. </li>
